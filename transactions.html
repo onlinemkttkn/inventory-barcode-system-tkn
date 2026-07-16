@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>ประวัติสต๊อก</title>
+  <link rel="stylesheet" href="./css/inventory.css">
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div><p class="eyebrow">PHASE 07</p><h1>ประวัติการเคลื่อนไหวสต๊อก</h1><p>ตรวจสอบเอกสารรับเข้าและเบิกจ่ายย้อนหลัง</p></div>
+    <div class="button-row"><a class="btn secondary" href="./dashboard.html">Dashboard</a><button id="refreshBtn" class="btn primary">รีเฟรช</button></div>
+  </header>
+
+  <section class="card">
+    <div class="grid-2">
+      <label class="field">ประเภทเอกสาร
+        <select id="typeFilter">
+          <option value="">ทั้งหมด</option>
+          <option value="RECEIVE">รับเข้า</option>
+          <option value="ISSUE">เบิก/จ่าย</option>
+        </select>
+      </label>
+      <label class="field">ค้นหา
+        <input id="searchInput" placeholder="เลขเอกสาร ผู้ขาย ผู้เบิก หรือเลขอ้างอิง">
+      </label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>วันที่</th><th>เลขเอกสาร</th><th>ประเภท</th><th>อ้างอิง</th><th>ผู้ขาย/ผู้เบิก</th><th>จำนวนรายการ</th><th>จำนวนรวม</th><th>ผู้บันทึก</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <p id="message" class="message"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js"></script>
+<script src="./js/inventory-common.js"></script>
+<script src="./js/transactions.js"></script>
+</body>
+</html>

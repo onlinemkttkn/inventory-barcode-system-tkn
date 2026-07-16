@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>เบิก/จ่ายสินค้า</title>
+  <link rel="stylesheet" href="./css/inventory.css">
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div><p class="eyebrow">PHASE 07</p><h1>เบิก/จ่ายสินค้า</h1><p>ค้นหาหรือสแกนสินค้า แล้วตัดยอดออกจากคลัง</p></div>
+    <div class="button-row"><a class="btn secondary" href="./dashboard.html">Dashboard</a><a class="btn secondary" href="./transactions.html">ประวัติ</a></div>
+  </header>
+
+  <section class="card">
+    <div class="grid-2">
+      <label class="field">ชื่อผู้เบิก<input id="requesterName" required></label>
+      <label class="field">แผนก<input id="department" placeholder="เช่น ฝ่ายขาย"></label>
+      <label class="field">เลขอ้างอิง<input id="referenceNo" placeholder="REQ-0001"></label>
+      <label class="field">หมายเหตุ<textarea id="notes" rows="2"></textarea></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>เพิ่มสินค้า</h2>
+    <form id="searchForm" class="search-row">
+      <input id="searchInput" placeholder="ชื่อสินค้า รหัสสินค้า หรือบาร์โค้ด" autocomplete="off">
+      <button class="btn primary" type="submit">ค้นหา</button>
+    </form>
+    <div id="results" class="results"></div>
+    <p id="searchMessage" class="message"></p>
+  </section>
+
+  <section class="card">
+    <h2>รายการเบิก</h2>
+    <div id="cartList" class="cart-list"></div>
+    <div class="summary">
+      <strong>รวม <span id="totalLines">0</span> รายการ / <span id="totalQty">0</span> หน่วย</strong>
+      <button id="saveBtn" class="btn danger" type="button">บันทึกการเบิก</button>
+    </div>
+    <p id="actionMessage" class="message"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js"></script>
+<script src="./js/inventory-common.js"></script>
+<script src="./js/issue.js"></script>
+</body>
+</html>
