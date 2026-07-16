@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>พิมพ์ป้ายสินค้า</title>
+  <link rel="stylesheet" href="./css/print-labels.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar no-print">
+      <div>
+        <p class="eyebrow">PHASE 06.4</p>
+        <h1>ระบบพิมพ์ป้ายสินค้าและเครื่องพิมพ์พกพา</h1>
+        <p>สำหรับใช้งานภายในองค์กร เลือกหลายสินค้าและกำหนดจำนวนสำเนาได้</p>
+      </div>
+      <button id="logoutBtn" class="btn muted hidden" type="button">ออกจากระบบ</button>
+    </header>
+
+    <section id="configWarning" class="notice warning hidden no-print"></section>
+
+    <section id="loginSection" class="panel no-print">
+      <h2>เข้าสู่ระบบ</h2>
+      <form id="loginForm" class="login-grid">
+        <label>อีเมล<input id="email" type="email" required></label>
+        <label>รหัสผ่าน<input id="password" type="password" required></label>
+        <button class="btn primary" type="submit">เข้าสู่ระบบ</button>
+      </form>
+      <p id="loginMessage" class="message"></p>
+    </section>
+
+    <section id="workspace" class="hidden">
+      <div class="workspace no-print">
+        <aside class="panel controls">
+          <h2>1. ค้นหาและเลือกสินค้า</h2>
+          <form id="searchForm" class="search-row">
+            <input id="searchInput" placeholder="ชื่อสินค้า / รหัส / บาร์โค้ด" autocomplete="off">
+            <button class="btn primary" type="submit">ค้นหา</button>
+          </form>
+          <p id="searchMessage" class="message"></p>
+          <div id="searchResults" class="results"></div>
+
+          <hr>
+
+          <h2>2. ตั้งค่าการพิมพ์</h2>
+
+          <label class="field">
+            รูปแบบกระดาษ
+            <select id="paperPreset">
+              <option value="label58">สติกเกอร์ 58 มม.</option>
+<option value="peripage57">PeriPage 57 มม.</option>
+<option value="portable50x30">เครื่องพกพา 50×30 มม.</option>
+<option value="portable40x30">เครื่องพกพา 40×30 มม.</option>
+              <option value="label80">สติกเกอร์ 80 มม.</option>
+              <option value="a4-40x30">A4 ป้าย 40 × 30 มม.</option>
+              <option value="a4-50x30">A4 ป้าย 50 × 30 มม.</option>
+              <option value="a4-70x40">A4 ป้าย 70 × 40 มม.</option>
+            </select>
+          </label>
+
+          <label class="field">
+            ประเภทโค้ด
+            <select id="codeMode">
+              <option value="barcode">Code128</option>
+              <option value="qr">QR Code</option>
+              <option value="both">Barcode + QR</option>
+            </select>
+          </label>
+
+          <label class="field">
+            ใช้ค่า Barcode จาก
+            <select id="barcodeSource">
+              <option value="barcode">บาร์โค้ดสินค้า</option>
+              <option value="product_code">รหัสสินค้า</option>
+            </select>
+          </label>
+
+          <label class="check"><input id="showName" type="checkbox" checked> ชื่อสินค้า</label>
+          <label class="check"><input id="showPrice" type="checkbox" checked> ราคาขาย</label>
+          <label class="check"><input id="showProductCode" type="checkbox" checked> รหัสสินค้า</label>
+          <label class="check"><input id="showBarcodeText" type="checkbox" checked> เลขใต้บาร์โค้ด</label>
+
+          <div class="action-grid">
+            <button id="previewBtn" class="btn primary" type="button">สร้างตัวอย่าง</button>
+            <button id="printBtn" class="btn danger" type="button">พิมพ์</button>
+<button id="downloadPngBtn" class="btn muted" type="button">ดาวน์โหลด PNG</button>
+<button id="sharePngBtn" class="btn muted" type="button">แชร์ไปแอปพิมพ์</button>
+            <button id="clearBtn" class="btn muted" type="button">ล้างรายการ</button>
+          </div>
+          <p id="actionMessage" class="message"></p>
+        </aside>
+
+        <section class="panel queue-panel">
+          <div class="section-title">
+            <div>
+              <h2>รายการรอพิมพ์</h2>
+              <p id="queueSummary">ยังไม่มีสินค้า</p>
+            </div>
+          </div>
+          <div id="printQueue" class="queue"></div>
+        </section>
+      </div>
+
+      <section class="panel preview-panel no-print">
+        <div class="section-title">
+          <div>
+            <h2>ตัวอย่างก่อนพิมพ์</h2>
+            <p>ตรวจสอบขนาด ชื่อ ราคา และจำนวนป้ายก่อนกดพิมพ์</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="printSheet" class="print-sheet preset-label58"></section>
+    </section>
+  </main>
+
+  <template id="queueItemTemplate">
+    <article class="queue-item">
+      <div class="queue-info">
+        <strong class="queue-name"></strong>
+        <small class="queue-detail"></small>
+      </div>
+      <label>จำนวน
+        <input class="copy-input" type="number" min="1" max="999" value="1">
+      </label>
+      <button class="btn remove-btn" type="button">นำออก</button>
+    </article>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.1/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="./js/supabase-config.js"></script>
+  <script src="./js/print-labels.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>ระบบสินค้าองค์กร</title>
+  <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">PHASE 06.5</p>
+        <h1>ศูนย์รวม Barcode และงานพิมพ์</h1>
+        <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
+      </div>
+      <button id="logoutBtn" class="btn secondary hidden" type="button">ออกจากระบบ</button>
+    </header>
+
+    <section id="configWarning" class="alert warning hidden"></section>
+
+    <section id="loginCard" class="card login-card">
+      <h2>เข้าสู่ระบบภายในองค์กร</h2>
+      <form id="loginForm" class="form-grid">
+        <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
+        <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
+        <button class="btn primary" type="submit">เข้าสู่ระบบ</button>
+      </form>
+      <p id="loginMessage" class="message"></p>
+    </section>
+
+    <section id="appArea" class="hidden">
+      <section class="stats-grid">
+        <article class="stat"><span>สินค้าทั้งหมด</span><strong id="totalProducts">-</strong></article>
+        <article class="stat"><span>สินค้าใกล้หมด</span><strong id="lowStock">-</strong></article>
+        <article class="stat"><span>สินค้าหมด</span><strong id="outStock">-</strong></article>
+        <article class="stat"><span>หมวดหมู่</span><strong id="totalCategories">-</strong></article>
+      </section>
+
+      <section class="menu-grid">
+        <a class="menu-card" href="./scanner.html">
+          <span class="icon">▦</span>
+          <h2>สแกนและค้นหา</h2>
+          <p>ใช้กล้องมือถือหรือเครื่องยิงบาร์โค้ดค้นหาสินค้า</p>
+        </a>
+        <a class="menu-card" href="./generator.html">
+          <span class="icon">▥</span>
+          <h2>สร้าง Barcode / QR</h2>
+          <p>สร้าง Code128 และ QR Code พร้อมดาวน์โหลด PNG</p>
+        </a>
+        <a class="menu-card" href="./print-labels.html">
+          <span class="icon">▤</span>
+          <h2>พิมพ์ป้ายสินค้า</h2>
+          <p>A4, 58/80 มม. และ PeriPage/เครื่องพิมพ์พกพา</p>
+        </a>
+        <button id="refreshBtn" class="menu-card button-card" type="button">
+          <span class="icon">↻</span>
+          <h2>รีเฟรชข้อมูล</h2>
+          <p>โหลดสถิติสินค้าและข้อมูลล่าสุดจาก Supabase</p>
+        </button>
+      </section>
+
+      <section class="card">
+        <div class="section-title">
+          <div>
+            <h2>สินค้าล่าสุด</h2>
+            <p>แสดงข้อมูลจากฐานกลาง Supabase</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>รหัส</th><th>สินค้า</th><th>บาร์โค้ด</th><th>คงเหลือ</th><th>สถานะ</th></tr></thead>
+            <tbody id="recentProducts"></tbody>
+          </table>
+        </div>
+        <p id="dashboardMessage" class="message"></p>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase-config.js"></script>
+  <script src="./js/dashboard.js"></script>
+</body>
+</html>

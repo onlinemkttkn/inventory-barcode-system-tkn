@@ -1,0 +1,10 @@
+{
+  "name": "ระบบ Barcode และงานพิมพ์ภายในองค์กร",
+  "short_name": "Barcode Hub",
+  "start_url": "./dashboard.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
+  "icons": []
+}

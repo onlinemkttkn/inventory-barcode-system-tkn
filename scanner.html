@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>สแกนและค้นหาสินค้า</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">PHASE 06</p>
+        <h1>สแกนบาร์โค้ดสินค้า</h1>
+        <p>ใช้กล้องมือถือหรือกรอกบาร์โค้ดเพื่อค้นหาสินค้าในฐานข้อมูลกลาง</p>
+      </div>
+      <button id="logoutBtn" class="button secondary hidden" type="button">ออกจากระบบ</button>
+    </header>
+
+    <section id="configWarning" class="alert warning hidden"></section>
+
+    <section id="loginSection" class="card">
+      <h2>เข้าสู่ระบบ</h2>
+      <form id="loginForm" class="form-grid">
+        <label>
+          อีเมล
+          <input id="email" type="email" autocomplete="username" required>
+        </label>
+        <label>
+          รหัสผ่าน
+          <input id="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="button primary" type="submit">เข้าสู่ระบบ</button>
+      </form>
+      <p id="loginMessage" class="message"></p>
+    </section>
+
+    <section id="scannerSection" class="hidden">
+      <div class="card">
+        <div class="section-heading">
+          <div>
+            <h2>กล้องสแกน</h2>
+            <p>กดเริ่มกล้อง แล้วนำบาร์โค้ดให้อยู่กลางกรอบ</p>
+          </div>
+          <span id="cameraStatus" class="status-pill">ยังไม่เปิดกล้อง</span>
+        </div>
+
+        <div class="scanner-frame">
+          <video id="video" playsinline muted></video>
+          <div class="scan-guide"></div>
+        </div>
+
+        <div class="button-row">
+          <button id="startScanBtn" class="button primary" type="button">เริ่มสแกน</button>
+          <button id="stopScanBtn" class="button danger" type="button" disabled>หยุดกล้อง</button>
+        </div>
+        <p class="hint">กล้องมือถือใช้งานได้เมื่อเปิดผ่าน HTTPS เช่น GitHub Pages</p>
+      </div>
+
+      <div class="card">
+        <h2>ค้นหาด้วยบาร์โค้ด</h2>
+        <form id="searchForm" class="search-row">
+          <input id="barcodeInput" inputmode="numeric" autocomplete="off"
+                 placeholder="กรอกหรือยิงบาร์โค้ด">
+          <button class="button primary" type="submit">ค้นหา</button>
+        </form>
+        <p id="searchMessage" class="message"></p>
+      </div>
+
+      <section id="productResult" class="card hidden" aria-live="polite">
+        <div class="product-header">
+          <div>
+            <span id="stockBadge" class="stock-badge"></span>
+            <h2 id="productName"></h2>
+            <p id="productCode" class="muted"></p>
+          </div>
+          <div id="productPrice" class="price"></div>
+        </div>
+
+        <dl class="product-grid">
+          <div><dt>บาร์โค้ด</dt><dd id="resultBarcode"></dd></div>
+          <div><dt>หมวดหมู่</dt><dd id="resultCategory"></dd></div>
+          <div><dt>หน่วย</dt><dd id="resultUnit"></dd></div>
+          <div><dt>คงเหลือ</dt><dd id="resultQuantity"></dd></div>
+          <div><dt>ราคาทุน</dt><dd id="resultCost"></dd></div>
+          <div><dt>สถานะสินค้า</dt><dd id="resultActive"></dd></div>
+        </dl>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+  <script src="./js/supabase-config.js"></script>
+  <script src="./js/scanner.js"></script>
+</body>
+</html>
