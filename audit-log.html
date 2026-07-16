@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Audit Log</title>
+  <link rel="stylesheet" href="./css/audit.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div>
+      <h1>ประวัติการใช้งานระบบ</h1>
+      <p>ตรวจสอบว่าใครทำอะไร เมื่อไร</p>
+    </div>
+    <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+  </header>
+
+  <section class="card grid">
+    <label>ประเภทข้อมูล
+      <select id="entityFilter">
+        <option value="">ทั้งหมด</option>
+        <option value="PRODUCT">สินค้า</option>
+        <option value="STOCK_DOCUMENT">รับเข้า/เบิกจ่าย</option>
+        <option value="TRANSFER_DOCUMENT">ใบโอน</option>
+        <option value="STOCK_COUNT">ตรวจนับ</option>
+      </select>
+    </label>
+
+    <label>การทำรายการ
+      <select id="actionFilter">
+        <option value="">ทั้งหมด</option>
+        <option value="CREATE">สร้าง</option>
+        <option value="UPDATE">แก้ไข</option>
+        <option value="DELETE">ลบ</option>
+      </select>
+    </label>
+
+    <label>ค้นหา
+      <input id="searchInput" placeholder="เลขเอกสาร สินค้า ผู้ใช้ หรือสาขา">
+    </label>
+
+    <label>วันที่เริ่ม
+      <input id="dateFrom" type="date">
+    </label>
+
+    <label>วันที่สิ้นสุด
+      <input id="dateTo" type="date">
+    </label>
+
+    <button id="refreshBtn" class="btn" type="button">โหลดข้อมูล</button>
+  </section>
+
+  <section class="card wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>วันเวลา</th>
+          <th>ผู้ใช้งาน</th>
+          <th>การทำรายการ</th>
+          <th>ประเภท</th>
+          <th>รายการ</th>
+          <th>สาขา</th>
+          <th>รายละเอียด</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <p id="message" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/audit-log.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

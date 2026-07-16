@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ระบบสมาชิก</title>
+  <link rel="stylesheet" href="./css/members.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div>
+      <h1>ระบบสมาชิก</h1>
+      <p>ร้านเถ้าแก่น้อยชลบุรี</p>
+    </div>
+    <div class="row">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <a class="btn secondary" href="./member-history.html">ประวัติคะแนน</a>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>สมัครสมาชิกใหม่</h2>
+    <form id="memberForm" class="grid">
+      <label class="field">ชื่อ-นามสกุล<input id="fullName" required></label>
+      <label class="field">เบอร์โทร<input id="phone" inputmode="tel" required></label>
+      <label class="field">อีเมล<input id="email" type="email"></label>
+      <label class="field">วันเกิด<input id="birthday" type="date"></label>
+      <label class="field">สาขาที่สมัคร<select id="branch"></select></label>
+      <label class="field">หมายเหตุ<textarea id="notes"></textarea></label>
+      <button class="btn primary" type="submit">สมัครสมาชิก</button>
+    </form>
+    <p id="formMsg" class="msg"></p>
+  </section>
+
+  <section class="card">
+    <form id="searchForm" class="row">
+      <input id="search" placeholder="ค้นหาด้วยเบอร์โทร ชื่อ หรือเลขสมาชิก">
+      <button class="btn primary">ค้นหา</button>
+    </form>
+    <div id="results" class="items"></div>
+    <p id="searchMsg" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/members.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

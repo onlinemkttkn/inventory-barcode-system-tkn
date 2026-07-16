@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ผูกสมาชิกกับบิลขาย</title>
+  <link rel="stylesheet" href="./css/members.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div><h1>ผูกสมาชิกกับบิลขาย</h1><p>ค้นหาบิลและสมาชิกเพื่อสะสมหรือใช้คะแนน</p></div>
+    <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+  </header>
+
+  <section class="card grid">
+    <label class="field">เลขที่บิล<input id="saleNo"></label>
+    <label class="field">เบอร์โทรสมาชิก<input id="phone"></label>
+    <label class="field">คะแนนที่ต้องการใช้<input id="redeem" type="number" min="0" step="1" value="0"></label>
+    <button id="applyBtn" class="btn primary">ผูกสมาชิกและคำนวณคะแนน</button>
+    <p id="message" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/pos-member.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

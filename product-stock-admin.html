@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ปรับสต๊อกสินค้า</title>
+<link rel="stylesheet" href="./css/products-admin.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+<header class="top">
+  <div><h1>ปรับสต๊อกแยกสาขา</h1></div>
+  <a class="btn secondary" href="./products-admin.html">กลับหน้าสินค้า</a>
+</header>
+
+<section class="card grid">
+  <label class="field">สาขา<select id="branch"></select></label>
+  <label class="field">ค้นหาสินค้า<input id="search"></label>
+  <button id="loadBtn" class="btn primary">โหลดสินค้า</button>
+</section>
+
+<section class="card wrap">
+<table>
+<thead><tr><th>รหัส</th><th>สินค้า</th><th>คงเหลือ</th><th>ขั้นต่ำ</th><th>ยอดใหม่</th><th>ขั้นต่ำใหม่</th><th>เหตุผล</th><th></th></tr></thead>
+<tbody id="body"></tbody>
+</table>
+<p id="message" class="msg"></p>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/product-stock-admin.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

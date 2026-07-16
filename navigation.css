@@ -1,0 +1,71 @@
+
+/* ============================================================
+   GLOBAL NAVIGATION — Back / Dashboard
+============================================================ */
+.tkn-nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(241, 245, 249, 0.96);
+  border-bottom: 1px solid #e2e8f0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.tkn-nav-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.tkn-nav-btn:hover {
+  background: #cbd5e1;
+}
+
+.tkn-nav-btn.primary {
+  background: #dc2626;
+  color: #fff;
+}
+
+.tkn-nav-title {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media print {
+  .tkn-nav-bar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .tkn-nav-bar {
+    position: sticky;
+    padding: 8px;
+  }
+
+  .tkn-nav-btn {
+    padding: 10px 11px;
+    font-size: 14px;
+  }
+
+  .tkn-nav-title {
+    display: none;
+  }
+}

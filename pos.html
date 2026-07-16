@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>POS ร้านเถ้าแก่น้อยชลบุรี</title>
+  <link rel="stylesheet" href="./css/pos.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div>
+      <h1>POS ขายหน้าร้าน</h1>
+      <p>ร้านเถ้าแก่น้อยชลบุรี</p>
+    </div>
+    <div class="row">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <a class="btn secondary" href="./sales-history.html">ประวัติการขาย</a>
+    </div>
+  </header>
+
+  <section class="card grid">
+    <label class="field">สาขา
+      <select id="branch"></select>
+    </label>
+    <label class="field">วิธีชำระเงิน
+      <select id="payment">
+        <option value="CASH">เงินสด</option>
+        <option value="TRANSFER">โอนเงิน</option>
+        <option value="QR">QR Payment</option>
+        <option value="CARD">บัตร</option>
+        <option value="OTHER">อื่น ๆ</option>
+      </select>
+    </label>
+    <label class="field">ชื่อลูกค้า
+      <input id="customerName">
+    </label>
+    <label class="field">เบอร์โทร
+      <input id="customerPhone" inputmode="tel">
+    </label>
+  </section>
+
+  <section class="pos-grid">
+    <div>
+      <section class="card">
+        <form id="searchForm" class="row">
+          <input id="search" placeholder="สแกนบาร์โค้ด หรือค้นหาชื่อ/รหัสสินค้า" autocomplete="off">
+          <button class="btn primary">ค้นหา</button>
+        </form>
+        <div id="results" class="results"></div>
+        <p id="searchMsg" class="msg"></p>
+      </section>
+
+      <section class="card">
+        <h2>ตะกร้าสินค้า</h2>
+        <div id="cart" class="cart"></div>
+      </section>
+    </div>
+
+    <aside class="card">
+      <h2>สรุปยอด</h2>
+      <div class="summary">
+        <div class="summary-row"><span>ยอดสินค้า</span><strong id="subtotal">฿0.00</strong></div>
+        <label class="field">ส่วนลดท้ายบิล
+          <input id="discount" type="number" min="0" step="0.01" value="0">
+        </label>
+        <div class="summary-row grand"><span>ยอดสุทธิ</span><span id="netTotal">฿0.00</span></div>
+        <label class="field" id="receivedField">รับเงิน
+          <input id="received" type="number" min="0" step="0.01" value="0">
+        </label>
+        <div class="summary-row"><span>เงินทอน</span><strong id="change">฿0.00</strong></div>
+        <label class="field">หมายเหตุ
+          <textarea id="notes" rows="3"></textarea>
+        </label>
+        <button id="checkout" class="btn success" type="button">ชำระเงินและตัดสต๊อก</button>
+        <p id="actionMsg" class="msg"></p>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/pos.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

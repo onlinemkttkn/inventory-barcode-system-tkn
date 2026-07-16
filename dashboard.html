@@ -61,6 +61,9 @@
 
     <section class="menu-grid">
       <a class="menu-card highlight" href="./pos.html"><span class="icon">฿</span><h2>POS ขายหน้าร้าน</h2><p>สแกนสินค้า รับชำระ และตัดสต๊อก</p></a>
+      <a class="menu-card" href="./receipt.html"><span class="icon">🧾</span><h2>พิมพ์ใบเสร็จ</h2><p>58/80 มม. PeriPage และ A4</p></a>
+      <a class="menu-card" href="./sales-return.html"><span class="icon">↩</span><h2>คืนสินค้า</h2><p>คืนบางรายการหรือทั้งบิล</p></a>
+      <a class="menu-card" href="./sales-return-history.html"><span class="icon">▤</span><h2>ประวัติคืนสินค้า</h2><p>ดูและพิมพ์ใบคืนย้อนหลัง</p></a>
       <a class="menu-card" href="./sales-history.html"><span class="icon">▤</span><h2>ประวัติการขาย</h2><p>ดูรายการขายทุกสาขา</p></a>
       <a class="menu-card" href="./scanner.html"><span class="icon">▦</span><h2>สแกนและค้นหา</h2><p>ค้นหาสินค้าด้วยบาร์โค้ด</p></a>
       <a class="menu-card" href="./generator.html"><span class="icon">▥</span><h2>สร้าง Barcode / QR</h2><p>สร้างและดาวน์โหลดโค้ดสินค้า</p></a>
@@ -76,6 +79,16 @@
       <a class="menu-card" href="./stock-count-history.html"><span class="icon">≡</span><h2>ประวัติตรวจนับ</h2><p>ดูรอบและผลต่างสต๊อก</p></a>
       <a class="menu-card" href="./stock-alerts.html"><span class="icon">⚠</span><h2>แจ้งเตือนสต๊อก</h2><p>ใกล้หมด หมด และไม่เคลื่อนไหว</p></a>
       <a class="menu-card" href="./audit-log.html"><span class="icon">◉</span><h2>Audit Log</h2><p>ตรวจสอบประวัติผู้ใช้งาน</p></a>
+      <a class="menu-card" href="./import-export.html"><span class="icon">⇅</span><h2>Import / Export</h2><p>นำเข้าและสำรองข้อมูลสินค้า CSV</p></a>
+      <a class="menu-card highlight" href="./products-admin.html"><span class="icon">📦</span><h2>จัดการสินค้า</h2><p>เพิ่ม แก้ไข และค้นหาสินค้า</p></a>
+      <a class="menu-card" href="./categories-admin.html"><span class="icon">🏷</span><h2>หมวดหมู่/ยี่ห้อ</h2><p>เพิ่มหมวดหมู่ หน่วยนับ และยี่ห้อ</p></a>
+      <a class="menu-card" href="./product-stock-admin.html"><span class="icon">⚙</span><h2>ปรับสต๊อกสินค้า</h2><p>กำหนดยอดและขั้นต่ำแยกสาขา</p></a>
+      <a class="menu-card" href="./members.html"><span class="icon">♟</span><h2>ระบบสมาชิก</h2><p>สมัคร ค้นหา และดูคะแนนสมาชิก</p></a>
+      <a class="menu-card" href="./pos-member.html"><span class="icon">★</span><h2>สะสม/ใช้คะแนน</h2><p>ผูกสมาชิกกับบิล POS</p></a>
+      <a class="menu-card" href="./member-history.html"><span class="icon">≡</span><h2>ประวัติคะแนน</h2><p>ตรวจสอบการได้และใช้คะแนน</p></a>
+      <a class="menu-card highlight" href="./suppliers.html"><span class="icon">🏢</span><h2>ผู้จำหน่าย</h2><p>จัดการ Supplier และเครดิตเทอม</p></a>
+      <a class="menu-card highlight" href="./purchase-order-create.html"><span class="icon">📝</span><h2>สร้างใบสั่งซื้อ</h2><p>สร้าง Purchase Order</p></a>
+      <a class="menu-card" href="./purchase-order-history.html"><span class="icon">📋</span><h2>ประวัติ PO</h2><p>ติดตามและอนุมัติใบสั่งซื้อ</p></a>
     </section>
 
     <section class="dashboard-grid">
@@ -149,7 +162,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script src="./js/supabase-config.js"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
 <script src="./js/dashboard-v2.js?v=8.2.1"></script>
 </body>
 </html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Import / Export สินค้า</title>
+  <link rel="stylesheet" href="./css/import-export.css?v=8.5.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div>
+      <h1>Import / Export สินค้า</h1>
+      <p>ร้านเถ้าแก่น้อยชลบุรี</p>
+    </div>
+    <div class="grid">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <a class="btn secondary" href="./products-admin.html">จัดการสินค้า</a>
+      <button id="downloadTemplateBtn" class="btn warning">ดาวน์โหลด Template</button>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Import CSV</h2>
+    <div id="dropZone" class="drop-zone">
+      <p><strong>ลากไฟล์ CSV มาวางที่นี่</strong></p>
+      <p>หรือเลือกไฟล์จากเครื่อง</p>
+      <input id="fileInput" type="file" accept=".csv,text/csv">
+    </div>
+    <p id="fileName"></p>
+  </section>
+
+  <section class="card">
+    <div class="summary">
+      <article class="stat"><span>ทั้งหมด</span><strong id="totalRows">0</strong></article>
+      <article class="stat"><span>พร้อมนำเข้า</span><strong id="validRows">0</strong></article>
+      <article class="stat"><span>ผิดพลาด</span><strong id="invalidRows">0</strong></article>
+      <article class="stat"><span>นำเข้าสำเร็จ</span><strong id="successRows">0</strong></article>
+    </div>
+
+    <div class="progress" style="margin-top:16px">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <button id="validateBtn" class="btn secondary">ตรวจสอบข้อมูล</button>
+      <button id="importBtn" class="btn success" disabled>เริ่ม Import</button>
+      <button id="exportBtn" class="btn primary">Export สินค้าทั้งหมด</button>
+    </div>
+
+    <p id="message" class="msg"></p>
+  </section>
+
+  <section class="card wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>แถว</th>
+          <th>รหัสสินค้า</th>
+          <th>ชื่อสินค้า</th>
+          <th>บาร์โค้ด</th>
+          <th>หมวดหมู่</th>
+          <th>หน่วย</th>
+          <th>สาขา</th>
+          <th>จำนวน</th>
+          <th>สถานะ</th>
+          <th>ข้อความ</th>
+        </tr>
+      </thead>
+      <tbody id="previewBody"></tbody>
+    </table>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/import-export.js?v=8.5.0"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

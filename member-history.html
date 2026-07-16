@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ประวัติคะแนนสมาชิก</title>
+  <link rel="stylesheet" href="./css/members.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <h1>ประวัติคะแนนสมาชิก</h1>
+    <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+  </header>
+
+  <section class="card">
+    <form id="searchForm" class="row">
+      <input id="search" placeholder="เบอร์โทร ชื่อ หรือเลขสมาชิก">
+      <button class="btn primary">ค้นหา</button>
+    </form>
+  </section>
+
+  <section class="card wrap">
+    <table>
+      <thead>
+        <tr><th>วันที่</th><th>สมาชิก</th><th>ประเภท</th><th>คะแนน</th><th>ก่อน</th><th>หลัง</th><th>บิล</th><th>รายละเอียด</th></tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+    <p id="message" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/member-history.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ประวัติใบสั่งซื้อ</title>
+<link rel="stylesheet" href="./css/purchase.css?v=9.1.0">
+<link rel="stylesheet" href="./css/navigation.css?v=9.1.0">
+</head>
+<body>
+<main class="shell">
+<header class="top">
+<div><h1>ประวัติใบสั่งซื้อ</h1></div>
+<a class="btn primary" href="./purchase-order-create.html">สร้าง PO</a>
+</header>
+<section class="card"><div class="row"><input id="search" placeholder="เลข PO ผู้จำหน่าย หรือสาขา"><button id="refreshBtn" class="btn primary">โหลดข้อมูล</button></div></section>
+<section class="card wrap">
+<table><thead><tr><th>วันที่</th><th>เลข PO</th><th>ผู้จำหน่าย</th><th>สาขา</th><th>สถานะ</th><th>รายการ</th><th>จำนวน</th><th>ยอดรวม</th><th>จัดการ</th></tr></thead><tbody id="body"></tbody></table>
+<p id="message" class="msg"></p>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/purchase-order-history.js?v=9.1.0"></script>
+<script src="./js/navigation.js?v=9.1.0"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>หมวดหมู่และยี่ห้อ</title>
+<link rel="stylesheet" href="./css/products-admin.css">
+  <link rel="stylesheet" href="./css/navigation.css?v=8.7.1">
+</head>
+<body>
+<main class="shell">
+<header class="top">
+  <div><h1>หมวดหมู่ หน่วยนับ และยี่ห้อ</h1></div>
+  <a class="btn secondary" href="./products-admin.html">กลับหน้าสินค้า</a>
+</header>
+
+<section class="grid-3">
+  <article class="card">
+    <h2>เพิ่มหมวดหมู่</h2>
+    <label class="field">รหัส<input id="categoryCode"></label>
+    <label class="field">ชื่อ<input id="categoryName"></label>
+    <label class="field">หมวดหมู่แม่<select id="parentCategory"></select></label>
+    <button id="addCategory" class="btn primary">เพิ่มหมวดหมู่</button>
+    <div id="categoryList" class="items"></div>
+  </article>
+
+  <article class="card">
+    <h2>เพิ่มหน่วยนับ</h2>
+    <label class="field">ชื่อหน่วย<input id="unitName"></label>
+    <button id="addUnit" class="btn primary">เพิ่มหน่วย</button>
+    <div id="unitList" class="items"></div>
+  </article>
+
+  <article class="card">
+    <h2>เพิ่มยี่ห้อ</h2>
+    <label class="field">รหัส<input id="brandCode"></label>
+    <label class="field">ชื่อยี่ห้อ<input id="brandName"></label>
+    <button id="addBrand" class="btn primary">เพิ่มยี่ห้อ</button>
+    <div id="brandList" class="items"></div>
+  </article>
+</section>
+<p id="message" class="msg"></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=8.5.0"></script>
+<script src="./js/categories-admin.js"></script>
+  <script src="./js/navigation.js?v=8.7.1"></script>
+</body>
+</html>

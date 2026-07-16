@@ -1,589 +1,92 @@
-const el = {
-  loginCard: document.getElementById("loginCard"),
-  appArea: document.getElementById("appArea"),
-  loginForm: document.getElementById("loginForm"),
-  email: document.getElementById("email"),
-  password: document.getElementById("password"),
-  loginMessage: document.getElementById("loginMessage"),
-  logoutBtn: document.getElementById("logoutBtn"),
-  configWarning: document.getElementById("configWarning"),
-  welcomeText: document.getElementById("welcomeText"),
-  totalProducts: document.getElementById("totalProducts"),
-  lowStock: document.getElementById("lowStock"),
-  outStock: document.getElementById("outStock"),
-  totalCategories: document.getElementById("totalCategories"),
-  recentProducts: document.getElementById("recentProducts"),
-  dashboardMessage: document.getElementById("dashboardMessage"),
-  refreshBtn: document.getElementById("refreshBtn"),
-};
+const el={loginCard:document.getElementById("loginCard"),appArea:document.getElementById("appArea"),loginForm:document.getElementById("loginForm"),email:document.getElementById("email"),password:document.getElementById("password"),loginMessage:document.getElementById("loginMessage"),logoutBtn:document.getElementById("logoutBtn"),configWarning:document.getElementById("configWarning"),welcomeText:document.getElementById("welcomeText"),totalProducts:document.getElementById("totalProducts"),lowStock:document.getElementById("lowStock"),outStock:document.getElementById("outStock"),totalCategories:document.getElementById("totalCategories"),recentProducts:document.getElementById("recentProducts"),dashboardMessage:document.getElementById("dashboardMessage"),refreshBtn:document.getElementById("refreshBtn")};
 
-let isRenderingSession = false;
+function msg(node,text,type=""){node.textContent=text;node.className=`message ${type}`.trim()}
+function configReady(){return !SUPABASE_URL.includes("ใส่_")&&!SUPABASE_PUBLISHABLE_KEY.includes("ใส่_")}
 
-/* =========================================================
-   MESSAGE
-========================================================= */
-
-function msg(node, text, type = "") {
-  if (!node) return;
-
-  node.textContent = text;
-  node.className = `message ${type}`.trim();
-}
-
-/* =========================================================
-   CHECK CONFIG
-========================================================= */
-
-function configReady() {
-  return (
-    typeof SUPABASE_URL === "string" &&
-    typeof SUPABASE_PUBLISHABLE_KEY === "string" &&
-    SUPABASE_URL.startsWith("https://") &&
-    !SUPABASE_URL.includes("ใส่_") &&
-    !SUPABASE_PUBLISHABLE_KEY.includes("ใส่_") &&
-    SUPABASE_PUBLISHABLE_KEY.length > 20
-  );
-}
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-async function init() {
-  if (!configReady()) {
-    el.configWarning.textContent =
-      "กรุณาตรวจสอบ Project URL และ Publishable Key ใน supabase-config.js";
-
+async function init(){
+  if(!configReady()){
+    el.configWarning.textContent="กรุณาตั้งค่า Supabase ใน js/supabase-config.js";
     el.configWarning.classList.remove("hidden");
     return;
   }
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  await renderSession(session);
+  supabaseClient.auth.onAuthStateChange(async(_event,nextSession)=>await renderSession(nextSession));
+}
 
-  try {
-    const {
-      data: { session },
-      error,
-    } = await supabaseClient.auth.getSession();
+async function renderSession(session){
+  const loggedIn=Boolean(session);
+  el.loginCard.classList.toggle("hidden",loggedIn);
+  el.appArea.classList.toggle("hidden",!loggedIn);
+  el.logoutBtn.classList.toggle("hidden",!loggedIn);
 
-    if (error) {
-      console.error("Get session error:", error);
-
-      showLoginScreen();
-
-      msg(
-        el.loginMessage,
-        `ตรวจสอบ Session ไม่สำเร็จ: ${error.message}`,
-        "error"
-      );
-
-      return;
-    }
-
-    await renderSession(session);
-  } catch (error) {
-    console.error("Initialization error:", error);
-
-    showLoginScreen();
-
-    msg(
-      el.loginMessage,
-      `เริ่มต้นระบบไม่สำเร็จ: ${error.message}`,
-      "error"
-    );
+  if(!loggedIn){
+    el.welcomeText.textContent="กรุณาเข้าสู่ระบบภายในองค์กร";
+    return;
   }
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    console.log("Auth event:", event);
+  const {data:profile,error}=await supabaseClient
+    .from("profiles")
+    .select("full_name,email,role,is_active")
+    .eq("id",session.user.id)
+    .maybeSingle();
 
-    // ป้องกัน callback ซ้อนกัน
-    setTimeout(() => {
-      renderSession(session);
-    }, 0);
-  });
-}
-
-/* =========================================================
-   SCREEN CONTROL
-========================================================= */
-
-function showLoginScreen() {
-  el.loginCard.classList.remove("hidden");
-  el.appArea.classList.add("hidden");
-  el.logoutBtn.classList.add("hidden");
-
-  el.welcomeText.textContent =
-    "กรุณาเข้าสู่ระบบภายในองค์กร";
-}
-
-function showDashboardScreen() {
-  el.loginCard.classList.add("hidden");
-  el.appArea.classList.remove("hidden");
-  el.logoutBtn.classList.remove("hidden");
-}
-
-/* =========================================================
-   SESSION
-========================================================= */
-
-async function renderSession(session) {
-  if (isRenderingSession) return;
-
-  isRenderingSession = true;
-
-  try {
-    if (!session?.user?.id) {
-      showLoginScreen();
-      return;
-    }
-
-    msg(el.loginMessage, "");
-
-    const { data: profile, error } = await supabaseClient
-      .from("profiles")
-      .select("id, full_name, email, role, is_active")
-      .eq("id", session.user.id)
-      .maybeSingle();
-
-    /*
-      ห้าม signOut เมื่อเกิด Error จาก API
-      เพราะอาจเป็นปัญหา Key, Network หรือ RLS ชั่วคราว
-    */
-    if (error) {
-      console.error("Profile query error:", error);
-
-      showLoginScreen();
-
-      msg(
-        el.loginMessage,
-        `อ่านข้อมูลผู้ใช้ไม่สำเร็จ: ${error.message}`,
-        "error"
-      );
-
-      return;
-    }
-
-    if (!profile) {
-      showLoginScreen();
-
-      msg(
-        el.loginMessage,
-        "ไม่พบข้อมูลผู้ใช้ในตาราง profiles กรุณาติดต่อผู้ดูแลระบบ",
-        "error"
-      );
-
-      return;
-    }
-
-    if (profile.is_active !== true) {
-      await supabaseClient.auth.signOut();
-
-      showLoginScreen();
-
-      msg(
-        el.loginMessage,
-        "บัญชีนี้ถูกปิดใช้งาน กรุณาติดต่อผู้ดูแลระบบ",
-        "error"
-      );
-
-      return;
-    }
-
-    showDashboardScreen();
-
-    const displayName =
-      profile.full_name ||
-      profile.email ||
-      session.user.email ||
-      "ผู้ใช้งาน";
-
-    const roleName =
-      profile.role === "admin"
-        ? "ผู้ดูแลระบบ"
-        : "พนักงาน";
-
-    el.welcomeText.textContent =
-      `${displayName} • ${roleName}`;
-
-    await loadDashboard();
-  } catch (error) {
-    console.error("Render session error:", error);
-
-    showLoginScreen();
-
-    msg(
-      el.loginMessage,
-      `ตรวจสอบผู้ใช้งานไม่สำเร็จ: ${error.message}`,
-      "error"
-    );
-  } finally {
-    isRenderingSession = false;
+  if(error||!profile||profile.is_active!==true){
+    await supabaseClient.auth.signOut();
+    msg(el.loginMessage,"บัญชีนี้ไม่มีสิทธิ์หรือถูกปิดใช้งาน","error");
+    return;
   }
+
+  el.welcomeText.textContent=`${profile.full_name||profile.email} • ${profile.role==="admin"?"ผู้ดูแลระบบ":"พนักงาน"}`;
+  await loadDashboard();
 }
 
-/* =========================================================
-   LOGIN
-========================================================= */
-
-el.loginForm?.addEventListener("submit", async (event) => {
+el.loginForm.addEventListener("submit",async(event)=>{
   event.preventDefault();
-
-  const email = el.email.value.trim();
-  const password = el.password.value;
-
-  if (!email || !password) {
-    msg(
-      el.loginMessage,
-      "กรุณากรอกอีเมลและรหัสผ่าน",
-      "error"
-    );
-    return;
-  }
-
-  const submitButton =
-    el.loginForm.querySelector('button[type="submit"]');
-
-  try {
-    if (submitButton) submitButton.disabled = true;
-
-    msg(
-      el.loginMessage,
-      "กำลังเข้าสู่ระบบ..."
-    );
-
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-    if (error) {
-      console.error("Login error:", error);
-
-      msg(
-        el.loginMessage,
-        translateAuthError(error.message),
-        "error"
-      );
-
-      return;
-    }
-
-    if (!data.session) {
-      msg(
-        el.loginMessage,
-        "เข้าสู่ระบบสำเร็จ แต่ไม่พบ Session",
-        "error"
-      );
-
-      return;
-    }
-
-    el.password.value = "";
-
-    msg(el.loginMessage, "");
-
-    await renderSession(data.session);
-  } catch (error) {
-    console.error("Unexpected login error:", error);
-
-    msg(
-      el.loginMessage,
-      `เข้าสู่ระบบไม่สำเร็จ: ${error.message}`,
-      "error"
-    );
-  } finally {
-    if (submitButton) submitButton.disabled = false;
-  }
+  msg(el.loginMessage,"กำลังเข้าสู่ระบบ...");
+  const {error}=await supabaseClient.auth.signInWithPassword({
+    email:el.email.value.trim(),
+    password:el.password.value
+  });
+  if(error){msg(el.loginMessage,error.message,"error");return}
+  el.password.value="";
+  msg(el.loginMessage,"");
 });
 
-/* =========================================================
-   LOGOUT
-========================================================= */
+el.logoutBtn.addEventListener("click",()=>supabaseClient.auth.signOut());
+el.refreshBtn.addEventListener("click",loadDashboard);
 
-el.logoutBtn?.addEventListener("click", async () => {
-  try {
-    el.logoutBtn.disabled = true;
+async function loadDashboard(){
+  msg(el.dashboardMessage,"กำลังโหลดข้อมูล...");
+  const [products,categories,low,out,recent]=await Promise.all([
+    supabaseClient.from("products").select("*",{count:"exact",head:true}),
+    supabaseClient.from("categories").select("*",{count:"exact",head:true}),
+    supabaseClient.from("products").select("*",{count:"exact",head:true}).gt("quantity",0).lte("quantity",5),
+    supabaseClient.from("products").select("*",{count:"exact",head:true}).lte("quantity",0),
+    supabaseClient.from("product_list")
+      .select("product_code,barcode,name,quantity,stock_status,created_at")
+      .order("created_at",{ascending:false}).limit(10)
+  ]);
 
-    const { error } =
-      await supabaseClient.auth.signOut();
+  const error=[products,categories,low,out,recent].map(x=>x.error).find(Boolean);
+  if(error){console.error(error);msg(el.dashboardMessage,error.message,"error");return}
 
-    if (error) {
-      console.error("Logout error:", error);
+  el.totalProducts.textContent=(products.count||0).toLocaleString("th-TH");
+  el.totalCategories.textContent=(categories.count||0).toLocaleString("th-TH");
+  el.lowStock.textContent=(low.count||0).toLocaleString("th-TH");
+  el.outStock.textContent=(out.count||0).toLocaleString("th-TH");
 
-      msg(
-        el.dashboardMessage,
-        `ออกจากระบบไม่สำเร็จ: ${error.message}`,
-        "error"
-      );
-      return;
-    }
-
-    showLoginScreen();
-  } finally {
-    el.logoutBtn.disabled = false;
-  }
-});
-
-/* =========================================================
-   DASHBOARD
-========================================================= */
-
-el.refreshBtn?.addEventListener(
-  "click",
-  loadDashboard
-);
-
-async function loadDashboard() {
-  msg(
-    el.dashboardMessage,
-    "กำลังโหลดข้อมูล..."
-  );
-
-  if (el.refreshBtn) {
-    el.refreshBtn.disabled = true;
-  }
-
-  try {
-    const [
-      products,
-      categories,
-      lowStock,
-      outOfStock,
-      recent,
-    ] = await Promise.all([
-      supabaseClient
-        .from("products")
-        .select("id", {
-          count: "exact",
-          head: true,
-        }),
-
-      supabaseClient
-        .from("categories")
-        .select("id", {
-          count: "exact",
-          head: true,
-        }),
-
-      supabaseClient
-        .from("products")
-        .select("id", {
-          count: "exact",
-          head: true,
-        })
-        .gt("quantity", 0)
-        .lte("quantity", 5),
-
-      supabaseClient
-        .from("products")
-        .select("id", {
-          count: "exact",
-          head: true,
-        })
-        .lte("quantity", 0),
-
-      supabaseClient
-        .from("product_list")
-        .select(
-          `
-          product_code,
-          barcode,
-          name,
-          quantity,
-          stock_status,
-          created_at
-          `
-        )
-        .order("created_at", {
-          ascending: false,
-        })
-        .limit(10),
-    ]);
-
-    const responses = [
-      products,
-      categories,
-      lowStock,
-      outOfStock,
-      recent,
-    ];
-
-    const firstError =
-      responses
-        .map((response) => response.error)
-        .find(Boolean);
-
-    if (firstError) {
-      console.error(
-        "Dashboard query error:",
-        firstError
-      );
-
-      msg(
-        el.dashboardMessage,
-        `โหลด Dashboard ไม่สำเร็จ: ${firstError.message}`,
-        "error"
-      );
-
-      return;
-    }
-
-    el.totalProducts.textContent =
-      Number(products.count || 0)
-        .toLocaleString("th-TH");
-
-    el.totalCategories.textContent =
-      Number(categories.count || 0)
-        .toLocaleString("th-TH");
-
-    el.lowStock.textContent =
-      Number(lowStock.count || 0)
-        .toLocaleString("th-TH");
-
-    el.outStock.textContent =
-      Number(outOfStock.count || 0)
-        .toLocaleString("th-TH");
-
-    renderRecentProducts(recent.data || []);
-
-    msg(
-      el.dashboardMessage,
-      "อัปเดตข้อมูลแล้ว",
-      "success"
-    );
-  } catch (error) {
-    console.error(
-      "Unexpected dashboard error:",
-      error
-    );
-
-    msg(
-      el.dashboardMessage,
-      `เกิดข้อผิดพลาด: ${error.message}`,
-      "error"
-    );
-  } finally {
-    if (el.refreshBtn) {
-      el.refreshBtn.disabled = false;
-    }
-  }
-}
-
-/* =========================================================
-   RECENT PRODUCTS
-========================================================= */
-
-function renderRecentProducts(products) {
-  el.recentProducts.innerHTML = "";
-
-  if (!products.length) {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td colspan="5">
-        ยังไม่มีข้อมูลสินค้า
-      </td>
-    `;
-
-    el.recentProducts.appendChild(tr);
-    return;
-  }
-
-  products.forEach((product) => {
-    const statusMap = {
-      IN_STOCK: ["มีสินค้า", "ok"],
-      LOW_STOCK: ["ใกล้หมด", "low"],
-      OUT_OF_STOCK: ["หมด", "out"],
-    };
-
-    const status =
-      statusMap[product.stock_status] ||
-      ["ไม่ทราบสถานะ", ""];
-
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>
-        ${escapeHtml(product.product_code || "-")}
-      </td>
-
-      <td>
-        ${escapeHtml(product.name || "-")}
-      </td>
-
-      <td>
-        ${escapeHtml(product.barcode || "-")}
-      </td>
-
-      <td>
-        ${Number(product.quantity || 0)
-          .toLocaleString("th-TH")}
-      </td>
-
-      <td>
-        <span class="badge ${status[1]}">
-          ${status[0]}
-        </span>
-      </td>
-    `;
-
+  el.recentProducts.innerHTML="";
+  (recent.data||[]).forEach(p=>{
+    const status={IN_STOCK:["มีสินค้า","ok"],LOW_STOCK:["ใกล้หมด","low"],OUT_OF_STOCK:["หมด","out"]}[p.stock_status]||["-",""];
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${escapeHtml(p.product_code||"-")}</td><td>${escapeHtml(p.name||"-")}</td><td>${escapeHtml(p.barcode||"-")}</td><td>${Number(p.quantity||0).toLocaleString("th-TH")}</td><td><span class="badge ${status[1]}">${status[0]}</span></td>`;
     el.recentProducts.appendChild(tr);
   });
+  msg(el.dashboardMessage,"อัปเดตข้อมูลแล้ว");
 }
 
-/* =========================================================
-   ERROR TRANSLATION
-========================================================= */
-
-function translateAuthError(message) {
-  const text = String(message || "");
-
-  if (
-    text.toLowerCase().includes(
-      "invalid login credentials"
-    )
-  ) {
-    return "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
-  }
-
-  if (
-    text.toLowerCase().includes(
-      "email not confirmed"
-    )
-  ) {
-    return "บัญชียังไม่ได้ยืนยันอีเมล";
-  }
-
-  if (
-    text.toLowerCase().includes(
-      "invalid api key"
-    )
-  ) {
-    return "Publishable Key ไม่ถูกต้อง กรุณาตรวจสอบ supabase-config.js";
-  }
-
-  return text;
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 }
-
-/* =========================================================
-   SECURITY
-========================================================= */
-
-function escapeHtml(value) {
-  return String(value ?? "").replace(
-    /[&<>"']/g,
-    (char) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      })[char]
-  );
-}
-
-/* =========================================================
-   START
-========================================================= */
-
 init();
