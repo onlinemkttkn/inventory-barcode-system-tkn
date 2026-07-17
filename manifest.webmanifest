@@ -1,10 +1,16 @@
 {
-  "name": "ระบบ Barcode และงานพิมพ์ภายในองค์กร",
-  "short_name": "Barcode Hub",
-  "start_url": "./dashboard.html",
+  "name": "TKN POS / ERP",
+  "short_name": "TKN POS",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f1f5f9",
-  "theme_color": "#0f172a",
-  "icons": []
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "./assets/icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
 }

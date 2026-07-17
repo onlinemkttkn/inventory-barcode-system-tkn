@@ -1,8 +1,11 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.2",
   "html_files": 32,
   "css_files": 17,
   "js_files": 38,
-  "checked_local_references": 163,
-  "missing_local_references": []
+  "sql_files": 13,
+  "checked_references": 266,
+  "missing_references": [],
+  "javascript_syntax_errors": [],
+  "duplicate_source_filenames": []
 }

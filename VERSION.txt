@@ -1,4 +1,4 @@
 TKN POS / ERP
-Version: 1.0.0
+Version: 1.0.2
+Build: Clean Build
 Phase: 9.1
-Build: Full Project
