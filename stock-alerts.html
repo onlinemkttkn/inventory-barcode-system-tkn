@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>แจ้งเตือนสต๊อก</title>
+  <link rel="stylesheet" href="./css/stock-alerts.css?v=1.0.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div>
+      <h1>แจ้งเตือนสต๊อก</h1>
+      <p>ร้านเถ้าแก่น้อยชลบุรีและสาขา</p>
+    </div>
+    <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+  </header>
+
+  <section class="card grid">
+    <label>สาขา
+      <select id="branchFilter">
+        <option value="">ทุกสาขา</option>
+      </select>
+    </label>
+
+    <label>สินค้าไม่เคลื่อนไหวเกิน
+      <select id="inactiveDays">
+        <option value="30">30 วัน</option>
+        <option value="60">60 วัน</option>
+        <option value="90" selected>90 วัน</option>
+        <option value="180">180 วัน</option>
+      </select>
+    </label>
+
+    <button id="refreshBtn" class="btn" type="button">
+      โหลดข้อมูลล่าสุด
+    </button>
+  </section>
+
+  <section class="stats">
+    <article class="stat">
+      <span>สินค้าหมด</span>
+      <strong id="outCount">-</strong>
+    </article>
+
+    <article class="stat">
+      <span>สินค้าใกล้หมด</span>
+      <strong id="lowCount">-</strong>
+    </article>
+
+    <article class="stat">
+      <span>ไม่เคลื่อนไหว</span>
+      <strong id="inactiveCount">-</strong>
+    </article>
+
+    <article class="stat">
+      <span>งบประมาณสั่งซื้อโดยประมาณ</span>
+      <strong id="reorderCost">-</strong>
+    </article>
+  </section>
+
+  <section class="card">
+    <div class="tabs">
+      <button class="btn tab active" data-tab="alerts" type="button">
+        ใกล้หมด/หมด
+      </button>
+      <button class="btn tab" data-tab="inactive" type="button">
+        ไม่เคลื่อนไหว
+      </button>
+      <button class="btn tab" data-tab="branches" type="button">
+        สรุปแต่ละสาขา
+      </button>
+    </div>
+  </section>
+
+  <section class="card wrap">
+    <table>
+      <thead id="tableHead"></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <p id="message" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.0"></script>
+<script src="./js/stock-alerts.js?v=1.0.0"></script>
+  <script src="./js/navigation.js?v=1.0.0"></script>
+</body>
+</html>

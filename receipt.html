@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>พิมพ์ใบเสร็จ POS</title>
+  <link rel="stylesheet" href="./css/receipt-return.css?v=1.0.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+  <header class="top no-print">
+    <div><h1>พิมพ์ใบเสร็จ POS</h1><p>58/80 มม. PeriPage และ A4</p></div>
+    <div class="row">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <a class="btn secondary" href="./sales-history.html">ประวัติการขาย</a>
+    </div>
+  </header>
+
+  <section class="card no-print">
+    <div class="grid">
+      <label class="field">เลขที่บิล<input id="saleNo" placeholder="SL20260716-000001"></label>
+      <label class="field">รูปแบบกระดาษ
+        <select id="paperSize">
+          <option value="receipt-58">58 มม.</option>
+          <option value="receipt-80">80 มม.</option>
+          <option value="receipt-58">PeriPage</option>
+          <option value="receipt-a4">A4</option>
+        </select>
+      </label>
+      <label class="field">จำนวนสำเนา<input id="copies" type="number" min="1" max="5" value="1"></label>
+      <button id="loadBtn" class="btn primary" type="button">โหลดใบเสร็จ</button>
+      <button id="printBtn" class="btn success" type="button" disabled>พิมพ์ใบเสร็จ</button>
+    </div>
+    <p id="message" class="msg"></p>
+  </section>
+
+  <section class="card">
+    <div id="receiptArea"></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="./js/supabase-config.js?v=1.0.0"></script>
+<script src="./js/receipt.js?v=1.0.0"></script>
+  <script src="./js/navigation.js?v=1.0.0"></script>
+</body>
+</html>

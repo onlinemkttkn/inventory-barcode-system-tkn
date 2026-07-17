@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>คืนสินค้า</title>
+  <link rel="stylesheet" href="./css/receipt-return.css?v=1.0.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div><h1>คืนสินค้าและคืนเงิน</h1><p>คืนบางรายการหรือทั้งบิล</p></div>
+    <div class="row">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <a class="btn secondary" href="./sales-return-history.html">ประวัติการคืน</a>
+    </div>
+  </header>
+
+  <section class="card">
+    <form id="searchForm" class="row">
+      <input id="saleNo" placeholder="เลขที่บิลขาย">
+      <button class="btn primary">ค้นหาบิล</button>
+    </form>
+    <p id="saleSummary"></p>
+    <p id="searchMessage" class="msg"></p>
+  </section>
+
+  <section class="card">
+    <h2>รายการที่สามารถคืนได้</h2>
+    <div id="items"></div>
+  </section>
+
+  <section class="card grid">
+    <label class="field">วิธีคืนเงิน
+      <select id="refundMethod">
+        <option value="CASH">เงินสด</option>
+        <option value="TRANSFER">โอนเงิน</option>
+        <option value="QR">QR</option>
+        <option value="CARD">บัตร</option>
+        <option value="STORE_CREDIT">เครดิตร้าน</option>
+        <option value="OTHER">อื่น ๆ</option>
+      </select>
+    </label>
+
+    <label class="field">เหตุผลการคืน<textarea id="reason" required></textarea></label>
+    <label class="field">หมายเหตุ<textarea id="notes"></textarea></label>
+
+    <div>
+      <p>ยอดคืนโดยประมาณ</p>
+      <h2 id="refundEstimate">฿0.00</h2>
+    </div>
+
+    <button id="returnBtn" class="btn danger" type="button">ยืนยันคืนสินค้า</button>
+    <p id="actionMessage" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.0"></script>
+<script src="./js/sales-return.js?v=1.0.0"></script>
+  <script src="./js/navigation.js?v=1.0.0"></script>
+</body>
+</html>

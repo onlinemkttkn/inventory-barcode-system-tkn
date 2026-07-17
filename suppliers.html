@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ผู้จำหน่าย</title>
+<link rel="stylesheet" href="./css/purchase.css?v=1.0.0">
+<link rel="stylesheet" href="./css/navigation.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+<header class="top">
+  <div><h1>ผู้จำหน่าย</h1><p>Supplier Management</p></div>
+  <a class="btn primary" href="./purchase-order-create.html">สร้างใบสั่งซื้อ</a>
+</header>
+
+<section class="card">
+  <h2>เพิ่มผู้จำหน่าย</h2>
+  <form id="supplierForm" class="grid">
+    <label class="field">รหัสผู้จำหน่าย<input id="supplierCode" required></label>
+    <label class="field">ชื่อผู้จำหน่าย<input id="supplierName" required></label>
+    <label class="field">ผู้ติดต่อ<input id="contactName"></label>
+    <label class="field">เบอร์โทร<input id="phone"></label>
+    <label class="field">อีเมล<input id="email" type="email"></label>
+    <label class="field">เลขประจำตัวผู้เสียภาษี<input id="taxId"></label>
+    <label class="field">เครดิตเทอม (วัน)<input id="paymentTerms" type="number" min="0" value="0"></label>
+    <label class="field">ที่อยู่<textarea id="address"></textarea></label>
+    <label class="field">หมายเหตุ<textarea id="notes"></textarea></label>
+    <button class="btn success">บันทึกผู้จำหน่าย</button>
+  </form>
+  <p id="formMessage" class="msg"></p>
+</section>
+
+<section class="card">
+  <div class="row">
+    <input id="search" placeholder="ค้นหารหัส ชื่อ เบอร์โทร">
+    <button id="searchBtn" class="btn primary">ค้นหา</button>
+  </div>
+</section>
+
+<section class="card wrap">
+<table>
+<thead><tr><th>รหัส</th><th>ชื่อ</th><th>ผู้ติดต่อ</th><th>โทร</th><th>เครดิต</th><th>จำนวน PO</th><th>ยอดซื้อ</th><th>สถานะ</th></tr></thead>
+<tbody id="body"></tbody>
+</table>
+<p id="message" class="msg"></p>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.0"></script>
+<script src="./js/suppliers.js?v=1.0.0"></script>
+<script src="./js/navigation.js?v=1.0.0"></script>
+</body>
+</html>

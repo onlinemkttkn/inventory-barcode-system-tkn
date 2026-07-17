@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ใบคืนสินค้า</title>
+  <link rel="stylesheet" href="./css/receipt-return.css?v=1.0.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+  <header class="top no-print">
+    <div><h1>ใบคืนสินค้า</h1></div>
+    <div class="row">
+      <a class="btn secondary" href="./sales-return-history.html">ประวัติคืน</a>
+      <button id="printBtn" class="btn success">พิมพ์</button>
+    </div>
+  </header>
+
+  <section class="card">
+    <article id="receipt" class="receipt receipt-80"></article>
+    <p id="message" class="msg no-print"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.0"></script>
+<script src="./js/sales-return-receipt.js?v=1.0.0"></script>
+  <script src="./js/navigation.js?v=1.0.0"></script>
+</body>
+</html>

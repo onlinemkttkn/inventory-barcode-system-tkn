@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ประวัติคืนสินค้า</title>
+  <link rel="stylesheet" href="./css/receipt-return.css?v=1.0.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div><h1>ประวัติคืนสินค้า</h1></div>
+    <div class="row">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <a class="btn primary" href="./sales-return.html">คืนสินค้า</a>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="row">
+      <input id="search" placeholder="เลขใบคืน เลขบิล สมาชิก หรือสาขา">
+      <button id="refreshBtn" class="btn primary">โหลดข้อมูล</button>
+    </div>
+  </section>
+
+  <section class="card wrap">
+    <table>
+      <thead>
+        <tr><th>วันที่</th><th>เลขใบคืน</th><th>เลขบิล</th><th>สาขา</th><th>จำนวน</th><th>ยอดคืน</th><th>คะแนนคืน</th><th>เหตุผล</th><th></th></tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+    <p id="message" class="msg"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.0"></script>
+<script src="./js/sales-return-history.js?v=1.0.0"></script>
+  <script src="./js/navigation.js?v=1.0.0"></script>
+</body>
+</html>
