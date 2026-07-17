@@ -1,7 +1,6 @@
 // ============================================================
-// SUPABASE CONFIG — PHASE 8.5
-// ร้านเถ้าแก่น้อยชลบุรี
-// ใช้ไฟล์นี้ร่วมกันทั้งระบบ
+// TKN POS / ERP — Supabase Config v1.0.0
+// ใช้ร่วมกันทั้งระบบ
 // ============================================================
 
 const SUPABASE_URL =
@@ -26,7 +25,7 @@ function validateSupabaseConfig() {
     SUPABASE_PUBLISHABLE_KEY.length < 20 ||
     SUPABASE_PUBLISHABLE_KEY.includes("ใส่_")
   ) {
-    errors.push("Publishable Key ไม่ถูกต้องหรือยังไม่ได้ตั้งค่า");
+    errors.push("Publishable Key ไม่ถูกต้อง");
   }
 
   if (SUPABASE_PUBLISHABLE_KEY.startsWith("sb_secret_")) {
@@ -35,16 +34,16 @@ function validateSupabaseConfig() {
 
   return {
     valid: errors.length === 0,
-    errors,
+    errors
   };
 }
 
-const configStatus = validateSupabaseConfig();
+const TKN_CONFIG_STATUS = validateSupabaseConfig();
 
-if (!configStatus.valid) {
+if (!TKN_CONFIG_STATUS.valid) {
   console.error(
     "Supabase configuration error:",
-    configStatus.errors.join(", ")
+    TKN_CONFIG_STATUS.errors.join(", ")
   );
 }
 
@@ -56,19 +55,18 @@ const supabaseClient = window.supabase.createClient(
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      storageKey: "tkn-inventory-auth",
+      storageKey: "tkn-pos-auth-v1"
     },
-
     global: {
       headers: {
-        "X-Application-Name": "TKN-Inventory",
-      },
-    },
+        "X-Application-Name": "TKN-POS-v1.0.0"
+      }
+    }
   }
 );
 
-window.TKN_SUPABASE_CONFIG = {
-  ready: configStatus.valid,
-  errors: configStatus.errors,
-  url: SUPABASE_URL,
+window.TKN_APP_CONFIG = {
+  version: "1.0.0",
+  ready: TKN_CONFIG_STATUS.valid,
+  errors: TKN_CONFIG_STATUS.errors
 };
