@@ -2,64 +2,99 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>คืนสินค้า</title>
-  <link rel="stylesheet" href="./css/receipt-return.css?v=1.0.2">
-  <link rel="stylesheet" href="./css/navigation.css?v=1.0.2">
-  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKN POS - คืนสินค้า</title>
+  <link rel="stylesheet" href="./css/phase-9-2-sales-return.css">
 </head>
 <body>
-<main class="shell">
-  <header class="top">
-    <div><h1>คืนสินค้าและคืนเงิน</h1><p>คืนบางรายการหรือทั้งบิล</p></div>
-    <div class="row">
-      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
-      <a class="btn secondary" href="./sales-return-history.html">ประวัติการคืน</a>
-    </div>
-  </header>
+  <main class="page-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
+        <h1>คืนสินค้า</h1>
+        <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
+      </div>
 
-  <section class="card">
-    <form id="searchForm" class="row">
-      <input id="saleNo" placeholder="เลขที่บิลขาย">
-      <button class="btn primary">ค้นหาบิล</button>
-    </form>
-    <p id="saleSummary"></p>
-    <p id="searchMessage" class="msg"></p>
-  </section>
+      <button id="backButton" class="secondary-button" type="button">
+        กลับ
+      </button>
+    </header>
 
-  <section class="card">
-    <h2>รายการที่สามารถคืนได้</h2>
-    <div id="items"></div>
-  </section>
+    <section class="panel">
+      <div class="warning">
+        <strong>ขั้นตอนตรวจสอบ</strong>
+        <p>
+          เลือกสินค้าที่ต้องการคืนและจำนวนคืนก่อน
+          ระบบยังไม่บันทึกจริงจนกว่าจะติดตั้ง Return RPC ในขั้นถัดไป
+        </p>
+      </div>
 
-  <section class="card grid">
-    <label class="field">วิธีคืนเงิน
-      <select id="refundMethod">
-        <option value="CASH">เงินสด</option>
-        <option value="TRANSFER">โอนเงิน</option>
-        <option value="QR">QR</option>
-        <option value="CARD">บัตร</option>
-        <option value="STORE_CREDIT">เครดิตร้าน</option>
-        <option value="OTHER">อื่น ๆ</option>
-      </select>
-    </label>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>สินค้า</th>
+              <th>รหัสสินค้า</th>
+              <th>จำนวนที่ซื้อ</th>
+              <th>จำนวนคืน</th>
+              <th>ราคาต่อหน่วย</th>
+              <th>ยอดคืนโดยประมาณ</th>
+            </tr>
+          </thead>
+          <tbody id="returnRows">
+            <tr>
+              <td colspan="6" class="empty-row">กำลังโหลด...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <label class="field">เหตุผลการคืน<textarea id="reason" required></textarea></label>
-    <label class="field">หมายเหตุ<textarea id="notes"></textarea></label>
+      <div class="return-form">
+        <label>
+          เหตุผลการคืนสินค้า
+          <textarea
+            id="returnReason"
+            rows="4"
+            placeholder="ระบุเหตุผลอย่างน้อย 5 ตัวอักษร"></textarea>
+        </label>
 
-    <div>
-      <p>ยอดคืนโดยประมาณ</p>
-      <h2 id="refundEstimate">฿0.00</h2>
-    </div>
+        <label>
+          วิธีคืนเงิน
+          <select id="refundMethod">
+            <option value="ORIGINAL">คืนตามช่องทางเดิม</option>
+            <option value="CASH">เงินสด</option>
+            <option value="TRANSFER">โอน</option>
+            <option value="STORE_CREDIT">เครดิตร้านค้า</option>
+          </select>
+        </label>
+      </div>
 
-    <button id="returnBtn" class="btn danger" type="button">ยืนยันคืนสินค้า</button>
-    <p id="actionMessage" class="msg"></p>
-  </section>
-</main>
+      <section class="summary-grid">
+        <article>
+          <span>จำนวนคืนรวม</span>
+          <strong id="totalReturnQty">0</strong>
+        </article>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/sales-return.js?v=1.0.2"></script>
-  <script src="./js/navigation.js?v=1.0.2"></script>
+        <article>
+          <span>ยอดคืนโดยประมาณ</span>
+          <strong id="estimatedRefund">฿0.00</strong>
+        </article>
+      </section>
+
+      <div class="actions">
+        <button id="cancelButton" class="secondary-button" type="button">
+          ยกเลิก
+        </button>
+
+        <button id="confirmButton" class="primary-button" type="button" disabled>
+          ยืนยันคืนสินค้า
+        </button>
+      </div>
+
+      <p id="statusMessage" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script type="module" src="./js/phase-9-2-sales-return.js"></script>
 </body>
 </html>

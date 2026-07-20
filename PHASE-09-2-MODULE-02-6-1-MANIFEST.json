@@ -1,0 +1,8 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.6.1 Sales Return Foundation",
+  "version": "1.0.0",
+  "entry": "sales-return.html",
+  "database_write_enabled": false,
+  "uses_rpc": "get_sale_receipt_phase_9_2",
+  "next": "Module 2.6.2 Sales Return Transaction RPC"
+}
