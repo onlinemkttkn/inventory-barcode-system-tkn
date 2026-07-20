@@ -1,0 +1,17 @@
+{
+  "package": "TKN POS Phase 9.2 Complete After-Sales Pack",
+  "version": "1.1.0",
+  "includes": [
+    "Search Bill latest",
+    "Bill Detail RPC",
+    "Reprint Receipt",
+    "Void Bill Foundation"
+  ],
+  "important_replace": "js/phase-9-2-bill-search.js",
+  "sql_run_order": [
+    "sql/phase-9-2-bill-detail-rpc.sql (only if not already installed)",
+    "sql/phase-9-2-reprint-receipt.sql",
+    "sql/phase-9-2-void-bill.sql"
+  ],
+  "stock_restore_on_void": false
+}

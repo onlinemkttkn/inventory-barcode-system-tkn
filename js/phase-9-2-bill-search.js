@@ -30,7 +30,8 @@ const els = {
   dialogContent: document.querySelector('#dialogContent'),
   closeDialog: document.querySelector('#closeDialog'),
   reprintButton: document.querySelector('#reprintButton'),
-  returnButton: document.querySelector('#returnButton')
+  returnButton: document.querySelector('#returnButton'),
+  voidButton: document.querySelector('#voidButton')
 };
 
 function formatMoney(value) {
@@ -42,6 +43,7 @@ function formatMoney(value) {
 
 function formatDate(value) {
   if (!value) return '-';
+
   return new Intl.DateTimeFormat('th-TH', {
     dateStyle: 'medium',
     timeStyle: 'short'
@@ -50,6 +52,7 @@ function formatDate(value) {
 
 function channelLabel(value) {
   const normalized = String(value || '').toUpperCase();
+
   const labels = {
     STORE: 'หน้าร้าน',
     ONLINE: 'ออนไลน์',
@@ -64,11 +67,13 @@ function channelLabel(value) {
     CREDIT_CARD: 'บัตรเครดิต',
     DEBIT_CARD: 'บัตรเดบิต'
   };
+
   return labels[normalized] || value || '-';
 }
 
 function statusLabel(value) {
   const normalized = String(value || '').toUpperCase();
+
   const labels = {
     COMPLETED: 'สำเร็จ',
     VOIDED: 'ยกเลิก',
@@ -77,6 +82,7 @@ function statusLabel(value) {
     PARTIAL_RETURN: 'คืนบางส่วน',
     DRAFT: 'แบบร่าง'
   };
+
   return labels[normalized] || value || '-';
 }
 
@@ -108,15 +114,19 @@ async function searchBills() {
       'search_sales_bills_phase_9_2',
       buildRpcParams()
     );
+
     if (error) throw error;
 
     state.bills = Array.isArray(data) ? data : [];
     state.filteredBills = [...state.bills];
+
     render();
   } catch (error) {
     console.error('Search bill error:', error);
+
     state.bills = [];
     state.filteredBills = [];
+
     render();
     els.resultMessage.textContent = `โหลดข้อมูลไม่สำเร็จ: ${error.message}`;
   } finally {
@@ -129,11 +139,15 @@ function render() {
 
   if (!state.filteredBills.length) {
     const row = document.createElement('tr');
-    row.innerHTML = '<td class="empty-row" colspan="8">ไม่พบข้อมูลตามเงื่อนไข</td>';
+
+    row.innerHTML =
+      '<td class="empty-row" colspan="8">ไม่พบข้อมูลตามเงื่อนไข</td>';
+
     els.billRows.append(row);
   } else {
     for (const bill of state.filteredBills) {
       const row = document.createElement('tr');
+
       row.innerHTML = `
         <td><strong>${escapeHtml(bill.sale_no)}</strong></td>
         <td>${formatDate(bill.created_at)}</td>
@@ -141,22 +155,34 @@ function render() {
         <td>${channelLabel(bill.sales_channel)}</td>
         <td>${channelLabel(bill.payment_method)}</td>
         <td>${formatMoney(bill.net_total)}</td>
-        <td><span class="status ${String(bill.status || '').toLowerCase()}">${statusLabel(bill.status)}</span></td>
         <td>
-          <button class="secondary-button view-bill" type="button" data-id="${escapeHtml(bill.id)}">
+          <span class="status ${String(bill.status || '').toLowerCase()}">
+            ${statusLabel(bill.status)}
+          </span>
+        </td>
+        <td>
+          <button
+            class="secondary-button view-bill"
+            type="button"
+            data-id="${escapeHtml(bill.id)}">
             ดูรายละเอียด
           </button>
         </td>
       `;
+
       els.billRows.append(row);
     }
   }
 
   const total = state.filteredBills.reduce(
-    (sum, bill) => sum + Number(bill.net_total || 0), 0
+    (sum, bill) => sum + Number(bill.net_total || 0),
+    0
   );
+
   const returns = state.filteredBills.filter((bill) =>
-    ['RETURNED', 'PARTIAL_RETURN'].includes(String(bill.status || '').toUpperCase())
+    ['RETURNED', 'PARTIAL_RETURN'].includes(
+      String(bill.status || '').toUpperCase()
+    )
   ).length;
 
   els.summaryBills.textContent = String(state.filteredBills.length);
@@ -171,11 +197,13 @@ function render() {
 
 async function openBill(id) {
   const bill = state.bills.find((item) => String(item.id) === String(id));
+
   if (!bill) return;
 
   state.selectedBill = bill;
   els.dialogBillNo.textContent = bill.sale_no || '-';
   els.dialogContent.innerHTML = '<p>กำลังโหลดรายละเอียด...</p>';
+
   els.billDialog.showModal();
 
   try {
@@ -188,10 +216,29 @@ async function openBill(id) {
 
     els.dialogContent.innerHTML = `
       <div class="bill-meta">
-        <p><strong>วันที่:</strong><br>${formatDate(bill.created_at)}</p>
-        <p><strong>ลูกค้า:</strong><br>${escapeHtml(bill.customer_name || 'Walk-in')}</p>
-        <p><strong>เบอร์โทร:</strong><br>${escapeHtml(bill.customer_phone || '-')}</p>
-        <p><strong>ชำระเงิน:</strong><br>${channelLabel(bill.payment_method)}</p>
+        <p>
+          <strong>วันที่:</strong>
+          <br>
+          ${formatDate(bill.created_at)}
+        </p>
+
+        <p>
+          <strong>ลูกค้า:</strong>
+          <br>
+          ${escapeHtml(bill.customer_name || 'Walk-in')}
+        </p>
+
+        <p>
+          <strong>เบอร์โทร:</strong>
+          <br>
+          ${escapeHtml(bill.customer_phone || '-')}
+        </p>
+
+        <p>
+          <strong>ชำระเงิน:</strong>
+          <br>
+          ${channelLabel(bill.payment_method)}
+        </p>
       </div>
 
       <ul class="item-list">
@@ -206,6 +253,7 @@ async function openBill(id) {
                 ${escapeHtml(item.barcode_snapshot || '-')}
               </small>
             </span>
+
             <strong>
               ${Number(item.quantity || 0)}
               ×
@@ -217,28 +265,55 @@ async function openBill(id) {
         `).join('')}
       </ul>
 
-      <p><strong>ยอดสุทธิ: ${formatMoney(bill.net_total)}</strong></p>
+      <p>
+        <strong>ยอดสุทธิ: ${formatMoney(bill.net_total)}</strong>
+      </p>
     `;
 
     applyPermissionUI({
       role: state.role,
       root: els.billDialog
     });
+
+    updateActionButtonsForBill(bill);
   } catch (error) {
     console.error('Load bill detail error:', error);
+
     els.dialogContent.innerHTML = `
-      <p>โหลดรายละเอียดบิลไม่สำเร็จ: ${escapeHtml(error.message)}</p>
+      <p>
+        โหลดรายละเอียดบิลไม่สำเร็จ:
+        ${escapeHtml(error.message)}
+      </p>
     `;
+  }
+}
+
+function updateActionButtonsForBill(bill) {
+  const status = String(bill.status || '').toUpperCase();
+  const isVoided = status === 'VOIDED' || status === 'CANCELLED';
+
+  if (els.voidButton) {
+    els.voidButton.disabled = isVoided;
+    els.voidButton.hidden = isVoided;
+  }
+
+  if (els.returnButton) {
+    els.returnButton.disabled = isVoided;
   }
 }
 
 function resetFilters() {
   [
-    els.keyword, els.dateFrom, els.dateTo,
-    els.paymentChannel, els.salesChannel, els.status
+    els.keyword,
+    els.dateFrom,
+    els.dateTo,
+    els.paymentChannel,
+    els.salesChannel,
+    els.status
   ].forEach((element) => {
     element.value = '';
   });
+
   searchBills();
 }
 
@@ -253,10 +328,17 @@ function escapeHtml(value) {
 
 els.searchButton.addEventListener('click', searchBills);
 els.resetButton.addEventListener('click', resetFilters);
+
 els.keyword.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') searchBills();
+  if (event.key === 'Enter') {
+    searchBills();
+  }
 });
-els.closeDialog.addEventListener('click', () => els.billDialog.close());
+
+els.closeDialog.addEventListener('click', () => {
+  els.billDialog.close();
+});
+
 els.reprintButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
 
@@ -273,13 +355,56 @@ els.reprintButton.addEventListener('click', () => {
     'width=520,height=760,noopener,noreferrer'
   );
 });
+
 els.returnButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
-  const saleNo = state.selectedBill.sale_no || state.selectedBill.id;
+
+  const saleId = state.selectedBill.id;
+  const saleNo = state.selectedBill.sale_no || '';
+
   window.location.href =
-    `./sales-return.html?sale_id=${encodeURIComponent(state.selectedBill.id)}`
+    `./sales-return.html?sale_id=${encodeURIComponent(saleId)}`
     + `&sale_no=${encodeURIComponent(saleNo)}`;
 });
 
-applyPermissionUI({ role: state.role, root: document });
+if (els.voidButton) {
+  els.voidButton.addEventListener('click', () => {
+    if (!state.selectedBill) return;
+
+    const saleId = state.selectedBill.id;
+    const saleNo = state.selectedBill.sale_no || '';
+
+    const url =
+      `./phase-9-2-void-bill.html?sale_id=${encodeURIComponent(saleId)}`
+      + `&sale_no=${encodeURIComponent(saleNo)}`;
+
+    window.open(
+      url,
+      '_blank',
+      'width=620,height=640,noopener,noreferrer'
+    );
+  });
+}
+
+window.addEventListener('message', (event) => {
+  if (event.origin !== window.location.origin) return;
+
+  if (event.data?.type === 'TKN_BILL_VOIDED') {
+    els.billDialog.close();
+    searchBills();
+  }
+});
+
+window.addEventListener('focus', () => {
+  if (sessionStorage.getItem('tkn_bill_search_refresh') === '1') {
+    sessionStorage.removeItem('tkn_bill_search_refresh');
+    searchBills();
+  }
+});
+
+applyPermissionUI({
+  role: state.role,
+  root: document
+});
+
 searchBills();
