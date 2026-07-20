@@ -1,0 +1,15 @@
+{
+  "package": "TKN POS Phase 9.2 Complete Bill Module",
+  "version": "2.0.0",
+  "includes": [
+    "Bill Search",
+    "Bill Detail",
+    "Reprint Receipt",
+    "Void Bill",
+    "Supabase Client",
+    "Permissions",
+    "SQL RPCs"
+  ],
+  "stock_restore_on_void": false,
+  "entry": "phase-9-2-bill-search.html"
+}

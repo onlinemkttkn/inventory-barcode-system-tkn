@@ -22,49 +22,33 @@ const els = {
   reprintTimestamp: document.querySelector('#reprintTimestamp')
 };
 
-function formatMoney(value) {
+function money(value) {
   return new Intl.NumberFormat('th-TH', {
     style: 'currency',
     currency: 'THB'
   }).format(Number(value || 0));
 }
 
-function formatDate(value) {
-  if (!value) return '-';
-
+function date(value) {
   return new Intl.DateTimeFormat('th-TH', {
     dateStyle: 'medium',
     timeStyle: 'short'
   }).format(new Date(value));
 }
 
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function paymentLabel(value) {
-  const normalized = String(value || '').toUpperCase();
+function payment(value) {
   const labels = {
     CASH: 'เงินสด',
     QR: 'QR',
     TRANSFER: 'โอน',
-    CARD: 'บัตร',
-    CREDIT_CARD: 'บัตรเครดิต',
-    DEBIT_CARD: 'บัตรเดบิต'
+    CARD: 'บัตร'
   };
-  return labels[normalized] || value || '-';
+  return labels[String(value || '').toUpperCase()] || value || '-';
 }
 
-async function loadReceipt() {
+async function load() {
   if (!saleId) {
     els.toolbarStatus.textContent = 'ไม่พบ sale_id';
-    els.receiptItems.innerHTML =
-      '<tr><td colspan="3">ไม่พบรหัสบิล</td></tr>';
     return;
   }
 
@@ -75,95 +59,46 @@ async function loadReceipt() {
     );
 
     if (error) throw error;
-    if (!data) throw new Error('ไม่พบข้อมูลใบเสร็จ');
 
-    const header = data.header || {};
-    const items = Array.isArray(data.items) ? data.items : [];
+    const header = data?.header || {};
+    const items = data?.items || [];
 
     els.saleNo.textContent = header.sale_no || '-';
-    els.saleDate.textContent = formatDate(header.created_at);
+    els.saleDate.textContent = date(header.created_at);
     els.customerName.textContent = header.customer_name || 'Walk-in';
-    els.paymentMethod.textContent = paymentLabel(header.payment_method);
+    els.paymentMethod.textContent = payment(header.payment_method);
+    els.subtotal.textContent = money(header.subtotal);
+    els.discount.textContent = money(header.discount_amount);
+    els.netTotal.textContent = money(header.net_total);
+    els.receivedAmount.textContent = money(header.received_amount);
+    els.changeAmount.textContent = money(header.change_amount);
 
-    els.subtotal.textContent = formatMoney(header.subtotal);
-    els.discount.textContent = formatMoney(header.discount_amount);
-    els.netTotal.textContent = formatMoney(header.net_total);
-    els.receivedAmount.textContent = formatMoney(header.received_amount);
-    els.changeAmount.textContent = formatMoney(header.change_amount);
-
-    els.receiptItems.innerHTML = items.length
-      ? items.map((item) => `
-          <tr>
-            <td>
-              <span class="item-name">${escapeHtml(item.product_name_snapshot || '-')}</span>
-              <span class="item-code">
-                ${escapeHtml(item.product_code_snapshot || '-')}
-              </span>
-            </td>
-            <td class="number">
-              ${Number(item.quantity || 0)}
-            </td>
-            <td class="number">
-              ${formatMoney(item.line_total)}
-            </td>
-          </tr>
-        `).join('')
-      : '<tr><td colspan="3">ไม่พบรายการสินค้า</td></tr>';
-
-    els.reprintTimestamp.textContent =
-      `พิมพ์ซ้ำเมื่อ ${formatDate(new Date().toISOString())}`;
-
-    els.toolbarStatus.textContent = `พร้อมพิมพ์ ${header.sale_no || ''}`;
-
-    await logReprint(header.sale_no);
-  } catch (error) {
-    console.error('Load reprint receipt error:', error);
-    els.toolbarStatus.textContent = `โหลดไม่สำเร็จ: ${error.message}`;
-    els.receiptItems.innerHTML = `
+    els.receiptItems.innerHTML = items.map((item) => `
       <tr>
-        <td colspan="3">
-          โหลดใบเสร็จไม่สำเร็จ: ${escapeHtml(error.message)}
+        <td>
+          <span class="item-name">${item.product_name_snapshot || '-'}</span>
+          <span class="item-code">${item.product_code_snapshot || '-'}</span>
         </td>
+        <td class="number">${Number(item.quantity || 0)}</td>
+        <td class="number">${money(item.line_total)}</td>
       </tr>
-    `;
-  }
-}
+    `).join('');
 
-async function logReprint(saleNo) {
-  try {
-    const { error } = await supabaseClient.rpc(
-      'log_receipt_reprint_phase_9_2',
-      {
-        p_sale_id: saleId,
-        p_sale_no: saleNo || null,
-        p_paper_size: Number(els.paperSize.value)
-      }
-    );
-
-    if (error) {
-      console.warn('Audit log reprint warning:', error);
-    }
+    els.reprintTimestamp.textContent = `พิมพ์ซ้ำเมื่อ ${date(new Date())}`;
+    els.toolbarStatus.textContent = `พร้อมพิมพ์ ${header.sale_no || ''}`;
   } catch (error) {
-    console.warn('Audit log reprint failed:', error);
+    console.error(error);
+    els.toolbarStatus.textContent = `โหลดไม่สำเร็จ: ${error.message}`;
   }
 }
 
 els.paperSize.addEventListener('change', () => {
-  const size = els.paperSize.value;
-  els.receipt.classList.toggle('receipt-58', size === '58');
-  els.receipt.classList.toggle('receipt-80', size === '80');
+  const is58 = els.paperSize.value === '58';
+  els.receipt.classList.toggle('receipt-58', is58);
+  els.receipt.classList.toggle('receipt-80', !is58);
 });
 
-els.printButton.addEventListener('click', () => {
-  window.print();
-});
+els.printButton.addEventListener('click', () => window.print());
+els.closeButton.addEventListener('click', () => window.close());
 
-els.closeButton.addEventListener('click', () => {
-  if (window.opener) {
-    window.close();
-  } else {
-    history.back();
-  }
-});
-
-loadReceipt();
+load();

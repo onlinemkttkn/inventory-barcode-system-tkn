@@ -1,4 +1,6 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/+esm';
+import { createClient } from
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/+esm';
+
 import {
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
@@ -16,5 +18,4 @@ export const supabaseClient = createClient(
   }
 );
 
-// Temporary compatibility for pages that still expect a global client.
 window.supabaseClient = supabaseClient;

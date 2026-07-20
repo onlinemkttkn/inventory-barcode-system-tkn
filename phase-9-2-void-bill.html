@@ -7,13 +7,11 @@
   <link rel="stylesheet" href="./css/phase-9-2-void-bill.css">
 </head>
 <body>
-  <main class="page-shell">
-    <section class="card">
-      <header>
-        <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
-        <h1>ยกเลิกบิล</h1>
-        <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
-      </header>
+  <main class="void-page">
+    <section class="void-card">
+      <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
+      <h1>ยกเลิกบิล</h1>
+      <p id="billSummary">กำลังโหลดข้อมูล...</p>
 
       <div class="warning">
         <strong>คำเตือน</strong>
@@ -26,12 +24,12 @@
           placeholder="ระบุเหตุผลอย่างน้อย 5 ตัวอักษร"></textarea>
       </label>
 
-      <div class="actions">
-        <button id="cancelButton" type="button" class="secondary">ยกเลิก</button>
-        <button id="confirmButton" type="button" class="danger">ยืนยันยกเลิกบิล</button>
+      <div class="void-actions">
+        <button id="cancelButton" type="button">ยกเลิก</button>
+        <button id="confirmButton" class="danger" type="button">ยืนยันยกเลิกบิล</button>
       </div>
 
-      <p id="statusMessage" role="status" aria-live="polite"></p>
+      <p id="statusMessage"></p>
     </section>
   </main>
 

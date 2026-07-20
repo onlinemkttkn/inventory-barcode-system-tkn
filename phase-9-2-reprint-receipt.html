@@ -13,7 +13,6 @@
         <strong>พิมพ์ใบเสร็จย้อนหลัง</strong>
         <span id="toolbarStatus">กำลังโหลด...</span>
       </div>
-
       <div class="toolbar-actions">
         <label>
           ขนาดกระดาษ
@@ -22,13 +21,12 @@
             <option value="58">58 mm</option>
           </select>
         </label>
-
         <button id="printButton" type="button">พิมพ์</button>
         <button id="closeButton" type="button">ปิด</button>
       </div>
     </section>
 
-    <article id="receipt" class="receipt receipt-80" aria-live="polite">
+    <article id="receipt" class="receipt receipt-80">
       <header class="receipt-header">
         <h1>TKN SHOP</h1>
         <p>ใบเสร็จรับเงิน (สำเนา)</p>
@@ -42,20 +40,18 @@
         <div><span>ชำระเงิน</span><strong id="paymentMethod">-</strong></div>
       </section>
 
-      <section>
-        <table>
-          <thead>
-            <tr>
-              <th>รายการ</th>
-              <th class="number">จำนวน</th>
-              <th class="number">รวม</th>
-            </tr>
-          </thead>
-          <tbody id="receiptItems">
-            <tr><td colspan="3">กำลังโหลด...</td></tr>
-          </tbody>
-        </table>
-      </section>
+      <table>
+        <thead>
+          <tr>
+            <th>รายการ</th>
+            <th class="number">จำนวน</th>
+            <th class="number">รวม</th>
+          </tr>
+        </thead>
+        <tbody id="receiptItems">
+          <tr><td colspan="3">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
 
       <section class="totals">
         <div><span>ยอดก่อนส่วนลด</span><strong id="subtotal">฿0.00</strong></div>

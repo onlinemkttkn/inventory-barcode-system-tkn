@@ -12,18 +12,6 @@ const els = {
   statusMessage: document.querySelector('#statusMessage')
 };
 
-function setStatus(message, type = '') {
-  els.statusMessage.textContent = message;
-  els.statusMessage.className = type;
-}
-
-function setLoading(isLoading) {
-  els.confirmButton.disabled = isLoading;
-  els.cancelButton.disabled = isLoading;
-  els.confirmButton.textContent =
-    isLoading ? 'กำลังดำเนินการ...' : 'ยืนยันยกเลิกบิล';
-}
-
 async function loadBill() {
   if (!saleId) {
     els.billSummary.textContent = 'ไม่พบ sale_id';
@@ -31,53 +19,39 @@ async function loadBill() {
     return;
   }
 
-  try {
-    const { data, error } = await supabaseClient.rpc(
-      'get_sale_receipt_phase_9_2',
-      { p_sale_id: saleId }
-    );
+  const { data, error } = await supabaseClient.rpc(
+    'get_sale_receipt_phase_9_2',
+    { p_sale_id: saleId }
+  );
 
-    if (error) throw error;
+  if (error) {
+    els.billSummary.textContent = `โหลดไม่สำเร็จ: ${error.message}`;
+    els.confirmButton.disabled = true;
+    return;
+  }
 
-    const header = data?.header;
-    if (!header) throw new Error('ไม่พบข้อมูลบิล');
+  const header = data?.header || {};
+  els.billSummary.textContent =
+    `เลขบิล ${header.sale_no || saleNo || '-'} · สถานะ ${header.status || '-'}`;
 
-    els.billSummary.textContent =
-      `เลขบิล ${header.sale_no || saleNo || '-'} · สถานะ ${header.status || '-'}`;
-
-    if (String(header.status || '').toUpperCase() === 'VOIDED') {
-      setStatus('บิลนี้ถูกยกเลิกแล้ว', 'error');
-      els.confirmButton.disabled = true;
-    }
-  } catch (error) {
-    console.error('Load void bill error:', error);
-    setStatus(`โหลดข้อมูลไม่สำเร็จ: ${error.message}`, 'error');
+  if (String(header.status || '').toUpperCase() === 'VOIDED') {
+    els.statusMessage.textContent = 'บิลนี้ถูกยกเลิกแล้ว';
     els.confirmButton.disabled = true;
   }
 }
 
-async function confirmVoid() {
+els.confirmButton.addEventListener('click', async () => {
   const reason = els.reason.value.trim();
 
-  if (!saleId) {
-    setStatus('ไม่พบรหัสบิล', 'error');
-    return;
-  }
-
   if (reason.length < 5) {
-    setStatus('กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร', 'error');
-    els.reason.focus();
+    els.statusMessage.textContent = 'กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร';
     return;
   }
 
-  const confirmed = window.confirm(
-    `ยืนยันยกเลิกบิล ${saleNo || saleId} ใช่หรือไม่?`
-  );
+  if (!confirm(`ยืนยันยกเลิกบิล ${saleNo || saleId} ใช่หรือไม่?`)) return;
 
-  if (!confirmed) return;
-
-  setLoading(true);
-  setStatus('กำลังยกเลิกบิล...');
+  els.confirmButton.disabled = true;
+  els.statusMessage.textContent = 'กำลังยกเลิกบิล...';
 
   try {
     const { data, error } = await supabaseClient.rpc(
@@ -90,10 +64,8 @@ async function confirmVoid() {
 
     if (error) throw error;
 
-    setStatus(
-      `ยกเลิกบิลสำเร็จ ${data?.sale_no || saleNo || ''}`,
-      'success'
-    );
+    els.statusMessage.textContent =
+      `ยกเลิกบิลสำเร็จ ${data?.sale_no || saleNo || ''}`;
 
     sessionStorage.setItem('tkn_bill_search_refresh', '1');
 
@@ -104,25 +76,15 @@ async function confirmVoid() {
           window.location.origin
         );
         window.close();
-      } else {
-        window.location.href = './phase-9-2-bill-search.html';
       }
-    }, 900);
+    }, 800);
   } catch (error) {
-    console.error('Void bill error:', error);
-    setStatus(`ยกเลิกบิลไม่สำเร็จ: ${error.message}`, 'error');
-  } finally {
-    setLoading(false);
-  }
-}
-
-els.confirmButton.addEventListener('click', confirmVoid);
-els.cancelButton.addEventListener('click', () => {
-  if (window.opener) {
-    window.close();
-  } else {
-    history.back();
+    console.error(error);
+    els.statusMessage.textContent = `ยกเลิกไม่สำเร็จ: ${error.message}`;
+    els.confirmButton.disabled = false;
   }
 });
+
+els.cancelButton.addEventListener('click', () => window.close());
 
 loadBill();

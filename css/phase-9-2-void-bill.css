@@ -1,37 +1,26 @@
 * { box-sizing: border-box; }
 :root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #172033;
   background: #f4f7fb;
+  color: #172033;
 }
 body { margin: 0; }
 button, textarea { font: inherit; }
 
-.page-shell {
+.void-page {
   width: min(680px, calc(100% - 28px));
   margin: 40px auto;
 }
 
-.card {
+.void-card {
   background: #fff;
   border: 1px solid #dfe5ef;
   border-radius: 18px;
   padding: 24px;
 }
 
-.eyebrow {
-  margin: 0 0 6px;
-  color: #2563eb;
-  font-size: .9rem;
-  font-weight: 700;
-}
-
+.eyebrow { margin: 0 0 6px; color: #2563eb; font-weight: 700; }
 h1 { margin: 0; }
-
-header p:last-child {
-  margin: 8px 0 0;
-  color: #667085;
-}
 
 .warning {
   margin: 20px 0;
@@ -42,16 +31,7 @@ header p:last-child {
   color: #9a3412;
 }
 
-.warning p {
-  margin: 5px 0 0;
-}
-
-label {
-  display: grid;
-  gap: 8px;
-  font-weight: 700;
-}
-
+label { display: grid; gap: 8px; font-weight: 700; }
 textarea {
   width: 100%;
   resize: vertical;
@@ -60,7 +40,7 @@ textarea {
   padding: 12px;
 }
 
-.actions {
+.void-actions {
   margin-top: 18px;
   display: flex;
   justify-content: flex-end;
@@ -74,25 +54,5 @@ button {
   cursor: pointer;
 }
 
-.secondary {
-  background: #eef2f7;
-  color: #172033;
-}
-
-.danger {
-  background: #dc2626;
-  color: #fff;
-}
-
-button:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-}
-
-#statusMessage {
-  min-height: 24px;
-  margin: 16px 0 0;
-}
-
-#statusMessage.success { color: #027a48; }
-#statusMessage.error { color: #b42318; }
+.danger { background: #dc2626; color: #fff; }
+button:disabled { opacity: .55; cursor: not-allowed; }
