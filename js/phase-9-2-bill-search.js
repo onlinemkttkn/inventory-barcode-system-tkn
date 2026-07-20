@@ -258,7 +258,20 @@ els.keyword.addEventListener('keydown', (event) => {
 });
 els.closeDialog.addEventListener('click', () => els.billDialog.close());
 els.reprintButton.addEventListener('click', () => {
-  if (state.selectedBill) window.print();
+  if (!state.selectedBill) return;
+
+  const saleId = state.selectedBill.id;
+  const saleNo = state.selectedBill.sale_no || '';
+
+  const url =
+    `./phase-9-2-reprint-receipt.html?sale_id=${encodeURIComponent(saleId)}`
+    + `&sale_no=${encodeURIComponent(saleNo)}`;
+
+  window.open(
+    url,
+    '_blank',
+    'width=520,height=760,noopener,noreferrer'
+  );
 });
 els.returnButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
