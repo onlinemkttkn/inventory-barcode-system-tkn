@@ -38,8 +38,9 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function setStatus(message) {
+function setStatus(message, type = '') {
   els.statusMessage.textContent = message;
+  els.statusMessage.dataset.type = type;
 }
 
 async function loadSale() {
@@ -61,9 +62,7 @@ async function loadSale() {
     state.header = data?.header || null;
     state.items = Array.isArray(data?.items) ? data.items : [];
 
-    if (!state.header) {
-      throw new Error('ไม่พบข้อมูลหัวบิล');
-    }
+    if (!state.header) throw new Error('ไม่พบข้อมูลหัวบิล');
 
     els.billSummary.textContent =
       `เลขบิล ${state.header.sale_no || saleNoFromUrl || '-'}`
@@ -72,14 +71,19 @@ async function loadSale() {
     const status = String(state.header.status || '').toUpperCase();
 
     if (['VOIDED', 'CANCELLED'].includes(status)) {
-      setStatus('บิลที่ยกเลิกแล้วไม่สามารถทำรายการคืนสินค้าได้');
+      setStatus('บิลที่ยกเลิกแล้วไม่สามารถคืนสินค้าได้', 'error');
+      els.confirmButton.disabled = true;
+    }
+
+    if (status === 'RETURNED') {
+      setStatus('บิลนี้คืนสินค้าครบแล้ว', 'error');
       els.confirmButton.disabled = true;
     }
 
     renderRows();
   } catch (error) {
     console.error('Load sales return error:', error);
-    setStatus(`โหลดข้อมูลไม่สำเร็จ: ${error.message}`);
+    setStatus(`โหลดข้อมูลไม่สำเร็จ: ${error.message}`, 'error');
     els.returnRows.innerHTML =
       '<tr><td colspan="6" class="empty-row">โหลดข้อมูลไม่สำเร็จ</td></tr>';
   }
@@ -134,7 +138,8 @@ function getReturnLines() {
         product_id: item.product_id,
         quantity,
         unit_price: Number(item.unit_price || 0),
-        line_refund: quantity * Number(item.unit_price || 0)
+        refund_amount:
+          quantity * Number(item.unit_price || 0)
       };
     })
     .filter((line) => line.quantity > 0);
@@ -142,15 +147,20 @@ function getReturnLines() {
 
 function updateSummary() {
   const lines = getReturnLines();
-  const totalQty = lines.reduce((sum, line) => sum + line.quantity, 0);
+
+  const totalQty = lines.reduce(
+    (sum, line) => sum + line.quantity,
+    0
+  );
+
   const totalRefund = lines.reduce(
-    (sum, line) => sum + line.line_refund,
+    (sum, line) => sum + line.refund_amount,
     0
   );
 
   document.querySelectorAll('.qty-input').forEach((input) => {
-    const index = Number(input.dataset.index);
-    const item = state.items[index];
+    const item = state.items[Number(input.dataset.index)];
+
     const quantity = Math.max(
       0,
       Math.min(
@@ -160,40 +170,132 @@ function updateSummary() {
     );
 
     input.value = String(quantity);
-    input.closest('tr').querySelector('.line-refund').textContent =
-      formatMoney(quantity * Number(item.unit_price || 0));
+
+    input.closest('tr')
+      .querySelector('.line-refund')
+      .textContent =
+        formatMoney(
+          quantity * Number(item.unit_price || 0)
+        );
   });
 
   els.totalReturnQty.textContent = String(totalQty);
   els.estimatedRefund.textContent = formatMoney(totalRefund);
 
-  const reasonValid = els.returnReason.value.trim().length >= 5;
-  const billStatus = String(state.header?.status || '').toUpperCase();
-  const billAllowed = !['VOIDED', 'CANCELLED'].includes(billStatus);
+  const reasonValid =
+    els.returnReason.value.trim().length >= 5;
 
-  // Disabled until the database return RPC is installed in Module 2.6.2.
-  els.confirmButton.disabled = true;
+  const status =
+    String(state.header?.status || '').toUpperCase();
 
-  if (totalQty > 0 && reasonValid && billAllowed) {
+  const allowed =
+    !['VOIDED', 'CANCELLED', 'RETURNED'].includes(status);
+
+  els.confirmButton.disabled =
+    !(totalQty > 0 && reasonValid && allowed);
+}
+
+async function submitReturn() {
+  const lines = getReturnLines();
+  const reason = els.returnReason.value.trim();
+
+  if (!lines.length) {
     setStatus(
-      'เลือกสินค้าเรียบร้อยแล้ว ขั้นต่อไปคือติดตั้ง Return RPC สำหรับบันทึกจริง'
+      'กรุณาเลือกจำนวนสินค้าที่ต้องการคืน',
+      'error'
     );
-  } else {
-    setStatus('');
+    return;
+  }
+
+  if (reason.length < 5) {
+    setStatus(
+      'กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร',
+      'error'
+    );
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `ยืนยันคืนสินค้าจากบิล `
+    + `${state.header?.sale_no || saleNoFromUrl || ''}`
+    + ` ใช่หรือไม่?`
+  );
+
+  if (!confirmed) return;
+
+  els.confirmButton.disabled = true;
+  setStatus('กำลังบันทึกคืนสินค้า...');
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      'process_sale_return_phase_9_2',
+      {
+        p_sale_id: saleId,
+        p_reason: reason,
+        p_refund_method: els.refundMethod.value,
+        p_items: lines
+      }
+    );
+
+    if (error) throw error;
+
+    setStatus(
+      `คืนสินค้าสำเร็จ ${data?.return_no || ''}`
+      + ` · ยอดคืน ${formatMoney(data?.refund_amount)}`,
+      'success'
+    );
+
+    sessionStorage.setItem(
+      'tkn_bill_search_refresh',
+      '1'
+    );
+
+    setTimeout(() => {
+      window.location.href =
+        './phase-9-2-bill-search.html';
+    }, 1200);
+  } catch (error) {
+    console.error('Process sales return error:', error);
+
+    const message = String(error.message || '');
+
+    if (message.includes('RETURN_QUANTITY_EXCEEDS_BALANCE')) {
+      setStatus(
+        'จำนวนคืนเกินยอดที่สามารถคืนได้ กรุณารีเฟรชและตรวจสอบอีกครั้ง',
+        'error'
+      );
+    } else if (message.includes('UNSUPPORTED_REFUND_METHOD')) {
+      setStatus(
+        'วิธีคืนเงินนี้ยังไม่รองรับในฐานข้อมูล',
+        'error'
+      );
+    } else {
+      setStatus(
+        `คืนสินค้าไม่สำเร็จ: ${message}`,
+        'error'
+      );
+    }
+
+    updateSummary();
   }
 }
 
-els.returnReason.addEventListener('input', updateSummary);
+els.returnReason.addEventListener(
+  'input',
+  updateSummary
+);
 
-els.confirmButton.addEventListener('click', () => {
-  setStatus('ยังไม่เปิดการบันทึกจริง กรุณาติดตั้ง Module 2.6.2 ก่อน');
-});
+els.confirmButton.addEventListener(
+  'click',
+  submitReturn
+);
 
 function goBack() {
   if (history.length > 1) {
     history.back();
   } else {
-    window.location.href = './phase-9-2-bill-search.html';
+    window.location.href =
+      './phase-9-2-bill-search.html';
   }
 }
 

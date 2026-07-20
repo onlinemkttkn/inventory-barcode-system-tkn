@@ -1,0 +1,18 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.6.2 Final Sales Return",
+  "version": "1.0.0",
+  "rpc": "public.process_sale_return_phase_9_2(uuid,text,text,jsonb)",
+  "transaction_safe": true,
+  "tables_written": [
+    "sales_returns",
+    "sales_return_items",
+    "branch_inventory",
+    "stock_documents",
+    "stock_movements",
+    "sales"
+  ],
+  "sale_statuses": [
+    "PARTIAL_RETURN",
+    "RETURNED"
+  ]
+}
