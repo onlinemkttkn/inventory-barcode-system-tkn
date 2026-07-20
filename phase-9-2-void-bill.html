@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKN POS - ยกเลิกบิล</title>
+  <link rel="stylesheet" href="./css/phase-9-2-void-bill.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="card">
+      <header>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
+        <h1>ยกเลิกบิล</h1>
+        <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
+      </header>
+
+      <div class="warning">
+        <strong>คำเตือน</strong>
+        <p>การยกเลิกบิลจะเปลี่ยนสถานะเป็น VOIDED และไม่สามารถยกเลิกซ้ำได้</p>
+      </div>
+
+      <label>
+        เหตุผลการยกเลิก
+        <textarea id="reason" rows="5"
+          placeholder="ระบุเหตุผลอย่างน้อย 5 ตัวอักษร"></textarea>
+      </label>
+
+      <div class="actions">
+        <button id="cancelButton" type="button" class="secondary">ยกเลิก</button>
+        <button id="confirmButton" type="button" class="danger">ยืนยันยกเลิกบิล</button>
+      </div>
+
+      <p id="statusMessage" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script type="module" src="./js/phase-9-2-void-bill.js"></script>
+</body>
+</html>

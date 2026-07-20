@@ -1,0 +1,10 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.5 Void Bill Foundation",
+  "version": "1.0.0",
+  "creates_function": "public.void_sale_phase_9_2(uuid,text)",
+  "status_change": "VOIDED",
+  "requires_reason": true,
+  "prevents_duplicate_void": true,
+  "stock_restore": false,
+  "note": "Stock restoration deferred until existing stock workflow is mapped."
+}
