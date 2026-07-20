@@ -1,18 +1,7 @@
+import { supabaseClient } from './supabase-client.js';
 import {
   applyPermissionUI
 } from './phase-9-2-permissions.js';
-
-/**
- * TKN POS / ERP — Phase 9.2 Module 2.1
- * Real Supabase integration for Search Bill.
- *
- * This module expects one of these:
- *   1) window.supabaseClient
- *   2) window.supabase
- *
- * If your project exports a client from another file, replace getSupabaseClient()
- * with an import from your existing Supabase client module.
- */
 
 const state = {
   role: sessionStorage.getItem('tkn_user_role') || 'owner',
@@ -43,18 +32,6 @@ const els = {
   reprintButton: document.querySelector('#reprintButton'),
   returnButton: document.querySelector('#returnButton')
 };
-
-function getSupabaseClient() {
-  const client = window.supabaseClient || window.supabase;
-
-  if (!client?.rpc || !client?.from) {
-    throw new Error(
-      'ไม่พบ Supabase client กรุณาเชื่อม window.supabaseClient หรือแก้ getSupabaseClient() ให้ import client เดิมของโปรเจกต์'
-    );
-  }
-
-  return client;
-}
 
 function formatMoney(value) {
   return new Intl.NumberFormat('th-TH', {
@@ -132,8 +109,7 @@ async function searchBills() {
   els.resultMessage.textContent = 'กำลังโหลดข้อมูล...';
 
   try {
-    const supabase = getSupabaseClient();
-    const { data, error } = await supabase.rpc(
+    const { data, error } = await supabaseClient.rpc(
       'search_sales_bills_phase_9_2',
       buildRpcParams()
     );
@@ -142,7 +118,6 @@ async function searchBills() {
 
     state.bills = Array.isArray(data) ? data : [];
     state.filteredBills = [...state.bills];
-
     render();
   } catch (error) {
     console.error('Search bill error:', error);
@@ -179,9 +154,7 @@ function render() {
           </span>
         </td>
         <td>
-          <button
-            class="secondary-button view-bill"
-            type="button"
+          <button class="secondary-button view-bill" type="button"
             data-id="${escapeHtml(bill.id)}">
             ดูรายละเอียด
           </button>
@@ -198,7 +171,9 @@ function render() {
   );
 
   const returns = state.filteredBills.filter((bill) =>
-    ['RETURNED', 'PARTIAL_RETURN'].includes(String(bill.status || '').toUpperCase())
+    ['RETURNED', 'PARTIAL_RETURN'].includes(
+      String(bill.status || '').toUpperCase()
+    )
   ).length;
 
   els.summaryBills.textContent = String(state.filteredBills.length);
@@ -221,9 +196,7 @@ async function openBill(id) {
   els.billDialog.showModal();
 
   try {
-    const supabase = getSupabaseClient();
-
-    const { data: items, error } = await supabase
+    const { data: items, error } = await supabaseClient
       .from('sale_items')
       .select(`
         id,
@@ -333,7 +306,10 @@ els.returnButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
 
   const saleNo = state.selectedBill.sale_no || state.selectedBill.id;
-  window.location.href = `./sales-return.html?sale_id=${encodeURIComponent(state.selectedBill.id)}&sale_no=${encodeURIComponent(saleNo)}`;
+
+  window.location.href =
+    `./sales-return.html?sale_id=${encodeURIComponent(state.selectedBill.id)}`
+    + `&sale_no=${encodeURIComponent(saleNo)}`;
 });
 
 applyPermissionUI({

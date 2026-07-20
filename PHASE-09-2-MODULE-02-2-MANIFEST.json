@@ -1,0 +1,14 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.2 Shared Supabase Client",
+  "version": "1.0.0",
+  "supabase_url": "https://wkozeuxyhqcmiatssviq.supabase.co",
+  "key_type": "publishable",
+  "sdk": "@supabase/supabase-js@2.110.7",
+  "replace": [
+    "js/phase-9-2-bill-search.js"
+  ],
+  "add": [
+    "js/supabase-config.js",
+    "js/supabase-client.js"
+  ]
+}
