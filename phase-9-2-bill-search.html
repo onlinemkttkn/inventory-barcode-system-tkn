@@ -14,7 +14,10 @@
         <h1>ค้นหาบิลย้อนหลัง</h1>
         <p>ค้นหาได้แม้เป็นลูกค้า Walk-in และไม่มีข้อมูลสมาชิก</p>
       </div>
-      <a class="secondary-button" href="./pos.html">กลับหน้าขาย</a>
+
+      <a class="secondary-button" href="./pos.html">
+        กลับหน้าขาย
+      </a>
     </header>
 
     <section class="panel" aria-labelledby="search-title">
@@ -23,7 +26,9 @@
       <div class="search-grid">
         <label>
           คำค้น
-          <input id="keyword" type="search"
+          <input
+            id="keyword"
+            type="search"
             placeholder="เลขบิล, SKU, Barcode, ชื่อสินค้า">
         </label>
 
@@ -41,10 +46,10 @@
           ช่องทางชำระเงิน
           <select id="paymentChannel">
             <option value="">ทั้งหมด</option>
-            <option value="cash">เงินสด</option>
-            <option value="qr">QR</option>
-            <option value="transfer">โอน</option>
-            <option value="card">บัตร</option>
+            <option value="CASH">เงินสด</option>
+            <option value="QR">QR</option>
+            <option value="TRANSFER">โอน</option>
+            <option value="CARD">บัตร</option>
           </select>
         </label>
 
@@ -52,11 +57,12 @@
           ช่องทางการขาย
           <select id="salesChannel">
             <option value="">ทั้งหมด</option>
-            <option value="store">หน้าร้าน</option>
-            <option value="line">LINE OA</option>
-            <option value="facebook">Facebook</option>
-            <option value="website">Website</option>
-            <option value="marketplace">Marketplace</option>
+            <option value="STORE">หน้าร้าน</option>
+            <option value="ONLINE">ออนไลน์</option>
+            <option value="LINE">LINE OA</option>
+            <option value="FACEBOOK">Facebook</option>
+            <option value="WEBSITE">Website</option>
+            <option value="MARKETPLACE">Marketplace</option>
           </select>
         </label>
 
@@ -64,9 +70,10 @@
           สถานะ
           <select id="status">
             <option value="">ทั้งหมด</option>
-            <option value="completed">สำเร็จ</option>
-            <option value="voided">ยกเลิก</option>
-            <option value="returned">คืนสินค้า</option>
+            <option value="COMPLETED">สำเร็จ</option>
+            <option value="VOIDED">ยกเลิก</option>
+            <option value="RETURNED">คืนสินค้า</option>
+            <option value="PARTIAL_RETURN">คืนบางส่วน</option>
           </select>
         </label>
       </div>
@@ -75,6 +82,7 @@
         <button id="searchButton" class="primary-button" type="button">
           ค้นหา
         </button>
+
         <button id="resetButton" class="secondary-button" type="button">
           ล้างตัวกรอง
         </button>
@@ -86,10 +94,12 @@
         <span>จำนวนบิล</span>
         <strong id="summaryBills">0</strong>
       </article>
+
       <article class="summary-card">
         <span>ยอดขายรวม</span>
         <strong id="summaryTotal">฿0.00</strong>
       </article>
+
       <article class="summary-card">
         <span>คืนสินค้า</span>
         <strong id="summaryReturns">0</strong>
@@ -116,6 +126,7 @@
               <th>การทำงาน</th>
             </tr>
           </thead>
+
           <tbody id="billRows"></tbody>
         </table>
       </div>
@@ -127,22 +138,41 @@
           <p class="eyebrow">รายละเอียดบิล</p>
           <h2 id="dialogBillNo">-</h2>
         </div>
-        <button id="closeDialog" class="icon-button" type="button"
-          aria-label="ปิดหน้าต่าง">×</button>
+
+        <button
+          id="closeDialog"
+          class="icon-button"
+          type="button"
+          aria-label="ปิดหน้าต่าง">
+          ×
+        </button>
       </div>
 
       <div id="dialogContent"></div>
 
       <div class="dialog-actions">
-        <button class="secondary-button"
+        <button
+          class="secondary-button"
           data-permission="pos.reprint_receipt"
-          id="reprintButton" type="button">
+          id="reprintButton"
+          type="button">
           พิมพ์ใบเสร็จซ้ำ
         </button>
-        <button class="danger-button"
+
+        <button
+          class="danger-button"
           data-permission="pos.return_create"
-          id="returnButton" type="button">
+          id="returnButton"
+          type="button">
           คืนสินค้า
+        </button>
+
+        <button
+          class="danger-button"
+          data-permission="pos.void_bill"
+          id="voidButton"
+          type="button">
+          ยกเลิกบิล
         </button>
       </div>
     </dialog>
