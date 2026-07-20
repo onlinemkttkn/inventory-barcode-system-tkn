@@ -1,0 +1,17 @@
+{
+  "package": "TKN POS Phase 9.2 Module 02 POS Search Bill",
+  "version": "1.0.0",
+  "type": "additive-feature-pack",
+  "requires": [
+    "js/phase-9-2-permissions.js from Module 1"
+  ],
+  "entry": "phase-9-2-bill-search.html",
+  "sql_status": "template-commented; do not run before mapping existing schema",
+  "files": [
+    "phase-9-2-bill-search.html",
+    "css/phase-9-2-bill-search.css",
+    "js/phase-9-2-bill-search.js",
+    "sql/phase-9-2-search-bill-foundation.sql",
+    "docs/PHASE-09-2-MODULE-02-POS-SEARCH-BILL.md"
+  ]
+}
