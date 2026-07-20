@@ -42,7 +42,6 @@ function formatMoney(value) {
 
 function formatDate(value) {
   if (!value) return '-';
-
   return new Intl.DateTimeFormat('th-TH', {
     dateStyle: 'medium',
     timeStyle: 'short'
@@ -51,7 +50,6 @@ function formatDate(value) {
 
 function channelLabel(value) {
   const normalized = String(value || '').toUpperCase();
-
   const labels = {
     STORE: 'หน้าร้าน',
     ONLINE: 'ออนไลน์',
@@ -66,13 +64,11 @@ function channelLabel(value) {
     CREDIT_CARD: 'บัตรเครดิต',
     DEBIT_CARD: 'บัตรเดบิต'
   };
-
   return labels[normalized] || value || '-';
 }
 
 function statusLabel(value) {
   const normalized = String(value || '').toUpperCase();
-
   const labels = {
     COMPLETED: 'สำเร็จ',
     VOIDED: 'ยกเลิก',
@@ -81,7 +77,6 @@ function statusLabel(value) {
     PARTIAL_RETURN: 'คืนบางส่วน',
     DRAFT: 'แบบร่าง'
   };
-
   return labels[normalized] || value || '-';
 }
 
@@ -113,7 +108,6 @@ async function searchBills() {
       'search_sales_bills_phase_9_2',
       buildRpcParams()
     );
-
     if (error) throw error;
 
     state.bills = Array.isArray(data) ? data : [];
@@ -140,7 +134,6 @@ function render() {
   } else {
     for (const bill of state.filteredBills) {
       const row = document.createElement('tr');
-
       row.innerHTML = `
         <td><strong>${escapeHtml(bill.sale_no)}</strong></td>
         <td>${formatDate(bill.created_at)}</td>
@@ -148,32 +141,22 @@ function render() {
         <td>${channelLabel(bill.sales_channel)}</td>
         <td>${channelLabel(bill.payment_method)}</td>
         <td>${formatMoney(bill.net_total)}</td>
+        <td><span class="status ${String(bill.status || '').toLowerCase()}">${statusLabel(bill.status)}</span></td>
         <td>
-          <span class="status ${String(bill.status || '').toLowerCase()}">
-            ${statusLabel(bill.status)}
-          </span>
-        </td>
-        <td>
-          <button class="secondary-button view-bill" type="button"
-            data-id="${escapeHtml(bill.id)}">
+          <button class="secondary-button view-bill" type="button" data-id="${escapeHtml(bill.id)}">
             ดูรายละเอียด
           </button>
         </td>
       `;
-
       els.billRows.append(row);
     }
   }
 
   const total = state.filteredBills.reduce(
-    (sum, bill) => sum + Number(bill.net_total || 0),
-    0
+    (sum, bill) => sum + Number(bill.net_total || 0), 0
   );
-
   const returns = state.filteredBills.filter((bill) =>
-    ['RETURNED', 'PARTIAL_RETURN'].includes(
-      String(bill.status || '').toUpperCase()
-    )
+    ['RETURNED', 'PARTIAL_RETURN'].includes(String(bill.status || '').toUpperCase())
   ).length;
 
   els.summaryBills.textContent = String(state.filteredBills.length);
@@ -196,23 +179,10 @@ async function openBill(id) {
   els.billDialog.showModal();
 
   try {
-    const { data: items, error } = await supabaseClient
-      .from('sale_items')
-      .select(`
-        id,
-        sale_id,
-        product_id,
-        quantity,
-        unit_price,
-        discount_amount,
-        line_total,
-        product_code_snapshot,
-        barcode_snapshot,
-        product_name_snapshot,
-        created_at
-      `)
-      .eq('sale_id', id)
-      .order('created_at', { ascending: true });
+    const { data: items, error } = await supabaseClient.rpc(
+      'get_sale_items_phase_9_2',
+      { p_sale_id: id }
+    );
 
     if (error) throw error;
 
@@ -264,16 +234,11 @@ async function openBill(id) {
 
 function resetFilters() {
   [
-    els.keyword,
-    els.dateFrom,
-    els.dateTo,
-    els.paymentChannel,
-    els.salesChannel,
-    els.status
+    els.keyword, els.dateFrom, els.dateTo,
+    els.paymentChannel, els.salesChannel, els.status
   ].forEach((element) => {
     element.value = '';
   });
-
   searchBills();
 }
 
@@ -288,33 +253,20 @@ function escapeHtml(value) {
 
 els.searchButton.addEventListener('click', searchBills);
 els.resetButton.addEventListener('click', resetFilters);
-
 els.keyword.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') searchBills();
 });
-
-els.closeDialog.addEventListener('click', () => {
-  els.billDialog.close();
-});
-
+els.closeDialog.addEventListener('click', () => els.billDialog.close());
 els.reprintButton.addEventListener('click', () => {
-  if (!state.selectedBill) return;
-  window.print();
+  if (state.selectedBill) window.print();
 });
-
 els.returnButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
-
   const saleNo = state.selectedBill.sale_no || state.selectedBill.id;
-
   window.location.href =
     `./sales-return.html?sale_id=${encodeURIComponent(state.selectedBill.id)}`
     + `&sale_no=${encodeURIComponent(saleNo)}`;
 });
 
-applyPermissionUI({
-  role: state.role,
-  root: document
-});
-
+applyPermissionUI({ role: state.role, root: document });
 searchBills();

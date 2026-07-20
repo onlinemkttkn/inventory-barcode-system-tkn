@@ -1,0 +1,11 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.3 Bill Detail RPC",
+  "version": "1.0.0",
+  "fixes": "permission denied for table sale_items",
+  "creates_function": "public.get_sale_items_phase_9_2(uuid)",
+  "replace": [
+    "js/phase-9-2-bill-search.js"
+  ],
+  "alters_tables": false,
+  "direct_table_grant": false
+}
