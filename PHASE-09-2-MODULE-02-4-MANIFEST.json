@@ -1,0 +1,19 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.4 Reprint Receipt",
+  "version": "1.0.0",
+  "creates_functions": [
+    "public.get_sale_receipt_phase_9_2(uuid)",
+    "public.log_receipt_reprint_phase_9_2(uuid,text,integer)"
+  ],
+  "adds": [
+    "phase-9-2-reprint-receipt.html",
+    "css/phase-9-2-reprint-receipt.css",
+    "js/phase-9-2-reprint-receipt.js"
+  ],
+  "manual_patch": "js/phase-9-2-bill-search.js",
+  "supports_paper_mm": [
+    58,
+    80
+  ],
+  "modifies_sale_data": false
+}

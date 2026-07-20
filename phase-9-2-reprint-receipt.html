@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKN POS - พิมพ์ใบเสร็จย้อนหลัง</title>
+  <link rel="stylesheet" href="./css/phase-9-2-reprint-receipt.css">
+</head>
+<body>
+  <main class="receipt-page">
+    <section class="toolbar no-print">
+      <div>
+        <strong>พิมพ์ใบเสร็จย้อนหลัง</strong>
+        <span id="toolbarStatus">กำลังโหลด...</span>
+      </div>
+
+      <div class="toolbar-actions">
+        <label>
+          ขนาดกระดาษ
+          <select id="paperSize">
+            <option value="80">80 mm</option>
+            <option value="58">58 mm</option>
+          </select>
+        </label>
+
+        <button id="printButton" type="button">พิมพ์</button>
+        <button id="closeButton" type="button">ปิด</button>
+      </div>
+    </section>
+
+    <article id="receipt" class="receipt receipt-80" aria-live="polite">
+      <header class="receipt-header">
+        <h1>TKN SHOP</h1>
+        <p>ใบเสร็จรับเงิน (สำเนา)</p>
+        <p class="reprint-label">REPRINT</p>
+      </header>
+
+      <section class="receipt-meta">
+        <div><span>เลขบิล</span><strong id="saleNo">-</strong></div>
+        <div><span>วันที่</span><strong id="saleDate">-</strong></div>
+        <div><span>ลูกค้า</span><strong id="customerName">Walk-in</strong></div>
+        <div><span>ชำระเงิน</span><strong id="paymentMethod">-</strong></div>
+      </section>
+
+      <section>
+        <table>
+          <thead>
+            <tr>
+              <th>รายการ</th>
+              <th class="number">จำนวน</th>
+              <th class="number">รวม</th>
+            </tr>
+          </thead>
+          <tbody id="receiptItems">
+            <tr><td colspan="3">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="totals">
+        <div><span>ยอดก่อนส่วนลด</span><strong id="subtotal">฿0.00</strong></div>
+        <div><span>ส่วนลด</span><strong id="discount">฿0.00</strong></div>
+        <div class="grand-total"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
+        <div><span>รับเงิน</span><strong id="receivedAmount">฿0.00</strong></div>
+        <div><span>เงินทอน</span><strong id="changeAmount">฿0.00</strong></div>
+      </section>
+
+      <footer>
+        <p>ขอบคุณที่ใช้บริการ</p>
+        <p class="small">เอกสารฉบับนี้เป็นการพิมพ์ซ้ำจากข้อมูลเดิม</p>
+        <p class="small" id="reprintTimestamp"></p>
+      </footer>
+    </article>
+  </main>
+
+  <script type="module" src="./js/phase-9-2-reprint-receipt.js"></script>
+</body>
+</html>
