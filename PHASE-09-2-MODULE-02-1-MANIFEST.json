@@ -1,0 +1,17 @@
+{
+  "package": "TKN POS Phase 9.2 Module 2.1 Real Supabase Search Bill",
+  "version": "1.0.0",
+  "requires": [
+    "Phase 9.2 Module 02 UI installed",
+    "tables public.sales and public.sale_items",
+    "existing Supabase browser client"
+  ],
+  "replace": [
+    "js/phase-9-2-bill-search.js"
+  ],
+  "run_sql": [
+    "sql/phase-9-2-search-bill-real.sql"
+  ],
+  "creates_function": "public.search_sales_bills_phase_9_2",
+  "alters_business_tables": false
+}

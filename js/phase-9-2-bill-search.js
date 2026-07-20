@@ -2,56 +2,25 @@ import {
   applyPermissionUI
 } from './phase-9-2-permissions.js';
 
+/**
+ * TKN POS / ERP — Phase 9.2 Module 2.1
+ * Real Supabase integration for Search Bill.
+ *
+ * This module expects one of these:
+ *   1) window.supabaseClient
+ *   2) window.supabase
+ *
+ * If your project exports a client from another file, replace getSupabaseClient()
+ * with an import from your existing Supabase client module.
+ */
+
 const state = {
   role: sessionStorage.getItem('tkn_user_role') || 'owner',
   bills: [],
   filteredBills: [],
-  selectedBill: null
+  selectedBill: null,
+  loading: false
 };
-
-// Demo fallback. Replace with Supabase query after schema validation.
-const demoBills = [
-  {
-    id: 'INV20260720001',
-    createdAt: '2026-07-20T08:35:00+07:00',
-    customer: 'Walk-in',
-    salesChannel: 'store',
-    paymentChannel: 'cash',
-    total: 550,
-    status: 'completed',
-    cashier: 'พนักงาน 01',
-    items: [
-      { sku: 'TKN-001', barcode: '885123400001', name: 'สาหร่ายทอดกรอบ', qty: 2, price: 150 },
-      { sku: 'TKN-002', barcode: '885123400002', name: 'หมึกกรอบ', qty: 1, price: 250 }
-    ]
-  },
-  {
-    id: 'INV20260719018',
-    createdAt: '2026-07-19T15:15:00+07:00',
-    customer: 'คุณสมชาย',
-    salesChannel: 'line',
-    paymentChannel: 'transfer',
-    total: 1250,
-    status: 'completed',
-    cashier: 'ฝ่ายขายออนไลน์',
-    items: [
-      { sku: 'TKN-010', barcode: '885123400010', name: 'ชุดของฝาก A', qty: 1, price: 1250 }
-    ]
-  },
-  {
-    id: 'INV20260718007',
-    createdAt: '2026-07-18T11:20:00+07:00',
-    customer: 'Walk-in',
-    salesChannel: 'store',
-    paymentChannel: 'qr',
-    total: 300,
-    status: 'returned',
-    cashier: 'พนักงาน 02',
-    items: [
-      { sku: 'TKN-005', barcode: '885123400005', name: 'ข้าวแต๋น', qty: 2, price: 150 }
-    ]
-  }
-];
 
 const els = {
   keyword: document.querySelector('#keyword'),
@@ -75,14 +44,28 @@ const els = {
   returnButton: document.querySelector('#returnButton')
 };
 
+function getSupabaseClient() {
+  const client = window.supabaseClient || window.supabase;
+
+  if (!client?.rpc || !client?.from) {
+    throw new Error(
+      'ไม่พบ Supabase client กรุณาเชื่อม window.supabaseClient หรือแก้ getSupabaseClient() ให้ import client เดิมของโปรเจกต์'
+    );
+  }
+
+  return client;
+}
+
 function formatMoney(value) {
   return new Intl.NumberFormat('th-TH', {
     style: 'currency',
     currency: 'THB'
-  }).format(value);
+  }).format(Number(value || 0));
 }
 
 function formatDate(value) {
+  if (!value) return '-';
+
   return new Intl.DateTimeFormat('th-TH', {
     dateStyle: 'medium',
     timeStyle: 'short'
@@ -90,62 +73,86 @@ function formatDate(value) {
 }
 
 function channelLabel(value) {
+  const normalized = String(value || '').toUpperCase();
+
   const labels = {
-    store: 'หน้าร้าน',
-    line: 'LINE OA',
-    facebook: 'Facebook',
-    website: 'Website',
-    marketplace: 'Marketplace',
-    cash: 'เงินสด',
-    qr: 'QR',
-    transfer: 'โอน',
-    card: 'บัตร'
+    STORE: 'หน้าร้าน',
+    ONLINE: 'ออนไลน์',
+    LINE: 'LINE OA',
+    FACEBOOK: 'Facebook',
+    WEBSITE: 'Website',
+    MARKETPLACE: 'Marketplace',
+    CASH: 'เงินสด',
+    QR: 'QR',
+    TRANSFER: 'โอน',
+    CARD: 'บัตร',
+    CREDIT_CARD: 'บัตรเครดิต',
+    DEBIT_CARD: 'บัตรเดบิต'
   };
-  return labels[value] || value;
+
+  return labels[normalized] || value || '-';
 }
 
 function statusLabel(value) {
+  const normalized = String(value || '').toUpperCase();
+
   const labels = {
-    completed: 'สำเร็จ',
-    voided: 'ยกเลิก',
-    returned: 'คืนสินค้า'
+    COMPLETED: 'สำเร็จ',
+    VOIDED: 'ยกเลิก',
+    CANCELLED: 'ยกเลิก',
+    RETURNED: 'คืนสินค้า',
+    PARTIAL_RETURN: 'คืนบางส่วน',
+    DRAFT: 'แบบร่าง'
   };
-  return labels[value] || value;
+
+  return labels[normalized] || value || '-';
 }
 
-function matchesKeyword(bill, keyword) {
-  if (!keyword) return true;
-  const needle = keyword.toLowerCase();
-
-  return [
-    bill.id,
-    bill.customer,
-    bill.cashier,
-    ...bill.items.flatMap(item => [
-      item.sku,
-      item.barcode,
-      item.name
-    ])
-  ].some(value => String(value || '').toLowerCase().includes(needle));
+function setLoading(isLoading) {
+  state.loading = isLoading;
+  els.searchButton.disabled = isLoading;
+  els.resetButton.disabled = isLoading;
+  els.searchButton.textContent = isLoading ? 'กำลังค้นหา...' : 'ค้นหา';
 }
 
-function applyFilters() {
-  const keyword = els.keyword.value.trim();
-  const from = els.dateFrom.value ? new Date(`${els.dateFrom.value}T00:00:00`) : null;
-  const to = els.dateTo.value ? new Date(`${els.dateTo.value}T23:59:59`) : null;
+function buildRpcParams() {
+  return {
+    p_keyword: els.keyword.value.trim() || null,
+    p_date_from: els.dateFrom.value || null,
+    p_date_to: els.dateTo.value || null,
+    p_payment_method: els.paymentChannel.value || null,
+    p_sales_channel: els.salesChannel.value || null,
+    p_status: els.status.value || null,
+    p_limit: 200
+  };
+}
 
-  state.filteredBills = state.bills.filter(bill => {
-    const billDate = new Date(bill.createdAt);
+async function searchBills() {
+  setLoading(true);
+  els.resultMessage.textContent = 'กำลังโหลดข้อมูล...';
 
-    return matchesKeyword(bill, keyword)
-      && (!from || billDate >= from)
-      && (!to || billDate <= to)
-      && (!els.paymentChannel.value || bill.paymentChannel === els.paymentChannel.value)
-      && (!els.salesChannel.value || bill.salesChannel === els.salesChannel.value)
-      && (!els.status.value || bill.status === els.status.value);
-  });
+  try {
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.rpc(
+      'search_sales_bills_phase_9_2',
+      buildRpcParams()
+    );
 
-  render();
+    if (error) throw error;
+
+    state.bills = Array.isArray(data) ? data : [];
+    state.filteredBills = [...state.bills];
+
+    render();
+  } catch (error) {
+    console.error('Search bill error:', error);
+    state.bills = [];
+    state.filteredBills = [];
+    render();
+    els.resultMessage.textContent = `โหลดข้อมูลไม่สำเร็จ: ${error.message}`;
+  } finally {
+    setLoading(false);
+  }
 }
 
 function render() {
@@ -158,66 +165,128 @@ function render() {
   } else {
     for (const bill of state.filteredBills) {
       const row = document.createElement('tr');
+
       row.innerHTML = `
-        <td><strong>${bill.id}</strong></td>
-        <td>${formatDate(bill.createdAt)}</td>
-        <td>${bill.customer || 'Walk-in'}</td>
-        <td>${channelLabel(bill.salesChannel)}</td>
-        <td>${channelLabel(bill.paymentChannel)}</td>
-        <td>${formatMoney(bill.total)}</td>
-        <td><span class="status ${bill.status}">${statusLabel(bill.status)}</span></td>
+        <td><strong>${escapeHtml(bill.sale_no)}</strong></td>
+        <td>${formatDate(bill.created_at)}</td>
+        <td>${escapeHtml(bill.customer_name || 'Walk-in')}</td>
+        <td>${channelLabel(bill.sales_channel)}</td>
+        <td>${channelLabel(bill.payment_method)}</td>
+        <td>${formatMoney(bill.net_total)}</td>
         <td>
-          <button class="secondary-button view-bill" type="button"
-            data-id="${bill.id}">ดูรายละเอียด</button>
+          <span class="status ${String(bill.status || '').toLowerCase()}">
+            ${statusLabel(bill.status)}
+          </span>
+        </td>
+        <td>
+          <button
+            class="secondary-button view-bill"
+            type="button"
+            data-id="${escapeHtml(bill.id)}">
+            ดูรายละเอียด
+          </button>
         </td>
       `;
+
       els.billRows.append(row);
     }
   }
 
-  const total = state.filteredBills.reduce((sum, bill) => sum + Number(bill.total || 0), 0);
-  const returns = state.filteredBills.filter(bill => bill.status === 'returned').length;
+  const total = state.filteredBills.reduce(
+    (sum, bill) => sum + Number(bill.net_total || 0),
+    0
+  );
+
+  const returns = state.filteredBills.filter((bill) =>
+    ['RETURNED', 'PARTIAL_RETURN'].includes(String(bill.status || '').toUpperCase())
+  ).length;
 
   els.summaryBills.textContent = String(state.filteredBills.length);
   els.summaryTotal.textContent = formatMoney(total);
   els.summaryReturns.textContent = String(returns);
   els.resultMessage.textContent = `พบ ${state.filteredBills.length} บิล`;
 
-  document.querySelectorAll('.view-bill').forEach(button => {
+  document.querySelectorAll('.view-bill').forEach((button) => {
     button.addEventListener('click', () => openBill(button.dataset.id));
   });
 }
 
-function openBill(id) {
-  const bill = state.bills.find(item => item.id === id);
+async function openBill(id) {
+  const bill = state.bills.find((item) => String(item.id) === String(id));
   if (!bill) return;
 
   state.selectedBill = bill;
-  els.dialogBillNo.textContent = bill.id;
-  els.dialogContent.innerHTML = `
-    <div class="bill-meta">
-      <p><strong>วันที่:</strong><br>${formatDate(bill.createdAt)}</p>
-      <p><strong>ลูกค้า:</strong><br>${bill.customer || 'Walk-in'}</p>
-      <p><strong>พนักงาน:</strong><br>${bill.cashier}</p>
-      <p><strong>ช่องทาง:</strong><br>${channelLabel(bill.salesChannel)} / ${channelLabel(bill.paymentChannel)}</p>
-    </div>
-    <ul class="item-list">
-      ${bill.items.map(item => `
-        <li>
-          <span>${item.name}<br><small>${item.sku} · ${item.barcode}</small></span>
-          <strong>${item.qty} × ${formatMoney(item.price)}</strong>
-        </li>
-      `).join('')}
-    </ul>
-    <p><strong>ยอดสุทธิ: ${formatMoney(bill.total)}</strong></p>
-  `;
-
-  applyPermissionUI({
-    role: state.role,
-    root: els.billDialog
-  });
-
+  els.dialogBillNo.textContent = bill.sale_no || '-';
+  els.dialogContent.innerHTML = '<p>กำลังโหลดรายละเอียด...</p>';
   els.billDialog.showModal();
+
+  try {
+    const supabase = getSupabaseClient();
+
+    const { data: items, error } = await supabase
+      .from('sale_items')
+      .select(`
+        id,
+        sale_id,
+        product_id,
+        quantity,
+        unit_price,
+        discount_amount,
+        line_total,
+        product_code_snapshot,
+        barcode_snapshot,
+        product_name_snapshot,
+        created_at
+      `)
+      .eq('sale_id', id)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    els.dialogContent.innerHTML = `
+      <div class="bill-meta">
+        <p><strong>วันที่:</strong><br>${formatDate(bill.created_at)}</p>
+        <p><strong>ลูกค้า:</strong><br>${escapeHtml(bill.customer_name || 'Walk-in')}</p>
+        <p><strong>เบอร์โทร:</strong><br>${escapeHtml(bill.customer_phone || '-')}</p>
+        <p><strong>ชำระเงิน:</strong><br>${channelLabel(bill.payment_method)}</p>
+      </div>
+
+      <ul class="item-list">
+        ${(items || []).map((item) => `
+          <li>
+            <span>
+              ${escapeHtml(item.product_name_snapshot || '-')}
+              <br>
+              <small>
+                ${escapeHtml(item.product_code_snapshot || '-')}
+                ·
+                ${escapeHtml(item.barcode_snapshot || '-')}
+              </small>
+            </span>
+            <strong>
+              ${Number(item.quantity || 0)}
+              ×
+              ${formatMoney(item.unit_price)}
+              =
+              ${formatMoney(item.line_total)}
+            </strong>
+          </li>
+        `).join('')}
+      </ul>
+
+      <p><strong>ยอดสุทธิ: ${formatMoney(bill.net_total)}</strong></p>
+    `;
+
+    applyPermissionUI({
+      role: state.role,
+      root: els.billDialog
+    });
+  } catch (error) {
+    console.error('Load bill detail error:', error);
+    els.dialogContent.innerHTML = `
+      <p>โหลดรายละเอียดบิลไม่สำเร็จ: ${escapeHtml(error.message)}</p>
+    `;
+  }
 }
 
 function resetFilters() {
@@ -228,18 +297,32 @@ function resetFilters() {
     els.paymentChannel,
     els.salesChannel,
     els.status
-  ].forEach(element => {
+  ].forEach((element) => {
     element.value = '';
   });
-  applyFilters();
+
+  searchBills();
 }
 
-els.searchButton.addEventListener('click', applyFilters);
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+els.searchButton.addEventListener('click', searchBills);
 els.resetButton.addEventListener('click', resetFilters);
-els.keyword.addEventListener('keydown', event => {
-  if (event.key === 'Enter') applyFilters();
+
+els.keyword.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') searchBills();
 });
-els.closeDialog.addEventListener('click', () => els.billDialog.close());
+
+els.closeDialog.addEventListener('click', () => {
+  els.billDialog.close();
+});
 
 els.reprintButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
@@ -248,23 +331,14 @@ els.reprintButton.addEventListener('click', () => {
 
 els.returnButton.addEventListener('click', () => {
   if (!state.selectedBill) return;
-  alert(`เตรียมเปิดขั้นตอนคืนสินค้าสำหรับ ${state.selectedBill.id}`);
-});
 
-async function loadBills() {
-  // TODO: Replace demo data with Supabase RPC:
-  // const { data, error } = await supabase.rpc('search_sales_bills', {...})
-  state.bills = demoBills;
-  state.filteredBills = [...state.bills];
-  render();
-}
+  const saleNo = state.selectedBill.sale_no || state.selectedBill.id;
+  window.location.href = `./sales-return.html?sale_id=${encodeURIComponent(state.selectedBill.id)}&sale_no=${encodeURIComponent(saleNo)}`;
+});
 
 applyPermissionUI({
   role: state.role,
   root: document
 });
 
-loadBills().catch(error => {
-  console.error(error);
-  els.resultMessage.textContent = 'โหลดข้อมูลไม่สำเร็จ';
-});
+searchBills();
