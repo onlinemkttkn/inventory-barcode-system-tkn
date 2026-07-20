@@ -1,0 +1,10 @@
+{
+  "package": "TKN POS Phase 9.2 Role & Permission Starter",
+  "version": "1.0.0",
+  "files": [
+    "js/phase-9-2-permissions.js",
+    "sql/phase-9-2-rbac.sql",
+    "docs/PHASE-09-2-ROLE-PERMISSION.md"
+  ],
+  "safe_install": "Additive files only; review SQL before execution."
+}
