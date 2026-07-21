@@ -1,10 +1,20 @@
 import { createClient } from
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/+esm';
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-import {
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-} from './supabase-config.js';
+const SUPABASE_URL =
+  window.SUPABASE_URL ||
+  'https://wkozeuxyhqcmiatssviq.supabase.co';
+
+const SUPABASE_PUBLISHABLE_KEY =
+  window.SUPABASE_PUBLISHABLE_KEY ||
+  window.SUPABASE_ANON_KEY ||
+  'sb_publishable_NENuHV7DiTHuYcQ6Sle6Xg_mhUfd5SZ';
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'Supabase URL หรือ Publishable Key ไม่ถูกกำหนด'
+  );
+}
 
 export const supabaseClient = createClient(
   SUPABASE_URL,
@@ -19,3 +29,4 @@ export const supabaseClient = createClient(
 );
 
 window.supabaseClient = supabaseClient;
+window.tknSupabaseClient = supabaseClient;

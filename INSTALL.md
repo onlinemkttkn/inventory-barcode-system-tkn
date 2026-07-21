@@ -1,25 +1,32 @@
-# Dashboard Supabase Config Fix
+# Supabase Client Compatibility Fix
 
-## ปัญหาเดิม
+## แก้ Error
 
 ```text
-Uncaught SyntaxError: Unexpected token 'export'
+The requested module './supabase-config.js'
+does not provide an export named 'SUPABASE_PUBLISHABLE_KEY'
 ```
 
-เกิดจาก `supabase-config.js` ใช้ ES module แต่ `dashboard.html`
-โหลดด้วย `<script>` ธรรมดา
+## ติดตั้ง
 
-## วิธีติดตั้ง
+อัปโหลดไฟล์นี้ทับของเดิม:
 
-1. อัปโหลด `js/supabase-config.js` ทับไฟล์เดิม
-2. Commit: `Fix dashboard Supabase config compatibility`
-3. รอ GitHub Pages 1–3 นาที
-4. เปิด Dashboard แล้วกด `Ctrl + Shift + R`
-
-## ลำดับ Script ที่ถูกต้อง
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/supabase-config.js?v=1.0.3"></script>
-<script src="./js/dashboard-v2.js?v=1.0.3"></script>
+```text
+js/supabase-client.js
 ```
+
+ไม่ต้องแก้ `supabase-config.js` และไม่ต้องแก้ `dashboard.html`
+
+Commit:
+
+```text
+Fix module Supabase client compatibility
+```
+
+หลัง GitHub Pages deploy แล้ว:
+
+```text
+Ctrl + Shift + R
+```
+
+หน้าคืนสินค้าควรโหลดรายการบิลได้ตามปกติ
