@@ -1,0 +1,15 @@
+{
+  "package": "TKN Dashboard Phase 9.2 Safe Upgrade",
+  "version": "2.0.0",
+  "entry": "dashboard-phase-9-2.html",
+  "overwrites_existing_files": false,
+  "isolated_assets": [
+    "css/dashboard-phase-9-2.css",
+    "js/dashboard-phase-9-2.js"
+  ],
+  "required_existing_pages": [
+    "phase-9-2-bill-search.html",
+    "sales-return.html",
+    "phase-9-2-reprint-receipt.html"
+  ]
+}
