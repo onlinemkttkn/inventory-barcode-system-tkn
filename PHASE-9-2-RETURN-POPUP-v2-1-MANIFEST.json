@@ -1,0 +1,13 @@
+{
+  "package": "TKN POS Phase 9.2 Return Popup Safe Upgrade",
+  "version": "2.1.0",
+  "overwrites_existing_files": false,
+  "fixes": [
+    "Adds PARTIAL_RETURN and RETURNED to public.sale_status enum",
+    "Opens sales return in a popup",
+    "Shows success dialog and closes popup automatically",
+    "Refreshes bill search after successful return"
+  ],
+  "entry": "dashboard-phase-9-2-v2-1.html",
+  "fallback_entry": "phase-9-2-bill-search-v2-1.html"
+}

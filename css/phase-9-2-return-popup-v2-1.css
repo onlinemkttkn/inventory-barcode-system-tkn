@@ -1,0 +1,42 @@
+
+/* Phase 9.2 Return Popup v2.1 */
+.result-dialog {
+  width: min(430px, calc(100% - 32px));
+  border: 0;
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, .28);
+}
+
+.result-dialog::backdrop {
+  background: rgba(15, 23, 42, .58);
+  backdrop-filter: blur(3px);
+}
+
+.result-dialog-icon {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 38px;
+  font-weight: 900;
+}
+
+.result-dialog h2 {
+  margin: 0 0 10px;
+}
+
+.result-dialog p {
+  color: #475467;
+}
+
+.result-dialog-countdown {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+}

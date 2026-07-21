@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKN POS - คืนสินค้า Popup v2.1</title>
+  <link rel="stylesheet" href="./css/phase-9-2-sales-return.css">
+  <link rel="stylesheet" href="./css/phase-9-2-return-popup-v2-1.css?v=2.1.0">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2 · Popup v2.1</p>
+        <h1>คืนสินค้า</h1>
+        <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
+      </div>
+
+      <button id="backButton" class="secondary-button" type="button">
+        กลับ
+      </button>
+    </header>
+
+    <section class="panel">
+      <div class="warning">
+        <strong>ขั้นตอนตรวจสอบ</strong>
+        <p>
+          ตรวจสอบสินค้า จำนวนคืน เหตุผล และวิธีคืนเงินให้ถูกต้อง
+          ระบบจะบันทึกคืนสินค้าและคืนสต็อกในธุรกรรมเดียว
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>สินค้า</th>
+              <th>รหัสสินค้า</th>
+              <th>จำนวนที่ซื้อ</th>
+              <th>จำนวนคืน</th>
+              <th>ราคาต่อหน่วย</th>
+              <th>ยอดคืนโดยประมาณ</th>
+            </tr>
+          </thead>
+          <tbody id="returnRows">
+            <tr>
+              <td colspan="6" class="empty-row">กำลังโหลด...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="return-form">
+        <label>
+          เหตุผลการคืนสินค้า
+          <textarea
+            id="returnReason"
+            rows="4"
+            placeholder="ระบุเหตุผลอย่างน้อย 5 ตัวอักษร"></textarea>
+        </label>
+
+        <label>
+          วิธีคืนเงิน
+          <select id="refundMethod">
+            <option value="ORIGINAL">คืนตามช่องทางเดิม</option>
+            <option value="CASH">เงินสด</option>
+            <option value="TRANSFER">โอน</option>
+            <option value="STORE_CREDIT">เครดิตร้านค้า</option>
+          </select>
+        </label>
+      </div>
+
+      <section class="summary-grid">
+        <article>
+          <span>จำนวนคืนรวม</span>
+          <strong id="totalReturnQty">0</strong>
+        </article>
+
+        <article>
+          <span>ยอดคืนโดยประมาณ</span>
+          <strong id="estimatedRefund">฿0.00</strong>
+        </article>
+      </section>
+
+      <div class="actions">
+        <button id="cancelButton" class="secondary-button" type="button">
+          ยกเลิก
+        </button>
+
+        <button id="confirmButton" class="primary-button" type="button" disabled>
+          ยืนยันคืนสินค้า
+        </button>
+      </div>
+
+      <p id="statusMessage" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+
+  <dialog id="resultDialog" class="result-dialog">
+    <div id="resultDialogIcon" class="result-dialog-icon">✓</div>
+    <h2 id="resultDialogTitle">คืนสินค้าสำเร็จ</h2>
+    <p id="resultDialogMessage"></p>
+    <p class="result-dialog-countdown">
+      หน้าต่างนี้จะปิดอัตโนมัติใน <strong id="closeCountdown">3</strong> วินาที
+    </p>
+    <button id="closeResultDialog" type="button" class="primary-button">
+      ปิดตอนนี้
+    </button>
+  </dialog>
+
+  <script type="module" src="./js/phase-9-2-sales-return-v2-1.js"></script>
+</body>
+</html>
