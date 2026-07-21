@@ -1,0 +1,12 @@
+{
+  "package": "TKN POS Phase 9.2 Return Balance Safe Upgrade",
+  "version": "2.2.0",
+  "overwrites_existing_files": false,
+  "entry": "dashboard-phase-9-2-v2-2.html",
+  "features": [
+    "Displays purchased, previously returned, returnable, return-now, and remaining-after quantities",
+    "Disables fully returned lines",
+    "Shows current refund estimate",
+    "Closes success popup automatically and refreshes bill search"
+  ]
+}
