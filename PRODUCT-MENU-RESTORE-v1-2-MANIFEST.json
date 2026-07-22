@@ -1,0 +1,14 @@
+{
+  "package": "TKN POS Phase 9.5 Product Menu Restore",
+  "version": "1.2.0",
+  "entry": "dashboard-integrated-phase-9-5-v1-2.html",
+  "files_to_upload": [
+    "dashboard-integrated-phase-9-5-v1-2.html"
+  ],
+  "database_changes": false,
+  "overwrites_existing_files": false,
+  "restored_routes": [
+    "products-admin.html",
+    "product-stock-admin.html"
+  ]
+}
