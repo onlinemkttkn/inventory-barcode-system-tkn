@@ -81,7 +81,29 @@ async function requireSession() {
 }
 
 async function init() {
-  if (!(await requireSession())) return;
+  const session = await requireSession();
+  if (!session) return;
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("role,is_active")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (profileError || !profile || profile.is_active !== true) {
+    await supabaseClient.auth.signOut();
+    location.replace("./dashboard.html");
+    return;
+  }
+
+  const role = String(profile.role || "staff").toLowerCase();
+  sessionStorage.setItem("tkn_user_role", role);
+
+  const dashboardButton = document.getElementById("dashboardButton");
+  if (dashboardButton) {
+    const canSeeDashboard = ["owner", "admin", "secretary"].includes(role);
+    dashboardButton.hidden = !canSeeDashboard;
+  }
 
   const { data, error } = await supabaseClient
     .from("branches")
