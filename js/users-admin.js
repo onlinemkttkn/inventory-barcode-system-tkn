@@ -19,10 +19,10 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({
 
 async function init(){
  const context=await loadAccessContext(supabaseClient);
- if(!guardPage(context,'users.manage')) return;
+ if(!guardPage(context,'user.manage')) return;
 
  const [roleResult,branchResult]=await Promise.all([
-  supabaseClient.from('tkn_roles')
+  supabaseClient.from('app_roles')
    .select('code,name_th').eq('is_active',true).order('sort_order'),
   supabaseClient.from('branches')
    .select('id,code,name').eq('is_active',true).order('sort_order')

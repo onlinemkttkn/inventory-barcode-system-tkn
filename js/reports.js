@@ -19,8 +19,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({
 
 async function init(){
  state.context=await loadAccessContext(supabaseClient);
- if(!guardPage(state.context,'reports.view')) return;
- E.csv.hidden=!hasPermission(state.context,'reports.export');
+ if(!guardPage(state.context,'report.view')) return;
+ E.csv.hidden=!hasPermission(state.context,'report.export');
  E.anchor.value=new Date().toISOString().slice(0,10);
  await load();
 }

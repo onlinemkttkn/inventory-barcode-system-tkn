@@ -1,8 +1,8 @@
 import { supabaseClient } from './supabase-client.js';
 import {
-  getActiveProfile,
-  VOID_ROLES
-} from './permissions.js';
+  loadAccessContext,
+  hasPermission
+} from './access-control.js';
 
 const state = {
   role: sessionStorage.getItem('tkn_user_role') || 'staff',
@@ -331,16 +331,16 @@ window.addEventListener('focus', () => {
 
 async function initializeBillSearch() {
   try {
-    const { profile } = await getActiveProfile(supabaseClient);
+    const access = await loadAccessContext(supabaseClient);
 
-    if (!profile) {
-      window.location.replace('./dashboard.html');
+    if (!access) {
+      window.location.replace('./index.html');
       return;
     }
 
-    state.role = profile.role;
+    state.role = access.role;
 
-    const canVoid = VOID_ROLES.has(profile.role);
+    const canVoid = hasPermission(access, 'pos.void_bill');
     els.voidButton.hidden = !canVoid;
     els.voidButton.disabled = !canVoid;
 
