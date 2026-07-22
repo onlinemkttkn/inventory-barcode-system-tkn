@@ -1,0 +1,17 @@
+{
+  "package": "TKN POS Phase 9.2 Completion Safe Upgrade",
+  "version": "2.3.0",
+  "entry": "dashboard-phase-9-2-v2-3.html",
+  "overwrites_existing_files": false,
+  "release_status": "UAT Candidate",
+  "modules": [
+    "Bill Search",
+    "Reprint Receipt",
+    "Void Bill",
+    "Sales Return",
+    "Return Balance",
+    "Return History",
+    "Return Receipt",
+    "Return Report"
+  ]
+}
