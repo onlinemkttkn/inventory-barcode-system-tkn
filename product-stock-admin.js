@@ -1,43 +1,178 @@
-const E={branch:document.getElementById('branch'),search:document.getElementById('search'),loadBtn:document.getElementById('loadBtn'),body:document.getElementById('body'),message:document.getElementById('message')};
-function msg(t,c=''){E.message.textContent=t;E.message.className='msg '+c}
-function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
-async function init(){
-  const{data:{session}}=await supabaseClient.auth.getSession();
-  if(!session){location.href='./dashboard.html';return}
-  const{data,error}=await supabaseClient.from('branches').select('id,code,name').eq('is_active',true).order('sort_order');
-  if(error)return msg(error.message,'error');
-  E.branch.innerHTML=(data||[]).map(x=>`<option value="${x.id}">${esc(x.code)} — ${esc(x.name)}</option>`).join('');
-  load();
+const E = {
+  branch: document.getElementById('branch'),
+  search: document.getElementById('search'),
+  loadBtn: document.getElementById('loadBtn'),
+  body: document.getElementById('body'),
+  message: document.getElementById('message')
+};
+
+let currentRole = 'staff';
+let canAdjustStock = false;
+
+function msg(text, cssClass = '') {
+  E.message.textContent = text;
+  E.message.className = `msg ${cssClass}`.trim();
 }
-async function load(){
-  const q=E.search.value.trim().replace(/[%_,()]/g,'');
-  let query=supabaseClient.from('branch_inventory_list').select('*').eq('branch_id',E.branch.value).order('product_name').limit(1000);
-  if(q)query=query.or(`product_name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.ilike.%${q}%`);
-  const{data,error}=await query;
-  if(error)return msg(error.message,'error');
-  E.body.innerHTML='';
-  (data||[]).forEach(x=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${esc(x.product_code)}</td><td>${esc(x.product_name)}</td><td>${x.quantity}</td><td>${x.minimum_stock}</td>`;
-    const qty=document.createElement('input');qty.type='number';qty.min='0';qty.step='.001';qty.value=x.quantity;
-    const min=document.createElement('input');min.type='number';min.min='0';min.step='.001';min.value=x.minimum_stock;
-    const reason=document.createElement('input');reason.placeholder='เหตุผล';
-    const save=document.createElement('button');save.className='btn primary';save.textContent='บันทึก';
-    save.onclick=async()=>{
-      const{error}=await supabaseClient.rpc('set_branch_product_stock',{
-        p_branch_id:E.branch.value,
-        p_product_id:x.product_id,
-        p_quantity:Number(qty.value)||0,
-        p_minimum_stock:Number(min.value)||0,
-        p_reason:reason.value||null
-      });
-      if(error)return msg(error.message,'error');
-      msg('ปรับสต๊อกเรียบร้อย','ok');
-      load();
+
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;',
+    '"': '&quot;', "'": '&#039;'
+  })[char]);
+}
+
+async function init() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+
+  if (!session?.user?.id) {
+    location.replace('./dashboard.html');
+    return;
+  }
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('role,is_active')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  if (profileError) return msg(profileError.message, 'error');
+
+  if (!profile || profile.is_active !== true) {
+    await supabaseClient.auth.signOut();
+    location.replace('./dashboard.html');
+    return;
+  }
+
+  currentRole = String(profile.role || 'staff').toLowerCase();
+  sessionStorage.setItem('tkn_user_role', currentRole);
+
+  canAdjustStock = ['owner', 'admin', 'warehouse'].includes(currentRole);
+
+  const { data, error } = await supabaseClient
+    .from('branches')
+    .select('id,code,name')
+    .eq('is_active', true)
+    .order('sort_order');
+
+  if (error) return msg(error.message, 'error');
+
+  E.branch.innerHTML = (data || []).map(branch =>
+    `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
+  ).join('');
+
+  if (!canAdjustStock) {
+    msg('บัญชีนี้ดูสต็อกได้ แต่ไม่มีสิทธิ์ปรับจำนวน', 'error');
+  }
+
+  await load();
+}
+
+async function load() {
+  const queryText = E.search.value.trim().replace(/[%_,()]/g, '');
+
+  let query = supabaseClient
+    .from('branch_inventory_list')
+    .select('*')
+    .eq('branch_id', E.branch.value)
+    .order('product_name')
+    .limit(1000);
+
+  if (queryText) {
+    query = query.or(
+      `product_name.ilike.%${queryText}%,`
+      + `product_code.ilike.%${queryText}%,`
+      + `barcode.ilike.%${queryText}%`
+    );
+  }
+
+  const { data, error } = await query;
+  if (error) return msg(error.message, 'error');
+
+  E.body.innerHTML = '';
+
+  (data || []).forEach(item => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${esc(item.product_code)}</td>
+      <td>${esc(item.product_name)}</td>
+      <td>${Number(item.quantity || 0)}</td>
+      <td>${Number(item.minimum_stock || 0)}</td>
+    `;
+
+    const quantity = document.createElement('input');
+    quantity.type = 'number';
+    quantity.min = '0';
+    quantity.step = '.001';
+    quantity.value = item.quantity;
+    quantity.disabled = !canAdjustStock;
+
+    const minimum = document.createElement('input');
+    minimum.type = 'number';
+    minimum.min = '0';
+    minimum.step = '.001';
+    minimum.value = item.minimum_stock;
+    minimum.disabled = !canAdjustStock;
+
+    const reason = document.createElement('input');
+    reason.placeholder = 'เหตุผลอย่างน้อย 5 ตัวอักษร';
+    reason.disabled = !canAdjustStock;
+
+    const save = document.createElement('button');
+    save.className = 'btn primary';
+    save.textContent = canAdjustStock ? 'บันทึก' : 'ไม่มีสิทธิ์';
+    save.disabled = !canAdjustStock;
+
+    save.onclick = async () => {
+      if (!canAdjustStock) return;
+
+      const reasonText = reason.value.trim();
+      if (reasonText.length < 5) {
+        msg('กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร', 'error');
+        reason.focus();
+        return;
+      }
+
+      save.disabled = true;
+      msg('กำลังปรับสต็อก...');
+
+      const { error: rpcError } = await supabaseClient.rpc(
+        'set_branch_product_stock',
+        {
+          p_branch_id: E.branch.value,
+          p_product_id: item.product_id,
+          p_quantity: Number(quantity.value) || 0,
+          p_minimum_stock: Number(minimum.value) || 0,
+          p_reason: reasonText
+        }
+      );
+
+      save.disabled = false;
+
+      if (rpcError) return msg(rpcError.message, 'error');
+
+      msg('ปรับสต็อกเรียบร้อยและบันทึก Audit Log แล้ว', 'ok');
+      await load();
     };
-    [qty,min,reason,save].forEach(node=>{const td=document.createElement('td');td.appendChild(node);tr.appendChild(td)});
+
+    [quantity, minimum, reason, save].forEach(node => {
+      const td = document.createElement('td');
+      td.appendChild(node);
+      tr.appendChild(td);
+    });
+
     E.body.appendChild(tr);
   });
-  msg(`พบ ${(data||[]).length} รายการ`);
+
+  if (canAdjustStock) {
+    msg(`พบ ${(data || []).length} รายการ · สิทธิ์ ${currentRole}`);
+  }
 }
-E.loadBtn.onclick=load;E.branch.onchange=load;E.search.onkeydown=e=>{if(e.key==='Enter')load()};init();
+
+E.loadBtn.onclick = load;
+E.branch.onchange = load;
+E.search.onkeydown = event => {
+  if (event.key === 'Enter') load();
+};
+
+init();
