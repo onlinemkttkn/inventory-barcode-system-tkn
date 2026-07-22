@@ -1,0 +1,11 @@
+{
+  "javascript": {
+    "js/access-control.js": true,
+    "js/users-admin.js": true,
+    "js/reports.js": true,
+    "js/dashboard.js": true,
+    "js/bill-search.js": true,
+    "js/void-bill.js": true,
+    "js/product-stock-admin.js": true
+  }
+}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>รายงานยอดขายและรายรับ</title>
+ <link rel="stylesheet" href="./css/governance.css?v=3.1.0">
+</head>
+<body>
+<main class="shell">
+ <header class="page-head"><div><p class="eyebrow">MASTER 3.1 · REPORTS</p>
+  <h1>รายงานยอดขายและรายรับ</h1>
+  <p>รายวัน รายเดือน รายปี พร้อมตรวจสอบสินค้าในแต่ละบิล</p></div>
+  <a class="button secondary" href="./dashboard.html">Dashboard</a>
+ </header>
+ <section class="card toolbar report-toolbar">
+  <label>ช่วงเวลา<select id="period"><option value="DAY">รายวัน</option>
+   <option value="MONTH">รายเดือน</option><option value="YEAR">รายปี</option></select></label>
+  <label>วันที่อ้างอิง<input id="anchor" type="date"></label>
+  <button id="load" class="button">โหลด</button>
+  <button id="csv" class="button secondary">Export CSV</button>
+  <button id="print" class="button secondary">พิมพ์</button>
+ </section>
+ <section class="stats" id="stats"></section>
+ <section class="card"><div class="table-wrap"><table>
+  <thead><tr><th>วันที่</th><th>เลขบิล</th><th>ชำระ</th><th>ยอดสุทธิ</th>
+   <th>สถานะ</th><th>รายละเอียด</th></tr></thead>
+  <tbody id="rows"><tr><td colspan="6">กำลังโหลด...</td></tr></tbody>
+ </table></div><p id="message"></p></section>
+</main>
+<dialog id="dialog"><div class="dialog-body">
+ <div class="dialog-head"><h2 id="dialogTitle">รายละเอียดบิล</h2>
+  <button id="close" class="button secondary">ปิด</button></div>
+ <div id="dialogContent"></div></div>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js"></script>
+<script src="./js/supabase-client.js"></script>
+<script type="module" src="./js/reports.js?v=3.1.0"></script>
+</body></html>

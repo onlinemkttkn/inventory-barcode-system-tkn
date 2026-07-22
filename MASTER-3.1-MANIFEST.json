@@ -1,0 +1,29 @@
+{
+  "name": "TKN POS ERP Master Governance",
+  "version": "3.1.0",
+  "base": "Master 3.0 LTS",
+  "standard_roles": [
+    "owner",
+    "admin",
+    "secretary",
+    "manager",
+    "supervisor",
+    "cashier",
+    "warehouse",
+    "purchasing",
+    "accounting",
+    "staff"
+  ],
+  "migration": "sql/MASTER-3.1-GOVERNANCE.sql",
+  "new_pages": [
+    "users-admin.html",
+    "reports.html"
+  ],
+  "new_modules": [
+    "10-role RBAC",
+    "secure void bill",
+    "secure stock adjustment",
+    "daily monthly yearly reports",
+    "user role administration"
+  ]
+}
