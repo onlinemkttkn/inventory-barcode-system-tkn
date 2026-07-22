@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKN POS - คืนสินค้า Return Balance v2.2</title>
+  <link rel="stylesheet" href="./css/phase-9-2-sales-return.css">
+  <link rel="stylesheet" href="./css/phase-9-2-return-balance-v2-2.css?v=2.2.0">
+  <link rel="stylesheet" href="./css/phase-9-5-navigation-fix-v1-1.css?v=1.1.0">
+</head>
+<body data-integrated-page="sales-return" data-lock-back="true">
+  <main class="page-shell">
+<nav class="integration-breadcrumb" aria-label="เส้นทาง">
+  <a href="./dashboard-integrated-phase-9-5-v1-1.html" data-nav-dashboard>Dashboard</a>
+  <span>›</span>
+  <a href="./phase-9-2-bill-search-integrated-v1-1.html" data-nav-bill-search>ค้นหาบิล</a>
+  <span>›</span><strong>คืนสินค้า</strong>
+</nav>
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2 · Return Balance v2.2</p>
+        <h1>คืนสินค้า</h1>
+        <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
+      </div>
+
+      <button id="backButton" class="secondary-button" type="button">
+        กลับ
+      </button>
+    </header>
+
+    <section class="panel">
+      <div class="warning">
+        <strong>ขั้นตอนตรวจสอบ</strong>
+        <p>
+          ตรวจสอบสินค้า จำนวนคืน เหตุผล และวิธีคืนเงินให้ถูกต้อง
+          ระบบจะบันทึกคืนสินค้าและคืนสต็อกในธุรกรรมเดียว
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>สินค้า</th>
+              <th>รหัสสินค้า</th>
+              <th>ซื้อทั้งหมด</th>
+              <th>คืนแล้ว</th>
+              <th>ยังคืนได้</th>
+              <th>คืนครั้งนี้</th>
+              <th>เหลือหลังคืน</th>
+              <th>ราคาต่อหน่วย</th>
+              <th>ยอดคืนครั้งนี้</th>
+            </tr>
+          </thead>
+          <tbody id="returnRows">
+            <tr>
+              <td colspan="9" class="empty-row">กำลังโหลด...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="return-form">
+        <label>
+          เหตุผลการคืนสินค้า
+          <textarea
+            id="returnReason"
+            rows="4"
+            placeholder="ระบุเหตุผลอย่างน้อย 5 ตัวอักษร"></textarea>
+        </label>
+
+        <label>
+          วิธีคืนเงิน
+          <select id="refundMethod">
+            <option value="ORIGINAL">คืนตามช่องทางเดิม</option>
+            <option value="CASH">เงินสด</option>
+            <option value="TRANSFER">โอน</option>
+            <option value="STORE_CREDIT">เครดิตร้านค้า</option>
+          </select>
+        </label>
+      </div>
+
+      <section class="return-balance-summary">
+        <article>
+          <span>ซื้อทั้งหมด</span>
+          <strong id="totalPurchasedQty">0</strong>
+        </article>
+        <article>
+          <span>คืนไปแล้ว</span>
+          <strong id="totalReturnedBefore">0</strong>
+        </article>
+        <article class="active-summary">
+          <span>คืนครั้งนี้</span>
+          <strong id="totalReturnQty">0</strong>
+        </article>
+        <article>
+          <span>เหลือคืนได้หลังรายการนี้</span>
+          <strong id="totalRemainingAfter">0</strong>
+        </article>
+        <article class="refund-summary">
+          <span>ยอดคืนครั้งนี้</span>
+          <strong id="estimatedRefund">฿0.00</strong>
+        </article>
+      </section>
+
+      <div class="actions">
+        <button id="cancelButton" class="secondary-button" type="button">
+          ยกเลิก
+        </button>
+
+        <button id="confirmButton" class="primary-button" type="button" disabled>
+          ยืนยันคืนสินค้า
+        </button>
+      </div>
+
+      <p id="statusMessage" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+
+  <dialog id="resultDialog" class="result-dialog">
+    <div id="resultDialogIcon" class="result-dialog-icon">✓</div>
+    <h2 id="resultDialogTitle">คืนสินค้าสำเร็จ</h2>
+    <p id="resultDialogMessage"></p>
+    <p class="result-dialog-countdown">
+      หน้าต่างนี้จะปิดอัตโนมัติใน <strong id="closeCountdown">3</strong> วินาที
+    </p>
+    <button id="closeResultDialog" type="button" class="primary-button">
+      ปิดตอนนี้
+    </button>
+  </dialog>
+
+  <script type="module" src="./js/phase-9-2-sales-return-v2-2.js"></script>
+  <script src="./js/phase-9-5-navigation-fix-v1-1.js?v=1.1.0"></script>
+</body>
+</html>

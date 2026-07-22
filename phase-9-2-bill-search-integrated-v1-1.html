@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKN POS - ค้นหาบิลย้อนหลัง v2.1</title>
+  <link rel="stylesheet" href="./css/phase-9-2-bill-search.css">
+  <link rel="stylesheet" href="./css/phase-9-5-navigation-fix-v1-1.css?v=1.1.0">
+</head>
+<body data-integrated-page="bill-search" data-lock-back="true">
+  <main class="page-shell">
+<nav class="integration-breadcrumb" aria-label="เส้นทาง">
+  <a href="./dashboard-integrated-phase-9-5-v1-1.html" data-nav-dashboard>Dashboard</a>
+  <span>›</span><strong>ค้นหาบิลย้อนหลัง</strong>
+</nav>
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2 · Return Balance v2.2</p>
+        <h1>ค้นหาบิลย้อนหลัง</h1>
+        <p>ค้นหาได้แม้เป็นลูกค้า Walk-in และไม่มีข้อมูลสมาชิก</p>
+      </div>
+
+      <a class="secondary-button" href="./dashboard-integrated-phase-9-5-v1-1.html" data-nav-dashboard>กลับ Dashboard</a>
+    </header>
+
+    <section class="panel" aria-labelledby="search-title">
+      <h2 id="search-title">เงื่อนไขค้นหา</h2>
+
+      <div class="search-grid">
+        <label>
+          คำค้น
+          <input
+            id="keyword"
+            type="search"
+            placeholder="เลขบิล, SKU, Barcode, ชื่อสินค้า">
+        </label>
+
+        <label>
+          วันที่เริ่มต้น
+          <input id="dateFrom" type="date">
+        </label>
+
+        <label>
+          วันที่สิ้นสุด
+          <input id="dateTo" type="date">
+        </label>
+
+        <label>
+          ช่องทางชำระเงิน
+          <select id="paymentChannel">
+            <option value="">ทั้งหมด</option>
+            <option value="CASH">เงินสด</option>
+            <option value="QR">QR</option>
+            <option value="TRANSFER">โอน</option>
+            <option value="CARD">บัตร</option>
+          </select>
+        </label>
+
+        <label>
+          ช่องทางการขาย
+          <select id="salesChannel">
+            <option value="">ทั้งหมด</option>
+            <option value="STORE">หน้าร้าน</option>
+            <option value="ONLINE">ออนไลน์</option>
+            <option value="LINE">LINE OA</option>
+            <option value="FACEBOOK">Facebook</option>
+            <option value="WEBSITE">Website</option>
+            <option value="MARKETPLACE">Marketplace</option>
+          </select>
+        </label>
+
+        <label>
+          สถานะ
+          <select id="status">
+            <option value="">ทั้งหมด</option>
+            <option value="COMPLETED">สำเร็จ</option>
+            <option value="VOIDED">ยกเลิก</option>
+            <option value="RETURNED">คืนสินค้า</option>
+            <option value="PARTIAL_RETURN">คืนบางส่วน</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="searchButton" class="primary-button" type="button">
+          ค้นหา
+        </button>
+
+        <button id="resetButton" class="secondary-button" type="button">
+          ล้างตัวกรอง
+        </button>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="สรุปผลการค้นหา">
+      <article class="summary-card">
+        <span>จำนวนบิล</span>
+        <strong id="summaryBills">0</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>ยอดขายรวม</span>
+        <strong id="summaryTotal">฿0.00</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>คืนสินค้า</span>
+        <strong id="summaryReturns">0</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <h2>ผลการค้นหา</h2>
+        <span id="resultMessage" role="status" aria-live="polite"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>เลขบิล</th>
+              <th>วันที่</th>
+              <th>ลูกค้า</th>
+              <th>ช่องทางขาย</th>
+              <th>ชำระเงิน</th>
+              <th>ยอดสุทธิ</th>
+              <th>สถานะ</th>
+              <th>การทำงาน</th>
+            </tr>
+          </thead>
+
+          <tbody id="billRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <dialog id="billDialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">รายละเอียดบิล</p>
+          <h2 id="dialogBillNo">-</h2>
+        </div>
+
+        <button
+          id="closeDialog"
+          class="icon-button"
+          type="button"
+          aria-label="ปิดหน้าต่าง">
+          ×
+        </button>
+      </div>
+
+      <div id="dialogContent"></div>
+
+      <div class="dialog-actions">
+        <button
+          class="secondary-button"
+          data-permission="pos.reprint_receipt"
+          id="reprintButton"
+          type="button">
+          พิมพ์ใบเสร็จซ้ำ
+        </button>
+
+        <button
+          class="danger-button"
+          data-permission="pos.return_create"
+          id="returnButton"
+          type="button">
+          คืนสินค้า
+        </button>
+
+        <button
+          class="danger-button"
+          data-permission="pos.void_bill"
+          id="voidButton"
+          type="button">
+          ยกเลิกบิล
+        </button>
+      </div>
+    </dialog>
+  </main>
+
+  <script type="module" src="./js/phase-9-2-bill-search-v2-2.js"></script>
+  <script src="./js/phase-9-5-navigation-fix-v1-1.js?v=1.1.0"></script>
+</body>
+</html>
