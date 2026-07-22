@@ -1,0 +1,72 @@
+-- TKN POS / ERP MASTER 3.2.1
+-- Fix ERROR 42725: function public.user_has_permission(unknown) is not unique
+begin;
+
+do $cleanup$
+declare
+  fn record;
+begin
+  for fn in
+    select
+      n.nspname as schema_name,
+      p.proname as function_name,
+      pg_get_function_identity_arguments(p.oid) as identity_args
+    from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public'
+      and p.proname='user_has_permission'
+  loop
+    execute format(
+      'drop function if exists %I.%I(%s) cascade',
+      fn.schema_name,
+      fn.function_name,
+      fn.identity_args
+    );
+  end loop;
+end
+$cleanup$;
+
+create or replace function public.user_has_permission(
+ p_permission text
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path=public
+as $$
+ select exists(
+  select 1
+  from public.tkn_user_access ua
+  join public.tkn_role_permissions rp on rp.role_code=ua.role_code
+  where ua.user_id=auth.uid()
+    and ua.is_active=true
+    and rp.permission_code=p_permission
+ )
+ or exists(
+  select 1
+  from public.profiles p
+  join public.tkn_role_permissions rp
+    on rp.role_code=
+      case lower(coalesce(p.role::text,'staff'))
+        when 'owner' then 'owner'
+        when 'admin' then 'admin'
+        when 'secretary' then 'secretary'
+        when 'manager' then 'manager'
+        when 'supervisor' then 'supervisor'
+        when 'cashier' then 'cashier'
+        when 'warehouse' then 'warehouse'
+        when 'purchasing' then 'purchasing'
+        when 'accounting' then 'accounting'
+        else 'staff'
+      end
+  where p.id=auth.uid()
+    and p.is_active=true
+    and rp.permission_code=p_permission
+ );
+$$;
+
+grant execute on function public.user_has_permission(text)
+to authenticated;
+
+commit;

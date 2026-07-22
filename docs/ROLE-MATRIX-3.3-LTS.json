@@ -1,0 +1,75 @@
+{
+  "owner": [
+    "all"
+  ],
+  "admin": [
+    "all"
+  ],
+  "secretary": [
+    "dashboard.view",
+    "dashboard.drilldown",
+    "report.view",
+    "report.export",
+    "bill.view",
+    "bill.detail",
+    "audit.view"
+  ],
+  "manager": [
+    "dashboard.branch_view",
+    "dashboard.drilldown",
+    "report.view",
+    "bill.view",
+    "bill.detail",
+    "pos.use",
+    "pos.sell",
+    "pos.search_bill",
+    "pos.reprint_receipt",
+    "pos.void_bill",
+    "pos.return_create",
+    "inventory.view"
+  ],
+  "supervisor": [
+    "bill.view",
+    "bill.detail",
+    "pos.use",
+    "pos.sell",
+    "pos.search_bill",
+    "pos.reprint_receipt",
+    "pos.void_bill",
+    "pos.return_create",
+    "inventory.view"
+  ],
+  "cashier": [
+    "pos.use",
+    "pos.sell",
+    "pos.search_bill",
+    "pos.reprint_receipt",
+    "pos.return_create",
+    "bill.view",
+    "bill.detail"
+  ],
+  "warehouse": [
+    "inventory.view",
+    "inventory.receive",
+    "inventory.issue",
+    "inventory.transfer",
+    "inventory.count",
+    "inventory.adjust"
+  ],
+  "purchasing": [
+    "purchasing.manage",
+    "inventory.view",
+    "inventory.receive"
+  ],
+  "accounting": [
+    "report.view",
+    "report.export",
+    "bill.view",
+    "bill.detail",
+    "audit.view"
+  ],
+  "staff": [
+    "pos.use",
+    "pos.sell"
+  ]
+}
