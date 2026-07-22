@@ -4,17 +4,44 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#991b1b">
-  <title>Dashboard ร้านเถ้าแก่น้อยชลบุรี</title>
-  <link rel="stylesheet" href="./css/dashboard-v2.css?v=1.0.2">
-  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <title>TKN POS / ERP — Unified Dashboard</title>
+  <link rel="stylesheet" href="./css/dashboard-v2.css?v=8.2.1">
+  <link rel="stylesheet" href="./css/phase-9-5-integration.css?v=1.0.0">
+  <link rel="stylesheet" href="./css/phase-9-5-navigation-fix-v1-1.css?v=1.1.0">
+
+  <style>
+    .menu-card.product-admin-card {
+      position: relative;
+      border-color: #86efac;
+      background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 76%);
+    }
+    .menu-card.product-admin-card::after {
+      content: "สินค้า";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .menu-card.product-admin-card:hover {
+      border-color: #22c55e;
+      box-shadow: 0 12px 24px rgba(34, 197, 94, .12);
+    }
+  </style>
+
 </head>
-<body>
+<body data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
   <header class="topbar">
     <div>
-      <p class="eyebrow">PHASE 08.2</p>
+      <p class="eyebrow">TKN POS / ERP · FINAL STABLE CORE v1.2</p>
       <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
       <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
+      <p class="integration-note">หน้าหลักเดิม พร้อมโมดูลหลังการขายจาก Phase 09.2</p>
     </div>
     <div class="top-actions">
       <select id="branchFilter">
@@ -62,10 +89,39 @@
 
     <section class="menu-grid">
       <a class="menu-card highlight" href="./pos.html"><span class="icon">฿</span><h2>POS ขายหน้าร้าน</h2><p>สแกนสินค้า รับชำระ และตัดสต๊อก</p></a>
-      <a class="menu-card" href="./receipt.html"><span class="icon">🧾</span><h2>พิมพ์ใบเสร็จ</h2><p>58/80 มม. PeriPage และ A4</p></a>
-      <a class="menu-card" href="./sales-return.html"><span class="icon">↩</span><h2>คืนสินค้า</h2><p>คืนบางรายการหรือทั้งบิล</p></a>
-      <a class="menu-card" href="./sales-return-history.html"><span class="icon">▤</span><h2>ประวัติคืนสินค้า</h2><p>ดูและพิมพ์ใบคืนย้อนหลัง</p></a>
       <a class="menu-card" href="./sales-history.html"><span class="icon">▤</span><h2>ประวัติการขาย</h2><p>ดูรายการขายทุกสาขา</p></a>
+
+      <a class="menu-card integration-card" href="./phase-9-2-bill-search.html">
+        <span class="icon">⌕</span>
+        <h2>ค้นหาบิลย้อนหลัง</h2>
+        <p>ค้นหา ดูรายละเอียด พิมพ์ซ้ำ คืนสินค้า และยกเลิกบิล</p>
+      </a>
+      <a class="menu-card integration-card" href="./phase-9-2-bill-search.html">
+        <span class="icon">↩</span>
+        <h2>คืนสินค้าจากบิล</h2>
+        <p>เลือกบิลก่อน ระบบจะตรวจยอดที่คืนได้และเปิด Popup</p>
+      </a>
+      <a class="menu-card integration-card" href="./sales-return-history.html">
+        <span class="icon">↶</span>
+        <h2>ประวัติคืนสินค้า</h2>
+        <p>ตรวจสอบรายการคืนและพิมพ์ใบคืนสินค้า</p>
+      </a>
+      <a class="menu-card integration-card" href="./sales-return-report.html">
+        <span class="icon">▥</span>
+        <h2>รายงานสินค้าคืน</h2>
+        <p>ดูจำนวนใบคืน ยอดคืน และสินค้าที่ถูกคืนมากที่สุด</p>
+      </a>
+
+      <a class="menu-card product-admin-card" href="./products-admin.html">
+        <span class="icon">📦</span>
+        <h2>จัดการสินค้า</h2>
+        <p>เพิ่ม แก้ไข เปิด/ปิด และจัดการข้อมูลสินค้า</p>
+      </a>
+      <a class="menu-card product-admin-card" href="./product-stock-admin.html">
+        <span class="icon">▦</span>
+        <h2>จัดการสต็อกสินค้า</h2>
+        <p>ตรวจสอบและกำหนดสต็อกสินค้าแต่ละสาขา</p>
+      </a>
       <a class="menu-card" href="./scanner.html"><span class="icon">▦</span><h2>สแกนและค้นหา</h2><p>ค้นหาสินค้าด้วยบาร์โค้ด</p></a>
       <a class="menu-card" href="./generator.html"><span class="icon">▥</span><h2>สร้าง Barcode / QR</h2><p>สร้างและดาวน์โหลดโค้ดสินค้า</p></a>
       <a class="menu-card" href="./print-labels.html"><span class="icon">▤</span><h2>พิมพ์ป้ายสินค้า</h2><p>A4, 58/80 มม. และ PeriPage</p></a>
@@ -80,16 +136,6 @@
       <a class="menu-card" href="./stock-count-history.html"><span class="icon">≡</span><h2>ประวัติตรวจนับ</h2><p>ดูรอบและผลต่างสต๊อก</p></a>
       <a class="menu-card" href="./stock-alerts.html"><span class="icon">⚠</span><h2>แจ้งเตือนสต๊อก</h2><p>ใกล้หมด หมด และไม่เคลื่อนไหว</p></a>
       <a class="menu-card" href="./audit-log.html"><span class="icon">◉</span><h2>Audit Log</h2><p>ตรวจสอบประวัติผู้ใช้งาน</p></a>
-      <a class="menu-card" href="./import-export.html"><span class="icon">⇅</span><h2>Import / Export</h2><p>นำเข้าและสำรองข้อมูลสินค้า CSV</p></a>
-      <a class="menu-card highlight" href="./products-admin.html"><span class="icon">📦</span><h2>จัดการสินค้า</h2><p>เพิ่ม แก้ไข และค้นหาสินค้า</p></a>
-      <a class="menu-card" href="./categories-admin.html"><span class="icon">🏷</span><h2>หมวดหมู่/ยี่ห้อ</h2><p>เพิ่มหมวดหมู่ หน่วยนับ และยี่ห้อ</p></a>
-      <a class="menu-card" href="./product-stock-admin.html"><span class="icon">⚙</span><h2>ปรับสต๊อกสินค้า</h2><p>กำหนดยอดและขั้นต่ำแยกสาขา</p></a>
-      <a class="menu-card" href="./members.html"><span class="icon">♟</span><h2>ระบบสมาชิก</h2><p>สมัคร ค้นหา และดูคะแนนสมาชิก</p></a>
-      <a class="menu-card" href="./pos-member.html"><span class="icon">★</span><h2>สะสม/ใช้คะแนน</h2><p>ผูกสมาชิกกับบิล POS</p></a>
-      <a class="menu-card" href="./member-history.html"><span class="icon">≡</span><h2>ประวัติคะแนน</h2><p>ตรวจสอบการได้และใช้คะแนน</p></a>
-      <a class="menu-card highlight" href="./suppliers.html"><span class="icon">🏢</span><h2>ผู้จำหน่าย</h2><p>จัดการ Supplier และเครดิตเทอม</p></a>
-      <a class="menu-card highlight" href="./purchase-order-create.html"><span class="icon">📝</span><h2>สร้างใบสั่งซื้อ</h2><p>สร้าง Purchase Order</p></a>
-      <a class="menu-card" href="./purchase-order-history.html"><span class="icon">📋</span><h2>ประวัติ PO</h2><p>ติดตามและอนุมัติใบสั่งซื้อ</p></a>
     </section>
 
     <section class="dashboard-grid">
@@ -163,7 +209,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/dashboard-v2.js?v=1.0.2"></script>
+<script src="./js/supabase-config.js"></script>
+<script src="./js/dashboard-v2.js?v=8.2.1"></script>
+<script>
+  document.querySelectorAll(".integration-card").forEach((link) => {
+    link.addEventListener("click", () => {
+      sessionStorage.setItem("tkn_integration_source", "phase-9-5-dashboard");
+    });
+  });
+</script>
+  <script src="./js/phase-9-5-navigation-fix-v1-1.js?v=1.1.0"></script>
 </body>
 </html>

@@ -1,3 +1,8 @@
+
+window.goToUnifiedDashboard = function goToUnifiedDashboard() {
+  window.location.assign("./dashboard.html");
+};
+
 const E = {
   branch: document.getElementById("branch"),
   payment: document.getElementById("payment"),
@@ -538,61 +543,6 @@ E.checkout.addEventListener("click", async () => {
   }
 });
 
-
-function installDashboardRouteFix() {
-  const dashboardUrl = "./dashboard.html";
-
-  const candidates = [
-    ...document.querySelectorAll(
-      'a, button, [role="button"], [data-dashboard]'
-    ),
-  ];
-
-  candidates.forEach((element) => {
-    const label = (
-      element.textContent ||
-      element.getAttribute("aria-label") ||
-      element.getAttribute("title") ||
-      ""
-    ).trim().toLowerCase();
-
-    const href = (
-      element.getAttribute?.("href") || ""
-    ).toLowerCase();
-
-    const isDashboardControl =
-      label.includes("dashboard") ||
-      label.includes("หน้าหลัก") ||
-      label.includes("แดชบอร์ด") ||
-      href.includes("dashboard");
-
-    if (!isDashboardControl) return;
-
-    if (element.tagName === "A") {
-      element.setAttribute("href", dashboardUrl);
-    }
-
-    element.addEventListener(
-      "click",
-      (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        window.location.assign(dashboardUrl);
-      },
-      true
-    );
-  });
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    installDashboardRouteFix,
-    { once: true }
-  );
-} else {
-  installDashboardRouteFix();
-}
 
 
 init();

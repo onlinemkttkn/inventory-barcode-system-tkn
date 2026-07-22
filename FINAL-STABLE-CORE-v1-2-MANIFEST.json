@@ -1,0 +1,13 @@
+{
+  "package": "TKN POS ERP Final Stable Core",
+  "version": "1.2.0",
+  "upload_to_repository_root": [
+    "dashboard.html",
+    "pos.html",
+    "pos.js"
+  ],
+  "database_changes": false,
+  "active_pos_script": "pos.js",
+  "cache_busting": "v=1.2.0",
+  "deprecated_file": "pos-fixed.js"
+}
