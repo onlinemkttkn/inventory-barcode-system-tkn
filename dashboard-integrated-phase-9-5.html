@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#991b1b">
+  <title>Dashboard ร้านเถ้าแก่น้อยชลบุรี — Integrated 9.5</title>
+  <link rel="stylesheet" href="./css/dashboard-v2.css?v=8.2.1">
+  <link rel="stylesheet" href="./css/phase-9-5-integration.css?v=1.0.0">
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">PHASE 08.2 · INTEGRATED WITH 09.2</p>
+      <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
+      <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
+      <p class="integration-note">หน้าหลักเดิม พร้อมโมดูลหลังการขายจาก Phase 09.2</p>
+    </div>
+    <div class="top-actions">
+      <select id="branchFilter">
+        <option value="">ทุกสาขา</option>
+      </select>
+      <button id="refreshBtn" class="btn secondary" type="button">รีเฟรช</button>
+      <button id="logoutBtn" class="btn secondary hidden" type="button">ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <section id="configWarning" class="alert warning hidden"></section>
+
+  <section id="loginCard" class="card login-card">
+    <h2>เข้าสู่ระบบภายในองค์กร</h2>
+    <form id="loginForm" class="form-grid">
+      <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
+      <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn primary" type="submit">เข้าสู่ระบบ</button>
+    </form>
+    <p id="loginMessage" class="message"></p>
+  </section>
+
+  <section id="appArea" class="hidden">
+    <section class="stats-grid">
+      <article class="stat"><span>สินค้าทั้งหมด</span><strong id="totalProducts">-</strong></article>
+      <article class="stat danger-stat"><span>สินค้าหมด</span><strong id="outStock">-</strong></article>
+      <article class="stat warning-stat"><span>สินค้าใกล้หมด</span><strong id="lowStock">-</strong></article>
+      <article class="stat"><span>หมวดหมู่</span><strong id="totalCategories">-</strong></article>
+      <article class="stat sales-stat"><span>ยอดขายวันนี้</span><strong id="salesToday">-</strong></article>
+      <article class="stat"><span>บิลวันนี้</span><strong id="billsToday">-</strong></article>
+      <article class="stat sales-stat"><span>ยอดขายเดือนนี้</span><strong id="salesMonth">-</strong></article>
+      <article class="stat warning-stat"><span>ใบโอนรอรับ</span><strong id="pendingTransfers">-</strong></article>
+    </section>
+
+    <section class="value-grid">
+      <article class="value-card">
+        <span>มูลค่าทุนสินค้าคงเหลือ</span>
+        <strong id="stockCostValue">-</strong>
+      </article>
+      <article class="value-card">
+        <span>มูลค่าขายสินค้าคงเหลือ</span>
+        <strong id="stockSaleValue">-</strong>
+      </article>
+    </section>
+
+    <section class="menu-grid">
+      <a class="menu-card highlight" href="./pos.html"><span class="icon">฿</span><h2>POS ขายหน้าร้าน</h2><p>สแกนสินค้า รับชำระ และตัดสต๊อก</p></a>
+      <a class="menu-card" href="./sales-history.html"><span class="icon">▤</span><h2>ประวัติการขาย</h2><p>ดูรายการขายทุกสาขา</p></a>
+
+      <a class="menu-card integration-card" href="./phase-9-2-bill-search-v2-2.html">
+        <span class="icon">⌕</span>
+        <h2>ค้นหาบิลย้อนหลัง</h2>
+        <p>ค้นหา ดูรายละเอียด พิมพ์ซ้ำ คืนสินค้า และยกเลิกบิล</p>
+      </a>
+      <a class="menu-card integration-card" href="./phase-9-2-bill-search-v2-2.html">
+        <span class="icon">↩</span>
+        <h2>คืนสินค้าจากบิล</h2>
+        <p>เลือกบิลก่อน ระบบจะตรวจยอดที่คืนได้และเปิด Popup</p>
+      </a>
+      <a class="menu-card integration-card" href="./sales-return-history-v2-3.html">
+        <span class="icon">↶</span>
+        <h2>ประวัติคืนสินค้า</h2>
+        <p>ตรวจสอบรายการคืนและพิมพ์ใบคืนสินค้า</p>
+      </a>
+      <a class="menu-card integration-card" href="./sales-return-report-v2-3.html">
+        <span class="icon">▥</span>
+        <h2>รายงานสินค้าคืน</h2>
+        <p>ดูจำนวนใบคืน ยอดคืน และสินค้าที่ถูกคืนมากที่สุด</p>
+      </a>
+      <a class="menu-card" href="./scanner.html"><span class="icon">▦</span><h2>สแกนและค้นหา</h2><p>ค้นหาสินค้าด้วยบาร์โค้ด</p></a>
+      <a class="menu-card" href="./generator.html"><span class="icon">▥</span><h2>สร้าง Barcode / QR</h2><p>สร้างและดาวน์โหลดโค้ดสินค้า</p></a>
+      <a class="menu-card" href="./print-labels.html"><span class="icon">▤</span><h2>พิมพ์ป้ายสินค้า</h2><p>A4, 58/80 มม. และ PeriPage</p></a>
+      <a class="menu-card" href="./receive.html"><span class="icon">＋</span><h2>รับสินค้าเข้า</h2><p>เพิ่มสต๊อกด้วยเอกสารรับเข้า</p></a>
+      <a class="menu-card" href="./issue.html"><span class="icon">−</span><h2>เบิก/จ่ายสินค้า</h2><p>ตัดสต๊อกและบันทึกผู้เบิก</p></a>
+      <a class="menu-card" href="./transactions.html"><span class="icon">≡</span><h2>ประวัติสต๊อก</h2><p>รับเข้าและเบิกจ่ายย้อนหลัง</p></a>
+      <a class="menu-card" href="./transfer-create.html"><span class="icon">⇄</span><h2>โอนระหว่างสาขา</h2><p>สร้างใบโอนสินค้า</p></a>
+      <a class="menu-card" href="./transfer-receive.html"><span class="icon">✓</span><h2>รับสินค้าปลายทาง</h2><p>ยืนยันรับสินค้าเข้าสาขา</p></a>
+      <a class="menu-card" href="./branch-stock.html"><span class="icon">▦</span><h2>สต๊อกแต่ละสาขา</h2><p>ดูยอดคงเหลือแยกสาขา</p></a>
+      <a class="menu-card" href="./transfer-history.html"><span class="icon">≡</span><h2>ประวัติการโอน</h2><p>ติดตามใบโอนทั้งหมด</p></a>
+      <a class="menu-card" href="./stock-count.html"><span class="icon">✓</span><h2>ตรวจนับสต๊อก</h2><p>กรอกยอดนับจริงด้วยมือถือ</p></a>
+      <a class="menu-card" href="./stock-count-history.html"><span class="icon">≡</span><h2>ประวัติตรวจนับ</h2><p>ดูรอบและผลต่างสต๊อก</p></a>
+      <a class="menu-card" href="./stock-alerts.html"><span class="icon">⚠</span><h2>แจ้งเตือนสต๊อก</h2><p>ใกล้หมด หมด และไม่เคลื่อนไหว</p></a>
+      <a class="menu-card" href="./audit-log.html"><span class="icon">◉</span><h2>Audit Log</h2><p>ตรวจสอบประวัติผู้ใช้งาน</p></a>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="card">
+        <div class="section-title">
+          <div>
+            <h2>สต๊อกที่อัปเดตล่าสุด</h2>
+            <p>ข้อมูลจาก branch_inventory</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>สาขา</th><th>รหัส</th><th>สินค้า</th><th>บาร์โค้ด</th><th>คงเหลือ</th><th>สถานะ</th></tr>
+            </thead>
+            <tbody id="recentProducts"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-title">
+          <div>
+            <h2>ยอดขายล่าสุด</h2>
+            <p>รายการขายจาก POS</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>เวลา</th><th>เลขที่</th><th>สาขา</th><th>ยอดสุทธิ</th><th>ชำระ</th></tr>
+            </thead>
+            <tbody id="recentSales"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-title">
+          <div>
+            <h2>สินค้าขายดีเดือนนี้</h2>
+            <p>เรียงตามจำนวนขาย</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>อันดับ</th><th>รหัส</th><th>สินค้า</th><th>จำนวนขาย</th><th>ยอดขาย</th></tr>
+            </thead>
+            <tbody id="topProducts"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-title">
+          <div>
+            <h2>ยอดขาย 14 วัน</h2>
+            <p>สรุปยอดขายรายวัน</p>
+          </div>
+        </div>
+        <div class="chart-container">
+  <canvas id="salesChart"></canvas>
+</div>
+      </article>
+    </section>
+
+    <p id="dashboardMessage" class="message"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="./js/supabase-config.js"></script>
+<script src="./js/dashboard-v2.js?v=8.2.1"></script>
+<script>
+  document.querySelectorAll(".integration-card").forEach((link) => {
+    link.addEventListener("click", () => {
+      sessionStorage.setItem("tkn_integration_source", "phase-9-5-dashboard");
+    });
+  });
+</script>
+</body>
+</html>

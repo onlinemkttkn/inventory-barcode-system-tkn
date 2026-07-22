@@ -1,0 +1,15 @@
+{
+  "package": "TKN POS Phase 9.5 System Integration Safe Pack",
+  "version": "1.0.0",
+  "entry": "dashboard-integrated-phase-9-5.html",
+  "overwrites_existing_files": false,
+  "uses_existing_phase_8_2_assets": true,
+  "integrated_modules": [
+    "Bill Search",
+    "Sales Return",
+    "Return History",
+    "Return Receipt",
+    "Return Report"
+  ],
+  "next_phase": "Phase 10 - Reporting, Analytics and Executive Dashboard"
+}
