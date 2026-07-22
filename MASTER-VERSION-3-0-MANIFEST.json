@@ -1,0 +1,25 @@
+{
+  "name": "TKN POS ERP Master Version",
+  "version": "3.0.0",
+  "source": "inventory-barcode-system-tkn-main.zip",
+  "single_dashboard": "dashboard.html",
+  "canonical_bill_search_script": "js/phase-9-2-bill-search.js",
+  "database_migration": "sql/00-MASTER-VERSION-3-0.sql",
+  "dashboard_roles": [
+    "owner",
+    "admin",
+    "secretary"
+  ],
+  "void_roles": [
+    "owner",
+    "admin",
+    "manager",
+    "supervisor"
+  ],
+  "stock_adjust_roles": [
+    "owner",
+    "admin",
+    "warehouse"
+  ],
+  "status": "Master production baseline"
+}

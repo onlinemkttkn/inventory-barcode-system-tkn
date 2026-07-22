@@ -1,0 +1,13 @@
+{
+  "version": "3.0.0",
+  "javascript_syntax": {
+    "dashboard-v2.js": true,
+    "phase-9-2-bill-search.js": true,
+    "phase-9-2-permissions.js": true,
+    "product-stock-admin.js": true,
+    "phase-9-2-void-bill.js": true
+  },
+  "dashboard_exists": true,
+  "void_page_exists": true,
+  "master_sql_exists": true
+}
