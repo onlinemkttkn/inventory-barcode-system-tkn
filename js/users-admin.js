@@ -22,7 +22,7 @@ async function init(){
  if(!guardPage(context,'users.manage')) return;
 
  const [roleResult,branchResult]=await Promise.all([
-  supabaseClient.from('app_roles')
+  supabaseClient.from('tkn_roles')
    .select('code,name_th').eq('is_active',true).order('sort_order'),
   supabaseClient.from('branches')
    .select('id,code,name').eq('is_active',true).order('sort_order')

@@ -29,7 +29,7 @@ const E={
 };
 
 let rows=[];
-let profile=null;
+let access=null;
 
 function msg(el,text,cls=''){el.textContent=text;el.className='msg '+cls}
 function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
@@ -39,9 +39,19 @@ async function init(){
   const {data:{session}}=await supabaseClient.auth.getSession();
   if(!session){location.href='./dashboard.html';return}
 
-  const {data:p}=await supabaseClient.from('profiles').select('role,is_active').eq('id',session.user.id).maybeSingle();
-  if(!p||p.is_active!==true){location.href='./dashboard.html';return}
-  profile=p;
+  const {data:a,error:accessError}=
+    await supabaseClient.rpc('current_access_context');
+
+  if(accessError||!a?.user_id||a.is_active!==true){
+    location.href='./dashboard.html';
+    return;
+  }
+
+  access=a;
+  if(!(a.permissions||[]).includes('products.manage')){
+    location.href=a.landing_page||'./pos.html';
+    return;
+  }
 
   await loadOptions();
   await loadProducts();
@@ -171,7 +181,7 @@ E.generateBarcodeBtn.onclick=async()=>{
 E.form.onsubmit=async event=>{
   event.preventDefault();
 
-  if(!['owner','admin'].includes(String(profile.role||'').toLowerCase())){
+  if(!(access?.permissions||[]).includes('products.manage')){
     return msg(E.formMessage,'เฉพาะ Owner หรือ Admin เท่านั้น','error');
   }
 

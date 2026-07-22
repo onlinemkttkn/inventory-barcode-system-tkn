@@ -25,23 +25,23 @@
     if (current === 'index.html' || current === 'dashboard.html') return;
 
     let role = normalizedRole(sessionStorage.getItem('tkn_user_role'));
+    let landingPage = homeFor(role);
 
     try {
       if (window.supabaseClient) {
-        const { data: { session } } =
-          await window.supabaseClient.auth.getSession();
+        const { data: access, error } =
+          await window.supabaseClient.rpc('current_access_context');
 
-        if (session?.user?.id) {
-          const { data: profile } = await window.supabaseClient
-            .from('profiles')
-            .select('role,is_active')
-            .eq('id', session.user.id)
-            .maybeSingle();
+        if (error) throw error;
 
-          if (profile?.is_active === true) {
-            role = normalizedRole(profile.role);
-            sessionStorage.setItem('tkn_user_role', role);
-          }
+        if (access?.user_id && access.is_active === true) {
+          role = normalizedRole(access.role);
+          landingPage = access.landing_page || homeFor(role);
+          sessionStorage.setItem('tkn_user_role', role);
+          sessionStorage.setItem(
+            'tkn_permissions',
+            JSON.stringify(access.permissions || [])
+          );
         }
       }
     } catch (error) {
@@ -54,7 +54,7 @@
 
     const home = document.createElement('a');
     home.className = 'tkn-nav-btn';
-    home.href = homeFor(role);
+    home.href = landingPage;
     home.textContent =
       DASHBOARD_ROLES.has(role) ? 'Dashboard' : 'หน้าหลัก';
 
@@ -69,7 +69,7 @@
       if (DASHBOARD_ROLES.has(role)) {
         link.href = './dashboard.html';
       } else {
-        link.href = homeFor(role);
+        link.href = landingPage;
         link.textContent = 'หน้าหลัก';
       }
     });

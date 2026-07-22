@@ -190,33 +190,53 @@ async function renderSession(session) {
       return;
     }
 
+    const { data: access, error: accessError } =
+      await supabaseClient.rpc("current_access_context");
 
-    const normalizedRole = String(profile.role || 'staff').toLowerCase();
-    sessionStorage.setItem('tkn_user_role', normalizedRole);
-
-    const dashboardRoles = new Set(['owner', 'admin', 'secretary']);
-    if (!dashboardRoles.has(normalizedRole)) {
-      const destination =
-        normalizedRole === 'warehouse'
-          ? './product-stock-admin.html'
-          : normalizedRole === 'accounting'
-            ? './phase-9-2-bill-search.html'
-            : './pos.html';
-
-      window.location.replace(destination);
+    if (accessError || !access?.user_id || access.is_active !== true) {
+      await supabaseClient.auth.signOut();
+      showLogin();
+      msg(
+        E.loginMessage,
+        accessError?.message || "บัญชีไม่มีสิทธิ์ใช้งาน",
+        "error"
+      );
       return;
     }
 
-    currentProfile = profile;
+    const permissions = new Set(access.permissions || []);
+    sessionStorage.setItem("tkn_user_role", access.role || "staff");
+    sessionStorage.setItem(
+      "tkn_permissions",
+      JSON.stringify(access.permissions || [])
+    );
+
+    if (!permissions.has("dashboard.view")) {
+      window.location.replace(access.landing_page || "./pos.html");
+      return;
+    }
+
+    document.querySelectorAll("[data-permission]").forEach((element) => {
+      const allowed = permissions.has(
+        element.getAttribute("data-permission")
+      );
+      element.hidden = !allowed;
+    });
+
+    currentProfile = {
+      ...profile,
+      role: access.role,
+      full_name: access.full_name || profile.full_name
+    };
     showApp();
 
     E.welcomeText.textContent =
-      `${profile.full_name || profile.email} • ${
+      `${access.full_name || access.email} • ${
         ({
           owner: "เจ้าของกิจการ",
           admin: "ผู้ดูแลระบบ",
           secretary: "เลขานุการ"
-        }[String(profile.role || "").toLowerCase()] || "ผู้ใช้งาน")
+        }[access.role] || access.role)
       }`;
 
     if (!branchesLoaded) {

@@ -30,21 +30,28 @@ async function init() {
     return;
   }
 
-  const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('role,is_active')
-    .eq('id', session.user.id)
-    .maybeSingle();
+  const { data: access, error: accessError } =
+    await supabaseClient.rpc('current_access_context');
 
-  if (profileError || !profile || profile.is_active !== true) {
+  if (accessError || !access?.user_id || access.is_active !== true) {
     await supabaseClient.auth.signOut();
     location.replace('./dashboard.html');
     return;
   }
 
-  role = String(profile.role || 'staff').toLowerCase();
+  role = access.role || 'staff';
   sessionStorage.setItem('tkn_user_role', role);
-  canAdjust = ['owner', 'admin', 'warehouse'].includes(role);
+  sessionStorage.setItem(
+    'tkn_permissions',
+    JSON.stringify(access.permissions || [])
+  );
+
+  const permissions = new Set(access.permissions || []);
+  if (!permissions.has('inventory.view')) {
+    location.replace(access.landing_page || './pos.html');
+    return;
+  }
+  canAdjust = permissions.has('inventory.adjust');
 
   const { data, error } = await supabaseClient
     .from('branches')
