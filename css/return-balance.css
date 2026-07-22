@@ -1,0 +1,115 @@
+
+/* Phase 9.2 Return Popup v2.1 */
+.result-dialog {
+  width: min(430px, calc(100% - 32px));
+  border: 0;
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, .28);
+}
+
+.result-dialog::backdrop {
+  background: rgba(15, 23, 42, .58);
+  backdrop-filter: blur(3px);
+}
+
+.result-dialog-icon {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 38px;
+  font-weight: 900;
+}
+
+.result-dialog h2 {
+  margin: 0 0 10px;
+}
+
+.result-dialog p {
+  color: #475467;
+}
+
+.result-dialog-countdown {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+
+/* Return balance display v2.2 */
+.return-balance-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.return-balance-summary article {
+  padding: 16px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+.return-balance-summary span {
+  display: block;
+  color: #64748b;
+  font-size: 14px;
+}
+.return-balance-summary strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 25px;
+}
+.return-balance-summary .active-summary {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+.return-balance-summary .refund-summary {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+.return-badge {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.return-badge.complete {
+  color: #991b1b;
+  background: #fee2e2;
+}
+.fully-returned-row {
+  opacity: .68;
+  background: #f8fafc;
+}
+.return-selected-row {
+  background: #eff6ff;
+}
+.returnable-before {
+  color: #166534;
+}
+.remaining-after {
+  font-weight: 800;
+  color: #1d4ed8;
+}
+.qty-input:disabled {
+  cursor: not-allowed;
+  background: #e5e7eb;
+}
+@media (max-width: 1100px) {
+  .return-balance-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 650px) {
+  .return-balance-summary {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,79 +1,83 @@
-
 (() => {
-  const currentPath = location.pathname.split("/").pop() || "index.html";
-  const excluded = new Set(["index.html", "dashboard.html"]);
+  'use strict';
 
-  if (excluded.has(currentPath)) return;
+  const DASHBOARD_ROLES = new Set(['owner', 'admin', 'secretary']);
 
-  const isSafeInternalUrl = (url) => {
+  function normalizedRole(value) {
+    const role = String(value || '').trim().toLowerCase();
+    return ({
+      administrator: 'admin',
+      employee: 'staff',
+      employee_staff: 'staff',
+      store_manager: 'manager'
+    })[role] || role || 'staff';
+  }
+
+  function homeFor(role) {
+    if (DASHBOARD_ROLES.has(role)) return './dashboard.html';
+    if (role === 'warehouse') return './product-stock-admin.html';
+    if (role === 'accounting') return './phase-9-2-bill-search.html';
+    return './pos.html';
+  }
+
+  async function start() {
+    const current = location.pathname.split('/').pop() || 'index.html';
+    if (current === 'index.html' || current === 'dashboard.html') return;
+
+    let role = normalizedRole(sessionStorage.getItem('tkn_user_role'));
+
     try {
-      const parsed = new URL(url, location.href);
-      return (
-        parsed.origin === location.origin &&
-        !parsed.pathname.endsWith("/index.html") &&
-        !parsed.pathname.endsWith("/dashboard.html")
-      );
-    } catch {
-      return false;
-    }
-  };
+      if (window.supabaseClient) {
+        const { data: { session } } =
+          await window.supabaseClient.auth.getSession();
 
-  const rememberCurrentPage = () => {
-    if (!excluded.has(currentPath)) {
-      sessionStorage.setItem(
-        "tkn-last-page",
-        location.href
-      );
-    }
-  };
+        if (session?.user?.id) {
+          const { data: profile } = await window.supabaseClient
+            .from('profiles')
+            .select('role,is_active')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-  const goBackSafely = () => {
-    const referrer = document.referrer;
-
-    if (referrer && isSafeInternalUrl(referrer)) {
-      history.back();
-      return;
+          if (profile?.is_active === true) {
+            role = normalizedRole(profile.role);
+            sessionStorage.setItem('tkn_user_role', role);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Navigation role lookup failed:', error);
     }
 
-    const lastPage = sessionStorage.getItem("tkn-last-page");
+    const bar = document.createElement('nav');
+    bar.className = 'tkn-nav-bar no-print';
+    bar.setAttribute('aria-label', 'เมนูนำทาง');
 
-    if (
-      lastPage &&
-      lastPage !== location.href &&
-      isSafeInternalUrl(lastPage)
-    ) {
-      location.href = lastPage;
-      return;
-    }
+    const home = document.createElement('a');
+    home.className = 'tkn-nav-btn';
+    home.href = homeFor(role);
+    home.textContent =
+      DASHBOARD_ROLES.has(role) ? 'Dashboard' : 'หน้าหลัก';
 
-    location.href = "./dashboard.html";
-  };
+    const title = document.createElement('span');
+    title.className = 'tkn-nav-title';
+    title.textContent = document.title || 'TKN POS / ERP';
 
-  const bar = document.createElement("nav");
-  bar.className = "tkn-nav-bar no-print";
-  bar.setAttribute("aria-label", "เมนูนำทาง");
+    bar.append(home, title);
+    document.body.prepend(bar);
 
-  const backButton = document.createElement("button");
-  backButton.type = "button";
-  backButton.className = "tkn-nav-btn";
-  backButton.textContent = "← ย้อนกลับ";
-  backButton.addEventListener("click", goBackSafely);
-
-  const dashboardLink = document.createElement("a");
-  dashboardLink.className = "tkn-nav-btn primary";
-  dashboardLink.href = "./dashboard.html";
-  dashboardLink.textContent = "Dashboard";
-
-  const title = document.createElement("span");
-  title.className = "tkn-nav-title";
-  title.textContent = document.title || "ร้านเถ้าแก่น้อยชลบุรี";
-
-  bar.append(backButton, dashboardLink, title);
-  document.body.prepend(bar);
-
-  document.querySelectorAll('a[href]').forEach((link) => {
-    link.addEventListener("click", () => {
-      rememberCurrentPage();
+    document.querySelectorAll('a[href*="dashboard"]').forEach(link => {
+      if (DASHBOARD_ROLES.has(role)) {
+        link.href = './dashboard.html';
+      } else {
+        link.href = homeFor(role);
+        link.textContent = 'หน้าหลัก';
+      }
     });
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 })();

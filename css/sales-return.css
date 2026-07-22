@@ -1,0 +1,155 @@
+* { box-sizing: border-box; }
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f4f7fb;
+}
+body { margin: 0; }
+button, input, select, textarea { font: inherit; }
+
+.page-shell {
+  width: min(1080px, calc(100% - 32px));
+  margin: 28px auto 60px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #2563eb;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+h1 { margin: 0; }
+.page-header p:last-child { margin: 8px 0 0; color: #667085; }
+
+.panel {
+  margin-top: 20px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #dfe5ef;
+  border-radius: 16px;
+}
+
+.warning {
+  padding: 14px 16px;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.warning p { margin: 5px 0 0; }
+
+.table-wrap { overflow-x: auto; margin-top: 20px; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5eaf2;
+  text-align: left;
+}
+th { color: #475467; font-size: .9rem; }
+
+.qty-input {
+  width: 90px;
+  border: 1px solid #cfd7e5;
+  border-radius: 9px;
+  padding: 8px;
+}
+
+.return-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+}
+
+textarea, select {
+  width: 100%;
+  border: 1px solid #cfd7e5;
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #fff;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.summary-grid article {
+  padding: 16px;
+  border: 1px solid #dfe5ef;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.summary-grid span {
+  display: block;
+  color: #667085;
+}
+
+.summary-grid strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 1.35rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.primary-button,
+.secondary-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.primary-button { background: #2563eb; color: #fff; }
+.secondary-button { background: #eef2f7; color: #172033; }
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.empty-row {
+  padding: 36px;
+  text-align: center;
+  color: #667085;
+}
+
+#statusMessage {
+  min-height: 24px;
+  margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+  .return-form,
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+}

@@ -171,8 +171,8 @@ E.generateBarcodeBtn.onclick=async()=>{
 E.form.onsubmit=async event=>{
   event.preventDefault();
 
-  if(profile.role!=='admin'){
-    return msg(E.formMessage,'เฉพาะ Admin เท่านั้น','error');
+  if(!['owner','admin'].includes(String(profile.role||'').toLowerCase())){
+    return msg(E.formMessage,'เฉพาะ Owner หรือ Admin เท่านั้น','error');
   }
 
   const common={
