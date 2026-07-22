@@ -4,14 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TKN POS - ยกเลิกบิล</title>
-  <link rel="stylesheet" href="./css/phase-9-2-void-bill.css">
+  <link rel="stylesheet" href="./css/phase-9-2-void-bill.css?v=2.1.0">
 </head>
 <body>
-  <main class="void-page">
-    <section class="void-card">
-      <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
-      <h1>ยกเลิกบิล</h1>
-      <p id="billSummary">กำลังโหลดข้อมูล...</p>
+  <main class="page-shell">
+    <section class="card">
+      <header>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
+        <h1>ยกเลิกบิล</h1>
+        <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
+      </header>
 
       <div class="warning">
         <strong>คำเตือน</strong>
@@ -24,15 +26,15 @@
           placeholder="ระบุเหตุผลอย่างน้อย 5 ตัวอักษร"></textarea>
       </label>
 
-      <div class="void-actions">
-        <button id="cancelButton" type="button">ยกเลิก</button>
-        <button id="confirmButton" class="danger" type="button">ยืนยันยกเลิกบิล</button>
+      <div class="actions">
+        <button id="cancelButton" type="button" class="secondary">ยกเลิก</button>
+        <button id="confirmButton" type="button" class="danger">ยืนยันยกเลิกบิล</button>
       </div>
 
-      <p id="statusMessage"></p>
+      <p id="statusMessage" role="status" aria-live="polite"></p>
     </section>
   </main>
 
-  <script type="module" src="./js/phase-9-2-void-bill.js"></script>
+  <script type="module" src="./js/phase-9-2-void-bill.js?v=2.1.0"></script>
 </body>
 </html>

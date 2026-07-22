@@ -1,0 +1,15 @@
+{
+  "package": "TKN POS ERP Version 2.1 Bill Control & Revenue Dashboard",
+  "version": "2.1.0",
+  "requires_sql": [
+    "00-check-void-sale-rpc.sql",
+    "01-install-sales-control-dashboard-v2-1.sql"
+  ],
+  "features": [
+    "Void page restored",
+    "Daily monthly yearly bill audit",
+    "Revenue by payment",
+    "Bill item drill-down"
+  ],
+  "database_note": "Existing void_sale_phase_9_2 RPC must exist; diagnostic SQL included."
+}

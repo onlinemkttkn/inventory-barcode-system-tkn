@@ -33,12 +33,13 @@
     }
   </style>
 
+  <link rel="stylesheet" href="./css/sales-control-dashboard-v2-1.css?v=2.1.0">
 </head>
 <body data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
   <header class="topbar">
     <div>
-      <p class="eyebrow">TKN POS / ERP · VERSION 2.0 STABLE</p>
+      <p class="eyebrow">TKN POS / ERP · VERSION 2.1 · BILL CONTROL & REVENUE</p>
       <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
       <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
       <p class="integration-note">หน้าหลักเดิม พร้อมโมดูลหลังการขายจาก Phase 09.2</p>
@@ -203,6 +204,40 @@
       </article>
     </section>
 
+
+    <section id="salesControlPanel" class="card sales-control-panel">
+      <div class="section-title">
+        <div><h2>ตรวจสอบบิลและรายรับ</h2><p>รายวัน รายเดือน รายปี พร้อม Drill-down รายละเอียดสินค้า</p></div>
+      </div>
+      <div class="sales-control-toolbar">
+        <label>ช่วงเวลา<select id="reportPeriod"><option value="DAY">รายวัน</option><option value="MONTH">รายเดือน</option><option value="YEAR">รายปี</option></select></label>
+        <label>วันที่อ้างอิง<input id="reportAnchorDate" type="date"></label>
+        <button id="loadSalesControl" class="btn primary" type="button">โหลดรายงาน</button>
+      </div>
+      <div class="sales-control-stats">
+        <article class="sales-control-stat"><span>จำนวนบิล</span><strong id="reportBillCount">0</strong></article>
+        <article class="sales-control-stat"><span>รายรับรวม</span><strong id="reportRevenue">฿0.00</strong></article>
+        <article class="sales-control-stat"><span>เงินสด</span><strong id="reportCash">฿0.00</strong></article>
+        <article class="sales-control-stat"><span>QR / โอน</span><strong id="reportQr">฿0.00</strong></article>
+        <article class="sales-control-stat"><span>บัตร</span><strong id="reportCard">฿0.00</strong></article>
+        <article class="sales-control-stat"><span>เฉลี่ยต่อบิล</span><strong id="reportAverage">฿0.00</strong></article>
+        <article class="sales-control-stat"><span>บิลยกเลิก</span><strong id="reportVoidCount">0</strong></article>
+        <article class="sales-control-stat"><span>ยอดคืนสินค้า</span><strong id="reportReturnAmount">฿0.00</strong></article>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>วันที่</th><th>เลขบิล</th><th>ชำระ</th><th>ยอดสุทธิ</th><th>สถานะ</th><th>รายละเอียด</th></tr></thead>
+        <tbody id="reportBillRows"><tr><td colspan="6">กำลังโหลด...</td></tr></tbody>
+      </table></div>
+      <p id="salesControlMessage" class="message"></p>
+    </section>
+
+    <dialog id="reportBillDialog" class="report-dialog">
+      <div class="report-dialog-inner">
+        <div class="report-dialog-head"><h2 id="reportBillDialogTitle">รายละเอียดบิล</h2><button id="reportBillDialogClose" type="button">ปิด</button></div>
+        <div id="reportBillDialogBody"></div>
+      </div>
+    </dialog>
+
     <p id="dashboardMessage" class="message"></p>
   </section>
 </main>
@@ -219,5 +254,6 @@
   });
 </script>
   <script src="./js/phase-9-5-navigation-fix-v1-1.js?v=1.1.0"></script>
+  <script src="./js/sales-control-dashboard-v2-1.js?v=2.1.0"></script>
 </body>
 </html>
