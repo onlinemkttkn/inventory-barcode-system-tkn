@@ -1,4 +1,1 @@
-TKN POS / ERP
-Version: 1.0.2
-Build: Clean Build
-Phase: 9.1
+3.0.0 MASTER
