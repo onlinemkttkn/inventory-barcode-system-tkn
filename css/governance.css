@@ -1,0 +1,21 @@
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#172033;
+font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.shell{width:min(1240px,calc(100% - 28px));
+margin:24px auto 60px}.page-head{display:flex;justify-content:space-between;align-items:flex-start;
+gap:16px;margin-bottom:18px}.page-head h1{margin:2px 0}.page-head p{margin:4px 0;color:#64748b}
+.eyebrow{font-size:12px;font-weight:900;letter-spacing:.1em;color:#3b5f91}.card{background:#fff;
+border:1px solid #dce4ef;border-radius:16px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.05);
+margin-bottom:16px}.toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.toolbar input,
+.toolbar select,table input,table select{border:1px solid #cbd5e1;border-radius:9px;padding:9px;width:100%}
+.toolbar>input{flex:1;min-width:230px}.button{border:0;border-radius:9px;padding:9px 13px;
+font-weight:800;background:#2563eb;color:white;text-decoration:none;cursor:pointer}.button.secondary{
+background:#e8eef8;color:#172033}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #e2e8f0;white-space:nowrap}small{color:#64748b}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.stat{
+background:#fff;border:1px solid #dce4ef;border-radius:14px;padding:14px}.stat span{display:block;color:#64748b}
+.stat strong{display:block;font-size:23px;margin-top:5px}.report-toolbar label{display:grid;gap:5px}
+dialog{border:0;border-radius:16px;width:min(960px,calc(100% - 28px));padding:0}dialog::backdrop{
+background:rgba(15,23,42,.55)}.dialog-body{padding:20px}.dialog-head{display:flex;justify-content:space-between}
+.bill-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.bill-meta{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.page-head{flex-direction:column}.stats{grid-template-columns:1fr}.bill-meta{grid-template-columns:1fr}}
+@media print{.button,.toolbar,.page-head a{display:none!important}.shell{width:100%;margin:0}.card{box-shadow:none}}
