@@ -1,3 +1,4 @@
+"use strict";
 
 window.goToUnifiedDashboard = function goToUnifiedDashboard() {
   window.location.assign("./dashboard.html");

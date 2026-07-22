@@ -3,18 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TKN POS - ค้นหาบิลย้อนหลัง</title>
+  <title>TKN POS - ค้นหาบิลย้อนหลัง v2.1</title>
   <link rel="stylesheet" href="./css/phase-9-2-bill-search.css">
+  <link rel="stylesheet" href="./css/phase-9-5-navigation-fix-v1-1.css?v=1.1.0">
 </head>
-<body>
+<body data-integrated-page="bill-search" data-lock-back="true">
   <main class="page-shell">
+<nav class="integration-breadcrumb" aria-label="เส้นทาง">
+  <a href="./dashboard.html" data-nav-dashboard>Dashboard</a>
+  <span>›</span><strong>ค้นหาบิลย้อนหลัง</strong>
+</nav>
     <header class="page-header">
       <div>
-        <p class="eyebrow">TKN POS / ERP · Phase 9.2</p>
+        <p class="eyebrow">TKN POS / ERP · Phase 9.2 · Return Balance v2.2</p>
         <h1>ค้นหาบิลย้อนหลัง</h1>
         <p>ค้นหาได้แม้เป็นลูกค้า Walk-in และไม่มีข้อมูลสมาชิก</p>
       </div>
-      <a class="secondary-button" href="./pos.html">กลับหน้าขาย</a>
+
+      <a class="secondary-button" href="./dashboard.html" data-nav-dashboard>กลับ Dashboard</a>
     </header>
 
     <section class="panel" aria-labelledby="search-title">
@@ -23,7 +29,9 @@
       <div class="search-grid">
         <label>
           คำค้น
-          <input id="keyword" type="search"
+          <input
+            id="keyword"
+            type="search"
             placeholder="เลขบิล, SKU, Barcode, ชื่อสินค้า">
         </label>
 
@@ -74,8 +82,13 @@
       </div>
 
       <div class="actions">
-        <button id="searchButton" class="primary-button" type="button">ค้นหา</button>
-        <button id="resetButton" class="secondary-button" type="button">ล้างตัวกรอง</button>
+        <button id="searchButton" class="primary-button" type="button">
+          ค้นหา
+        </button>
+
+        <button id="resetButton" class="secondary-button" type="button">
+          ล้างตัวกรอง
+        </button>
       </div>
     </section>
 
@@ -84,10 +97,12 @@
         <span>จำนวนบิล</span>
         <strong id="summaryBills">0</strong>
       </article>
+
       <article class="summary-card">
         <span>ยอดขายรวม</span>
         <strong id="summaryTotal">฿0.00</strong>
       </article>
+
       <article class="summary-card">
         <span>คืนสินค้า</span>
         <strong id="summaryReturns">0</strong>
@@ -114,6 +129,7 @@
               <th>การทำงาน</th>
             </tr>
           </thead>
+
           <tbody id="billRows"></tbody>
         </table>
       </div>
@@ -125,33 +141,47 @@
           <p class="eyebrow">รายละเอียดบิล</p>
           <h2 id="dialogBillNo">-</h2>
         </div>
-        <button id="closeDialog" class="icon-button" type="button" aria-label="ปิด">×</button>
+
+        <button
+          id="closeDialog"
+          class="icon-button"
+          type="button"
+          aria-label="ปิดหน้าต่าง">
+          ×
+        </button>
       </div>
 
       <div id="dialogContent"></div>
 
       <div class="dialog-actions">
-        <button class="secondary-button"
+        <button
+          class="secondary-button"
           data-permission="pos.reprint_receipt"
-          id="reprintButton" type="button">
+          id="reprintButton"
+          type="button">
           พิมพ์ใบเสร็จซ้ำ
         </button>
 
-        <button class="danger-button"
+        <button
+          class="danger-button"
           data-permission="pos.return_create"
-          id="returnButton" type="button">
+          id="returnButton"
+          type="button">
           คืนสินค้า
         </button>
 
-        <button class="danger-button"
+        <button
+          class="danger-button"
           data-permission="pos.void_bill"
-          id="voidButton" type="button">
+          id="voidButton"
+          type="button">
           ยกเลิกบิล
         </button>
       </div>
     </dialog>
   </main>
 
-  <script type="module" src="./js/phase-9-2-bill-search.js"></script>
+  <script type="module" src="./js/phase-9-2-bill-search-v2-2.js"></script>
+  <script src="./js/phase-9-5-navigation-fix-v1-1.js?v=1.1.0"></script>
 </body>
 </html>

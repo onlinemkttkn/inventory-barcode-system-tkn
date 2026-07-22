@@ -1,0 +1,13 @@
+{
+  "package": "TKN POS ERP Version 2.0 Stable",
+  "version": "2.0.0",
+  "entry": "dashboard.html",
+  "active_pos_files": [
+    "pos.html",
+    "pos.css",
+    "pos.js"
+  ],
+  "database_changes_required": false,
+  "sql_included_for_backup": true,
+  "status": "Release Candidate / Stable after UAT"
+}
