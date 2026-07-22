@@ -1,0 +1,26 @@
+{
+  "name": "TKN POS ERP Master",
+  "version": "3.3.0-LTS",
+  "status": "Single Production Version",
+  "rbac": {
+    "roles_table": "app_roles",
+    "permissions_table": "app_permissions",
+    "role_permissions_table": "app_role_permissions",
+    "user_roles_table": "app_user_roles",
+    "key_type": "uuid"
+  },
+  "install_sql": "sql/MASTER-3.3-LTS.sql",
+  "verify_sql": "sql/VERIFY-MASTER-3.3-LTS.sql",
+  "standard_roles": [
+    "owner",
+    "admin",
+    "secretary",
+    "manager",
+    "supervisor",
+    "cashier",
+    "warehouse",
+    "purchasing",
+    "accounting",
+    "staff"
+  ]
+}

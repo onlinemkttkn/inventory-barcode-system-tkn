@@ -1,6 +1,6 @@
 {
   "name": "TKN POS ERP Master Complete",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "base": "Master 3.1 Governance",
   "upgrade_safe": true,
   "legacy_rbac_tables_untouched": [
@@ -17,5 +17,11 @@
     "tkn_action_logs"
   ],
   "install_sql": "sql/MASTER-3.2-COMPLETE.sql",
-  "verify_sql": "sql/VERIFY-MASTER-3.2.sql"
+  "verify_sql": "sql/VERIFY-MASTER-3.2.sql",
+  "fixes": [
+    "Drops all legacy user_has_permission overloads",
+    "Creates one canonical user_has_permission(text)",
+    "Adds explicit ::text permission call casts"
+  ],
+  "recovery_sql": "sql/FIX-3.2.1-USER-HAS-PERMISSION.sql"
 }

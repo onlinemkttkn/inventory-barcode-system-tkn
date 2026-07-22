@@ -1,0 +1,21 @@
+{
+  "version": "3.3.0-LTS",
+  "javascript_syntax": {
+    "js/dashboard.js": true,
+    "pos.js": true,
+    "js/product-stock-admin.js": true,
+    "js/products-admin.js": true,
+    "js/navigation.js": true,
+    "js/access-control.js": true,
+    "js/users-admin.js": true,
+    "js/reports.js": true,
+    "js/bill-search.js": true,
+    "js/void-bill.js": true
+  },
+  "active_sql_files": [
+    "MASTER-3.3-LTS.sql",
+    "VERIFY-MASTER-3.3-LTS.sql"
+  ],
+  "total_files": 156,
+  "rbac_schema": "existing UUID app_* tables"
+}
