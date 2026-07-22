@@ -84,25 +84,30 @@ async function init() {
   const session = await requireSession();
   if (!session) return;
 
-  const { data: profile, error: profileError } = await supabaseClient
-    .from("profiles")
-    .select("role,is_active")
-    .eq("id", session.user.id)
-    .maybeSingle();
+  const { data: access, error: accessError } =
+    await supabaseClient.rpc("current_access_context");
 
-  if (profileError || !profile || profile.is_active !== true) {
+  if (accessError || !access?.user_id || access.is_active !== true) {
     await supabaseClient.auth.signOut();
     location.replace("./dashboard.html");
     return;
   }
 
-  const role = String(profile.role || "staff").toLowerCase();
-  sessionStorage.setItem("tkn_user_role", role);
+  const permissions = new Set(access.permissions || []);
+  sessionStorage.setItem("tkn_user_role", access.role || "staff");
+  sessionStorage.setItem(
+    "tkn_permissions",
+    JSON.stringify(access.permissions || [])
+  );
+
+  if (!permissions.has("pos.use")) {
+    location.replace(access.landing_page || "./dashboard.html");
+    return;
+  }
 
   const dashboardButton = document.getElementById("dashboardButton");
   if (dashboardButton) {
-    const canSeeDashboard = ["owner", "admin", "secretary"].includes(role);
-    dashboardButton.hidden = !canSeeDashboard;
+    dashboardButton.hidden = !permissions.has("dashboard.view");
   }
 
   const { data, error } = await supabaseClient

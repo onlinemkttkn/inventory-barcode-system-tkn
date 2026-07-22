@@ -1,0 +1,21 @@
+{
+  "name": "TKN POS ERP Master Complete",
+  "version": "3.2.0",
+  "base": "Master 3.1 Governance",
+  "upgrade_safe": true,
+  "legacy_rbac_tables_untouched": [
+    "app_roles",
+    "app_permissions",
+    "app_role_permissions",
+    "app_user_roles"
+  ],
+  "active_rbac_tables": [
+    "tkn_roles",
+    "tkn_permissions",
+    "tkn_role_permissions",
+    "tkn_user_access",
+    "tkn_action_logs"
+  ],
+  "install_sql": "sql/MASTER-3.2-COMPLETE.sql",
+  "verify_sql": "sql/VERIFY-MASTER-3.2.sql"
+}

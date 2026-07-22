@@ -1,0 +1,18 @@
+{
+  "version": "3.2.0",
+  "javascript_syntax": {
+    "js/dashboard.js": true,
+    "pos.js": true,
+    "js/product-stock-admin.js": true,
+    "js/products-admin.js": true,
+    "js/navigation.js": true,
+    "js/access-control.js": true,
+    "js/users-admin.js": true,
+    "js/reports.js": true,
+    "js/bill-search.js": true,
+    "js/void-bill.js": true
+  },
+  "active_install_sql": "sql/MASTER-3.2-COMPLETE.sql",
+  "old_3_1_sql_disabled": true,
+  "total_files": 149
+}
