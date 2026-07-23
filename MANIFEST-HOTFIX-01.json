@@ -1,0 +1,9 @@
+{
+  "version": "3.4.3-hotfix01",
+  "sql_required": false,
+  "files": [
+    "pos.html",
+    "pos.js",
+    "pos.css"
+  ]
+}

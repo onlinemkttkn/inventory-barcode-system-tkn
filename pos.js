@@ -292,11 +292,7 @@ const discountValue = () => Math.max(number(E.discount.value),0);
 const netValue = () => Math.max(subtotalValue()-discountValue(),0);
 
 function quickCashValues(net) {
-  const fixed = [20, 50, 100, 200, 300, 400, 500, 1000];
-  return [
-    ...fixed.map(value => ({ value, label: money(value) })),
-    { value: net, label: 'เงินพอดี' }
-  ];
+  return [20, 50, 100, 200, 300, 400, 500, 1000];
 }
 
 function updateTotals() {
@@ -377,9 +373,16 @@ function preparePaymentDialog() {
   E.paymentQuickCash.hidden=!cash;
   E.paymentDialogReceived.required=cash;
   E.paymentDialogReceived.value=cash?'0':String(net);
-  E.paymentQuickCash.innerHTML=cash?quickCashValues(net).map(value=>
-    `<button class="quick-cash-btn" type="button" data-value="${value}">${money(value)}</button>`
-  ).join(''):'';
+  E.paymentQuickCash.innerHTML = cash
+    ? [
+        ...quickCashValues(net).map(value =>
+          `<button class="quick-cash-btn" type="button"
+            data-value="${value}">${money(value)}</button>`
+        ),
+        `<button class="quick-cash-btn exact-cash-btn" type="button"
+          data-value="${net}">เงินพอดี</button>`
+      ].join('')
+    : '';
   E.paymentQuickCash.querySelectorAll('button').forEach(button=>{
     button.onclick=()=>{E.paymentDialogReceived.value=button.dataset.value;updatePaymentDialog()};
   });
@@ -401,7 +404,7 @@ function updatePaymentDialog(){
       : shortage > 0
         ? `เงินรับขาดอีก ${money(shortage)}`
         : 'พร้อมรับชำระ';
-  E.confirmPayment.disabled=shortage>0 || net<=0;
+  E.confirmPayment.disabled = cash ? (received <= 0 || shortage > 0 || net <= 0) : net <= 0;
 }
 
 async function approveDrawer(event){
