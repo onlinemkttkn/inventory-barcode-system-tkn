@@ -432,4 +432,45 @@ $$;
 grant execute on function public.admin_set_user_role(uuid,text,uuid,boolean)
 to authenticated;
 
+
+insert into public.app_permissions(code,module,name_th)
+values ('cash_drawer.open_manual','pos','เปิดลิ้นชักเงินสดด้วยตนเอง')
+on conflict(code) do update set module=excluded.module,name_th=excluded.name_th;
+
+insert into public.app_role_permissions(role_id,permission_id)
+select r.id,p.id from public.app_roles r
+cross join public.app_permissions p
+where r.code in ('owner','admin','manager','supervisor')
+  and p.code='cash_drawer.open_manual'
+on conflict(role_id,permission_id) do nothing;
+
+create or replace function public.authorize_cash_drawer_reopen_v3_4(
+  p_employee_code text,p_pin text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path=public
+as $$
+declare v_profile jsonb;
+begin
+  v_profile:=public.verify_cashier_pin(p_employee_code,p_pin);
+  if not public.user_has_permission(
+    'cash_drawer.open_manual'::text,(v_profile->>'user_id')::uuid
+  ) then
+    raise exception 'ผู้อนุมัติไม่มีสิทธิ์เปิดลิ้นชักด้วยตนเอง';
+  end if;
+  insert into public.app_action_logs(
+    action,entity_type,entity_id,branch_id,details,created_by
+  ) values(
+    'CASH_DRAWER_REOPEN_APPROVED','USER',v_profile->>'user_id',
+    (v_profile->>'branch_id')::uuid,
+    jsonb_build_object('employee_code',v_profile->>'employee_code'),auth.uid()
+  );
+  return v_profile;
+end;
+$$;
+grant execute on function public.authorize_cash_drawer_reopen_v3_4(text,text)
+to authenticated;
+
 commit;
