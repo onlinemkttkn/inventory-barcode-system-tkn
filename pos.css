@@ -117,3 +117,9 @@ button:disabled,input:disabled,select:disabled{
   cursor:not-allowed;
   opacity:.55;
 }
+
+/* Master 3.4.4 Final Candidate */
+.field-status{display:block;margin-top:4px;font-size:.78rem;font-weight:700}
+.field-status.ok{color:#067647}.field-status.error{color:#b42318}
+[hidden]{display:none!important}
+button:disabled,input:disabled,select:disabled{cursor:not-allowed;opacity:.55}
