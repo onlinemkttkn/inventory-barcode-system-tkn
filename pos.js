@@ -7,7 +7,13 @@ const E = Object.fromEntries([
   'checkout','manualDrawer','actionMsg','cashierStatus','holdBill','restoreBill',
   'closeShift','logoutBtn','cashierUnlockDialog','cashierUnlockForm',
   'employeeCode','cashierPin','openingFloat','unlockMsg','closeShiftDialog',
-  'closeShiftForm','closingCash','closingNotes','cancelCloseShift','closeShiftMsg'
+  'closeShiftForm','closingCash','closingNotes','cancelCloseShift','closeShiftMsg',
+  'paymentDialog','paymentForm','paymentDialogNet','paymentReceivedLabel',
+  'paymentDialogReceived','paymentQuickCash','paymentDialogChange',
+  'paymentDialogWarning','cancelPayment','confirmPayment','paymentSuccessDialog',
+  'successNet','successReceived','successChange','changeGivenButton',
+  'drawerApprovalDialog','drawerApprovalForm','drawerApproverCode',
+  'drawerApproverPin','cancelDrawerApproval','drawerApprovalMsg'
 ].map(id => [id, document.getElementById(id)]));
 
 const cart = new Map();
@@ -16,6 +22,8 @@ let cashier = null;
 let shift = null;
 let receivedManuallyEdited = false;
 let lastAutoReceivedValue = 0;
+let pendingSale = null;
+let drawerSoftwareLocked = localStorage.getItem('tkn_drawer_locked') === '1';
 
 const money = value => new Intl.NumberFormat('th-TH', {
   style:'currency',currency:'THB',minimumFractionDigits:2
@@ -318,24 +326,32 @@ function updateTotals() {
   });
 }
 
-async function requestCashDrawer(reason='SALE') {
-  if (!cashier?.can_open_drawer && reason==='MANUAL') {
-    return msg(E.actionMsg,'บัญชีนี้ไม่มีสิทธิ์เปิดลิ้นชักด้วยตนเอง','error');
+async function requestCashDrawer(reason='SALE', approval=null) {
+  if (reason === 'MANUAL' && drawerSoftwareLocked && !approval) {
+    E.drawerApprovalDialog.showModal();
+    return false;
+  }
+
+  if (reason === 'MANUAL' && !cashier?.can_open_drawer && !approval) {
+    E.drawerApprovalDialog.showModal();
+    return false;
   }
 
   const bridge = window.TKN_CASH_DRAWER_BRIDGE_URL;
   if (!bridge) {
-    msg(E.actionMsg,'บันทึกคำขอเปิดลิ้นชักแล้ว แต่ยังไม่ได้ตั้งค่า Hardware Bridge','error');
+    msg(E.actionMsg,'บันทึกการขายแล้ว แต่ยังไม่ได้ตั้งค่า Hardware Bridge สำหรับลิ้นชัก','error');
+    drawerSoftwareLocked = true;
+    localStorage.setItem('tkn_drawer_locked','1');
     return false;
   }
 
   try {
     await fetch(bridge,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({reason,shift_id:shift?.shift_id || null})
+      method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reason,shift_id:shift?.shift_id || null,approval})
     });
+    drawerSoftwareLocked = true;
+    localStorage.setItem('tkn_drawer_locked','1');
     return true;
   } catch (error) {
     msg(E.actionMsg,`เปิดลิ้นชักไม่สำเร็จ: ${error.message}`,'error');
@@ -343,56 +359,106 @@ async function requestCashDrawer(reason='SALE') {
   }
 }
 
-async function checkout() {
+function preparePaymentDialog() {
+  if (!cart.size) return msg(E.actionMsg,'กรุณาเพิ่มสินค้า','error');
+  const net=netValue();
+  const cash=E.payment.value==='CASH';
+  E.paymentDialogNet.textContent=money(net);
+  E.paymentReceivedLabel.hidden=!cash;
+  E.paymentQuickCash.hidden=!cash;
+  E.paymentDialogReceived.required=cash;
+  E.paymentDialogReceived.value=cash?String(net):String(net);
+  E.paymentQuickCash.innerHTML=cash?quickCashValues(net).map(value=>
+    `<button class="quick-cash-btn" type="button" data-value="${value}">${money(value)}</button>`
+  ).join(''):'';
+  E.paymentQuickCash.querySelectorAll('button').forEach(button=>{
+    button.onclick=()=>{E.paymentDialogReceived.value=button.dataset.value;updatePaymentDialog()};
+  });
+  updatePaymentDialog();
+  E.paymentDialog.showModal();
+  if(cash) setTimeout(()=>E.paymentDialogReceived.select(),0);
+}
+
+function updatePaymentDialog(){
+  const net=netValue();
+  const cash=E.payment.value==='CASH';
+  const received=cash?Math.max(number(E.paymentDialogReceived.value),0):net;
+  const shortage=Math.max(net-received,0);
+  const change=cash?Math.max(received-net,0):0;
+  E.paymentDialogChange.textContent=money(change);
+  E.paymentDialogWarning.textContent=shortage>0?`เงินรับขาดอีก ${money(shortage)}`:'พร้อมรับชำระ';
+  E.confirmPayment.disabled=shortage>0 || net<=0;
+}
+
+async function approveDrawer(event){
+  event.preventDefault();
+  msg(E.drawerApprovalMsg,'กำลังตรวจสอบ...');
+  const result=await supabaseClient.rpc('authorize_cash_drawer_reopen_v3_4',{
+    p_employee_code:E.drawerApproverCode.value.trim(),
+    p_pin:E.drawerApproverPin.value
+  });
+  if(result.error) return msg(E.drawerApprovalMsg,result.error.message,'error');
+  await requestCashDrawer('MANUAL',result.data);
+  drawerSoftwareLocked=true;
+  E.drawerApproverPin.value='';
+  E.drawerApprovalDialog.close();
+  msg(E.actionMsg,`เปิดลิ้นชักโดยผู้อนุมัติ ${result.data.display_name}`,'ok');
+}
+
+async function checkout(event) {
+  event?.preventDefault();
   const items=[...cart.values()].filter(item=>item.cartQuantity>0).map(item=>({
-    product_id:item.productId,
-    quantity:item.cartQuantity,
-    unit_price:item.unitPrice,
-    discount_amount:number(item.lineDiscount)
+    product_id:item.productId,quantity:item.cartQuantity,
+    unit_price:item.unitPrice,discount_amount:number(item.lineDiscount)
   }));
   if (!items.length) return msg(E.actionMsg,'กรุณาเพิ่มสินค้า','error');
 
   const net=netValue();
-  const received=E.payment.value==='CASH'?number(E.received.value):net;
-  if (E.payment.value==='CASH' && received<net) {
-    return msg(E.actionMsg,'จำนวนเงินรับน้อยกว่ายอดสุทธิ','error');
+  const cash=E.payment.value==='CASH';
+  const received=cash?number(E.paymentDialogReceived.value):net;
+  if (cash && received<net) {
+    return msg(E.paymentDialogWarning,'จำนวนเงินรับน้อยกว่ายอดสุทธิ','error');
   }
 
-  if (!confirm(`ยืนยันชำระ ${money(net)} ?`)) return;
-  E.checkout.disabled=true;
+  E.confirmPayment.disabled=true;
   msg(E.actionMsg,'กำลังบันทึกการขาย...');
-
   const result=await supabaseClient.rpc('create_pos_sale',{
-    p_branch_id:E.branch.value,
-    p_items:items,
-    p_discount_amount:discountValue(),
-    p_payment_method:E.payment.value,
-    p_received_amount:received,
-    p_customer_name:E.customerName.value.trim()||null,
+    p_branch_id:E.branch.value,p_items:items,
+    p_discount_amount:discountValue(),p_payment_method:E.payment.value,
+    p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,
     p_customer_phone:E.customerPhone.value.trim()||null,
-    p_notes:[
-      E.notes.value.trim(),
-      cashier ? `Cashier: ${cashier.employee_code} ${cashier.display_name}` : '',
-      shift?.shift_id ? `Shift: ${shift.shift_id}` : ''
-    ].filter(Boolean).join('\n') || null
+    p_notes:[E.notes.value.trim(),
+      cashier?`Cashier: ${cashier.employee_code} ${cashier.display_name}`:'',
+      shift?.shift_id?`Shift: ${shift.shift_id}`:''
+    ].filter(Boolean).join('\n')||null
   });
-
-  E.checkout.disabled=false;
-  if (result.error) return msg(E.actionMsg,result.error.message,'error');
+  E.confirmPayment.disabled=false;
+  if(result.error) return msg(E.actionMsg,result.error.message,'error');
 
   const change=number(result.data?.change_amount,received-net);
-  if (E.payment.value==='CASH') await requestCashDrawer('SALE');
+  pendingSale={saleNo:result.data.sale_no,net,received,change};
+  if(cash && change>=0) await requestCashDrawer('SALE');
 
-  msg(E.actionMsg,`ขายสำเร็จ ${result.data.sale_no} · เงินทอน ${money(change)}`,'ok');
-  cart.clear();
-  E.discount.value='0';E.received.value='0';E.customerName.value='';
-  E.customerPhone.value='';E.notes.value='';E.results.innerHTML='';
-  receivedManuallyEdited=false;lastAutoReceivedValue=0;
+  E.paymentDialog.close();
+  E.successNet.textContent=money(net);
+  E.successReceived.textContent=money(received);
+  E.successChange.textContent=money(change);
+  E.changeGivenButton.textContent=change>0
+    ? 'จ่ายเงินทอนแล้ว / ไปพิมพ์ใบเสร็จ'
+    : 'ไปพิมพ์ใบเสร็จ';
+  E.paymentSuccessDialog.showModal();
+}
+
+function finishSaleAndPrint(){
+  if(!pendingSale) return;
+  const saleNo=pendingSale.saleNo;
+  E.paymentSuccessDialog.close();
+  cart.clear();E.discount.value='0';E.received.value='0';
+  E.customerName.value='';E.customerPhone.value='';E.notes.value='';
+  E.results.innerHTML='';receivedManuallyEdited=false;lastAutoReceivedValue=0;
   renderCart();
-
-  setTimeout(()=>{
-    location.href=`./receipt.html?sale_no=${encodeURIComponent(result.data.sale_no)}`;
-  },700);
+  pendingSale=null;
+  location.href=`./receipt.html?sale_no=${encodeURIComponent(saleNo)}&from=pos`;
 }
 
 function holdBill() {
@@ -459,8 +525,14 @@ E.discount.oninput=()=>{
 };
 E.received.oninput=()=>{receivedManuallyEdited=true;updateTotals()};
 E.payment.onchange=()=>{receivedManuallyEdited=false;updateTotals()};
-E.checkout.onclick=checkout;
+E.checkout.onclick=preparePaymentDialog;
+E.paymentForm.onsubmit=checkout;
+E.paymentDialogReceived.oninput=updatePaymentDialog;
+E.cancelPayment.onclick=()=>E.paymentDialog.close();
+E.changeGivenButton.onclick=finishSaleAndPrint;
 E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');
+E.drawerApprovalForm.onsubmit=approveDrawer;
+E.cancelDrawerApproval.onclick=()=>E.drawerApprovalDialog.close();
 E.holdBill.onclick=holdBill;
 E.restoreBill.onclick=restoreBill;
 E.logoutBtn.onclick=logout;

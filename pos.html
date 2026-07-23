@@ -92,6 +92,56 @@
     </section>
   </main>
 
+
+  <dialog id="paymentDialog" class="payment-dialog">
+    <form id="paymentForm" class="dialog-card">
+      <h2>รับชำระเงิน</h2>
+      <div class="payment-dialog-summary">
+        <span>ยอดสุทธิ</span><strong id="paymentDialogNet">฿0.00</strong>
+      </div>
+      <label id="paymentReceivedLabel">เงินรับ
+        <input id="paymentDialogReceived" type="number" min="0" step="0.01" inputmode="decimal" required>
+      </label>
+      <div id="paymentQuickCash" class="quick-cash"></div>
+      <div class="change-panel">
+        <span>เงินทอน</span><strong id="paymentDialogChange">฿0.00</strong>
+        <small id="paymentDialogWarning"></small>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelPayment" class="btn secondary" type="button">ยกเลิก</button>
+        <button id="confirmPayment" class="btn success" type="submit">ยืนยันรับชำระ</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="paymentSuccessDialog" class="payment-dialog">
+    <div class="dialog-card payment-success-card">
+      <div class="success-mark">✓</div>
+      <h2>ชำระเงินสำเร็จ</h2>
+      <div class="payment-success-grid">
+        <span>ยอดสุทธิ</span><strong id="successNet">฿0.00</strong>
+        <span>รับเงิน</span><strong id="successReceived">฿0.00</strong>
+        <span>เงินทอน</span><strong id="successChange">฿0.00</strong>
+      </div>
+      <button id="changeGivenButton" class="btn success" type="button">จ่ายเงินทอนแล้ว / ไปพิมพ์ใบเสร็จ</button>
+      <small>หน้าต่างนี้จะไม่ปิดเองจนกว่าพนักงานจะกดยืนยัน</small>
+    </div>
+  </dialog>
+
+  <dialog id="drawerApprovalDialog">
+    <form id="drawerApprovalForm" class="dialog-card">
+      <h2>อนุมัติเปิดลิ้นชักอีกครั้ง</h2>
+      <p>ต้องใช้รหัสพนักงานและ PIN ของผู้มีสิทธิ์</p>
+      <label>รหัสพนักงาน<input id="drawerApproverCode" required></label>
+      <label>PIN<input id="drawerApproverPin" type="password" inputmode="numeric" required></label>
+      <div class="dialog-actions">
+        <button id="cancelDrawerApproval" class="btn secondary" type="button">ยกเลิก</button>
+        <button class="btn primary" type="submit">อนุมัติและเปิด</button>
+      </div>
+      <p id="drawerApprovalMsg" class="msg"></p>
+    </form>
+  </dialog>
+
   <dialog id="cashierUnlockDialog">
     <form id="cashierUnlockForm" class="dialog-card">
       <h2>เข้าใช้งานแคชเชียร์</h2>
