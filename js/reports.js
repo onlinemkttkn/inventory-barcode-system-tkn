@@ -5,6 +5,7 @@ import {
 
 const E = {
   period: document.getElementById('period'),
+  paymentFilter: document.getElementById('paymentFilter'),
   anchor: document.getElementById('anchor'),
   anchorField: document.getElementById('anchorField'),
   startDate: document.getElementById('startDate'),
@@ -24,7 +25,7 @@ const E = {
   close: document.getElementById('close')
 };
 
-let state = { bills: [], items: [], context: null };
+let state = { bills: [], allBills: [], items: [], context: null };
 
 const money = value => new Intl.NumberFormat('th-TH', {
   style: 'currency', currency: 'THB'
@@ -99,8 +100,18 @@ async function load() {
   E.message.textContent = 'อัปเดตข้อมูลแล้ว';
 }
 
+function paymentGroup(method){
+  const value=String(method||'').toUpperCase();
+  return ['CASH','QR','TRANSFER','CARD','VOUCHER'].includes(value)?value:'OTHER';
+}
+function applyPaymentFilter(){
+  const selected=E.paymentFilter?.value||'ALL';
+  state.bills=selected==='ALL'?state.allBills:[...state.allBills].filter(bill=>paymentGroup(bill.payment_method)===selected);
+}
+
 function render(data) {
-  state.bills = data?.bills || [];
+  state.allBills = data?.bills || [];
+  applyPaymentFilter();
   state.items = data?.items || [];
 
   const s = data?.summary || {};
@@ -111,8 +122,11 @@ function render(data) {
     ['จำนวนบิล', Number(s.bill_count || 0).toLocaleString('th-TH')],
     ['รายรับรวม', money(s.gross_revenue)],
     ['เงินสด', money(s.cash_revenue)],
-    ['QR / โอน', money(s.qr_transfer_revenue)],
+    ['QR', money(s.qr_revenue)],
+    ['เงินโอน', money(s.transfer_revenue)],
     ['บัตร', money(s.card_revenue)],
+    ['Voucher', money(s.voucher_revenue)],
+    ['อื่น ๆ', money(s.other_revenue)],
     ['เฉลี่ยต่อบิล', money(s.average_bill)],
     ['บิลยกเลิก', Number(v.void_count || 0).toLocaleString('th-TH')],
     ['ยอดคืนสินค้า', money(r.return_amount)]
@@ -124,23 +138,7 @@ function render(data) {
     </article>
   `).join('');
 
-  E.rows.innerHTML = state.bills.map(bill => `
-    <tr>
-      <td>${dateTime(bill.created_at)}</td>
-      <td><strong>${escapeHtml(bill.sale_no)}</strong></td>
-      <td>${escapeHtml(bill.payment_method || '-')}</td>
-      <td>${money(bill.net_total)}</td>
-      <td>${escapeHtml(bill.status || '-')}</td>
-      <td>
-        <button class="button secondary detail"
-          data-id="${bill.id}" type="button">รายละเอียด</button>
-      </td>
-    </tr>
-  `).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
-
-  E.rows.querySelectorAll('.detail').forEach(button => {
-    button.onclick = () => openBill(button.dataset.id);
-  });
+  renderTableOnly();
 }
 
 function openBill(id) {
@@ -209,6 +207,14 @@ async function logout() {
   await supabaseClient.auth.signOut();
   sessionStorage.clear();
   location.replace('./index.html');
+}
+
+E.paymentFilter.onchange=()=>{applyPaymentFilter();renderTableOnly();};
+
+function renderTableOnly(){
+  E.rows.innerHTML = state.bills.map(bill => `
+    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(bill.payment_method || '-')}</td><td>${money(bill.net_total)}</td><td>${escapeHtml(bill.status || '-')}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
+  E.rows.querySelectorAll('.detail').forEach(button=>{button.onclick=()=>openBill(button.dataset.id)});
 }
 
 E.period.onchange = () => {

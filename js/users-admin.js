@@ -5,7 +5,9 @@ const E={
   search:document.getElementById('search'),
   reload:document.getElementById('reload'),
   rows:document.getElementById('rows'),
-  message:document.getElementById('message')
+  message:document.getElementById('message'),
+  roleFilter:document.getElementById('roleFilter'),
+  statusFilter:document.getElementById('statusFilter')
 };
 let roles=[],branches=[],users=[],cashiers=new Map();
 
@@ -32,6 +34,7 @@ async function init(){
     cashiers=new Map((cashierResult.data||[]).map(row=>[row.user_id,row]));
   }
   roles=roleResult.data||[];
+  E.roleFilter.innerHTML='<option value="ALL">ทุก Role</option>'+roles.map(role=>`<option value="${role.code}">${esc(role.name_th)}</option>`).join('');
   branches=branchResult.data||[];
   await load();
 }
@@ -47,11 +50,15 @@ async function load(){
 
 function render(){
   const q=E.search.value.trim().toLowerCase();
+  const roleFilter=E.roleFilter.value;
+  const statusFilter=E.statusFilter.value;
   const filtered=users.filter(user=>
-    !q||String(user.email||'').toLowerCase().includes(q)
+    (roleFilter==='ALL'||user.role_code===roleFilter) &&
+    (statusFilter==='ALL'||(statusFilter==='ACTIVE'?user.is_active:!user.is_active)) &&
+    (!q||String(user.email||'').toLowerCase().includes(q)
       ||String(user.full_name||'').toLowerCase().includes(q)
       ||String(user.role_code||'').toLowerCase().includes(q)
-      ||String(cashiers.get(user.user_id)?.employee_code||'').toLowerCase().includes(q)
+      ||String(cashiers.get(user.user_id)?.employee_code||'').toLowerCase().includes(q))
   );
 
   E.rows.innerHTML=filtered.map(user=>{
@@ -129,4 +136,6 @@ async function save(row){
 
 E.reload.onclick=load;
 E.search.oninput=render;
+E.roleFilter.onchange=render;
+E.statusFilter.onchange=render;
 init().catch(error=>E.message.textContent=error.message);

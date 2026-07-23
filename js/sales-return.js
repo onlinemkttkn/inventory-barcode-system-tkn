@@ -268,63 +268,23 @@ function updateSummary() {
 }
 
 
-function notifyParentAndClose(data) {
-  const payload = {
-    type: 'TKN_SALE_RETURN_SUCCESS',
-    returnNo: data?.return_no || '',
-    saleId,
-    saleNo: data?.sale_no || state.header?.sale_no || saleNoFromUrl || '',
-    saleStatus: data?.sale_status || '',
-    refundAmount: Number(data?.refund_amount || 0)
-  };
-
-  if (window.opener && !window.opener.closed) {
-    window.opener.postMessage(payload, window.location.origin);
-  }
-
-  try {
-    window.close();
-  } catch (error) {
-    console.warn('Popup close was blocked:', error);
-  }
-
-  setTimeout(() => {
-    if (!window.closed) {
-      window.location.replace('./phase-9-2-bill-search-v2-2.html');
-    }
-  }, 250);
+function goToBillSearch(data) {
+  const payload={type:'TKN_SALE_RETURN_SUCCESS',returnNo:data?.return_no||'',saleId,
+    saleNo:data?.sale_no||state.header?.sale_no||saleNoFromUrl||'',
+    saleStatus:data?.sale_status||'',refundAmount:Number(data?.refund_amount||0)};
+  if(window.opener&&!window.opener.closed){window.opener.postMessage(payload,window.location.origin)}
+  window.location.replace('./phase-9-2-bill-search.html?return_success=1');
 }
 
 function showSuccessDialog(data) {
-  const returnNo = data?.return_no || '-';
-  const refund = formatMoney(data?.refund_amount);
-
-  els.resultDialogIcon.textContent = '✓';
-  els.resultDialogTitle.textContent = 'คืนสินค้าสำเร็จ';
-  els.resultDialogMessage.textContent =
-    `เลขที่คืน ${returnNo} · ยอดคืน ${refund}`;
-
-  if (!els.resultDialog.open) {
-    els.resultDialog.showModal();
-  }
-
-  let seconds = 3;
-  els.closeCountdown.textContent = String(seconds);
-
-  const timer = window.setInterval(() => {
-    seconds -= 1;
-    els.closeCountdown.textContent = String(Math.max(0, seconds));
-
-    if (seconds <= 0) {
-      window.clearInterval(timer);
-      notifyParentAndClose(data);
-    }
-  }, 1000);
-
-  els.closeResultDialog.onclick = () => {
-    window.clearInterval(timer);
-    notifyParentAndClose(data);
-  };
+  const returnNo=data?.return_no||'-';
+  els.resultDialogIcon.textContent='✓';
+  els.resultDialogTitle.textContent='คืนสินค้าสำเร็จ';
+  els.resultDialogMessage.textContent=`เลขที่คืน ${returnNo} · ยอดคืน ${formatMoney(data?.refund_amount)}`;
+  if(els.closeCountdown) els.closeCountdown.closest('p')?.remove();
+  if(!els.resultDialog.open) els.resultDialog.showModal();
+  els.closeResultDialog.textContent='กลับไปหน้าตรวจสอบบิล';
+  els.closeResultDialog.onclick=()=>goToBillSearch(data);
 }
 
 async function submitReturn() {
