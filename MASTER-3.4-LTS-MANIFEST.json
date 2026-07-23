@@ -1,0 +1,17 @@
+{
+  "name": "TKN POS ERP Master",
+  "version": "3.4.0-RC",
+  "base": "3.3.0-LTS",
+  "status": "Release Candidate — deploy after preflight",
+  "changes": [
+    "Custom report date range",
+    "Reports ESM import fix",
+    "Product permission fix",
+    "Logout for all roles",
+    "Responsive users page",
+    "Mobile camera scanning for transfer and issue",
+    "Multi-item one-submit transfer and issue"
+  ],
+  "database_change": "Adds one report RPC only",
+  "upgrade_sql": "sql/UPGRADE-MASTER-3.4-LTS.sql"
+}

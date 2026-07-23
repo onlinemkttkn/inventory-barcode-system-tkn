@@ -1,0 +1,14 @@
+{
+  "version": "3.4.0-RC",
+  "javascript": {
+    "js/mobile-scanner.js": true,
+    "js/reports.js": true,
+    "js/products-admin.js": true,
+    "js/navigation.js": true,
+    "js/users-admin.js": true,
+    "js/transfer-create.js": true,
+    "js/issue.js": true
+  },
+  "upgrade_sql": true,
+  "total_files": 165
+}
