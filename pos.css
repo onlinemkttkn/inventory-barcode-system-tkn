@@ -103,3 +103,17 @@ dialog::backdrop{background:rgba(0,0,0,.72)}.dialog-card{display:grid;gap:13px;p
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
+
+/* Master 3.4.3 Hotfix-03 — Branch Guard */
+.field-status{
+  display:block;
+  margin-top:4px;
+  font-size:.78rem;
+  font-weight:700;
+}
+.field-status.ok{color:#067647}
+.field-status.error{color:#b42318}
+button:disabled,input:disabled,select:disabled{
+  cursor:not-allowed;
+  opacity:.55;
+}

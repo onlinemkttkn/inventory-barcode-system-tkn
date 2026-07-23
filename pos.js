@@ -13,7 +13,7 @@ const E = Object.fromEntries([
   'paymentDialogWarning','cancelPayment','confirmPayment','paymentSuccessDialog',
   'successNet','successReceived','successChange','changeGivenButton',
   'drawerApprovalDialog','drawerApprovalForm','drawerApproverCode',
-  'drawerApproverPin','cancelDrawerApproval','drawerApprovalMsg'
+  'drawerApproverPin','cancelDrawerApproval','drawerApprovalMsg','searchButton','branchStatus'
 ].map(id => [id, document.getElementById(id)]));
 
 const cart = new Map();
@@ -44,6 +44,22 @@ function msg(element, text, type='') {
   element.className = `msg ${type}`.trim();
 }
 
+function hasValidBranch() {
+  const branchId = String(E.branch?.value || '').trim();
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(branchId);
+}
+
+function setBranchControls(ready, statusText='') {
+  if (E.branch) E.branch.disabled = !ready;
+  if (E.search) E.search.disabled = !ready;
+  if (E.searchButton) E.searchButton.disabled = !ready;
+  if (E.branchStatus) {
+    E.branchStatus.textContent = statusText;
+    E.branchStatus.className = `field-status ${ready ? 'ok' : 'error'}`.trim();
+  }
+  updateTotals();
+}
+
 async function logout() {
   await supabaseClient.auth.signOut();
   sessionStorage.clear();
@@ -52,6 +68,7 @@ async function logout() {
 }
 
 async function init() {
+  setBranchControls(false, 'กำลังโหลดสาขา...');
   const { data: { session }, error: sessionError } =
     await supabaseClient.auth.getSession();
 
@@ -80,13 +97,39 @@ async function init() {
     .select('id,code,name').eq('is_active',true).order('sort_order');
 
   if (branches.error) {
+    E.branch.innerHTML = '<option value="">โหลดสาขาไม่สำเร็จ</option>';
+    setBranchControls(false, `โหลดสาขาไม่สำเร็จ: ${branches.error.message}`);
     msg(E.actionMsg, branches.error.message, 'error');
     return;
   }
 
-  E.branch.innerHTML = (branches.data || []).map(branch =>
+  const branchRows = branches.data || [];
+  if (!branchRows.length) {
+    E.branch.innerHTML = '<option value="">ไม่พบสาขาที่เปิดใช้งาน</option>';
+    setBranchControls(false, 'ไม่พบสาขาที่เปิดใช้งาน');
+    msg(E.actionMsg, 'ไม่พบสาขาที่เปิดใช้งาน กรุณาตรวจสอบข้อมูลสาขา', 'error');
+    return;
+  }
+
+  E.branch.innerHTML = branchRows.map(branch =>
     `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
   ).join('');
+
+  const preferredBranchId = access?.branch_id || '';
+  E.branch.value = branchRows.some(branch => branch.id === preferredBranchId)
+    ? preferredBranchId
+    : branchRows[0].id;
+
+  if (!hasValidBranch()) {
+    setBranchControls(false, 'ไม่สามารถกำหนดสาขาเริ่มต้นได้');
+    msg(E.actionMsg, 'สาขาที่เลือกไม่มี UUID ที่ถูกต้อง', 'error');
+    return;
+  }
+
+  setBranchControls(
+    true,
+    `พร้อมใช้งาน: ${E.branch.options[E.branch.selectedIndex]?.text || ''}`
+  );
 
   const setup = await supabaseClient.rpc('cashier_setup_status');
   if (setup.error) {
@@ -107,11 +150,16 @@ async function init() {
 
   renderCart();
   updateTotals();
-  E.search.focus();
+  if (hasValidBranch()) E.search.focus();
 }
 
 async function openShift(event) {
   event.preventDefault();
+
+  if (!hasValidBranch()) {
+    return msg(E.unlockMsg, 'กรุณาเลือกสาขาที่ถูกต้องก่อนเปิดกะ', 'error');
+  }
+
   msg(E.unlockMsg, 'กำลังตรวจสอบ...');
 
   const result = await supabaseClient.rpc('open_cashier_shift', {
@@ -144,12 +192,18 @@ async function openShift(event) {
 
 async function searchProducts(event) {
   event?.preventDefault();
+
+  if (!hasValidBranch()) {
+    return msg(E.searchMsg, 'กรุณาเลือกสาขาก่อนค้นสินค้า', 'error');
+  }
+
+  const branchId = E.branch.value;
   const keyword = E.search.value.trim().replace(/[%_,()]/g,'');
   if (!keyword) return msg(E.searchMsg,'กรุณากรอกชื่อ รหัส หรือบาร์โค้ด','error');
 
   msg(E.searchMsg,'กำลังค้นหา...');
   const inventory = await supabaseClient.from('branch_inventory_list')
-    .select('*').eq('branch_id',E.branch.value).gt('quantity',0)
+    .select('*').eq('branch_id',branchId).gt('quantity',0)
     .or(`product_name.ilike.%${keyword}%,product_code.ilike.%${keyword}%,barcode.eq.${keyword}`)
     .limit(20);
 
@@ -303,7 +357,7 @@ function updateTotals() {
 
   E.subtotal.textContent = money(subtotal);
   E.netTotal.textContent = money(net);
-  E.checkout.disabled = cart.size === 0 || net <= 0;
+  E.checkout.disabled = !hasValidBranch() || cart.size === 0 || net <= 0;
 
   // Payment input exists only inside the payment popup.
   if (E.receivedField) E.receivedField.hidden = true;
@@ -346,6 +400,10 @@ async function requestCashDrawer(reason='SALE', approval=null) {
 }
 
 function preparePaymentDialog() {
+  if (!hasValidBranch()) {
+    return msg(E.actionMsg, 'กรุณาเลือกสาขาก่อนชำระเงิน', 'error');
+  }
+
   if (!cart.size) {
     return msg(E.actionMsg, 'กรุณาเพิ่มสินค้า', 'error');
   }
@@ -554,7 +612,23 @@ async function closeShift(event) {
 
 E.cashierUnlockForm.onsubmit=openShift;
 E.searchForm.onsubmit=searchProducts;
-E.branch.onchange=()=>{cart.clear();renderCart();E.results.innerHTML=''};
+E.branch.onchange=()=>{
+  cart.clear();
+  E.results.innerHTML='';
+  E.search.value='';
+  resetReceivedAmount();
+  renderCart();
+
+  if (hasValidBranch()) {
+    setBranchControls(
+      true,
+      `พร้อมใช้งาน: ${E.branch.options[E.branch.selectedIndex]?.text || ''}`
+    );
+    E.search.focus();
+  } else {
+    setBranchControls(false, 'กรุณาเลือกสาขาที่ถูกต้อง');
+  }
+};
 E.discount.oninput=()=>{
   resetReceivedAmount();
   updateTotals();

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
-  <link rel="stylesheet" href="./pos.css?v=3.4.3-hotfix02">
+  <link rel="stylesheet" href="./pos.css?v=3.4.3-hotfix03">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
@@ -25,7 +25,7 @@
 
   <main class="page">
     <section class="card form-grid">
-      <label>สาขา<select id="branch"></select></label>
+      <label>สาขา<select id="branch" disabled></select><small id="branchStatus" class="field-status">กำลังโหลดสาขา...</small></label>
       <label>วิธีชำระเงิน
         <select id="payment">
           <option value="CASH">เงินสด</option>
@@ -44,7 +44,7 @@
           <form id="searchForm" class="search-row">
             <input id="search" autocomplete="off"
               placeholder="สแกนบาร์โค้ด หรือค้นหาชื่อ/รหัสสินค้า">
-            <button class="btn primary" type="submit">ค้นหา</button>
+            <button id="searchButton" class="btn primary" type="submit" disabled>ค้นหา</button>
           </form>
           <div id="results" class="product-results"></div>
           <p id="searchMsg" class="msg"></p>
@@ -158,7 +158,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script type="module" src="./pos.js?v=3.4.3-hotfix02"></script>
+  <script type="module" src="./pos.js?v=3.4.3-hotfix03"></script>
   <script src="./js/navigation.js?v=3.4.0"></script>
 </body>
 </html>
