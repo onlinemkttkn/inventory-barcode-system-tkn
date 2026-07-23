@@ -1,0 +1,15 @@
+{
+  "version": "3.4.0-LTS-stable-candidate",
+  "javascript_syntax": {
+    "pos.js": true,
+    "js/navigation.js": true,
+    "js/users-admin.js": true,
+    "js/products-admin.js": true,
+    "js/reports.js": true,
+    "js/mobile-scanner.js": true,
+    "js/transfer-create.js": true,
+    "js/issue.js": true
+  },
+  "broken_local_references": [],
+  "total_files": 173
+}

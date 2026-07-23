@@ -1,576 +1,471 @@
-"use strict";
+import { supabaseClient } from './js/supabase-client.js';
 
-window.goToUnifiedDashboard = function goToUnifiedDashboard() {
-  window.location.assign("./dashboard.html");
-};
-
-const E = {
-  branch: document.getElementById("branch"),
-  payment: document.getElementById("payment"),
-  customerName: document.getElementById("customerName"),
-  customerPhone: document.getElementById("customerPhone"),
-  searchForm: document.getElementById("searchForm"),
-  search: document.getElementById("search"),
-  results: document.getElementById("results"),
-  searchMsg: document.getElementById("searchMsg"),
-  cart: document.getElementById("cart"),
-  subtotal: document.getElementById("subtotal"),
-  discount: document.getElementById("discount"),
-  netTotal: document.getElementById("netTotal"),
-  receivedField: document.getElementById("receivedField"),
-  received: document.getElementById("received"),
-  change: document.getElementById("change"),
-  notes: document.getElementById("notes"),
-  checkout: document.getElementById("checkout"),
-  actionMsg: document.getElementById("actionMsg"),
-};
+const E = Object.fromEntries([
+  'branch','payment','customerName','customerPhone','searchForm','search',
+  'results','searchMsg','cart','cartCount','subtotal','discount','netTotal',
+  'receivedField','received','quickCash','change','paymentWarning','notes',
+  'checkout','manualDrawer','actionMsg','cashierStatus','holdBill','restoreBill',
+  'closeShift','logoutBtn','cashierUnlockDialog','cashierUnlockForm',
+  'employeeCode','cashierPin','openingFloat','unlockMsg','closeShiftDialog',
+  'closeShiftForm','closingCash','closingNotes','cancelCloseShift','closeShiftMsg'
+].map(id => [id, document.getElementById(id)]));
 
 const cart = new Map();
-
-// รับเงินจะตามยอดสุทธิอัตโนมัติ จนกว่าพนักงานจะกรอกยอดเอง
+let access = null;
+let cashier = null;
+let shift = null;
 let receivedManuallyEdited = false;
 let lastAutoReceivedValue = 0;
 
+const money = value => new Intl.NumberFormat('th-TH', {
+  style:'currency',currency:'THB',minimumFractionDigits:2
+}).format(Number(value || 0));
 
-function msg(element, text, cssClass = "") {
+const number = (value, fallback=0) => {
+  const result = Number(value);
+  return Number.isFinite(result) ? result : fallback;
+};
+
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+})[char]);
+
+function msg(element, text, type='') {
   if (!element) return;
   element.textContent = text;
-  element.className = `msg ${cssClass}`.trim();
+  element.className = `msg ${type}`.trim();
 }
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
-  })[char]);
-}
-
-function toNumber(value, fallback = 0) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : fallback;
-}
-
-function money(value) {
-  return new Intl.NumberFormat("th-TH", {
-    style: "currency",
-    currency: "THB",
-    minimumFractionDigits: 2,
-  }).format(toNumber(value));
-}
-
-async function requireSession() {
-  const {
-    data: { session },
-    error,
-  } = await supabaseClient.auth.getSession();
-
-  if (error) {
-    msg(E.actionMsg, error.message, "error");
-    return null;
-  }
-
-  if (!session) {
-    location.href = "./dashboard.html";
-    return null;
-  }
-
-  return session;
+async function logout() {
+  await supabaseClient.auth.signOut();
+  sessionStorage.clear();
+  localStorage.removeItem('tkn_cashier_unlock');
+  location.replace('./index.html');
 }
 
 async function init() {
-  const session = await requireSession();
-  if (!session) return;
+  const { data: { session }, error: sessionError } =
+    await supabaseClient.auth.getSession();
 
-  const { data: access, error: accessError } =
-    await supabaseClient.rpc("current_access_context");
-
-  if (accessError || !access?.user_id || access.is_active !== true) {
-    await supabaseClient.auth.signOut();
-    location.replace("./dashboard.html");
+  if (sessionError || !session) {
+    location.replace('./index.html');
     return;
   }
 
+  const context = await supabaseClient.rpc('current_access_context');
+  if (context.error || !context.data?.user_id || context.data.is_active !== true) {
+    await logout();
+    return;
+  }
+
+  access = context.data;
   const permissions = new Set(access.permissions || []);
-  sessionStorage.setItem("tkn_user_role", access.role || "staff");
-  sessionStorage.setItem(
-    "tkn_permissions",
-    JSON.stringify(access.permissions || [])
-  );
-
-  if (!permissions.has("pos.use")) {
-    location.replace(access.landing_page || "./dashboard.html");
+  if (!permissions.has('pos.use')) {
+    location.replace(access.landing_page || './index.html');
     return;
   }
 
-  const dashboardButton = document.getElementById("dashboardButton");
-  if (dashboardButton) {
-    dashboardButton.hidden = !permissions.has("dashboard.view");
-  }
+  sessionStorage.setItem('tkn_user_role', access.role || 'staff');
+  sessionStorage.setItem('tkn_permissions', JSON.stringify(access.permissions || []));
 
-  const { data, error } = await supabaseClient
-    .from("branches")
-    .select("id,code,name")
-    .eq("is_active", true)
-    .order("sort_order");
+  const branches = await supabaseClient.from('branches')
+    .select('id,code,name').eq('is_active',true).order('sort_order');
 
-  if (error) {
-    msg(E.actionMsg, error.message, "error");
+  if (branches.error) {
+    msg(E.actionMsg, branches.error.message, 'error');
     return;
   }
 
-  E.branch.innerHTML = (data || [])
-    .map(
-      (branch) =>
-        `<option value="${branch.id}">${esc(branch.code)} — ${esc(
-          branch.name
-        )}</option>`
-    )
-    .join("");
+  E.branch.innerHTML = (branches.data || []).map(branch =>
+    `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
+  ).join('');
+
+  const setup = await supabaseClient.rpc('cashier_setup_status');
+  if (setup.error) {
+    msg(E.actionMsg, `ยังไม่ได้ติดตั้ง Cashier SQL: ${setup.error.message}`, 'error');
+  } else if (setup.data?.is_configured) {
+    E.cashierUnlockDialog.showModal();
+  } else {
+    cashier = {
+      user_id: access.user_id,
+      employee_code: 'SESSION',
+      display_name: access.full_name || access.email,
+      can_open_drawer: false
+    };
+    E.cashierStatus.textContent =
+      `${cashier.display_name} · โหมดบัญชีล็อกอิน (ยังไม่ได้ตั้งรหัสพนักงาน)`;
+    E.closeShift.hidden = true;
+  }
 
   renderCart();
+  updateTotals();
   E.search.focus();
 }
 
-E.branch.addEventListener("change", () => {
-  cart.clear();
-  renderCart();
-  E.results.innerHTML = "";
-  msg(E.searchMsg, "");
-});
-
-E.searchForm.addEventListener("submit", async (event) => {
+async function openShift(event) {
   event.preventDefault();
+  msg(E.unlockMsg, 'กำลังตรวจสอบ...');
 
-  const keyword = E.search.value.trim().replace(/[%_,()]/g, "");
-
-  if (!keyword) {
-    msg(E.searchMsg, "กรุณากรอกชื่อ รหัสสินค้า หรือบาร์โค้ด", "error");
-    return;
-  }
-
-  msg(E.searchMsg, "กำลังค้นหา...");
-
-  const { data: inventoryRows, error: inventoryError } =
-    await supabaseClient
-      .from("branch_inventory_list")
-      .select("*")
-      .eq("branch_id", E.branch.value)
-      .gt("quantity", 0)
-      .or(
-        `product_name.ilike.%${keyword}%,product_code.ilike.%${keyword}%,barcode.eq.${keyword}`
-      )
-      .limit(20);
-
-  if (inventoryError) {
-    msg(E.searchMsg, inventoryError.message, "error");
-    return;
-  }
-
-  const rows = inventoryRows || [];
-
-  if (!rows.length) {
-    E.results.innerHTML = "";
-    msg(E.searchMsg, "ไม่พบสินค้า หรือสินค้าหมดสต๊อก", "error");
-    return;
-  }
-
-  /*
-   * ดึงราคาจาก products โดยตรง
-   * เพราะ branch_inventory_list บางเวอร์ชันไม่มี selling_price
-   */
-  const productIds = [...new Set(rows.map((row) => row.product_id))];
-
-  const { data: productRows, error: productError } =
-    await supabaseClient
-      .from("products")
-      .select("id,selling_price,cost_price,is_active")
-      .in("id", productIds);
-
-  if (productError) {
-    msg(E.searchMsg, productError.message, "error");
-    return;
-  }
-
-  const priceMap = new Map(
-    (productRows || []).map((product) => [
-      product.id,
-      {
-        sellingPrice: toNumber(product.selling_price),
-        costPrice: toNumber(product.cost_price),
-        isActive: product.is_active,
-      },
-    ])
-  );
-
-  const products = rows
-    .map((row) => {
-      const price = priceMap.get(row.product_id) || {};
-
-      return {
-        productId: row.product_id,
-        productCode: row.product_code,
-        productName: row.product_name,
-        barcode: row.barcode,
-        stockQuantity: toNumber(row.quantity),
-        minimumStock: toNumber(row.minimum_stock),
-        unitName: row.unit_name || "",
-        sellingPrice: toNumber(
-          row.selling_price,
-          toNumber(price.sellingPrice)
-        ),
-        costPrice: toNumber(row.cost_price, toNumber(price.costPrice)),
-        isActive: price.isActive !== false,
-      };
-    })
-    .filter((product) => product.isActive);
-
-  E.results.innerHTML = "";
-
-  products.forEach((product) => {
-    const row = document.createElement("div");
-    row.className = "item";
-
-    const info = document.createElement("div");
-    info.innerHTML = `
-      <b>${esc(product.productName)}</b>
-      <small>
-        ${esc(product.productCode)}
-        • คงเหลือ ${product.stockQuantity.toLocaleString("th-TH")}
-        • ราคา ${money(product.sellingPrice)}
-      </small>
-    `;
-
-    const addButton = document.createElement("button");
-    addButton.className = "btn primary";
-    addButton.type = "button";
-    addButton.textContent = "เพิ่ม";
-    addButton.addEventListener("click", () => addProduct(product));
-
-    row.append(info, addButton);
-    E.results.appendChild(row);
+  const result = await supabaseClient.rpc('open_cashier_shift', {
+    p_employee_code: E.employeeCode.value.trim(),
+    p_pin: E.cashierPin.value,
+    p_branch_id: E.branch.value,
+    p_opening_float: number(E.openingFloat.value)
   });
 
-  /*
-   * เมื่อยิงบาร์โค้ดแล้วพบสินค้าเพียงรายการเดียว
-   * ให้เพิ่มเข้าตะกร้าอัตโนมัติ
-   */
-  if (products.length === 1) {
-    addProduct(products[0]);
-    E.search.value = "";
-    E.search.focus();
+  if (result.error) {
+    msg(E.unlockMsg, result.error.message, 'error');
+    return;
   }
 
-  msg(E.searchMsg, `พบ ${products.length} รายการ`);
-});
+  shift = result.data;
+  cashier = result.data;
+  localStorage.setItem('tkn_cashier_unlock', JSON.stringify({
+    shift_id: shift.shift_id,
+    employee_code: shift.employee_code,
+    display_name: shift.display_name,
+    opened_at: shift.opened_at
+  }));
+
+  E.cashierStatus.textContent =
+    `${shift.display_name} · ${shift.employee_code} · เปิดกะ ${new Date(shift.opened_at).toLocaleString('th-TH')}`;
+  E.cashierPin.value = '';
+  E.cashierUnlockDialog.close();
+  E.search.focus();
+}
+
+async function searchProducts(event) {
+  event?.preventDefault();
+  const keyword = E.search.value.trim().replace(/[%_,()]/g,'');
+  if (!keyword) return msg(E.searchMsg,'กรุณากรอกชื่อ รหัส หรือบาร์โค้ด','error');
+
+  msg(E.searchMsg,'กำลังค้นหา...');
+  const inventory = await supabaseClient.from('branch_inventory_list')
+    .select('*').eq('branch_id',E.branch.value).gt('quantity',0)
+    .or(`product_name.ilike.%${keyword}%,product_code.ilike.%${keyword}%,barcode.eq.${keyword}`)
+    .limit(20);
+
+  if (inventory.error) return msg(E.searchMsg,inventory.error.message,'error');
+
+  const rows = inventory.data || [];
+  if (!rows.length) {
+    E.results.innerHTML = '';
+    return msg(E.searchMsg,'ไม่พบสินค้า หรือสินค้าหมดสต็อก','error');
+  }
+
+  const ids = [...new Set(rows.map(row => row.product_id))];
+  const productsResult = await supabaseClient.from('products')
+    .select('id,selling_price,cost_price,is_active').in('id',ids);
+
+  if (productsResult.error) {
+    return msg(E.searchMsg,productsResult.error.message,'error');
+  }
+
+  const prices = new Map((productsResult.data || []).map(product => [
+    product.id, product
+  ]));
+
+  const products = rows.map(row => {
+    const product = prices.get(row.product_id) || {};
+    return {
+      productId:row.product_id,
+      productCode:row.product_code,
+      productName:row.product_name,
+      barcode:row.barcode,
+      stockQuantity:number(row.quantity),
+      unitName:row.unit_name || '',
+      sellingPrice:number(row.selling_price,number(product.selling_price)),
+      costPrice:number(row.cost_price,number(product.cost_price)),
+      isActive:product.is_active !== false
+    };
+  }).filter(product => product.isActive);
+
+  E.results.innerHTML = products.map(product => `
+    <article class="product-result" data-id="${product.productId}">
+      <div>
+        <strong>${esc(product.productName)}</strong>
+        <small>${esc(product.productCode)} · คงเหลือ ${product.stockQuantity.toLocaleString('th-TH')} · ${money(product.sellingPrice)}</small>
+      </div>
+      <button class="btn primary add-product" type="button">เพิ่ม</button>
+    </article>
+  `).join('');
+
+  E.results.querySelectorAll('.product-result').forEach(row => {
+    const product = products.find(item => item.productId === row.dataset.id);
+    row.querySelector('.add-product').onclick = () => addProduct(product);
+  });
+
+  if (products.length === 1) {
+    addProduct(products[0]);
+    E.search.value = '';
+    E.search.focus();
+  }
+  msg(E.searchMsg,`พบ ${products.length} รายการ`);
+}
 
 function addProduct(product) {
   if (product.sellingPrice <= 0) {
-    msg(
-      E.actionMsg,
-      `สินค้า ${product.productName} ยังไม่ได้กำหนดราคาขาย`,
-      "error"
-    );
-    return;
+    return msg(E.actionMsg,`สินค้า ${product.productName} ยังไม่มีราคาขาย`,'error');
   }
-
   const existing = cart.get(product.productId);
-  const nextCartQuantity = existing
-    ? existing.cartQuantity + 1
-    : 1;
-
-  if (nextCartQuantity > product.stockQuantity) {
-    msg(E.actionMsg, "จำนวนในตะกร้าเกินสต๊อก", "error");
-    return;
+  const next = existing ? existing.cartQuantity + 1 : 1;
+  if (next > product.stockQuantity) {
+    return msg(E.actionMsg,'จำนวนในตะกร้าเกินสต็อก','error');
   }
-
-  if (existing) {
-    existing.cartQuantity = nextCartQuantity;
-  } else {
-    cart.set(product.productId, {
-      ...product,
-      cartQuantity: 1,
-      unitPrice: product.sellingPrice,
-      lineDiscount: 0,
-    });
-  }
-
-  msg(E.actionMsg, "");
+  if (existing) existing.cartQuantity = next;
+  else cart.set(product.productId,{
+    ...product,cartQuantity:1,unitPrice:product.sellingPrice,lineDiscount:0
+  });
   renderCart();
 }
 
 function renderCart() {
-  E.cart.innerHTML = "";
-
+  E.cart.innerHTML = '';
   if (!cart.size) {
-    E.cart.innerHTML =
-      '<div class="item"><small>ยังไม่มีสินค้าในตะกร้า</small></div>';
-    updateTotals();
-    return;
+    E.cart.innerHTML = '<div class="empty-cart">ยังไม่มีสินค้าในตะกร้า</div>';
   }
 
   for (const item of cart.values()) {
-    const row = document.createElement("div");
-    row.className = "item";
-
-    const info = document.createElement("div");
-    info.innerHTML = `
-      <b>${esc(item.productName)}</b>
-      <small>
-        ${esc(item.productCode)}
-        • สต๊อก ${item.stockQuantity.toLocaleString("th-TH")}
-        • ${money(item.unitPrice)} / หน่วย
-      </small>
+    const row = document.createElement('article');
+    row.className = 'cart-item';
+    row.innerHTML = `
+      <div class="cart-info">
+        <strong>${esc(item.productName)}</strong>
+        <small>${esc(item.productCode)} · คงเหลือ ${item.stockQuantity.toLocaleString('th-TH')} · ${money(item.unitPrice)}/หน่วย</small>
+      </div>
+      <div class="cart-controls"></div>
     `;
+    const controls = row.querySelector('.cart-controls');
 
-    const controls = document.createElement("div");
-    controls.className = "row";
-
-    const quantityInput = document.createElement("input");
-    quantityInput.className = "qty";
-    quantityInput.type = "number";
-    quantityInput.min = "0.001";
-    quantityInput.max = String(item.stockQuantity);
-    quantityInput.step = "0.001";
-    quantityInput.value = String(item.cartQuantity);
-    quantityInput.title = "จำนวนขาย";
-
-    quantityInput.addEventListener("input", () => {
-      let value = toNumber(quantityInput.value);
-
-      if (value > item.stockQuantity) {
-        value = item.stockQuantity;
-        quantityInput.value = String(value);
-        msg(E.actionMsg, "จำนวนขายเกินสต๊อก ระบบปรับให้เท่าสต๊อก", "error");
-      }
-
-      item.cartQuantity = Math.max(value, 0);
-
-      if (item.cartQuantity <= 0) {
-        cart.delete(item.productId);
-        renderCart();
-        return;
-      }
-
-      updateTotals();
-    });
-
-    const priceInput = document.createElement("input");
-    priceInput.className = "price";
-    priceInput.type = "number";
-    priceInput.min = "0";
-    priceInput.step = "0.01";
-    priceInput.value = String(item.unitPrice);
-    priceInput.title = "ราคาขาย";
-
-    priceInput.addEventListener("input", () => {
-      item.unitPrice = Math.max(
-        toNumber(priceInput.value),
-        0
-      );
-      updateTotals();
-    });
-
-    const removeButton = document.createElement("button");
-    removeButton.className = "btn danger";
-    removeButton.type = "button";
-    removeButton.textContent = "ลบ";
-
-    removeButton.addEventListener("click", () => {
-      cart.delete(item.productId);
+    const qty = document.createElement('input');
+    qty.type='number';qty.min='.001';qty.max=String(item.stockQuantity);
+    qty.step='.001';qty.value=String(item.cartQuantity);qty.title='จำนวน';
+    qty.oninput = () => {
+      const value = Math.max(0,Math.min(number(qty.value),item.stockQuantity));
+      item.cartQuantity = value;
+      qty.value = String(value);
+      if (value <= 0) cart.delete(item.productId);
       renderCart();
-    });
+    };
 
-    controls.append(quantityInput, priceInput, removeButton);
-    row.append(info, controls);
+    const price = document.createElement('input');
+    price.type='number';price.min='0';price.step='.01';
+    price.value=String(item.unitPrice);price.title='ราคาขาย';
+    price.oninput = () => {
+      item.unitPrice=Math.max(number(price.value),0);
+      updateTotals();
+    };
+
+    const remove = document.createElement('button');
+    remove.type='button';remove.className='btn danger';remove.textContent='ลบ';
+    remove.onclick=()=>{cart.delete(item.productId);renderCart()};
+
+    controls.append(qty,price,remove);
     E.cart.appendChild(row);
   }
-
+  E.cartCount.textContent = `${cart.size} รายการ`;
   updateTotals();
 }
 
-function subtotalValue() {
-  return [...cart.values()].reduce((sum, item) => {
-    const lineTotal =
-      item.cartQuantity * item.unitPrice -
-      toNumber(item.lineDiscount);
+const subtotalValue = () => [...cart.values()].reduce(
+  (sum,item)=>sum+Math.max(item.cartQuantity*item.unitPrice-number(item.lineDiscount),0),0
+);
+const discountValue = () => Math.max(number(E.discount.value),0);
+const netValue = () => Math.max(subtotalValue()-discountValue(),0);
 
-    return sum + Math.max(lineTotal, 0);
-  }, 0);
-}
-
-function discountValue() {
-  return Math.max(toNumber(E.discount.value), 0);
-}
-
-function netValue() {
-  return Math.max(subtotalValue() - discountValue(), 0);
+function quickCashValues(net) {
+  const standard = [20,50,100,500,1000];
+  const rounded = Math.ceil(net/10)*10;
+  return [...new Set([rounded,...standard.filter(value=>value>=net)])].slice(0,5);
 }
 
 function updateTotals() {
-  const subtotal = subtotalValue();
-  const net = netValue();
-  const isCash = E.payment.value === "CASH";
+  const subtotal=subtotalValue();
+  const net=netValue();
+  const isCash=E.payment.value==='CASH';
 
-  E.subtotal.textContent = money(subtotal);
-  E.netTotal.textContent = money(net);
-  E.receivedField.style.display = isCash ? "grid" : "none";
+  E.subtotal.textContent=money(subtotal);
+  E.netTotal.textContent=money(net);
+  E.receivedField.hidden=!isCash;
 
   if (isCash && !receivedManuallyEdited) {
-    E.received.value = net > 0 ? String(net) : "0";
-    lastAutoReceivedValue = net;
+    E.received.value=net>0?String(net):'0';
+    lastAutoReceivedValue=net;
   }
 
-  const received = isCash
-    ? Math.max(toNumber(E.received.value), 0)
-    : net;
+  const received=isCash?Math.max(number(E.received.value),0):net;
+  const shortage=Math.max(net-received,0);
+  const change=isCash?Math.max(received-net,0):0;
 
-  E.change.textContent = money(
-    isCash ? Math.max(received - net, 0) : 0
-  );
+  E.change.textContent=money(change);
+  E.paymentWarning.textContent=shortage>0
+    ? `ขาดอีก ${money(shortage)}`
+    : (isCash && net>0 ? 'รับเงินครบแล้ว' : '');
+
+  E.checkout.disabled=!cart.size || (isCash && received<net);
+  E.quickCash.innerHTML=isCash
+    ? quickCashValues(net).map(value =>
+        `<button class="quick-cash-btn" type="button" data-value="${value}">${money(value)}</button>`
+      ).join('')
+    : '';
+
+  E.quickCash.querySelectorAll('button').forEach(button => {
+    button.onclick=()=>{
+      receivedManuallyEdited=true;
+      E.received.value=button.dataset.value;
+      updateTotals();
+    };
+  });
 }
 
-E.discount.addEventListener("input", () => {
-  // ถ้ายอดรับเงินยังเป็นค่าที่ระบบเติมให้ ให้ตามยอดสุทธิต่อไป
-  if (
-    Math.abs(toNumber(E.received.value) - lastAutoReceivedValue) < 0.0001
-  ) {
-    receivedManuallyEdited = false;
-  }
-  updateTotals();
-});
-
-E.received.addEventListener("input", () => {
-  receivedManuallyEdited = true;
-  updateTotals();
-});
-
-E.payment.addEventListener("change", () => {
-  receivedManuallyEdited = false;
-  updateTotals();
-});
-
-E.checkout.addEventListener("click", async () => {
-  const items = [...cart.values()]
-    .filter((item) => item.cartQuantity > 0)
-    .map((item) => ({
-      product_id: item.productId,
-      quantity: item.cartQuantity,
-      unit_price: item.unitPrice,
-      discount_amount: toNumber(item.lineDiscount),
-    }));
-
-  if (!items.length) {
-    msg(E.actionMsg, "กรุณาเพิ่มสินค้า", "error");
-    return;
+async function requestCashDrawer(reason='SALE') {
+  if (!cashier?.can_open_drawer && reason==='MANUAL') {
+    return msg(E.actionMsg,'บัญชีนี้ไม่มีสิทธิ์เปิดลิ้นชักด้วยตนเอง','error');
   }
 
-  if (
-    [...cart.values()].some(
-      (item) => item.unitPrice <= 0
-    )
-  ) {
-    msg(
-      E.actionMsg,
-      "มีสินค้าที่ยังไม่ได้กำหนดราคาขาย",
-      "error"
-    );
-    return;
+  const bridge = window.TKN_CASH_DRAWER_BRIDGE_URL;
+  if (!bridge) {
+    msg(E.actionMsg,'บันทึกคำขอเปิดลิ้นชักแล้ว แต่ยังไม่ได้ตั้งค่า Hardware Bridge','error');
+    return false;
   }
-
-  const net = netValue();
-
-  if (
-    E.payment.value === "CASH" &&
-    toNumber(E.received.value) < net
-  ) {
-    msg(
-      E.actionMsg,
-      "จำนวนเงินรับน้อยกว่ายอดสุทธิ",
-      "error"
-    );
-    return;
-  }
-
-  if (
-    !confirm(
-      `ยืนยันขายสินค้า ${items.length} รายการ ยอดสุทธิ ${money(net)} ?`
-    )
-  ) {
-    return;
-  }
-
-  E.checkout.disabled = true;
-  msg(E.actionMsg, "กำลังบันทึกการขาย...");
 
   try {
-    const { data, error } = await supabaseClient.rpc(
-      "create_pos_sale",
-      {
-        p_branch_id: E.branch.value,
-        p_items: items,
-        p_discount_amount: discountValue(),
-        p_payment_method: E.payment.value,
-        p_received_amount:
-          E.payment.value === "CASH"
-            ? toNumber(E.received.value)
-            : net,
-        p_customer_name:
-          E.customerName.value.trim() || null,
-        p_customer_phone:
-          E.customerPhone.value.trim() || null,
-        p_notes: E.notes.value.trim() || null,
-      }
-    );
-
-    if (error) {
-      msg(E.actionMsg, error.message, "error");
-      return;
-    }
-
-    msg(
-      E.actionMsg,
-      `ขายสำเร็จ เลขที่ ${data.sale_no} • เงินทอน ${money(
-        data.change_amount
-      )}`,
-      "ok"
-    );
-
-    cart.clear();
-    E.discount.value = "0";
-    E.received.value = "0";
-    receivedManuallyEdited = false;
-    lastAutoReceivedValue = 0;
-    E.customerName.value = "";
-    E.customerPhone.value = "";
-    E.notes.value = "";
-    E.results.innerHTML = "";
-
-    renderCart();
-    E.search.focus();
-
-    /*
-     * เปิดใบเสร็จหลังขายสำเร็จ
-     */
-    setTimeout(() => {
-      location.href = `./receipt.html?sale_no=${encodeURIComponent(
-        data.sale_no
-      )}`;
-    }, 800);
+    await fetch(bridge,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reason,shift_id:shift?.shift_id || null})
+    });
+    return true;
   } catch (error) {
-    console.error("Checkout error:", error);
-    msg(
-      E.actionMsg,
-      `บันทึกการขายไม่สำเร็จ: ${error.message}`,
-      "error"
-    );
-  } finally {
-    E.checkout.disabled = false;
+    msg(E.actionMsg,`เปิดลิ้นชักไม่สำเร็จ: ${error.message}`,'error');
+    return false;
   }
-});
+}
 
+async function checkout() {
+  const items=[...cart.values()].filter(item=>item.cartQuantity>0).map(item=>({
+    product_id:item.productId,
+    quantity:item.cartQuantity,
+    unit_price:item.unitPrice,
+    discount_amount:number(item.lineDiscount)
+  }));
+  if (!items.length) return msg(E.actionMsg,'กรุณาเพิ่มสินค้า','error');
 
+  const net=netValue();
+  const received=E.payment.value==='CASH'?number(E.received.value):net;
+  if (E.payment.value==='CASH' && received<net) {
+    return msg(E.actionMsg,'จำนวนเงินรับน้อยกว่ายอดสุทธิ','error');
+  }
 
-init();
+  if (!confirm(`ยืนยันชำระ ${money(net)} ?`)) return;
+  E.checkout.disabled=true;
+  msg(E.actionMsg,'กำลังบันทึกการขาย...');
+
+  const result=await supabaseClient.rpc('create_pos_sale',{
+    p_branch_id:E.branch.value,
+    p_items:items,
+    p_discount_amount:discountValue(),
+    p_payment_method:E.payment.value,
+    p_received_amount:received,
+    p_customer_name:E.customerName.value.trim()||null,
+    p_customer_phone:E.customerPhone.value.trim()||null,
+    p_notes:[
+      E.notes.value.trim(),
+      cashier ? `Cashier: ${cashier.employee_code} ${cashier.display_name}` : '',
+      shift?.shift_id ? `Shift: ${shift.shift_id}` : ''
+    ].filter(Boolean).join('\n') || null
+  });
+
+  E.checkout.disabled=false;
+  if (result.error) return msg(E.actionMsg,result.error.message,'error');
+
+  const change=number(result.data?.change_amount,received-net);
+  if (E.payment.value==='CASH') await requestCashDrawer('SALE');
+
+  msg(E.actionMsg,`ขายสำเร็จ ${result.data.sale_no} · เงินทอน ${money(change)}`,'ok');
+  cart.clear();
+  E.discount.value='0';E.received.value='0';E.customerName.value='';
+  E.customerPhone.value='';E.notes.value='';E.results.innerHTML='';
+  receivedManuallyEdited=false;lastAutoReceivedValue=0;
+  renderCart();
+
+  setTimeout(()=>{
+    location.href=`./receipt.html?sale_no=${encodeURIComponent(result.data.sale_no)}`;
+  },700);
+}
+
+function holdBill() {
+  if (!cart.size) return msg(E.actionMsg,'ไม่มีสินค้าให้พักบิล','error');
+  const payload={
+    branch:E.branch.value,payment:E.payment.value,
+    customerName:E.customerName.value,customerPhone:E.customerPhone.value,
+    discount:E.discount.value,notes:E.notes.value,
+    items:[...cart.values()],held_at:new Date().toISOString()
+  };
+  localStorage.setItem('tkn_pos_held_bill',JSON.stringify(payload));
+  cart.clear();renderCart();
+  msg(E.actionMsg,'พักบิลไว้ในเครื่องนี้แล้ว','ok');
+}
+
+function restoreBill() {
+  try {
+    const payload=JSON.parse(localStorage.getItem('tkn_pos_held_bill')||'null');
+    if (!payload) return msg(E.actionMsg,'ไม่พบบิลพัก','error');
+    E.branch.value=payload.branch;E.payment.value=payload.payment;
+    E.customerName.value=payload.customerName||'';
+    E.customerPhone.value=payload.customerPhone||'';
+    E.discount.value=payload.discount||0;E.notes.value=payload.notes||'';
+    cart.clear();
+    for (const item of payload.items||[]) cart.set(item.productId,item);
+    localStorage.removeItem('tkn_pos_held_bill');
+    renderCart();
+    msg(E.actionMsg,'เปิดบิลพักเรียบร้อย','ok');
+  } catch (error) {
+    msg(E.actionMsg,`เปิดบิลพักไม่สำเร็จ: ${error.message}`,'error');
+  }
+}
+
+async function closeShift(event) {
+  event.preventDefault();
+  if (!shift?.shift_id) return E.closeShiftDialog.close();
+
+  const result=await supabaseClient.rpc('close_cashier_shift',{
+    p_shift_id:shift.shift_id,
+    p_closing_cash_count:number(E.closingCash.value),
+    p_notes:E.closingNotes.value.trim()||null
+  });
+
+  if (result.error) return msg(E.closeShiftMsg,result.error.message,'error');
+
+  alert(
+    `ปิดกะเรียบร้อย\nยอดที่ควรมี ${money(result.data.expected_cash)}\n`+
+    `นับได้ ${money(result.data.closing_cash_count)}\n`+
+    `ผลต่าง ${money(result.data.difference)}`
+  );
+  localStorage.removeItem('tkn_cashier_unlock');
+  E.closeShiftDialog.close();
+  await logout();
+}
+
+E.cashierUnlockForm.onsubmit=openShift;
+E.searchForm.onsubmit=searchProducts;
+E.branch.onchange=()=>{cart.clear();renderCart();E.results.innerHTML=''};
+E.discount.oninput=()=>{
+  if (Math.abs(number(E.received.value)-lastAutoReceivedValue)<.0001) {
+    receivedManuallyEdited=false;
+  }
+  updateTotals();
+};
+E.received.oninput=()=>{receivedManuallyEdited=true;updateTotals()};
+E.payment.onchange=()=>{receivedManuallyEdited=false;updateTotals()};
+E.checkout.onclick=checkout;
+E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');
+E.holdBill.onclick=holdBill;
+E.restoreBill.onclick=restoreBill;
+E.logoutBtn.onclick=logout;
+E.closeShift.onclick=()=>E.closeShiftDialog.showModal();
+E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();
+E.closeShiftForm.onsubmit=closeShift;
+
+init().catch(error=>msg(E.actionMsg,error.message,'error'));

@@ -2,63 +2,31 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TKN POS / ERP - ขายหน้าร้าน</title>
-  <link rel="stylesheet" href="./pos.css?v=3.0.0">
-  <style>
-    .pos-topbar {
-      width: min(1180px, calc(100% - 32px));
-      margin: 18px auto 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .pos-topbar h1 { margin: 0; font-size: 1.4rem; }
-    .pos-topbar p { margin: 3px 0 0; color: #64748b; }
-    .dashboard-button {
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 16px;
-      background: #eef2f7;
-      color: #172033;
-      font: inherit;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .dashboard-button:hover { background: #dfe7f1; }
-    .received-help {
-      display: block;
-      margin-top: 5px;
-      color: #64748b;
-      font-size: .78rem;
-      font-weight: 500;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>TKN POS / ERP - แคชเชียร์</title>
+  <link rel="stylesheet" href="./pos.css?v=3.4.0">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
 <body>
   <header class="pos-topbar">
     <div>
-      <h1>POS ขายหน้าร้าน</h1>
-      <p>TKN POS / ERP · Version 2.0 Stable</p>
+      <p class="eyebrow">MASTER 3.4 LTS · CASHIER</p>
+      <h1>ขายหน้าร้าน</h1>
+      <p id="cashierStatus">กำลังตรวจสอบพนักงานและกะ...</p>
     </div>
-    <button id="dashboardButton" class="dashboard-button"
-      type="button"
-      onclick="goToUnifiedDashboard()"
-    >
-      Dashboard
-    </button>
+    <div class="top-actions">
+      <button id="holdBill" class="btn secondary" type="button">พักบิล</button>
+      <button id="restoreBill" class="btn secondary" type="button">เปิดบิลพัก</button>
+      <button id="closeShift" class="btn danger" type="button">ปิดกะ</button>
+      <button id="logoutBtn" class="btn danger" type="button">ออกจากระบบ</button>
+    </div>
   </header>
 
   <main class="page">
     <section class="card form-grid">
-      <label>
-        สาขา
-        <select id="branch"></select>
-      </label>
-
-      <label>
-        วิธีชำระเงิน
+      <label>สาขา<select id="branch"></select></label>
+      <label>วิธีชำระเงิน
         <select id="payment">
           <option value="CASH">เงินสด</option>
           <option value="QR">QR</option>
@@ -66,94 +34,95 @@
           <option value="CARD">บัตร</option>
         </select>
       </label>
-
-      <label>
-        ชื่อลูกค้า
-        <input id="customerName" autocomplete="off">
-      </label>
-
-      <label>
-        เบอร์โทร
-        <input id="customerPhone" inputmode="tel" autocomplete="off">
-      </label>
+      <label>ชื่อลูกค้า<input id="customerName" autocomplete="off"></label>
+      <label>เบอร์โทร<input id="customerPhone" inputmode="tel" autocomplete="off"></label>
     </section>
 
     <section class="pos-layout">
-      <div>
+      <div class="work-column">
         <section class="card">
           <form id="searchForm" class="search-row">
-            <input
-              id="search"
-              autocomplete="off"
-              placeholder="สแกนบาร์โค้ด หรือค้นหาชื่อ/รหัสสินค้า"
-            >
+            <input id="search" autocomplete="off"
+              placeholder="สแกนบาร์โค้ด หรือค้นหาชื่อ/รหัสสินค้า">
             <button class="btn primary" type="submit">ค้นหา</button>
           </form>
-
-          <div id="results"></div>
+          <div id="results" class="product-results"></div>
           <p id="searchMsg" class="msg"></p>
         </section>
 
         <section class="card">
-          <h2>ตะกร้าสินค้า</h2>
+          <div class="section-heading">
+            <h2>ตะกร้าสินค้า</h2><strong id="cartCount">0 รายการ</strong>
+          </div>
           <div id="cart"></div>
         </section>
       </div>
 
       <aside class="card summary">
-        <h2>สรุปยอด</h2>
-
-        <div class="summary-line">
-          <span>ยอดสินค้า</span>
-          <strong id="subtotal">฿0.00</strong>
-        </div>
-
-        <label>
-          ส่วนลดท้ายบิล
+        <h2>สรุปการชำระเงิน</h2>
+        <div class="summary-line"><span>ยอดสินค้า</span><strong id="subtotal">฿0.00</strong></div>
+        <label>ส่วนลดท้ายบิล
           <input id="discount" type="number" min="0" step="0.01" value="0">
         </label>
+        <div class="summary-line net"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
 
-        <div class="summary-line net">
-          <span>ยอดสุทธิ</span>
-          <strong id="netTotal">฿0.00</strong>
+        <div id="receivedField" class="received-panel">
+          <label>รับเงิน
+            <input id="received" type="number" min="0" step="0.01"
+              value="0" inputmode="decimal">
+          </label>
+          <div class="quick-cash" id="quickCash"></div>
         </div>
 
-        <label id="receivedField">
-          รับเงิน
-          <input
-            id="received"
-            type="number"
-            min="0"
-            step="0.01"
-            value="0"
-            inputmode="decimal"
-          >
-          <small class="received-help">
-            ระบบเติมยอดสุทธิให้อัตโนมัติ และแก้ไขยอดรับเงินจริงได้
-          </small>
-        </label>
-
-        <div class="summary-line">
-          <span>เงินทอน</span>
-          <strong id="change">฿0.00</strong>
+        <div class="change-panel">
+          <span>เงินทอน</span><strong id="change">฿0.00</strong>
+          <small id="paymentWarning"></small>
         </div>
 
-        <label>
-          หมายเหตุ
-          <textarea id="notes" rows="4"></textarea>
-        </label>
+        <label>หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
 
-        <button id="checkout" class="btn success" type="button">
-          ชำระเงินและตัดสต๊อก
+        <button id="checkout" class="btn success checkout-button" type="button">
+          ชำระเงิน
         </button>
-
+        <button id="manualDrawer" class="btn secondary" type="button">
+          เปิดลิ้นชักเงินสด
+        </button>
         <p id="actionMsg" class="msg"></p>
       </aside>
     </section>
   </main>
 
+  <dialog id="cashierUnlockDialog">
+    <form id="cashierUnlockForm" class="dialog-card">
+      <h2>เข้าใช้งานแคชเชียร์</h2>
+      <p>กรอกรหัสพนักงานและ PIN เพื่อเปิดกะ</p>
+      <label>รหัสพนักงาน<input id="employeeCode" required autocomplete="username"></label>
+      <label>PIN<input id="cashierPin" type="password" inputmode="numeric"
+        minlength="4" required autocomplete="current-password"></label>
+      <label>เงินทอนตั้งต้น<input id="openingFloat" type="number" min="0"
+        step="0.01" value="0"></label>
+      <button class="btn success" type="submit">เปิดกะและเริ่มขาย</button>
+      <p id="unlockMsg" class="msg"></p>
+    </form>
+  </dialog>
+
+  <dialog id="closeShiftDialog">
+    <form id="closeShiftForm" class="dialog-card">
+      <h2>ปิดกะแคชเชียร์</h2>
+      <label>เงินสดที่นับได้<input id="closingCash" type="number" min="0"
+        step="0.01" required></label>
+      <label>หมายเหตุ<textarea id="closingNotes" rows="3"></textarea></label>
+      <div class="dialog-actions">
+        <button class="btn secondary" id="cancelCloseShift" type="button">ยกเลิก</button>
+        <button class="btn primary" type="submit">ยืนยันปิดกะ</button>
+      </div>
+      <p id="closeShiftMsg" class="msg"></p>
+    </form>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/supabase-config.js?v=3.0.0"></script>
-  <script src="./pos.js?v=3.0.0"></script>
+  <script src="./js/supabase-config.js?v=3.4.0"></script>
+  <script type="module" src="./pos.js?v=3.4.0"></script>
+  <script src="./js/navigation.js?v=3.4.0"></script>
 </body>
 </html>

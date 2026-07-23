@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ศูนย์จัดการสินค้าเคลื่อนไหว</title>
+  <link rel="stylesheet" href="./css/governance.css?v=3.4.0">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
+</head>
+<body>
+<main class="shell">
+  <header class="page-head">
+    <div><p class="eyebrow">MASTER 3.4 LTS · INVENTORY MODULE</p>
+      <h1>ศูนย์จัดการสินค้าเคลื่อนไหว</h1>
+      <p>หน้าใหม่ครอบ Workflow เดิม จึงไม่กระทบโครงสร้างเก่า</p></div>
+  </header>
+  <section class="operation-cards">
+    <a class="operation-card" href="./receive.html">
+      <strong>รับสินค้าเข้า</strong><span>รับหลายรายการเข้าคลัง</span>
+    </a>
+    <a class="operation-card" href="./issue.html">
+      <strong>เบิกสินค้า</strong><span>สแกนและเบิกหลายรายการครั้งเดียว</span>
+    </a>
+    <a class="operation-card" href="./transfer-create.html">
+      <strong>โอนระหว่างสาขา</strong><span>สแกนหลายสินค้าและสร้างเอกสารเดียว</span>
+    </a>
+    <a class="operation-card" href="./transfer-receive.html">
+      <strong>ตรวจรับของโอน</strong><span>ตรวจเอกสารและยืนยันรับปลายทาง</span>
+    </a>
+    <a class="operation-card" href="./transactions.html">
+      <strong>ประวัติสินค้าเคลื่อนไหว</strong><span>ตรวจ Receive / Issue / Transfer</span>
+    </a>
+    <a class="operation-card" href="./product-stock-admin.html">
+      <strong>ปรับสต็อก</strong><span>ปรับยอดพร้อมเหตุผลและ Audit Log</span>
+    </a>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=3.4.0"></script>
+<script src="./js/navigation.js?v=3.4.0"></script>
+</body>
+</html>

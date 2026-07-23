@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>จัดการผู้ใช้และสิทธิ์</title>
   <link rel="stylesheet" href="./css/governance.css?v=3.1.0">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
 <body>
   <main class="shell">
@@ -23,15 +25,15 @@
     <section class="card">
       <div class="table-wrap"><table>
         <thead><tr><th>ผู้ใช้</th><th>Role</th><th>สาขา</th>
-          <th>สถานะ</th><th>เข้าใช้ล่าสุด</th><th>บันทึก</th></tr></thead>
-        <tbody id="rows"><tr><td colspan="6">กำลังโหลด...</td></tr></tbody>
+          <th>สถานะ</th><th>เข้าใช้ล่าสุด</th><th>แคชเชียร์</th><th>บันทึก</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="7">กำลังโหลด...</td></tr></tbody>
       </table></div>
       <p id="message"></p>
     </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js"></script>
-  <script src="./js/supabase-client.js"></script>
-  <script type="module" src="./js/users-admin.js?v=3.1.0"></script>
+  <script type="module" src="./js/users-admin.js?v=3.4.0"></script>
+  <script src="./js/navigation.js?v=3.4.0"></script>
 </body>
 </html>

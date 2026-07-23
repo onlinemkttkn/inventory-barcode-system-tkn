@@ -1,0 +1,17 @@
+{
+  "name": "TKN POS ERP Master",
+  "version": "3.4.0-LTS-stable-candidate",
+  "base": "3.4.0-RC",
+  "core_database_replaced": false,
+  "new_module_tables": [
+    "cashier_profiles",
+    "cashier_shifts",
+    "pos_held_bills"
+  ],
+  "incremental_sql": [
+    "sql/UPGRADE-MASTER-3.4-LTS.sql",
+    "sql/UPGRADE-MASTER-3.4-LTS-CASHIER.sql"
+  ],
+  "priority": "cashier stability",
+  "theme": "red-yellow-black"
+}
