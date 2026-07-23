@@ -69,3 +69,5 @@
     display: none;
   }
 }
+
+.tkn-logout-btn{margin-left:auto;border:0}.tkn-nav-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}@media(max-width:640px){.tkn-nav-bar{gap:6px}.tkn-nav-title{display:none}.tkn-nav-btn{padding:8px 10px}}

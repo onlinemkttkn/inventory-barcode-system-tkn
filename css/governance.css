@@ -19,3 +19,24 @@ background:rgba(15,23,42,.55)}.dialog-body{padding:20px}.dialog-head{display:fle
 @media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.bill-meta{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.page-head{flex-direction:column}.stats{grid-template-columns:1fr}.bill-meta{grid-template-columns:1fr}}
 @media print{.button,.toolbar,.page-head a{display:none!important}.shell{width:100%;margin:0}.card{box-shadow:none}}
+#rows td{vertical-align:middle}
+#rows td:first-child{min-width:220px;white-space:normal}
+#rows td:nth-child(2){min-width:210px}
+#rows td:nth-child(3){min-width:190px}
+#rows td:nth-child(4){min-width:110px}
+#rows td:nth-child(5){min-width:150px;white-space:normal;line-height:1.35}
+#rows td:nth-child(6){min-width:100px}
+#rows select{min-width:100%}
+.role-badge{display:inline-flex;padding:4px 8px;border-radius:999px;background:#eef2ff;font-size:12px;font-weight:800}
+@media(max-width:760px){
+  #rows tr{display:grid;grid-template-columns:1fr;gap:8px;border-bottom:1px solid #dce4ef;padding:14px 0}
+  #rows td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px;align-items:center;border:0!important;min-width:0!important;white-space:normal!important;padding:4px 0}
+  #rows td::before{font-weight:800;color:#64748b}
+  #rows td:nth-child(1)::before{content:'ผู้ใช้'}
+  #rows td:nth-child(2)::before{content:'Role'}
+  #rows td:nth-child(3)::before{content:'สาขา'}
+  #rows td:nth-child(4)::before{content:'สถานะ'}
+  #rows td:nth-child(5)::before{content:'เข้าใช้ล่าสุด'}
+  #rows td:nth-child(6)::before{content:'บันทึก'}
+  .table-wrap table thead{display:none}
+}

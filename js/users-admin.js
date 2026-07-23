@@ -62,7 +62,10 @@ function render(){
     </option>`).join('')}</select></td>
    <td><label><input class="active" type="checkbox"
     ${u.is_active?'checked':''}> ใช้งาน</label></td>
-   <td>${u.last_sign_in_at?new Date(u.last_sign_in_at).toLocaleString('th-TH'):'-'}</td>
+   <td>${u.last_sign_in_at
+      ? `${new Date(u.last_sign_in_at).toLocaleDateString('th-TH')}<br>
+         <small>${new Date(u.last_sign_in_at).toLocaleTimeString('th-TH')}</small>`
+      : '-'}</td>
    <td><button class="button save">บันทึก</button></td>
   </tr>`).join('')||'<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
 

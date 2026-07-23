@@ -1,3 +1,5 @@
+import { MobileBarcodeScanner } from './mobile-scanner.js';
+
 const issueCart = new Map();
 
 const el = {
@@ -14,6 +16,7 @@ const el = {
   totalQty: document.getElementById("totalQty"),
   saveBtn: document.getElementById("saveBtn"),
   actionMessage: document.getElementById("actionMessage"),
+  scanBtn: document.getElementById("scanBtn"),
 };
 
 el.searchForm.addEventListener("submit", async (event) => {
@@ -159,3 +162,24 @@ el.saveBtn.addEventListener("click", async () => {
 
 requireActiveSession();
 renderCart();
+
+
+const issueScanner = new MobileBarcodeScanner({
+  messageElement: el.searchMessage,
+  onScan: async (value) => {
+    el.searchInput.value = value;
+    try {
+      const products = await findProducts(value);
+      renderResults(products);
+      showMessage(
+        el.searchMessage,
+        products.length ? `พบ ${products.length} รายการ` : 'ไม่พบสินค้า'
+      );
+      if (products.length === 1) addToCart(products[0]);
+    } catch (error) {
+      showMessage(el.searchMessage, error.message, 'error');
+    }
+  }
+});
+
+el.scanBtn?.addEventListener('click', () => issueScanner.open());

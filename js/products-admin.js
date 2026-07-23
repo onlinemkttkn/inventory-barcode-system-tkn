@@ -48,8 +48,9 @@ async function init(){
   }
 
   access=a;
-  if(!(a.permissions||[]).includes('products.manage')){
-    location.href=a.landing_page||'./pos.html';
+  if(!(a.permissions||[]).includes('product.manage')){
+    alert('บัญชีนี้ไม่มีสิทธิ์จัดการสินค้า (product.manage)');
+    location.href=a.landing_page||'./dashboard.html';
     return;
   }
 

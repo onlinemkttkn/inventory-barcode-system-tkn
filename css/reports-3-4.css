@@ -1,0 +1,5 @@
+.report-toolbar{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;align-items:end}
+.report-toolbar label{display:grid;gap:6px}.header-actions{display:flex;gap:10px;flex-wrap:wrap}
+.button.danger{background:#b42318;color:#fff}.message{min-height:1.4em}
+@media(max-width:860px){.report-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.report-toolbar{grid-template-columns:1fr}.header-actions{width:100%}.header-actions>*{flex:1;text-align:center}}

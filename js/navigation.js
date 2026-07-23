@@ -62,7 +62,20 @@
     title.className = 'tkn-nav-title';
     title.textContent = document.title || 'TKN POS / ERP';
 
-    bar.append(home, title);
+    const logout = document.createElement('button');
+    logout.type = 'button';
+    logout.className = 'tkn-nav-btn tkn-logout-btn';
+    logout.textContent = 'ออกจากระบบ';
+    logout.addEventListener('click', async () => {
+      try {
+        await window.supabaseClient?.auth.signOut();
+      } finally {
+        sessionStorage.clear();
+        window.location.replace('./index.html');
+      }
+    });
+
+    bar.append(home, title, logout);
     document.body.prepend(bar);
 
     document.querySelectorAll('a[href*="dashboard"]').forEach(link => {
