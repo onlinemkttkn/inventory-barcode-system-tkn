@@ -291,44 +291,25 @@ const subtotalValue = () => [...cart.values()].reduce(
 const discountValue = () => Math.max(number(E.discount.value),0);
 const netValue = () => Math.max(subtotalValue()-discountValue(),0);
 
-function quickCashValues(net) {
-  return [20, 50, 100, 200, 300, 400, 500, 1000];
+const QUICK_CASH_VALUES = [20, 50, 100, 200, 300, 400, 500, 1000];
+
+function quickCashValues() {
+  return QUICK_CASH_VALUES;
 }
 
 function updateTotals() {
-  const subtotal=subtotalValue();
-  const net=netValue();
-  const isCash=E.payment.value==='CASH';
+  const subtotal = subtotalValue();
+  const net = netValue();
 
-  E.subtotal.textContent=money(subtotal);
-  E.netTotal.textContent=money(net);
-  E.receivedField.hidden=!isCash;
+  E.subtotal.textContent = money(subtotal);
+  E.netTotal.textContent = money(net);
+  E.checkout.disabled = cart.size === 0 || net <= 0;
 
-
-  const received=isCash?Math.max(number(E.received.value),0):net;
-  const shortage=Math.max(net-received,0);
-  const change=isCash?Math.max(received-net,0):0;
-
-  E.change.textContent=money(change);
-  E.paymentWarning.textContent=shortage>0
-    ? `ขาดอีก ${money(shortage)}`
-    : (isCash && net>0 ? 'รับเงินครบแล้ว' : '');
-
-  E.checkout.disabled=!cart.size || (isCash && received<net);
-  E.quickCash.innerHTML=isCash
-    ? quickCashValues(net).map(option =>
-        `<button class="quick-cash-btn" type="button"
-          data-value="${option.value}">${option.label}</button>`
-      ).join('')
-    : '';
-
-  E.quickCash.querySelectorAll('button').forEach(button => {
-    button.onclick=()=>{
-      receivedManuallyEdited=true;
-      E.received.value=button.dataset.value;
-      updateTotals();
-    };
-  });
+  // Payment input exists only inside the payment popup.
+  if (E.receivedField) E.receivedField.hidden = true;
+  if (E.quickCash) E.quickCash.innerHTML = '';
+  if (E.change) E.change.textContent = money(0);
+  if (E.paymentWarning) E.paymentWarning.textContent = '';
 }
 
 async function requestCashDrawer(reason='SALE', approval=null) {
@@ -365,46 +346,86 @@ async function requestCashDrawer(reason='SALE', approval=null) {
 }
 
 function preparePaymentDialog() {
-  if (!cart.size) return msg(E.actionMsg,'กรุณาเพิ่มสินค้า','error');
-  const net=netValue();
-  const cash=E.payment.value==='CASH';
-  E.paymentDialogNet.textContent=money(net);
-  E.paymentReceivedLabel.hidden=!cash;
-  E.paymentQuickCash.hidden=!cash;
-  E.paymentDialogReceived.required=cash;
-  E.paymentDialogReceived.value=cash?'0':String(net);
-  E.paymentQuickCash.innerHTML = cash
-    ? [
-        ...quickCashValues(net).map(value =>
-          `<button class="quick-cash-btn" type="button"
-            data-value="${value}">${money(value)}</button>`
-        ),
-        `<button class="quick-cash-btn exact-cash-btn" type="button"
-          data-value="${net}">เงินพอดี</button>`
-      ].join('')
-    : '';
-  E.paymentQuickCash.querySelectorAll('button').forEach(button=>{
-    button.onclick=()=>{E.paymentDialogReceived.value=button.dataset.value;updatePaymentDialog()};
-  });
+  if (!cart.size) {
+    return msg(E.actionMsg, 'กรุณาเพิ่มสินค้า', 'error');
+  }
+
+  const net = netValue();
+  if (net <= 0) {
+    return msg(E.actionMsg, 'ยอดสุทธิต้องมากกว่า 0', 'error');
+  }
+
+  const cash = E.payment.value === 'CASH';
+
+  E.paymentDialogNet.textContent = money(net);
+  E.paymentReceivedLabel.hidden = !cash;
+  E.paymentQuickCash.hidden = !cash;
+  E.paymentDialogReceived.required = cash;
+  E.paymentDialogReceived.value = cash ? '0' : String(net);
+
+  if (cash) {
+    const fixedButtons = quickCashValues().map(value =>
+      `<button class="quick-cash-btn" type="button"
+        data-value="${value}">${money(value)}</button>`
+    );
+
+    fixedButtons.push(
+      `<button class="quick-cash-btn exact-cash-btn" type="button"
+        data-value="${net}">เงินพอดี</button>`
+    );
+
+    E.paymentQuickCash.innerHTML = fixedButtons.join('');
+
+    E.paymentQuickCash.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => {
+        E.paymentDialogReceived.value = button.dataset.value;
+        updatePaymentDialog();
+      });
+    });
+  } else {
+    E.paymentQuickCash.innerHTML = '';
+  }
+
   updatePaymentDialog();
   E.paymentDialog.showModal();
-  if(cash) setTimeout(()=>E.paymentDialogReceived.select(),0);
+
+  if (cash) {
+    setTimeout(() => {
+      E.paymentDialogReceived.focus();
+      E.paymentDialogReceived.select();
+    }, 0);
+  }
 }
 
-function updatePaymentDialog(){
-  const net=netValue();
-  const cash=E.payment.value==='CASH';
-  const received=cash?Math.max(number(E.paymentDialogReceived.value),0):net;
-  const shortage=Math.max(net-received,0);
-  const change=cash?Math.max(received-net,0):0;
-  E.paymentDialogChange.textContent=money(change);
-  E.paymentDialogWarning.textContent =
-    cash && received <= 0
-      ? 'กรุณากรอกจำนวนเงินที่รับจากลูกค้า'
-      : shortage > 0
-        ? `เงินรับขาดอีก ${money(shortage)}`
-        : 'พร้อมรับชำระ';
-  E.confirmPayment.disabled = cash ? (received <= 0 || shortage > 0 || net <= 0) : net <= 0;
+function updatePaymentDialog() {
+  const net = netValue();
+  const cash = E.payment.value === 'CASH';
+  const received = cash
+    ? Math.max(number(E.paymentDialogReceived.value), 0)
+    : net;
+  const shortage = Math.max(net - received, 0);
+  const change = cash ? Math.max(received - net, 0) : 0;
+
+  E.paymentDialogChange.textContent = money(change);
+
+  if (!cash) {
+    E.paymentDialogWarning.textContent = 'พร้อมรับชำระ';
+    E.confirmPayment.disabled = net <= 0;
+    return;
+  }
+
+  if (received <= 0) {
+    E.paymentDialogWarning.textContent =
+      'กรุณากรอกจำนวนเงินที่รับจากลูกค้า';
+  } else if (shortage > 0) {
+    E.paymentDialogWarning.textContent =
+      `เงินรับขาดอีก ${money(shortage)}`;
+  } else {
+    E.paymentDialogWarning.textContent = 'พร้อมรับชำระ';
+  }
+
+  E.confirmPayment.disabled =
+    net <= 0 || received <= 0 || received < net;
 }
 
 async function approveDrawer(event){

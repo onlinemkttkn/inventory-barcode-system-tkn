@@ -1,0 +1,10 @@
+{
+  "version": "3.4.3-hotfix02",
+  "scope": "POS payment module only",
+  "sql_required": false,
+  "files": [
+    "pos.html",
+    "pos.js",
+    "pos.css"
+  ]
+}

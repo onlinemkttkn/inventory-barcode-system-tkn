@@ -62,7 +62,9 @@ dialog::backdrop{background:rgba(0,0,0,.72)}.dialog-card{display:grid;gap:13px;p
   .payment-dialog .quick-cash{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
-/* Master 3.4.3 Hotfix-01 — POS Payment Dialog */
+/* Master 3.4.3 Hotfix-02 — POS Payment V2 */
+[hidden]{display:none!important}
+
 .payment-dialog .quick-cash{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -70,7 +72,6 @@ dialog::backdrop{background:rgba(0,0,0,.72)}.dialog-card{display:grid;gap:13px;p
 }
 .payment-dialog .quick-cash-btn{
   min-height:46px;
-  padding:8px 6px;
   border:1px solid #e1c762;
   border-radius:12px;
   background:#fff4bf;
@@ -78,15 +79,24 @@ dialog::backdrop{background:rgba(0,0,0,.72)}.dialog-card{display:grid;gap:13px;p
   font-size:.98rem;
   font-weight:900;
 }
+.payment-dialog .quick-cash-btn:hover{
+  background:#ffc72c;
+}
 .payment-dialog .exact-cash-btn{
   grid-column:1/-1;
   background:#111;
   color:#ffc72c;
   border-color:#111;
 }
+#paymentDialogReceived{
+  min-height:52px;
+  font-size:1.45rem;
+  font-weight:900;
+  text-align:right;
+}
 #confirmPayment:disabled{
-  cursor:not-allowed;
   opacity:.45;
+  cursor:not-allowed;
 }
 @media(max-width:520px){
   .payment-dialog .quick-cash{
