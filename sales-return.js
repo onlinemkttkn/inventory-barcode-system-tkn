@@ -180,7 +180,7 @@ async function createReturn(){
     'ok'
   );
 
-  location.href=`./sales-return-receipt.html?return_no=${encodeURIComponent(data.return_no)}`;
+  showSuccessDialog(data);
 }
 
 E.searchForm.onsubmit=e=>{e.preventDefault();loadSale()};

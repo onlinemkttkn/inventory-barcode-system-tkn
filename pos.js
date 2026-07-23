@@ -224,6 +224,7 @@ function addProduct(product) {
   else cart.set(product.productId,{
     ...product,cartQuantity:1,unitPrice:product.sellingPrice,lineDiscount:0
   });
+  resetReceivedAmount();
   renderCart();
 }
 
@@ -252,6 +253,7 @@ function renderCart() {
       const value = Math.max(0,Math.min(number(qty.value),item.stockQuantity));
       item.cartQuantity = value;
       qty.value = String(value);
+      resetReceivedAmount();
       if (value <= 0) cart.delete(item.productId);
       renderCart();
     };
@@ -261,18 +263,26 @@ function renderCart() {
     price.value=String(item.unitPrice);price.title='ราคาขาย';
     price.oninput = () => {
       item.unitPrice=Math.max(number(price.value),0);
+      resetReceivedAmount();
       updateTotals();
     };
 
     const remove = document.createElement('button');
     remove.type='button';remove.className='btn danger';remove.textContent='ลบ';
-    remove.onclick=()=>{cart.delete(item.productId);renderCart()};
+    remove.onclick=()=>{cart.delete(item.productId);resetReceivedAmount();renderCart()};
 
     controls.append(qty,price,remove);
     E.cart.appendChild(row);
   }
   E.cartCount.textContent = `${cart.size} รายการ`;
   updateTotals();
+}
+
+function resetReceivedAmount() {
+  receivedManuallyEdited = false;
+  lastAutoReceivedValue = 0;
+  E.received.value = '0';
+  if (E.paymentDialogReceived) E.paymentDialogReceived.value = '0';
 }
 
 const subtotalValue = () => [...cart.values()].reduce(
@@ -282,9 +292,11 @@ const discountValue = () => Math.max(number(E.discount.value),0);
 const netValue = () => Math.max(subtotalValue()-discountValue(),0);
 
 function quickCashValues(net) {
-  const standard = [20,50,100,500,1000];
-  const rounded = Math.ceil(net/10)*10;
-  return [...new Set([rounded,...standard.filter(value=>value>=net)])].slice(0,5);
+  const fixed = [20, 50, 100, 200, 300, 400, 500, 1000];
+  return [
+    ...fixed.map(value => ({ value, label: money(value) })),
+    { value: net, label: 'เงินพอดี' }
+  ];
 }
 
 function updateTotals() {
@@ -296,10 +308,6 @@ function updateTotals() {
   E.netTotal.textContent=money(net);
   E.receivedField.hidden=!isCash;
 
-  if (isCash && !receivedManuallyEdited) {
-    E.received.value=net>0?String(net):'0';
-    lastAutoReceivedValue=net;
-  }
 
   const received=isCash?Math.max(number(E.received.value),0):net;
   const shortage=Math.max(net-received,0);
@@ -312,8 +320,9 @@ function updateTotals() {
 
   E.checkout.disabled=!cart.size || (isCash && received<net);
   E.quickCash.innerHTML=isCash
-    ? quickCashValues(net).map(value =>
-        `<button class="quick-cash-btn" type="button" data-value="${value}">${money(value)}</button>`
+    ? quickCashValues(net).map(option =>
+        `<button class="quick-cash-btn" type="button"
+          data-value="${option.value}">${option.label}</button>`
       ).join('')
     : '';
 
@@ -367,7 +376,7 @@ function preparePaymentDialog() {
   E.paymentReceivedLabel.hidden=!cash;
   E.paymentQuickCash.hidden=!cash;
   E.paymentDialogReceived.required=cash;
-  E.paymentDialogReceived.value=cash?String(net):String(net);
+  E.paymentDialogReceived.value=cash?'0':String(net);
   E.paymentQuickCash.innerHTML=cash?quickCashValues(net).map(value=>
     `<button class="quick-cash-btn" type="button" data-value="${value}">${money(value)}</button>`
   ).join(''):'';
@@ -386,7 +395,12 @@ function updatePaymentDialog(){
   const shortage=Math.max(net-received,0);
   const change=cash?Math.max(received-net,0):0;
   E.paymentDialogChange.textContent=money(change);
-  E.paymentDialogWarning.textContent=shortage>0?`เงินรับขาดอีก ${money(shortage)}`:'พร้อมรับชำระ';
+  E.paymentDialogWarning.textContent =
+    cash && received <= 0
+      ? 'กรุณากรอกจำนวนเงินที่รับจากลูกค้า'
+      : shortage > 0
+        ? `เงินรับขาดอีก ${money(shortage)}`
+        : 'พร้อมรับชำระ';
   E.confirmPayment.disabled=shortage>0 || net<=0;
 }
 
@@ -416,7 +430,7 @@ async function checkout(event) {
   const net=netValue();
   const cash=E.payment.value==='CASH';
   const received=cash?number(E.paymentDialogReceived.value):net;
-  if (cash && received<net) {
+  if (cash && (received<=0 || received<net)) {
     return msg(E.paymentDialogWarning,'จำนวนเงินรับน้อยกว่ายอดสุทธิ','error');
   }
 
@@ -518,13 +532,11 @@ E.cashierUnlockForm.onsubmit=openShift;
 E.searchForm.onsubmit=searchProducts;
 E.branch.onchange=()=>{cart.clear();renderCart();E.results.innerHTML=''};
 E.discount.oninput=()=>{
-  if (Math.abs(number(E.received.value)-lastAutoReceivedValue)<.0001) {
-    receivedManuallyEdited=false;
-  }
+  resetReceivedAmount();
   updateTotals();
 };
 E.received.oninput=()=>{receivedManuallyEdited=true;updateTotals()};
-E.payment.onchange=()=>{receivedManuallyEdited=false;updateTotals()};
+E.payment.onchange=()=>{resetReceivedAmount();updateTotals()};
 E.checkout.onclick=preparePaymentDialog;
 E.paymentForm.onsubmit=checkout;
 E.paymentDialogReceived.oninput=updatePaymentDialog;

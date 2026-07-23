@@ -1,0 +1,30 @@
+{
+  "name": "TKN POS ERP Master 3.4.2 LTS RC2 Update",
+  "base": "Master 3.4 LTS Final",
+  "version": "3.4.2-RC2",
+  "sql_required": false,
+  "changed_files": [
+    "VERSION.txt",
+    "docs/INSTALL-MASTER-3.4.2-RC2.md",
+    "docs/RELEASE-NOTES-MASTER-3.4.2-RC2.md",
+    "js/receipt-qr-safe.js",
+    "js/receipt.js",
+    "js/sales-return.js",
+    "pos.css",
+    "pos.html",
+    "pos.js",
+    "receipt.html",
+    "receipt.js",
+    "reports.html",
+    "sales-return.js",
+    "users-admin.html"
+  ],
+  "upload_file_count": 14,
+  "focus": [
+    "mandatory cash popup",
+    "received amount starts at zero",
+    "fixed quick-cash denominations",
+    "receipt QR fallback",
+    "return navigation stability"
+  ]
+}

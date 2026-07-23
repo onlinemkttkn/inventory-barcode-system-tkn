@@ -1,0 +1,13 @@
+{
+  "version": "3.4.2-RC2",
+  "javascript_syntax": {
+    "pos.js": true,
+    "js/receipt.js": true,
+    "receipt.js": true,
+    "js/receipt-qr-safe.js": true,
+    "js/sales-return.js": true
+  },
+  "broken_local_references": [],
+  "patch_file_count": 16,
+  "full_file_count": 406
+}

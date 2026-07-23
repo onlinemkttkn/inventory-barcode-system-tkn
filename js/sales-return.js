@@ -273,7 +273,9 @@ function goToBillSearch(data) {
     saleNo:data?.sale_no||state.header?.sale_no||saleNoFromUrl||'',
     saleStatus:data?.sale_status||'',refundAmount:Number(data?.refund_amount||0)};
   if(window.opener&&!window.opener.closed){window.opener.postMessage(payload,window.location.origin)}
-  window.location.replace('./phase-9-2-bill-search.html?return_success=1');
+  const target = './phase-9-2-bill-search.html?return_success=1';
+  sessionStorage.setItem('tkn_return_success', JSON.stringify(payload));
+  window.location.assign(target);
 }
 
 function showSuccessDialog(data) {

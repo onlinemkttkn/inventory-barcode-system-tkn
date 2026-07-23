@@ -48,9 +48,17 @@ async function loadReceipt(){
 
   header=h;
   items=i||[];
-  await renderReceipt();
-  E.printBtn.disabled=false;
-  msg('โหลดใบเสร็จแล้ว','ok');
+  try {
+    await renderReceipt();
+  } catch (error) {
+    console.error('Receipt rendering warning:', error);
+    msg('โหลดใบเสร็จแล้ว แต่บางส่วนแสดงไม่ครบ','error');
+  } finally {
+    E.printBtn.disabled=false;
+  }
+  if (!E.message.classList.contains('error')) {
+    msg('โหลดใบเสร็จแล้ว','ok');
+  }
 }
 
 async function renderReceipt(){
@@ -120,10 +128,15 @@ async function renderReceipt(){
     E.receiptArea.appendChild(receipt);
 
     const canvas=receipt.querySelector('.receipt-qr');
-    await QRCode.toCanvas(canvas,header.sale_no,{
-      width:E.paperSize.value==='receipt-a4'?150:90,
-      margin:1
-    });
+    try {
+      await window.TKNReceiptQR?.render(canvas, header.sale_no, {
+        width:E.paperSize.value==='receipt-a4'?150:90,
+        margin:1
+      });
+    } catch (error) {
+      console.warn('Receipt QR skipped:', error);
+      canvas?.remove();
+    }
 
     if(copy<copies){
       const pageBreak=document.createElement('div');

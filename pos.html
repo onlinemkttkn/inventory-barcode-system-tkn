@@ -66,7 +66,7 @@
         </label>
         <div class="summary-line net"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
 
-        <div id="receivedField" class="received-panel">
+        <div id="receivedField" class="received-panel" hidden>
           <label>รับเงิน
             <input id="received" type="number" min="0" step="0.01"
               value="0" inputmode="decimal">
@@ -74,7 +74,7 @@
           <div class="quick-cash" id="quickCash"></div>
         </div>
 
-        <div class="change-panel">
+        <div class="change-panel payment-preview" hidden>
           <span>เงินทอน</span><strong id="change">฿0.00</strong>
           <small id="paymentWarning"></small>
         </div>
@@ -172,7 +172,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script type="module" src="./pos.js?v=3.4.0"></script>
+  <script type="module" src="./pos.js?v=3.4.2"></script>
   <script src="./js/navigation.js?v=3.4.0"></script>
 </body>
 </html>
