@@ -40,3 +40,17 @@ background:rgba(15,23,42,.55)}.dialog-body{padding:20px}.dialog-head{display:fle
   #rows td:nth-child(6)::before{content:'บันทึก'}
   .table-wrap table thead{display:none}
 }
+
+.cashier-fields{display:grid!important;grid-template-columns:1fr 1fr;gap:6px;min-width:300px!important}
+.cashier-fields label{display:flex;align-items:center;gap:6px;white-space:normal}
+.cashier-fields label input{width:auto}.active-label{display:flex;align-items:center;gap:6px}.active-label input{width:auto}
+#rows td:nth-child(7){min-width:100px}
+@media(max-width:760px){
+  #rows td:nth-child(7)::before{content:'บันทึก'}
+  .cashier-fields{grid-template-columns:1fr;min-width:0!important}
+}
+
+.operation-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.operation-card{display:grid;gap:7px;min-height:140px;padding:20px;border-radius:18px;text-decoration:none;color:#111;background:#fff;border:1px solid #e8dfd2;box-shadow:var(--tkn-shadow)}
+.operation-card strong{font-size:1.25rem;color:var(--tkn-red)}.operation-card span{color:#6b6257}.operation-card:hover{border-color:var(--tkn-yellow);transform:translateY(-2px)}
+@media(max-width:850px){.operation-cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:550px){.operation-cards{grid-template-columns:1fr}}

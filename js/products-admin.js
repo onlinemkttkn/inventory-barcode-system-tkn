@@ -48,6 +48,7 @@ async function init(){
   }
 
   access=a;
+  sessionStorage.setItem('tkn_current_actor',a.full_name||a.email||a.user_id);
   if(!(a.permissions||[]).includes('product.manage')){
     alert('บัญชีนี้ไม่มีสิทธิ์จัดการสินค้า (product.manage)');
     location.href=a.landing_page||'./dashboard.html';
@@ -182,7 +183,7 @@ E.generateBarcodeBtn.onclick=async()=>{
 E.form.onsubmit=async event=>{
   event.preventDefault();
 
-  if(!(access?.permissions||[]).includes('products.manage')){
+  if(!(access?.permissions||[]).includes('product.manage')){
     return msg(E.formMessage,'เฉพาะ Owner หรือ Admin เท่านั้น','error');
   }
 

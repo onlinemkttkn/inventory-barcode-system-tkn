@@ -1,43 +1,36 @@
 (() => {
   'use strict';
 
-  const DASHBOARD_ROLES = new Set(['owner', 'admin', 'secretary']);
-
-  function normalizedRole(value) {
-    const role = String(value || '').trim().toLowerCase();
-    return ({
-      administrator: 'admin',
-      employee: 'staff',
-      employee_staff: 'staff',
-      store_manager: 'manager'
-    })[role] || role || 'staff';
+  function parsePermissions() {
+    try {
+      return new Set(JSON.parse(sessionStorage.getItem('tkn_permissions') || '[]'));
+    } catch {
+      return new Set();
+    }
   }
 
-  function homeFor(role) {
-    if (DASHBOARD_ROLES.has(role)) return './dashboard.html';
-    if (role === 'warehouse') return './product-stock-admin.html';
-    if (role === 'accounting') return './phase-9-2-bill-search.html';
-    return './pos.html';
+  async function signOut() {
+    try {
+      await window.supabaseClient?.auth.signOut();
+    } finally {
+      sessionStorage.clear();
+      localStorage.removeItem('tkn_cashier_unlock');
+      location.replace('./index.html');
+    }
   }
 
   async function start() {
     const current = location.pathname.split('/').pop() || 'index.html';
-    if (current === 'index.html' || current === 'dashboard.html') return;
+    if (current === 'index.html') return;
+    if (document.querySelector('.tkn-nav-bar')) return;
 
-    let role = normalizedRole(sessionStorage.getItem('tkn_user_role'));
-    let landingPage = homeFor(role);
-
+    let access = null;
     try {
       if (window.supabaseClient) {
-        const { data: access, error } =
-          await window.supabaseClient.rpc('current_access_context');
-
-        if (error) throw error;
-
-        if (access?.user_id && access.is_active === true) {
-          role = normalizedRole(access.role);
-          landingPage = access.landing_page || homeFor(role);
-          sessionStorage.setItem('tkn_user_role', role);
+        const result = await window.supabaseClient.rpc('current_access_context');
+        if (!result.error && result.data?.user_id) {
+          access = result.data;
+          sessionStorage.setItem('tkn_user_role', access.role || 'staff');
           sessionStorage.setItem(
             'tkn_permissions',
             JSON.stringify(access.permissions || [])
@@ -45,47 +38,53 @@
         }
       }
     } catch (error) {
-      console.warn('Navigation role lookup failed:', error);
+      console.warn('Navigation access lookup failed:', error);
     }
 
-    const bar = document.createElement('nav');
-    bar.className = 'tkn-nav-bar no-print';
-    bar.setAttribute('aria-label', 'เมนูนำทาง');
+    const permissions = new Set(access?.permissions || [...parsePermissions()]);
+    const landing = access?.landing_page || './pos.html';
 
-    const home = document.createElement('a');
-    home.className = 'tkn-nav-btn';
-    home.href = landingPage;
-    home.textContent =
-      DASHBOARD_ROLES.has(role) ? 'Dashboard' : 'หน้าหลัก';
+    const items = [
+      ['dashboard.view', './dashboard.html', 'ภาพรวม'],
+      ['pos.use', './pos.html', 'ขายหน้าร้าน'],
+      ['report.view', './reports.html', 'รายงาน'],
+      ['product.manage', './products-admin.html', 'สินค้า'],
+      ['inventory.view', './inventory-operations.html', 'คลังสินค้า'],
+      ['user.manage', './users-admin.html', 'ผู้ใช้และสิทธิ์'],
+      ['audit.view', './audit-log.html', 'Audit Log']
+    ].filter(([permission]) => permissions.has(permission));
 
-    const title = document.createElement('span');
-    title.className = 'tkn-nav-title';
-    title.textContent = document.title || 'TKN POS / ERP';
+    const nav = document.createElement('aside');
+    nav.className = 'tkn-nav-bar no-print';
+    nav.innerHTML = `
+      <div class="tkn-nav-brand">
+        <span class="tkn-brand-mark">TKN</span>
+        <div><strong>POS / ERP</strong><small>Master 3.4 LTS</small></div>
+      </div>
+      <div class="tkn-nav-user">
+        <strong>${String(access?.full_name || access?.email || 'ผู้ใช้งาน')}</strong>
+        <small>${String(access?.role_name_th || access?.role || 'staff')}</small>
+      </div>
+      <nav class="tkn-nav-menu"></nav>
+      <div class="tkn-nav-footer">
+        <a class="tkn-nav-btn" href="${landing}">หน้าหลักของฉัน</a>
+        <button class="tkn-nav-btn tkn-logout-btn" type="button">ออกจากระบบ</button>
+      </div>
+    `;
 
-    const logout = document.createElement('button');
-    logout.type = 'button';
-    logout.className = 'tkn-nav-btn tkn-logout-btn';
-    logout.textContent = 'ออกจากระบบ';
-    logout.addEventListener('click', async () => {
-      try {
-        await window.supabaseClient?.auth.signOut();
-      } finally {
-        sessionStorage.clear();
-        window.location.replace('./index.html');
-      }
-    });
+    const menu = nav.querySelector('.tkn-nav-menu');
+    for (const [, href, label] of items) {
+      const link = document.createElement('a');
+      link.className = 'tkn-nav-btn';
+      link.href = href;
+      link.textContent = label;
+      if (current === href.replace('./', '')) link.classList.add('active');
+      menu.appendChild(link);
+    }
 
-    bar.append(home, title, logout);
-    document.body.prepend(bar);
-
-    document.querySelectorAll('a[href*="dashboard"]').forEach(link => {
-      if (DASHBOARD_ROLES.has(role)) {
-        link.href = './dashboard.html';
-      } else {
-        link.href = landingPage;
-        link.textContent = 'หน้าหลัก';
-      }
-    });
+    nav.querySelector('.tkn-logout-btn').addEventListener('click', signOut);
+    document.body.prepend(nav);
+    document.body.classList.add('tkn-has-sidebar');
   }
 
   if (document.readyState === 'loading') {
