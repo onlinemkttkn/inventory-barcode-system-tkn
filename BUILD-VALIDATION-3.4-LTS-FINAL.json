@@ -1,0 +1,13 @@
+{
+  "version": "3.4.0-LTS-FINAL",
+  "javascript_syntax": {
+    "pos.js": true,
+    "js/reports.js": true,
+    "js/users-admin.js": true,
+    "js/sales-return.js": true,
+    "js/navigation.js": true,
+    "js/products-admin.js": true
+  },
+  "broken_local_references": [],
+  "total_files": 401
+}

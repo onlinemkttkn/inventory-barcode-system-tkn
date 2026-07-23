@@ -1,0 +1,18 @@
+{
+  "name": "TKN POS ERP Master",
+  "version": "3.4.0-LTS-FINAL",
+  "base": "uploaded production repository",
+  "theme": "red-yellow-black",
+  "sql": [
+    "sql/UPGRADE-MASTER-3.4-LTS.sql",
+    "sql/UPGRADE-MASTER-3.4-LTS-CASHIER.sql"
+  ],
+  "features": [
+    "mandatory payment popup",
+    "cash change confirmation",
+    "drawer authorization",
+    "split payment reports",
+    "responsive users UI",
+    "stable return redirect"
+  ]
+}
