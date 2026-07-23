@@ -1,0 +1,10 @@
+{
+  "version": "3.4.3-RC",
+  "javascript_syntax": {
+    "js/receipt.js": true,
+    "receipt.js": true,
+    "js/receipt-qr-safe.js": true
+  },
+  "broken_local_references": [],
+  "patch_file_count": 10
+}

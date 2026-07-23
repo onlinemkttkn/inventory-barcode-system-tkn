@@ -1,0 +1,24 @@
+{
+  "version": "3.4.3-RC",
+  "name": "Receipt Header Update",
+  "sql_required": false,
+  "company": {
+    "name": "บริษัท เถ้าแก่น้อย ชลบุรี จำกัด",
+    "address_lines": [
+      "74/10 หมู่ 6 สี่แยกบายพาสบึง",
+      "ตำบลบ้านสวน อำเภอเมือง จังหวัดชลบุรี 20000"
+    ],
+    "tax_id": "0205568008611"
+  },
+  "changed_files": [
+    "receipt.html",
+    "js/receipt.js",
+    "receipt.js",
+    "css/receipt-return.css",
+    "receipt-return.css",
+    "VERSION.txt",
+    "docs/INSTALL-MASTER-3.4.3-RECEIPT.md",
+    "docs/UAT-MASTER-3.4.3-RECEIPT.md"
+  ],
+  "scope": "receipt only"
+}
