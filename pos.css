@@ -123,3 +123,11 @@ button:disabled,input:disabled,select:disabled{
 .field-status.ok{color:#067647}.field-status.error{color:#b42318}
 [hidden]{display:none!important}
 button:disabled,input:disabled,select:disabled{cursor:not-allowed;opacity:.55}
+
+
+/* Master 3.4.5 POS Stable — shift controls */
+.top-actions #openShift{background:#16a34a;color:#fff;border-color:#15803d}
+.top-actions #closeShift{background:#111;color:#ffc72c;border-color:#111}
+#cashierStatus{font-weight:700}
+#cashierUnlockDialog::backdrop,#closeShiftDialog::backdrop{background:rgba(0,0,0,.62)}
+button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}

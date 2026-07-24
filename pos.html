@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
-  <link rel="stylesheet" href="./pos.css?v=3.4.4-final">
+  <link rel="stylesheet" href="./pos.css?v=3.4.5-stable">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
@@ -18,7 +18,8 @@
     <div class="top-actions">
       <button id="holdBill" class="btn secondary" type="button">พักบิล</button>
       <button id="restoreBill" class="btn secondary" type="button">เปิดบิลพัก</button>
-      <button id="closeShift" class="btn danger" type="button">ปิดกะ</button>
+      <button id="openShift" class="btn success" type="button">เปิดกะ</button>
+      <button id="closeShift" class="btn danger" type="button" hidden>ปิดกะ</button>
       <button id="logoutBtn" class="btn danger" type="button">ออกจากระบบ</button>
     </div>
   </header>
@@ -158,7 +159,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script type="module" src="./pos.js?v=3.4.4-final"></script>
-  <script src="./js/navigation.js?v=3.4.4-final"></script>
+  <script type="module" src="./pos.js?v=3.4.5-stable"></script>
+  <script src="./js/navigation.js?v=3.4.5-stable"></script>
 </body>
 </html>
