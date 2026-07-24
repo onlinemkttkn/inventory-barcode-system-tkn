@@ -1,34 +1,26 @@
-# Master 3.4.13 — POS History + Receipt Return Hotfix
+# Master 3.4.14 — VAT, Cashier Name, POS Header Hotfix
 
-## เปลี่ยนเฉพาะ
+แก้เฉพาะ:
+- คืนรายละเอียด VAT 7% บนใบเสร็จ
+- ชื่อพนักงานบนบิลตรงกับรหัสพนักงานที่ใช้เปิดกะ
+- จัดช่องสาขา ชื่อลูกค้า และเบอร์โทรบนหน้า POS
 
-- ย้ายปุ่ม `ประวัติการขาย` ไปที่ส่วนปุ่มด้านบนของหน้า POS
-- ตัดปุ่ม `ประวัติการขาย` ออกจากหน้าใบเสร็จ
-- หลังปิดหน้าต่างพิมพ์ ระบบกลับ `pos.html` อัตโนมัติ
-- ปรับลำดับความเด่นของปุ่มสำคัญใน POS และหน้าใบเสร็จ
-
-## ไม่ได้เปลี่ยน
-
-- คำสั่งเปิดลิ้นชัก
-- Hardware Client / Hardware Service
-- ขั้นตอนบันทึกบิล
-- วิธีเรียก Browser Print
-- Payment / Shift
+ไม่ได้แก้:
+- การเปิดลิ้นชัก
+- Hardware Service / Bridge
+- ขั้นตอนสั่งพิมพ์และกลับหน้า POS
+- Payment / Shift RPC
 - Supabase / Database / SQL
 
-## วิธีอัป
-
-อัปไฟล์ต่อไปนี้ไปที่ root ของ Repository:
+## อัปโหลด
 
 - `pos.html`
 - `pos.css`
 - `receipt.html`
 - `js/receipt.js`
-- `css/receipt-return.css`
 
 Commit:
-
-`Deploy 3.4.13 POS history receipt return hotfix`
+`Deploy 3.4.14 VAT cashier POS header hotfix`
 
 รอ Deploy แล้วกด `Ctrl + Shift + R`
 

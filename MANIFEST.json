@@ -1,15 +1,15 @@
 {
-  "version": "3.4.13",
-  "scope": "POS history placement and receipt post-print navigation only",
-  "sql_required": false,
-  "database_changes": false,
-  "drawer_logic_changed": false,
-  "print_invocation_changed": false,
+  "version": "3.4.14",
+  "scope": "VAT receipt, matching cashier name, POS customer header layout",
   "files": [
     "pos.html",
     "pos.css",
     "receipt.html",
-    "js/receipt.js",
-    "css/receipt-return.css"
-  ]
+    "js/receipt.js"
+  ],
+  "sql_required": false,
+  "database_changes": false,
+  "drawer_logic_changed": false,
+  "print_logic_changed": false,
+  "payment_logic_changed": false
 }

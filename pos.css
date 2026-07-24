@@ -193,3 +193,40 @@ button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.55;cur
     order:5;
   }
 }
+
+
+/* Master 3.4.14 — POS branch and customer field alignment */
+.pos-customer-grid{
+  grid-template-columns:minmax(300px,1.25fr) minmax(220px,1fr) minmax(220px,1fr);
+  align-items:start;
+  gap:16px;
+}
+.pos-customer-grid > label{
+  min-width:0;
+  align-content:start;
+}
+.pos-customer-grid select,
+.pos-customer-grid input{
+  width:100%;
+  min-height:48px;
+}
+.pos-customer-grid .field-status{
+  min-height:2.4em;
+  line-height:1.25;
+}
+@media(max-width:1000px){
+  .pos-customer-grid{
+    grid-template-columns:1fr 1fr;
+  }
+  .pos-customer-grid > label:first-child{
+    grid-column:1 / -1;
+  }
+}
+@media(max-width:650px){
+  .pos-customer-grid{
+    grid-template-columns:1fr;
+  }
+  .pos-customer-grid > label:first-child{
+    grid-column:auto;
+  }
+}

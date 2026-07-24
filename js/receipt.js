@@ -43,6 +43,20 @@ function paymentLabel(value){
 function firstValue(...values){
   return values.find(value=>value!==null&&value!==undefined&&String(value).trim()!=='')||'-';
 }
+
+function currentCashierShift(){
+  try{
+    const value=JSON.parse(
+      sessionStorage.getItem('tkn_cashier_shift')||'null'
+    );
+    return value&&typeof value==='object'?value:null;
+  }catch{
+    return null;
+  }
+}
+function normalizedCode(value){
+  return String(value||'').trim().toUpperCase();
+}
 function cashierCode(){
   return firstValue(
     header.cashier_employee_code,
@@ -51,10 +65,25 @@ function cashierCode(){
   );
 }
 function cashierName(){
+  const shift=currentCashierShift();
+  const receiptCode=normalizedCode(cashierCode());
+  const shiftCode=normalizedCode(shift?.employee_code);
+
+  if(shiftCode&&receiptCode&&shiftCode===receiptCode){
+    return firstValue(
+      shift.display_name,
+      shift.cashier_name,
+      shift.full_name,
+      shift.employee_code
+    );
+  }
+
   return firstValue(
     header.cashier_name,
     header.cashier_full_name,
-    header.cashier_email
+    header.cashier_display_name,
+    header.cashier_email,
+    cashierCode()
   );
 }
 function branchLabel(){
@@ -66,6 +95,16 @@ function thaiDateTime(value){
     dateStyle:'medium',
     timeStyle:'medium'
   });
+}
+
+function receiptNetTotal(){
+  return Number(header?.net_total||0);
+}
+function beforeVatAmount(){
+  return receiptNetTotal()/1.07;
+}
+function vatAmount(){
+  return receiptNetTotal()-beforeVatAmount();
 }
 
 async function requireSession(){
@@ -178,8 +217,10 @@ async function renderReceipt(){
       <section class="receipt-summary">
         <div><span>ยอดสินค้า</span><strong>${money(header.subtotal)}</strong></div>
         <div><span>ส่วนลด</span><strong>${money(header.discount_amount)}</strong></div>
+        <div><span>มูลค่าก่อน VAT</span><strong>${money(beforeVatAmount())}</strong></div>
+        <div><span>VAT 7%</span><strong>${money(vatAmount())}</strong></div>
         <div class="receipt-net">
-          <span>ยอดสุทธิ</span><strong>${money(header.net_total)}</strong>
+          <span>ยอดสุทธิ (รวม VAT)</span><strong>${money(receiptNetTotal())}</strong>
         </div>
         <div><span>รับเงิน</span><strong>${money(header.received_amount)}</strong></div>
         <div><span>เงินทอน</span><strong>${money(header.change_amount)}</strong></div>

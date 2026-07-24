@@ -1,11 +1,9 @@
 {
   "receipt_javascript_syntax": true,
-  "duplicate_html_ids": {},
-  "sales_history_on_pos": true,
-  "sales_history_removed_from_receipt": true,
-  "post_print_return_to_pos": true,
+  "vat_inclusive_formula": "net_total / 1.07",
+  "cashier_name_source": "matching tkn_cashier_shift employee_code",
+  "responsive_pos_header": true,
   "database_changes": false,
   "drawer_logic_changed": false,
-  "print_invocation_changed": false,
-  "runtime_note": "Print and drawer behavior must be verified with the real Rongta/Windows environment."
+  "print_logic_changed": false
 }
