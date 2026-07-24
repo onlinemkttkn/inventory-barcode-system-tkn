@@ -1,4 +1,4 @@
-# 01_POS_COMPLETE — POS, Cashier Shift, Payment, Receipt
+# 02_AUTH_USERS_COMPLETE — Authentication, Users, Roles, Navigation
 
 ## วิธีอัปโหลด
 
@@ -10,7 +10,7 @@
 6. Commit:
 
 ```text
-Deploy Master 3.4.4 01_POS_COMPLETE
+Deploy Master 3.4.4 02_AUTH_USERS_COMPLETE
 ```
 
 7. รอ GitHub Pages Deploy
