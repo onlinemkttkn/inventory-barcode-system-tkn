@@ -1,15 +1,35 @@
 {
-  "package": "TKN POS Phase 9.2 Complete Bill Module",
-  "version": "2.0.0",
-  "includes": [
-    "Bill Search",
-    "Bill Detail",
-    "Reprint Receipt",
-    "Void Bill",
-    "Supabase Client",
-    "Permissions",
-    "SQL RPCs"
-  ],
-  "stock_restore_on_void": false,
-  "entry": "phase-9-2-bill-search.html"
+  "pack": "01_POS_COMPLETE",
+  "title": "POS, Cashier Shift, Payment, Receipt",
+  "source_version": "Master 3.4.4 LTS Final Candidate",
+  "upload_destination": "Repository root",
+  "sql_note": "Do not rerun SQL if Master 3.4 migrations already succeeded.",
+  "file_count": 25,
+  "files": [
+    ".nojekyll",
+    "VERSION.txt",
+    "assets/icons/favicon.svg",
+    "css/navigation.css",
+    "css/phase-9-2-reprint-receipt.css",
+    "css/pos.css",
+    "css/receipt-return.css",
+    "css/theme-red-yellow-black.css",
+    "js/access-control.js",
+    "js/navigation.js",
+    "js/phase-9-2-reprint-receipt.js",
+    "js/receipt-qr-safe.js",
+    "js/receipt.js",
+    "js/sales-history.js",
+    "js/supabase-client.js",
+    "js/supabase-config.js",
+    "phase-9-2-reprint-receipt.html",
+    "pos.css",
+    "pos.html",
+    "pos.js",
+    "receipt-return.css",
+    "receipt.html",
+    "receipt.js",
+    "sales-history.html",
+    "sql/UPGRADE-MASTER-3.4-LTS-CASHIER.sql"
+  ]
 }

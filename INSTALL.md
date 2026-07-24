@@ -1,32 +1,22 @@
-# Supabase Client Compatibility Fix
+# 01_POS_COMPLETE — POS, Cashier Shift, Payment, Receipt
 
-## แก้ Error
+## วิธีอัปโหลด
 
-```text
-The requested module './supabase-config.js'
-does not provide an export named 'SUPABASE_PUBLISHABLE_KEY'
-```
-
-## ติดตั้ง
-
-อัปโหลดไฟล์นี้ทับของเดิม:
+1. สำรอง Repository หรือจด Commit hash ปัจจุบัน
+2. แตก ZIP นี้
+3. อัปโหลด **เนื้อหาภายในแพ็ก** ไปที่ root ของ Repository
+4. รักษาโครงสร้างโฟลเดอร์ `js/`, `css/`, `assets/`, `sql/`
+5. เขียนทับไฟล์ชื่อเดิม
+6. Commit:
 
 ```text
-js/supabase-client.js
+Deploy Master 3.4.4 01_POS_COMPLETE
 ```
 
-ไม่ต้องแก้ `supabase-config.js` และไม่ต้องแก้ `dashboard.html`
+7. รอ GitHub Pages Deploy
+8. กด `Ctrl + Shift + R`
+9. ทำ UAT ให้ผ่านก่อนอัปแพ็กถัดไป
 
-Commit:
+## SQL
 
-```text
-Fix module Supabase client compatibility
-```
-
-หลัง GitHub Pages deploy แล้ว:
-
-```text
-Ctrl + Shift + R
-```
-
-หน้าคืนสินค้าควรโหลดรายการบิลได้ตามปกติ
+ถ้า SQL Master 3.4 สองชุดรันสำเร็จแล้ว **ไม่ต้องรันซ้ำ**
