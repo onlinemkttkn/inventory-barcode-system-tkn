@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
-  <link rel="stylesheet" href="./pos.css?v=3.4.6">
+  <link rel="stylesheet" href="./pos.css?v=3.4.7">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
 <body>
-  <header class="pos-topbar pos-shell">
+  <header class="pos-topbar">
     <div>
       <p class="eyebrow">MASTER 3.4 LTS · CASHIER</p>
       <h1>ขายหน้าร้าน</h1>
@@ -20,28 +20,20 @@
       <button id="restoreBill" class="btn secondary" type="button">เปิดบิลพัก</button>
       <button id="openShift" class="btn success" type="button">เปิดกะ</button>
       <button id="closeShift" class="btn danger" type="button" hidden>ปิดกะ</button>
+      <button id="logoutBtn" class="btn danger" type="button">ออกจากระบบ</button>
     </div>
   </header>
 
-  <main class="page pos-shell">
-    <section class="card form-grid setup-card">
+  <main class="page">
+    <section class="card form-grid">
       <label>สาขา<select id="branch" disabled></select><small id="branchStatus" class="field-status">กำลังโหลดสาขา...</small></label>
-      <label>วิธีชำระเงิน
-        <select id="payment">
-          <option value="CASH">เงินสด</option>
-          <option value="QR">QR</option>
-          <option value="TRANSFER">โอนเงิน</option>
-          <option value="CARD">บัตร</option>
-        </select>
-      </label>
       <label>ชื่อลูกค้า<input id="customerName" autocomplete="off"></label>
       <label>เบอร์โทร<input id="customerPhone" inputmode="tel" autocomplete="off"></label>
     </section>
 
     <section class="pos-layout">
       <div class="work-column">
-        <section class="card search-card">
-          <div class="card-title-row"><div><span class="step-badge">1</span><strong>ค้นหาและเพิ่มสินค้า</strong></div><small>สแกนบาร์โค้ดหรือค้นหาด้วยชื่อสินค้า</small></div>
+        <section class="card">
           <form id="searchForm" class="search-row">
             <input id="search" autocomplete="off"
               placeholder="สแกนบาร์โค้ด หรือค้นหาชื่อ/รหัสสินค้า">
@@ -51,7 +43,7 @@
           <p id="searchMsg" class="msg"></p>
         </section>
 
-        <section class="card cart-card">
+        <section class="card">
           <div class="section-heading">
             <h2>ตะกร้าสินค้า</h2><strong id="cartCount">0 รายการ</strong>
           </div>
@@ -60,7 +52,7 @@
       </div>
 
       <aside class="card summary">
-        <div class="summary-heading"><span class="step-badge">2</span><div><h2>สรุปการชำระเงิน</h2><small>ตรวจยอดก่อนรับชำระ</small></div></div>
+        <h2>สรุปการชำระเงิน</h2>
         <div class="summary-line"><span>ยอดสินค้า</span><strong id="subtotal">฿0.00</strong></div>
         <label>ส่วนลดท้ายบิล
           <input id="discount" type="number" min="0" step="0.01" value="0">
@@ -68,8 +60,12 @@
         <div class="summary-line net"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
 <label>หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
 
-        <button id="checkout" class="btn success checkout-button" type="button"><span>รับชำระเงิน</span><small>เปิดหน้าต่างรับเงินและคำนวณเงินทอน</small></button>
-        <button id="manualDrawer" class="btn secondary drawer-button" type="button">เปิดลิ้นชักเงินสด</button>
+        <button id="checkout" class="btn success checkout-button" type="button">
+          ชำระเงิน
+        </button>
+        <button id="manualDrawer" class="btn secondary" type="button">
+          เปิดลิ้นชักเงินสด
+        </button>
         <p id="actionMsg" class="msg"></p>
       </aside>
     </section>
@@ -78,10 +74,19 @@
 
   <dialog id="paymentDialog" class="payment-dialog">
     <form id="paymentForm" class="dialog-card">
-      <div class="dialog-heading"><span class="dialog-icon">฿</span><div><h2>รับชำระเงิน</h2><p>กรอกเงินที่ลูกค้าจ่ายหรือเลือกปุ่มเงินด่วน</p></div></div>
+      <h2>รับชำระเงิน</h2>
       <div class="payment-dialog-summary">
         <span>ยอดสุทธิ</span><strong id="paymentDialogNet">฿0.00</strong>
       </div>
+      <label class="payment-method-field">วิธีชำระเงิน
+        <select id="payment">
+          <option value="CASH" selected>เงินสด</option>
+          <option value="QR">QR</option>
+          <option value="TRANSFER">โอนเงิน</option>
+          <option value="CARD">บัตร</option>
+        </select>
+        <small>เลือกวิธีชำระเงินก่อนยืนยันรับชำระ</small>
+      </label>
       <label id="paymentReceivedLabel">เงินรับ
         <input id="paymentDialogReceived" type="number" min="0" step="0.01" inputmode="decimal" required>
       </label>
@@ -141,7 +146,7 @@
 
   <dialog id="closeShiftDialog">
     <form id="closeShiftForm" class="dialog-card">
-      <div class="dialog-heading"><span class="dialog-icon">✓</span><div><h2>ปิดกะแคชเชียร์</h2><p>ระบบจะคงอยู่หน้า POS เพื่อรอเปิดกะใหม่</p></div></div>
+      <h2>ปิดกะแคชเชียร์</h2>
       <label>เงินสดที่นับได้<input id="closingCash" type="number" min="0"
         step="0.01" required></label>
       <label>หมายเหตุ<textarea id="closingNotes" rows="3"></textarea></label>
@@ -155,7 +160,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script type="module" src="./pos.js?v=3.4.6"></script>
-  <script src="./js/navigation.js?v=3.4.6"></script>
+  <script type="module" src="./pos.js?v=3.4.7"></script>
+  <script src="./js/navigation.js?v=3.4.5-stable"></script>
 </body>
 </html>

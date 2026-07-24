@@ -55,3 +55,12 @@
     break-inside:avoid;
   }
 }
+
+/* Master 3.4.7 receipt header */
+.receipt-document-title{
+  margin:0 0 3px!important;
+  font-size:1.18em;
+  font-weight:950;
+  letter-spacing:.02em;
+}
+.receipt-company-header h2{margin:0;font-size:1.08em}

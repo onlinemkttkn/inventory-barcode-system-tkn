@@ -8,14 +8,7 @@ const E={
   message:document.getElementById('message')
 };
 
-const COMPANY={
-  name:'บริษัท เถ้าแก่น้อย ชลบุรี จำกัด',
-  addressLines:[
-    '74/10 หมู่ 6 สี่แยกบายพาสบึง',
-    'ตำบลบ้านสวน อำเภอเมือง จังหวัดชลบุรี 20000'
-  ],
-  taxId:'0205568008611'
-};
+const COMPANY={name:'บริษัท เถ้าแก่น้อย ชลบุรี จำกัด'};
 
 let header=null;
 let items=[];
@@ -136,11 +129,8 @@ async function renderReceipt(){
 
     receipt.innerHTML=`
       <header class="receipt-company-header">
+        <p class="receipt-document-title">ใบเสร็จรับเงิน</p>
         <h2>${esc(COMPANY.name)}</h2>
-        ${COMPANY.addressLines.map(line=>`<p>${esc(line)}</p>`).join('')}
-        <p class="receipt-tax">
-          เลขประจำตัวผู้เสียภาษี ${esc(COMPANY.taxId)}
-        </p>
       </header>
 
       <div class="receipt-line"></div>

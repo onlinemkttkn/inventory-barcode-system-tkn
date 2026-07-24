@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>พิมพ์ใบเสร็จ POS</title>
-  <link rel="stylesheet" href="./css/receipt-return.css?v=3.4.6">
+  <link rel="stylesheet" href="./css/receipt-return.css?v=3.4.7">
   <link rel="stylesheet" href="./css/navigation.css?v=1.0.2">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
 </head>
 <body>
-<main class="shell receipt-app">
-  <header class="top no-print receipt-toolbar">
-    <div><p class="receipt-eyebrow">TKN POS ERP · RECEIPT</p><h1>พิมพ์ใบเสร็จ</h1><p>ตรวจสอบข้อมูล เลือกขนาดกระดาษ แล้วสั่งพิมพ์</p></div>
+<main class="shell">
+  <header class="top no-print">
+    <div><h1>ใบเสร็จรับเงิน</h1><p>บริษัท เถ้าแก่น้อย ชลบุรี จำกัด · 58/80 มม. และ A4</p></div>
     <div class="row">
-      <a class="btn secondary" href="./pos.html">กลับหน้า POS</a>
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
       <a class="btn secondary" href="./sales-history.html">ประวัติการขาย</a>
     </div>
   </header>
 
-  <section class="card no-print receipt-controls">
+  <section class="card no-print">
     <div class="grid">
       <label class="field">เลขที่บิล<input id="saleNo" placeholder="SL20260716-000001"></label>
       <label class="field">รูปแบบกระดาษ
@@ -37,17 +37,16 @@
     <p id="message" class="msg"></p>
   </section>
 
-  <section class="card receipt-preview-card">
-    <div class="preview-heading no-print"><div><strong>ตัวอย่างก่อนพิมพ์</strong><small>ขนาดจริงจะเป็นไปตามรูปแบบกระดาษที่เลือก</small></div><span class="preview-status">พร้อมพิมพ์</span></div>
-    <div id="receiptArea" class="receipt-stage"></div>
+  <section class="card">
+    <div id="receiptArea"></div>
   </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-<script src="./js/receipt-qr-safe.js?v=3.4.6"></script>
-<script src="./js/supabase-config.js?v=3.4.6"></script>
-<script src="./js/receipt.js?v=3.4.6"></script>
-  <script src="./js/navigation.js?v=3.4.6"></script>
+<script src="./js/receipt-qr-safe.js?v=3.4.3"></script>
+<script src="./js/supabase-config.js?v=3.4.3"></script>
+<script src="./js/receipt.js?v=3.4.7"></script>
+  <script src="./js/navigation.js?v=1.0.2"></script>
 </body>
 </html>

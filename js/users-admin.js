@@ -76,6 +76,7 @@ function render(){
         ? `${new Date(user.last_sign_in_at).toLocaleDateString('th-TH')}<br><small>${new Date(user.last_sign_in_at).toLocaleTimeString('th-TH')}</small>`
         : '-'}</td>
       <td class="cashier-fields">
+        <input class="display-name" placeholder="ชื่อแคชเชียร์บนใบเสร็จ" value="${esc(cashier.display_name||user.full_name||'')}">
         <input class="employee-code" placeholder="รหัสพนักงาน" value="${esc(cashier.employee_code||'')}">
         <input class="pin" type="password" inputmode="numeric" placeholder="${cashier.employee_code?'PIN ใหม่ (เว้นว่าง=ไม่เปลี่ยน)':'PIN อย่างน้อย 4 ตัว'}">
         <label><input class="drawer" type="checkbox" ${cashier.can_open_drawer?'checked':''}> เปิดลิ้นชักเองได้</label>
@@ -97,6 +98,7 @@ async function save(row){
   const role=row.querySelector('.role').value;
   const branch=row.querySelector('.branch').value||null;
   const active=row.querySelector('.active').checked;
+  const displayName=row.querySelector('.display-name').value.trim();
   const employeeCode=row.querySelector('.employee-code').value.trim();
   const pin=row.querySelector('.pin').value;
   const drawer=row.querySelector('.drawer').checked;
@@ -117,7 +119,7 @@ async function save(row){
     const cashierResult=await supabaseClient.rpc('admin_set_cashier_profile',{
       p_user_id:userId,
       p_employee_code:employeeCode,
-      p_display_name:user.full_name||user.email,
+      p_display_name:displayName||user.full_name||user.email,
       p_pin:pin||null,
       p_branch_id:branch,
       p_max_discount_percent:maxDiscount,

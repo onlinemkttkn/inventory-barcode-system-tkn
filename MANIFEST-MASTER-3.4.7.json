@@ -1,0 +1,19 @@
+{
+  "version": "3.4.7",
+  "sql_required": true,
+  "files": [
+    "css/receipt-return.css",
+    "docs/INSTALL-MASTER-3.4.7.md",
+    "docs/UAT-MASTER-3.4.7.md",
+    "js/receipt.js",
+    "js/users-admin.js",
+    "pos.css",
+    "pos.html",
+    "pos.js",
+    "receipt-return.css",
+    "receipt.html",
+    "receipt.js",
+    "sql/UPGRADE-MASTER-3.4.7-RECEIPT-CASHIER-NAME.sql",
+    "users-admin.html"
+  ]
+}
