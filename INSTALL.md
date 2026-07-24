@@ -1,4 +1,4 @@
-# 02_AUTH_USERS_COMPLETE — Authentication, Users, Roles, Navigation
+# 03_INVENTORY_COMPLETE — Products and Inventory
 
 ## วิธีอัปโหลด
 
@@ -10,7 +10,7 @@
 6. Commit:
 
 ```text
-Deploy Master 3.4.4 02_AUTH_USERS_COMPLETE
+Deploy Master 3.4.4 03_INVENTORY_COMPLETE
 ```
 
 7. รอ GitHub Pages Deploy
