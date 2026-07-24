@@ -244,17 +244,53 @@ async function closeShift(event){
     E.closeShiftDialog.close();
     return msg(E.actionMsg,'ไม่พบกะที่เปิดอยู่','error');
   }
+  if(cart.size){
+    return msg(E.closeShiftMsg,'กรุณาจัดการสินค้าที่อยู่ในตะกร้าก่อนปิดกะ','error');
+  }
+
+  const submitButton=E.closeShiftForm.querySelector('button[type="submit"]');
+  if(submitButton)submitButton.disabled=true;
+  msg(E.closeShiftMsg,'กำลังปิดกะ...');
+
   const r=await supabaseClient.rpc('close_cashier_shift',{
     p_shift_id:shift.shift_id,
     p_closing_cash_count:number(E.closingCash.value),
     p_notes:E.closingNotes.value.trim()||null
   });
-  if(r.error)return msg(E.closeShiftMsg,r.error.message,'error');
-  shift=null;cashier=null;saveShiftState();
-  alert(`ปิดกะเรียบร้อย\nเงินสดที่ควรมี ${money(r.data.expected_cash)}\nผลต่าง ${money(r.data.difference)}`);
-  await logout();
+
+  if(r.error){
+    if(submitButton)submitButton.disabled=false;
+    return msg(E.closeShiftMsg,r.error.message,'error');
+  }
+
+  const expected=money(r.data?.expected_cash);
+  const difference=money(r.data?.difference);
+
+  shift=null;
+  cashier=null;
+  saveShiftState();
+  drawerSoftwareLocked=true;
+  localStorage.setItem('tkn_drawer_locked','1');
+
+  cart.clear();
+  E.results.innerHTML='';
+  E.search.value='';
+  E.discount.value='0';
+  E.customerName.value='';
+  E.customerPhone.value='';
+  E.notes.value='';
+  E.closingCash.value='';
+  E.closingNotes.value='';
+  renderCart();
+
+  E.closeShiftDialog.close();
+  if(submitButton)submitButton.disabled=false;
+  E.cashierStatus.textContent='ปิดกะแล้ว · พร้อมรอพนักงานเปิดกะใหม่';
+  refreshPosAvailability();
+  msg(E.actionMsg,`ปิดกะสำเร็จ · เงินสดที่ควรมี ${expected} · ผลต่าง ${difference}`,'ok');
+  setTimeout(()=>E.openShift.focus(),0);
 }
 
-E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');E.cashierUnlockDialog.showModal()};E.cashierUnlockForm.onsubmit=openShift;E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>E.drawerApprovalDialog.close();E.holdBill.onclick=hold;E.restoreBill.onclick=restore;E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
+E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');E.cashierUnlockDialog.showModal()};E.cashierUnlockForm.onsubmit=openShift;E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>E.drawerApprovalDialog.close();E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
 E.branch.onchange=()=>{if(shift?.shift_id)return;cart.clear();E.results.innerHTML='';renderCart();if(hasBranch()){branchReady=true;refreshPosAvailability(`พร้อมใช้งาน: ${E.branch.options[E.branch.selectedIndex]?.text||''}`);E.openShift.focus()}};
 init().catch(err=>{console.error(err);msg(E.actionMsg,err.message||'เริ่มระบบไม่สำเร็จ','error');lockBranchControls(false,'เริ่มระบบไม่สำเร็จ')});

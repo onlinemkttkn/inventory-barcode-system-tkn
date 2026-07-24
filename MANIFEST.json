@@ -1,11 +1,11 @@
 {
-  "version": "3.4.5-stable-candidate",
+  "version": "3.4.6",
+  "scope": "POS and receipt UI/UX plus close-shift workflow",
   "sql_required": false,
-  "scope": "POS, cashier shift, payment, receipt",
   "files": [
-    ".nojekyll",
     "INSTALL.md",
     "UAT.md",
+    "assets/icons/favicon.svg",
     "css/navigation.css",
     "css/receipt-return.css",
     "css/theme-red-yellow-black.css",
@@ -14,15 +14,16 @@
     "js/receipt.js",
     "js/supabase-client.js",
     "js/supabase-config.js",
-    "manifest.webmanifest",
-    "navigation.css",
-    "navigation.js",
     "pos.css",
     "pos.html",
     "pos.js",
-    "receipt-return.css",
-    "receipt.html",
-    "receipt.js",
-    "sql/UPGRADE-MASTER-3.4-LTS-CASHIER.sql"
-  ]
+    "receipt.html"
+  ],
+  "javascript_syntax": {
+    "pos.js": true,
+    "js/receipt.js": true,
+    "js/receipt-qr-safe.js": true,
+    "js/navigation.js": true
+  },
+  "broken_references": []
 }

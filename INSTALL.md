@@ -1,11 +1,11 @@
-# Master 3.4.5 POS Stable Candidate — Installation
+# Master 3.4.6 POS + Receipt UI Update
 
 1. สำรอง Repository หรือจด Commit ล่าสุด
-2. แตก ZIP และอัปโหลดไฟล์/โฟลเดอร์ภายในไปที่ root ของ Repository
-3. รักษาโครงสร้าง `js/`, `css/`, `sql/`
-4. เขียนทับไฟล์ชื่อเดิม
-5. Commit: `Deploy Master 3.4.5 POS Stable Candidate`
-6. รอ GitHub Pages Deploy
-7. กด Ctrl + Shift + R
+2. แตก ZIP
+3. อัปโหลดไฟล์และโฟลเดอร์ภายใน ZIP ไปที่ root ของ Repository
+4. รักษาโครงสร้าง `js/`, `css/`, `assets/`
+5. เขียนทับไฟล์เดิม
+6. Commit: `Deploy Master 3.4.6 POS Receipt UI Update`
+7. รอ Deploy แล้วกด `Ctrl + Shift + R`
 
-ไม่ต้องรัน SQL ซ้ำ หาก `UPGRADE-MASTER-3.4-LTS-CASHIER.sql` เคยรันผ่านแล้ว
+ไม่ต้องรัน SQL เพิ่ม
