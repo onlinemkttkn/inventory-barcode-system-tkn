@@ -1,25 +1,15 @@
 {
-  "version": "3.4.10",
-  "name": "UI Logout and Mobile Camera",
+  "version": "3.4.13",
+  "scope": "POS history placement and receipt post-print navigation only",
   "sql_required": false,
   "database_changes": false,
-  "changed_files": [
-    "css/mobile-operations.css",
-    "dashboard.html",
-    "generator.html",
-    "issue.html",
-    "js/dashboard.js",
-    "js/generator.js",
-    "js/issue.js",
-    "js/mobile-scanner.js",
-    "js/print-labels.js",
-    "js/receive.js",
-    "js/scanner.js",
-    "js/transfer-create.js",
-    "print-labels.html",
-    "receive.html",
-    "reports.html",
-    "scanner.html",
-    "transfer-create.html"
+  "drawer_logic_changed": false,
+  "print_invocation_changed": false,
+  "files": [
+    "pos.html",
+    "pos.css",
+    "receipt.html",
+    "js/receipt.js",
+    "css/receipt-return.css"
   ]
 }

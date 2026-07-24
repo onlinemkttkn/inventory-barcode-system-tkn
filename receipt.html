@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>พิมพ์ใบเสร็จ POS</title>
-  <link rel="stylesheet" href="./css/receipt-return.css?v=3.4.7">
+  <link rel="stylesheet" href="./css/receipt-return.css?v=3.4.13">
   <link rel="stylesheet" href="./css/navigation.css?v=1.0.2">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
@@ -12,10 +12,9 @@
 <body>
 <main class="shell">
   <header class="top no-print">
-    <div><h1>ใบเสร็จรับเงิน</h1><p>บริษัท เถ้าแก่น้อย ชลบุรี จำกัด · 58/80 มม. และ A4</p></div>
+    <div><h1>ใบเสร็จรับเงิน</h1><p>บริษัท เถ้าแก่น้อย ชลบุรี จำกัด · Rongta 80 มม.</p></div>
     <div class="row">
-      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
-      <a class="btn secondary" href="./sales-history.html">ประวัติการขาย</a>
+      <a class="btn pos-return" href="./pos.html">กลับหน้าขาย</a>
     </div>
   </header>
 
@@ -24,15 +23,15 @@
       <label class="field">เลขที่บิล<input id="saleNo" placeholder="SL20260716-000001"></label>
       <label class="field">รูปแบบกระดาษ
         <select id="paperSize">
+          <option value="receipt-80" selected>80 มม. (Rongta)</option>
           <option value="receipt-58">58 มม.</option>
-          <option value="receipt-80">80 มม.</option>
-          <option value="receipt-58">PeriPage</option>
+          <option value="receipt-58">PeriPage 58 มม.</option>
           <option value="receipt-a4">A4</option>
         </select>
       </label>
       <label class="field">จำนวนสำเนา<input id="copies" type="number" min="1" max="5" value="1"></label>
       <button id="loadBtn" class="btn primary" type="button">โหลดใบเสร็จ</button>
-      <button id="printBtn" class="btn success" type="button" disabled>พิมพ์ใบเสร็จ</button>
+      <button id="printBtn" class="btn print-primary" type="button" disabled>พิมพ์ใบเสร็จและกลับหน้าขาย</button>
     </div>
     <p id="message" class="msg"></p>
   </section>
@@ -47,7 +46,7 @@
 <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
   <script src="./js/receipt-qr-safe.js?v=3.4.9"></script>
 <script src="./js/supabase-config.js?v=3.4.3"></script>
-<script src="./js/receipt.js?v=3.4.9"></script>
+<script src="./js/receipt.js?v=3.4.13"></script>
   <script src="./js/navigation.js?v=1.0.2"></script>
 </body>
 </html>

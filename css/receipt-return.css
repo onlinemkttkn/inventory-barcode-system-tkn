@@ -79,3 +79,71 @@
   #receiptArea{width:80mm!important;max-width:80mm!important}
   .receipt-80{width:80mm!important;max-width:80mm!important;margin:0!important;padding:3mm 4mm!important}
 }
+
+
+/* Master 3.4.12 — stable Rongta 80 mm preview */
+#receiptArea:has(.receipt-80){
+  width:80mm;
+  max-width:80mm;
+  margin-inline:auto;
+}
+.receipt-80{
+  box-shadow:0 10px 28px rgba(15,23,42,.14);
+}
+@media print{
+  #receiptArea:has(.receipt-80){margin:0!important;}
+  .receipt-80{box-shadow:none!important;}
+}
+
+
+/* Master 3.4.13 — clearer receipt actions */
+.top .row{
+  align-items:center;
+}
+.btn.pos-return{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:11px 18px;
+  border:2px solid #c8102e;
+  background:#fff;
+  color:#a20d27;
+  box-shadow:0 5px 14px rgba(200,16,46,.12);
+}
+.btn.pos-return:hover,
+.btn.pos-return:focus-visible{
+  background:#c8102e;
+  color:#fff;
+  outline:3px solid rgba(255,199,44,.45);
+  outline-offset:2px;
+}
+.btn.print-primary{
+  min-height:52px;
+  background:#ffc72c;
+  color:#111;
+  border:2px solid #d9a900;
+  box-shadow:0 8px 18px rgba(255,199,44,.28);
+  font-size:1.05rem;
+}
+.btn.print-primary:hover,
+.btn.print-primary:focus-visible{
+  background:#111;
+  color:#ffc72c;
+  outline:3px solid rgba(200,16,46,.28);
+  outline-offset:2px;
+}
+#loadBtn{
+  min-height:48px;
+}
+@media(max-width:700px){
+  .top .row{
+    width:100%;
+  }
+  .btn.pos-return{
+    width:100%;
+  }
+  .btn.print-primary{
+    width:100%;
+  }
+}

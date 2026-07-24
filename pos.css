@@ -159,3 +159,37 @@ button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.55;cur
 .payment-dialog .change-panel{order:4}
 .payment-dialog .dialog-actions{order:5}
 @media(max-width:650px){.summary{padding:14px}.summary-line.net{font-size:1.25rem}.checkout-button{min-height:54px}}
+
+
+/* Master 3.4.13 — POS important action hierarchy */
+.top-actions .history-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding-inline:18px;
+  border:2px solid #c8102e;
+  background:#fff;
+  color:#a20d27;
+  box-shadow:0 5px 14px rgba(200,16,46,.12);
+  text-decoration:none;
+  font-weight:900;
+}
+.top-actions .history-action:hover,
+.top-actions .history-action:focus-visible{
+  background:#c8102e;
+  color:#fff;
+  outline:3px solid rgba(255,199,44,.45);
+  outline-offset:2px;
+}
+.top-actions #openShift,
+.top-actions #closeShift{
+  min-height:44px;
+  padding-inline:18px;
+}
+@media(max-width:650px){
+  .top-actions .history-action{
+    flex:1 1 100%;
+    order:5;
+  }
+}

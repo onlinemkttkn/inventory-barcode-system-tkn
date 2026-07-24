@@ -226,7 +226,24 @@ async function renderReceipt(){
 E.loadBtn.onclick=loadReceipt;
 E.paperSize.onchange=()=>header&&renderReceipt();
 E.copies.onchange=()=>header&&renderReceipt();
+
+// Master 3.4.13: return to POS only after the active print dialog closes.
+// This does not change Browser Print, Hardware Client, or cash-drawer logic.
+let returnToPosAfterPrint = false;
+let printReturnHandled = false;
+
+function returnToPosOnce(){
+  if(!returnToPosAfterPrint || printReturnHandled) return;
+  printReturnHandled = true;
+  returnToPosAfterPrint = false;
+  window.location.replace('./pos.html');
+}
+
+window.addEventListener('afterprint', returnToPosOnce);
+
 E.printBtn.onclick=async()=>{
+  returnToPosAfterPrint=true;
+  printReturnHandled=false;
   E.printBtn.disabled=true;
   try{
     if(window.TKNHardware){
@@ -243,6 +260,15 @@ E.printBtn.onclick=async()=>{
     E.printBtn.disabled=false;
   }
 };
+
+
+// Master 3.4.12: Rongta 80 mm is the stable default.
+if (E.paperSize && !E.paperSize.dataset.userSelected) {
+  E.paperSize.value = 'receipt-80';
+}
+E.paperSize?.addEventListener('change', () => {
+  E.paperSize.dataset.userSelected = '1';
+});
 
 const params=new URLSearchParams(location.search);
 if(params.get('sale_no'))E.saleNo.value=params.get('sale_no');
