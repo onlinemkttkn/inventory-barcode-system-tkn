@@ -149,3 +149,13 @@ button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.55;cur
 }
 .payment-method-field small{color:#6f5c00;font-weight:700}
 .payment-dialog-summary{margin-bottom:2px}
+
+/* Master 3.4.8 VAT and stable POS */
+.summary-tax{display:grid;gap:7px;padding:10px 0;border-top:1px dashed #d8c9b8}
+.summary-tax .summary-line{font-size:.95rem;color:#51483f}
+.payment-method-field{order:1}
+#paymentReceivedLabel{order:2}
+#paymentQuickCash{order:3}
+.payment-dialog .change-panel{order:4}
+.payment-dialog .dialog-actions{order:5}
+@media(max-width:650px){.summary{padding:14px}.summary-line.net{font-size:1.25rem}.checkout-button{min-height:54px}}

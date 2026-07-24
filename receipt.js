@@ -27,6 +27,8 @@ function money(value){
     style:'currency',currency:'THB',minimumFractionDigits:2
   }).format(Number(value||0));
 }
+function vatBase(value){return Number(value||0)/1.07}
+function vatValue(value){return Number(value||0)-vatBase(value)}
 function num(value){
   return Number(value||0).toLocaleString('th-TH',{maximumFractionDigits:3});
 }
@@ -163,8 +165,9 @@ async function renderReceipt(){
           ${items.map(item=>`
             <tr>
               <td>
-                ${esc(item.product_name)}
+                <strong>${esc(item.product_name)}</strong>
                 <br><small>${esc(item.product_code)}</small>
+                <br><small>${num(item.quantity)} × ${money(item.unit_price)}</small>
               </td>
               <td class="number-cell">${num(item.quantity)}</td>
               <td class="number-cell">${money(item.line_total)}</td>
@@ -178,8 +181,10 @@ async function renderReceipt(){
       <section class="receipt-summary">
         <div><span>ยอดสินค้า</span><strong>${money(header.subtotal)}</strong></div>
         <div><span>ส่วนลด</span><strong>${money(header.discount_amount)}</strong></div>
+        <div><span>มูลค่าก่อน VAT</span><strong>${money(vatBase(header.net_total))}</strong></div>
+        <div><span>VAT 7%</span><strong>${money(vatValue(header.net_total))}</strong></div>
         <div class="receipt-net">
-          <span>ยอดสุทธิ</span><strong>${money(header.net_total)}</strong>
+          <span>ยอดชำระสุทธิ</span><strong>${money(header.net_total)}</strong>
         </div>
         <div><span>รับเงิน</span><strong>${money(header.received_amount)}</strong></div>
         <div><span>เงินทอน</span><strong>${money(header.change_amount)}</strong></div>

@@ -1,11 +1,15 @@
-# Master 3.4.6 POS + Receipt UI Update
+# Master 3.4.8 Update Only
 
-1. สำรอง Repository หรือจด Commit ล่าสุด
-2. แตก ZIP
-3. อัปโหลดไฟล์และโฟลเดอร์ภายใน ZIP ไปที่ root ของ Repository
-4. รักษาโครงสร้าง `js/`, `css/`, `assets/`
-5. เขียนทับไฟล์เดิม
-6. Commit: `Deploy Master 3.4.6 POS Receipt UI Update`
-7. รอ Deploy แล้วกด `Ctrl + Shift + R`
+## อัป Repository
+1. สำรอง Commit ปัจจุบัน
+2. แตก ZIP และอัปโหลดไฟล์/โฟลเดอร์ทั้งหมดไปที่ root
+3. เขียนทับไฟล์ชื่อเดิม และรักษาโครงสร้าง `js/`, `css/`, `sql/`
+4. Commit: `Deploy Master 3.4.8 POS VAT Rongta update`
+5. รอ Deploy แล้วกด Ctrl+Shift+R
 
-ไม่ต้องรัน SQL เพิ่ม
+## SQL
+รัน `sql/UPGRADE-MASTER-3.4.7-RECEIPT-CASHIER-NAME.sql` เฉพาะเมื่อยังไม่เคยรัน
+
+## Rongta
+ติดตั้งและเปิด `printer-bridge/START-RONGTA-BRIDGE.bat` บน Windows 11
+ตั้ง Rongta เป็น Default Printer เพื่อให้ Browser Print เลือกเครื่องนี้ง่ายที่สุด

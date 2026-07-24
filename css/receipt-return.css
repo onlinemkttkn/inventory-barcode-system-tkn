@@ -64,3 +64,18 @@
   letter-spacing:.02em;
 }
 .receipt-company-header h2{margin:0;font-size:1.08em}
+
+/* Master 3.4.8 Rongta 80mm full-width receipt */
+.receipt-80{width:80mm;max-width:80mm;padding:3.5mm 4mm;font-size:12px;line-height:1.32}
+.receipt-80 .receipt-table{table-layout:fixed}
+.receipt-80 .receipt-table th:first-child,.receipt-80 .receipt-table td:first-child{width:58%;overflow-wrap:anywhere}
+.receipt-80 .receipt-table th:nth-child(2),.receipt-80 .receipt-table td:nth-child(2){width:16%}
+.receipt-80 .receipt-table th:nth-child(3),.receipt-80 .receipt-table td:nth-child(3){width:26%}
+@page{size:80mm auto;margin:0}
+@media print{
+  html,body{width:80mm!important;min-width:80mm!important;margin:0!important;padding:0!important;background:#fff!important}
+  .shell{width:80mm!important;max-width:80mm!important;margin:0!important;padding:0!important}
+  .card{width:80mm!important;max-width:80mm!important;margin:0!important;padding:0!important}
+  #receiptArea{width:80mm!important;max-width:80mm!important}
+  .receipt-80{width:80mm!important;max-width:80mm!important;margin:0!important;padding:3mm 4mm!important}
+}

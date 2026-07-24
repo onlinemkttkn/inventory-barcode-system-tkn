@@ -1,29 +1,37 @@
 {
-  "version": "3.4.6",
-  "scope": "POS and receipt UI/UX plus close-shift workflow",
-  "sql_required": false,
+  "version": "3.4.8-update-only",
+  "sql_required_if_not_already_applied": "sql/UPGRADE-MASTER-3.4.7-RECEIPT-CASHIER-NAME.sql",
   "files": [
     "INSTALL.md",
     "UAT.md",
-    "assets/icons/favicon.svg",
-    "css/navigation.css",
     "css/receipt-return.css",
-    "css/theme-red-yellow-black.css",
-    "js/navigation.js",
-    "js/receipt-qr-safe.js",
+    "js/hardware-config.js",
     "js/receipt.js",
-    "js/supabase-client.js",
-    "js/supabase-config.js",
+    "js/users-admin.js",
     "pos.css",
     "pos.html",
     "pos.js",
-    "receipt.html"
+    "printer-bridge/README.md",
+    "printer-bridge/START-RONGTA-BRIDGE.bat",
+    "printer-bridge/start-rongta-bridge.ps1",
+    "receipt.html",
+    "receipt.js",
+    "sql/UPGRADE-MASTER-3.4.7-RECEIPT-CASHIER-NAME.sql",
+    "users-admin.html"
   ],
-  "javascript_syntax": {
-    "pos.js": true,
-    "js/receipt.js": true,
-    "js/receipt-qr-safe.js": true,
-    "js/navigation.js": true
-  },
-  "broken_references": []
+  "validation": {
+    "javascript": {
+      "pos.js": true,
+      "js/receipt.js": true,
+      "receipt.js": true,
+      "js/users-admin.js": true,
+      "js/hardware-config.js": true
+    },
+    "duplicate_ids": {
+      "pos.html": [],
+      "receipt.html": [],
+      "users-admin.html": []
+    },
+    "broken_refs": []
+  }
 }
