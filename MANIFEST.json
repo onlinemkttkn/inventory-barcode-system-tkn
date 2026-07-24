@@ -1,37 +1,12 @@
 {
-  "version": "3.4.8-update-only",
-  "sql_required_if_not_already_applied": "sql/UPGRADE-MASTER-3.4.7-RECEIPT-CASHIER-NAME.sql",
+  "version": "3.4.8-hotfix-rongta-bridge-01",
+  "issue": "Windows PowerShell parser error caused by UTF-8 Thai text",
+  "sql_required": false,
   "files": [
-    "INSTALL.md",
-    "UAT.md",
-    "css/receipt-return.css",
-    "js/hardware-config.js",
-    "js/receipt.js",
-    "js/users-admin.js",
-    "pos.css",
-    "pos.html",
-    "pos.js",
-    "printer-bridge/README.md",
-    "printer-bridge/START-RONGTA-BRIDGE.bat",
     "printer-bridge/start-rongta-bridge.ps1",
-    "receipt.html",
-    "receipt.js",
-    "sql/UPGRADE-MASTER-3.4.7-RECEIPT-CASHIER-NAME.sql",
-    "users-admin.html"
-  ],
-  "validation": {
-    "javascript": {
-      "pos.js": true,
-      "js/receipt.js": true,
-      "receipt.js": true,
-      "js/users-admin.js": true,
-      "js/hardware-config.js": true
-    },
-    "duplicate_ids": {
-      "pos.html": [],
-      "receipt.html": [],
-      "users-admin.html": []
-    },
-    "broken_refs": []
-  }
+    "printer-bridge/START-RONGTA-BRIDGE.bat",
+    "printer-bridge/TEST-HEALTH.bat",
+    "printer-bridge/TEST-DRAWER.bat",
+    "printer-bridge/README.md"
+  ]
 }
