@@ -1,16 +1,14 @@
 {
-  "version": "3.4.16",
-  "scope": "POS logout guard and responsive dialogs only",
+  "version": "3.4.17",
+  "scope": "Add logout button to shift lock screen only",
   "deploy_files": [
     "pos.html",
-    "pos.css",
     "pos.js"
   ],
-  "sql_required": false,
+  "css_changed": false,
   "database_changes": false,
-  "navigation_changed": false,
-  "receipt_changed": false,
+  "drawer_changed": false,
   "hardware_changed": false,
-  "drawer_logic_changed": false,
-  "payment_logic_changed": false
+  "receipt_changed": false,
+  "navigation_changed": false
 }
