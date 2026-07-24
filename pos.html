@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
-  <link rel="stylesheet" href="./pos.css?v=3.4.14">
+  <link rel="stylesheet" href="./pos.css?v=3.4.15">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
@@ -63,6 +63,9 @@
         <button id="checkout" class="btn success checkout-button" type="button">
           ชำระเงิน
         </button>
+        <button id="cancelOrder" class="btn cancel-order-button" type="button">
+          ยกเลิกออเดอร์
+        </button>
         <button id="manualDrawer" class="btn secondary" type="button">
           เปิดลิ้นชักเงินสด
         </button>
@@ -71,6 +74,20 @@
     </section>
   </main>
 
+
+  <section id="shiftLockScreen" class="shift-lock-screen" hidden aria-live="polite">
+    <form id="shiftLockForm" class="shift-lock-card">
+      <p class="eyebrow">CASHIER SESSION</p>
+      <h2>รอพนักงานเปิดกะใหม่</h2>
+      <p>บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย</p>
+      <div id="shiftLockBranch" class="shift-lock-branch">กำลังตรวจสอบสาขา...</div>
+      <label>รหัสพนักงาน<input id="shiftLockEmployeeCode" required autocomplete="username"></label>
+      <label>PIN<input id="shiftLockPin" type="password" inputmode="numeric" minlength="4" required autocomplete="current-password"></label>
+      <label>เงินทอนตั้งต้น<input id="shiftLockOpeningFloat" type="number" min="0" step="0.01" value="0"></label>
+      <button id="shiftLockSubmit" class="btn success" type="submit">เปิดกะและเริ่มขาย</button>
+      <p id="shiftLockMsg" class="msg"></p>
+    </form>
+  </section>
 
   <dialog id="paymentDialog" class="payment-dialog">
     <form id="paymentForm" class="dialog-card">
@@ -117,16 +134,55 @@
   </dialog>
 
   <dialog id="drawerApprovalDialog">
-    <form id="drawerApprovalForm" class="dialog-card">
-      <h2>อนุมัติเปิดลิ้นชักอีกครั้ง</h2>
-      <p>ต้องใช้รหัสพนักงานและ PIN ของผู้มีสิทธิ์</p>
-      <label>รหัสพนักงาน<input id="drawerApproverCode" required></label>
-      <label>PIN<input id="drawerApproverPin" type="password" inputmode="numeric" required></label>
+    <form id="drawerApprovalForm" class="dialog-card approval-card">
+      <h2>อนุมัติเปิดลิ้นชัก</h2>
+      <p>การเปิดลิ้นชักนอกการขายต้องใช้รหัสผู้มีสิทธิ์ทุกครั้ง</p>
+      <label>เหตุผล
+        <select id="drawerReason" required>
+          <option value="">เลือกเหตุผล</option>
+          <option value="CHANGE_ERROR">ทอนเงินผิด</option>
+          <option value="CHANGE_MONEY">แลกเงิน</option>
+          <option value="CASH_COUNT">ตรวจนับเงิน</option>
+          <option value="CASH_IN">นำเงินเข้า</option>
+          <option value="CASH_OUT">นำเงินออก</option>
+          <option value="DRAWER_ISSUE">แก้ปัญหาลิ้นชัก</option>
+          <option value="OTHER">อื่น ๆ</option>
+        </select>
+      </label>
+      <label>หมายเหตุ<textarea id="drawerReasonNotes" rows="2" maxlength="300"></textarea></label>
+      <label>รหัสผู้อนุมัติ<input id="drawerApproverCode" required autocomplete="off"></label>
+      <label>PIN<input id="drawerApproverPin" type="password" inputmode="numeric" required autocomplete="off"></label>
       <div class="dialog-actions">
         <button id="cancelDrawerApproval" class="btn secondary" type="button">ยกเลิก</button>
-        <button class="btn primary" type="submit">อนุมัติและเปิด</button>
+        <button id="confirmDrawerApproval" class="btn primary" type="submit">อนุมัติและเปิด</button>
       </div>
       <p id="drawerApprovalMsg" class="msg"></p>
+    </form>
+  </dialog>
+
+
+  <dialog id="cancelOrderDialog">
+    <form id="cancelOrderForm" class="dialog-card approval-card">
+      <h2>อนุมัติยกเลิกออเดอร์</h2>
+      <div id="cancelOrderSummary" class="approval-summary"></div>
+      <label>เหตุผลการยกเลิก
+        <select id="cancelOrderReason" required>
+          <option value="">เลือกเหตุผล</option>
+          <option value="CUSTOMER_CANCEL">ลูกค้ายกเลิก</option>
+          <option value="WRONG_ITEMS">เลือกสินค้าผิด</option>
+          <option value="WRONG_PRICE">ราคาไม่ถูกต้อง</option>
+          <option value="DUPLICATE_ORDER">สร้างออเดอร์ซ้ำ</option>
+          <option value="OTHER">อื่น ๆ</option>
+        </select>
+      </label>
+      <label>หมายเหตุ<textarea id="cancelOrderNotes" rows="2" maxlength="300"></textarea></label>
+      <label>รหัสผู้อนุมัติ<input id="cancelOrderApproverCode" required autocomplete="off"></label>
+      <label>PIN<input id="cancelOrderApproverPin" type="password" inputmode="numeric" required autocomplete="off"></label>
+      <div class="dialog-actions">
+        <button id="cancelOrderClose" class="btn secondary" type="button">กลับ</button>
+        <button id="confirmCancelOrder" class="btn danger" type="submit">อนุมัติยกเลิกออเดอร์</button>
+      </div>
+      <p id="cancelOrderMsg" class="msg"></p>
     </form>
   </dialog>
 
@@ -161,7 +217,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
   <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
-  <script type="module" src="./pos.js?v=3.4.9"></script>
+  <script type="module" src="./pos.js?v=3.4.15"></script>
   <script src="./js/navigation.js?v=3.4.5-stable"></script>
 </body>
 </html>

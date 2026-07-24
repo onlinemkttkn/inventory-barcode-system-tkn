@@ -1,9 +1,11 @@
 {
-  "receipt_javascript_syntax": true,
-  "vat_inclusive_formula": "net_total / 1.07",
-  "cashier_name_source": "matching tkn_cashier_shift employee_code",
-  "responsive_pos_header": true,
+  "javascript_syntax": true,
+  "duplicate_html_ids": [],
+  "only_three_project_files": true,
   "database_changes": false,
-  "drawer_logic_changed": false,
-  "print_logic_changed": false
+  "receipt_changed": false,
+  "navigation_changed": false,
+  "payment_methods_preserved": true,
+  "cash_drawer_sale_path_preserved": true,
+  "runtime_note": "Requires UAT against existing Supabase RPCs and Rongta hardware."
 }

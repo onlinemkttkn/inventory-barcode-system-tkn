@@ -1,15 +1,14 @@
 {
-  "version": "3.4.14",
-  "scope": "VAT receipt, matching cashier name, POS customer header layout",
-  "files": [
+  "version": "3.4.15",
+  "scope": "POS final stability only",
+  "upload_files": [
     "pos.html",
-    "pos.css",
-    "receipt.html",
-    "js/receipt.js"
+    "pos.js",
+    "pos.css"
   ],
-  "sql_required": false,
   "database_changes": false,
-  "drawer_logic_changed": false,
-  "print_logic_changed": false,
-  "payment_logic_changed": false
+  "sql_required": false,
+  "receipt_changed": false,
+  "hardware_service_changed": false,
+  "navigation_changed": false
 }

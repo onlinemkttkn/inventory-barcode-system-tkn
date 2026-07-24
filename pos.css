@@ -230,3 +230,68 @@ button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.55;cur
     grid-column:auto;
   }
 }
+
+
+/* Master 3.4.15 — POS final stability workflow */
+.shift-lock-screen{
+  position:fixed;
+  inset:0;
+  z-index:9000;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:rgba(17,13,10,.9);
+  backdrop-filter:blur(7px);
+}
+.shift-lock-screen[hidden]{display:none!important}
+.shift-lock-card{
+  width:min(460px,100%);
+  display:grid;
+  gap:14px;
+  padding:28px;
+  border:2px solid #ffc72c;
+  border-radius:22px;
+  background:#fffaf0;
+  box-shadow:0 24px 70px rgba(0,0,0,.42);
+}
+.shift-lock-card h2,.shift-lock-card p{margin:0}
+.shift-lock-card label{display:grid;gap:7px;font-weight:800}
+.shift-lock-card input{min-height:50px;font-size:1.05rem}
+.shift-lock-card .btn{min-height:52px;font-size:1.05rem}
+.shift-lock-branch{
+  padding:11px 13px;
+  border-radius:10px;
+  background:#18130f;
+  color:#ffc72c;
+  font-weight:900;
+}
+body.shift-locked{overflow:hidden}
+.cancel-order-button{
+  min-height:48px;
+  background:#fff;
+  color:#b20d2c;
+  border:2px solid #c8102e;
+  font-weight:900;
+}
+.cancel-order-button:hover,.cancel-order-button:focus-visible{
+  background:#c8102e;
+  color:#fff;
+}
+.cancel-order-button:disabled{opacity:.42}
+.approval-card{width:min(520px,calc(100vw - 24px))}
+.approval-summary{
+  display:grid;
+  gap:4px;
+  padding:13px;
+  border-radius:12px;
+  background:#fff2c0;
+  border:1px solid #e2c65c;
+}
+.approval-summary strong{font-size:1.15rem}
+.approval-summary small{color:#62584d}
+.approval-card select,.approval-card textarea{width:100%}
+@media(max-width:650px){
+  .shift-lock-screen{padding:10px}
+  .shift-lock-card{padding:20px;border-radius:16px}
+  .cancel-order-button{width:100%}
+}
