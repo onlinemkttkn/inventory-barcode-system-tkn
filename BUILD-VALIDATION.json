@@ -1,11 +1,13 @@
 {
   "javascript_syntax": true,
   "duplicate_html_ids": [],
-  "only_three_project_files": true,
+  "logout_guard_capture_phase": true,
+  "active_shift_check": true,
+  "responsive_dialog_css": true,
   "database_changes": false,
-  "receipt_changed": false,
   "navigation_changed": false,
-  "payment_methods_preserved": true,
-  "cash_drawer_sale_path_preserved": true,
-  "runtime_note": "Requires UAT against existing Supabase RPCs and Rongta hardware."
+  "receipt_changed": false,
+  "hardware_changed": false,
+  "drawer_logic_changed": false,
+  "runtime_note": "Must be tested in the deployed POS with the real sidebar navigation."
 }

@@ -1,14 +1,16 @@
 {
-  "version": "3.4.15",
-  "scope": "POS final stability only",
-  "upload_files": [
+  "version": "3.4.16",
+  "scope": "POS logout guard and responsive dialogs only",
+  "deploy_files": [
     "pos.html",
-    "pos.js",
-    "pos.css"
+    "pos.css",
+    "pos.js"
   ],
-  "database_changes": false,
   "sql_required": false,
+  "database_changes": false,
+  "navigation_changed": false,
   "receipt_changed": false,
-  "hardware_service_changed": false,
-  "navigation_changed": false
+  "hardware_changed": false,
+  "drawer_logic_changed": false,
+  "payment_logic_changed": false
 }

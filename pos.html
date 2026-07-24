@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
-  <link rel="stylesheet" href="./pos.css?v=3.4.15">
+  <link rel="stylesheet" href="./pos.css?v=3.4.16">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
@@ -214,10 +214,23 @@
     </form>
   </dialog>
 
+
+  <dialog id="logoutGuardDialog" class="logout-guard-dialog">
+    <div class="dialog-card logout-guard-card">
+      <div class="logout-guard-icon" aria-hidden="true">!</div>
+      <h2>ไม่สามารถออกจากระบบได้</h2>
+      <p>ยังมีการเปิดกะอยู่</p>
+      <strong>กรุณาปิดกะก่อนออกจากระบบ</strong>
+      <button id="logoutGuardBack" class="btn primary" type="button">
+        กลับไป POS
+      </button>
+    </div>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
   <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
-  <script type="module" src="./pos.js?v=3.4.15"></script>
+  <script type="module" src="./pos.js?v=3.4.16"></script>
   <script src="./js/navigation.js?v=3.4.5-stable"></script>
 </body>
 </html>

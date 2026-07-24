@@ -295,3 +295,112 @@ body.shift-locked{overflow:hidden}
   .shift-lock-card{padding:20px;border-radius:16px}
   .cancel-order-button{width:100%}
 }
+
+
+/* Master 3.4.16 — responsive POS dialogs and logout guard */
+dialog{
+  width:min(560px,calc(100vw - 28px));
+  max-width:560px;
+  max-height:min(90dvh,760px);
+  overflow-x:hidden;
+  overflow-y:auto;
+  margin:auto;
+}
+dialog .dialog-card{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+dialog input,
+dialog select,
+dialog textarea{
+  min-width:0;
+  max-width:100%;
+  min-height:48px;
+}
+dialog textarea{
+  resize:vertical;
+}
+dialog .dialog-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  width:100%;
+  gap:10px;
+}
+dialog .dialog-actions .btn{
+  width:100%;
+  min-height:48px;
+}
+.payment-success-card > .btn,
+.cashierUnlockDialog .btn,
+.shift-lock-card > .btn{
+  min-height:50px;
+}
+
+.logout-guard-dialog{
+  width:min(440px,calc(100vw - 28px));
+}
+.logout-guard-card{
+  text-align:center;
+  justify-items:center;
+  padding:28px;
+}
+.logout-guard-card h2,
+.logout-guard-card p{
+  margin:0;
+}
+.logout-guard-card strong{
+  color:#b42318;
+  font-size:1.05rem;
+}
+.logout-guard-icon{
+  display:grid;
+  place-items:center;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:#c8102e;
+  color:#fff;
+  font-size:2rem;
+  font-weight:1000;
+}
+.logout-guard-card .btn{
+  width:100%;
+  min-height:50px;
+  margin-top:4px;
+}
+
+@media(max-width:650px){
+  dialog{
+    width:calc(100vw - 16px);
+    max-width:none;
+    max-height:92dvh;
+    border-radius:15px;
+  }
+  dialog .dialog-card{
+    padding:16px;
+    gap:12px;
+  }
+  dialog .dialog-actions{
+    grid-template-columns:1fr;
+  }
+  dialog .dialog-actions .btn{
+    min-height:50px;
+  }
+  .payment-dialog .quick-cash{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .logout-guard-card{
+    padding:22px 16px;
+  }
+}
+
+@media(max-width:380px){
+  dialog{
+    width:calc(100vw - 10px);
+  }
+  dialog .dialog-card{
+    padding:13px;
+  }
+}
