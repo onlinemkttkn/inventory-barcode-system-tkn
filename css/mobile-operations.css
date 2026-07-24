@@ -10,3 +10,29 @@
 .scanner-dialog::backdrop{background:rgba(2,6,23,.78)}.scanner-panel{padding:14px}.scanner-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.scanner-head small{display:block;color:#cbd5e1}
 .scanner-frame{position:relative;overflow:hidden;border-radius:14px;background:#000;aspect-ratio:3/4;max-height:70vh}.scanner-frame video{width:100%;height:100%;object-fit:cover}.scanner-target{position:absolute;inset:28% 10%;border:3px solid #22c55e;border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.22)}
 @media(max-width:680px){.mobile-search{grid-template-columns:1fr 1fr}.mobile-search input{grid-column:1/-1}.operation-grid{grid-template-columns:1fr}.operation-cart-item{grid-template-columns:1fr 1fr}.operation-cart-item>div{grid-column:1/-1}}
+
+/* Master 3.4.10 — mobile camera usability */
+.scanner-dialog{
+  max-height:calc(100dvh - 16px);
+  overflow:auto;
+}
+.scanner-frame video{
+  display:block;
+  touch-action:none;
+}
+.scanner-head .btn{
+  min-width:72px;
+  min-height:44px;
+}
+@media(max-width:680px){
+  .btn.scan{min-height:48px;font-size:1rem}
+  .scanner-dialog{
+    width:calc(100% - 12px);
+    border-radius:14px;
+  }
+  .scanner-panel{padding:10px}
+  .scanner-frame{
+    aspect-ratio:3/4;
+    max-height:68dvh;
+  }
+}

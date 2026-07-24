@@ -1,12 +1,17 @@
 {
   "javascript_syntax": {
-    "pos.js": true,
-    "js/receipt.js": true,
-    "js/tkn-hardware-client.js": true,
-    "js/hardware-settings.js": true
+    "js/dashboard.js": true,
+    "js/scanner.js": true,
+    "js/receive.js": true,
+    "js/transfer-create.js": true,
+    "js/issue.js": true,
+    "js/mobile-scanner.js": true,
+    "js/generator.js": true,
+    "js/print-labels.js": true
   },
   "duplicate_html_ids": {},
-  "broken_local_references": [],
+  "remaining_page_logout_buttons": [],
+  "database_changes": false,
   "sql_required": false,
-  "note": "Runtime hardware and Supabase behavior require UAT on Windows 11."
+  "runtime_note": "Camera must be tested on real Android and iPhone devices over HTTPS."
 }

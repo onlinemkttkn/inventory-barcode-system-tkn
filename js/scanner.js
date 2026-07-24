@@ -56,7 +56,7 @@ async function handleSession() {
 function renderSession(isLoggedIn) {
   els.loginSection.classList.toggle("hidden", isLoggedIn);
   els.scannerSection.classList.toggle("hidden", !isLoggedIn);
-  els.logoutBtn.classList.toggle("hidden", !isLoggedIn);
+  els.logoutBtn?.classList.toggle("hidden", !isLoggedIn);
 
   if (!isLoggedIn) {
     stopScanner();
@@ -84,7 +84,7 @@ els.loginForm.addEventListener("submit", async (event) => {
   setMessage(els.loginMessage, "");
 });
 
-els.logoutBtn.addEventListener("click", async () => {
+els.logoutBtn?.addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
 });
 
@@ -114,10 +114,23 @@ async function startScanner() {
     }
 
     const preferred =
-      devices.find((d) => /back|rear|environment/i.test(d.label)) || devices.at(-1);
+      devices.find((d) => /back|rear|environment|หลัง/i.test(d.label)) ||
+      devices.at(-1);
 
-    scanControls = await codeReader.decodeFromVideoDevice(
-      preferred.deviceId,
+    scanControls = await codeReader.decodeFromConstraints(
+      {
+        video: {
+          deviceId: preferred?.deviceId
+            ? { exact: preferred.deviceId }
+            : undefined,
+          facingMode: preferred?.deviceId
+            ? undefined
+            : { ideal: "environment" },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        },
+        audio: false
+      },
       els.video,
       async (result, error) => {
         if (result) {

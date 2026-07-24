@@ -60,7 +60,7 @@ async function init() {
 function renderSession(loggedIn) {
   el.loginSection.classList.toggle("hidden", loggedIn);
   el.workspace.classList.toggle("hidden", !loggedIn);
-  el.logoutBtn.classList.toggle("hidden", !loggedIn);
+  el.logoutBtn?.classList.toggle("hidden", !loggedIn);
   if (loggedIn) el.searchInput.focus();
 }
 
@@ -82,7 +82,7 @@ el.loginForm.addEventListener("submit", async (event) => {
   message(el.loginMessage, "");
 });
 
-el.logoutBtn.addEventListener("click", () => supabaseClient.auth.signOut());
+el.logoutBtn?.addEventListener("click", () => supabaseClient.auth.signOut());
 
 el.searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();

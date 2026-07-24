@@ -1,3 +1,5 @@
+import { MobileBarcodeScanner } from './mobile-scanner.js';
+
 const receiveCart = new Map();
 
 const el = {
@@ -6,6 +8,7 @@ const el = {
   notes: document.getElementById("notes"),
   searchForm: document.getElementById("searchForm"),
   searchInput: document.getElementById("searchInput"),
+  scanBtn: document.getElementById("scanBtn"),
   results: document.getElementById("results"),
   searchMessage: document.getElementById("searchMessage"),
   cartList: document.getElementById("cartList"),
@@ -15,20 +18,42 @@ const el = {
   actionMessage: document.getElementById("actionMessage"),
 };
 
-el.searchForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const q = el.searchInput.value.trim();
-  if (!q) return showMessage(el.searchMessage, "กรุณากรอกคำค้นหา", "error");
+async function searchProducts(query = el.searchInput.value) {
+  const q = String(query || "").trim();
+  if (!q) {
+    return showMessage(el.searchMessage, "กรุณากรอกหรือสแกนสินค้า", "error");
+  }
 
   try {
     showMessage(el.searchMessage, "กำลังค้นหา...");
     const products = await findProducts(q);
     renderResults(products);
-    showMessage(el.searchMessage, products.length ? `พบ ${products.length} รายการ` : "ไม่พบสินค้า");
+    showMessage(
+      el.searchMessage,
+      products.length ? `พบ ${products.length} รายการ` : "ไม่พบสินค้า"
+    );
+    if (products.length === 1 && query !== el.searchInput.value.trim()) {
+      addToCart(products[0]);
+    }
   } catch (error) {
     showMessage(el.searchMessage, error.message, "error");
   }
+}
+
+el.searchForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await searchProducts();
 });
+
+const receiveScanner = new MobileBarcodeScanner({
+  messageElement: el.searchMessage,
+  onScan: async value => {
+    el.searchInput.value = value;
+    await searchProducts(value);
+  }
+});
+
+el.scanBtn?.addEventListener("click", () => receiveScanner.open());
 
 function renderResults(products) {
   el.results.innerHTML = "";
