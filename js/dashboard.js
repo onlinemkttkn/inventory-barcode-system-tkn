@@ -77,7 +77,7 @@ function configReady() {
 function showLogin() {
   E.loginCard.classList.remove("hidden");
   E.appArea.classList.add("hidden");
-  E.logoutBtn.classList.add("hidden");
+  E.logoutBtn?.classList.add("hidden");
   E.branchFilter.classList.add("hidden");
   E.refreshBtn.classList.add("hidden");
 }
@@ -85,7 +85,7 @@ function showLogin() {
 function showApp() {
   E.loginCard.classList.add("hidden");
   E.appArea.classList.remove("hidden");
-  E.logoutBtn.classList.remove("hidden");
+  E.logoutBtn?.classList.remove("hidden");
   E.branchFilter.classList.remove("hidden");
   E.refreshBtn.classList.remove("hidden");
 }
