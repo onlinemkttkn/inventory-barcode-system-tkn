@@ -1,12 +1,25 @@
 {
-  "version": "3.4.8-hotfix-rongta-bridge-01",
-  "issue": "Windows PowerShell parser error caused by UTF-8 Thai text",
+  "version": "3.4.9",
+  "name": "Hardware Auto Integration",
   "sql_required": false,
+  "default_mode": "AUTO",
+  "service_port": 17890,
+  "powershell_port": 17891,
+  "printer": "RONGTA 80mm Series Printer",
   "files": [
-    "printer-bridge/start-rongta-bridge.ps1",
-    "printer-bridge/START-RONGTA-BRIDGE.bat",
-    "printer-bridge/TEST-HEALTH.bat",
-    "printer-bridge/TEST-DRAWER.bat",
-    "printer-bridge/README.md"
+    "hardware-settings.html",
+    "pos.html",
+    "pos.js",
+    "receipt.html",
+    "users-admin.html",
+    "js/tkn-hardware-client.js",
+    "js/hardware-settings.js",
+    "js/receipt.js",
+    "css/hardware-settings.css",
+    "hardware-service/*",
+    "powershell-fallback/*",
+    "docs/INSTALL-HARDWARE-AUTO.md",
+    "docs/UAT-HARDWARE-AUTO.md",
+    "docs/HOW-HARDWARE-WORKS.md"
   ]
 }

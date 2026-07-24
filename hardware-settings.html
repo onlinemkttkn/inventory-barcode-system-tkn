@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ตั้งค่าฮาร์ดแวร์ POS</title>
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.9">
+  <link rel="stylesheet" href="./css/navigation.css?v=3.4.9">
+  <link rel="stylesheet" href="./css/hardware-settings.css?v=3.4.9">
+</head>
+<body>
+  <main class="hardware-shell">
+    <header class="hardware-head">
+      <div>
+        <p class="eyebrow">MASTER 3.4.9 · HARDWARE</p>
+        <h1>ตั้งค่าฮาร์ดแวร์ POS</h1>
+        <p>ตั้งค่าต่อเครื่องแคชเชียร์ ข้อมูลจะเก็บใน Browser ของเครื่องนี้</p>
+      </div>
+      <div class="head-actions">
+        <a class="button secondary" href="./users-admin.html">ผู้ใช้และสิทธิ์</a>
+        <a class="button" href="./pos.html">หน้า POS</a>
+      </div>
+    </header>
+
+    <section class="status-grid">
+      <article class="status-card">
+        <span>Windows Service</span>
+        <strong id="serviceStatus">กำลังตรวจสอบ...</strong>
+        <small id="serviceDetail">127.0.0.1:17890</small>
+      </article>
+      <article class="status-card">
+        <span>PowerShell Bridge</span>
+        <strong id="powershellStatus">กำลังตรวจสอบ...</strong>
+        <small id="powershellDetail">127.0.0.1:17891</small>
+      </article>
+      <article class="status-card">
+        <span>โหมดที่ระบบจะใช้</span>
+        <strong id="selectedTransport">-</strong>
+        <small>Auto จะเลือก Service ก่อน</small>
+      </article>
+    </section>
+
+    <form id="hardwareForm" class="hardware-card">
+      <h2>การเชื่อมต่อ</h2>
+
+      <label>โหมดการทำงาน
+        <select id="mode">
+          <option value="AUTO">Auto — Service → PowerShell → Browser</option>
+          <option value="SERVICE">Windows Service เท่านั้น</option>
+          <option value="POWERSHELL">PowerShell Bridge เท่านั้น</option>
+          <option value="BROWSER">Browser Print เท่านั้น</option>
+        </select>
+      </label>
+
+      <div class="two-column">
+        <label>Windows Service URL
+          <input id="serviceUrl" value="http://127.0.0.1:17890">
+        </label>
+        <label>PowerShell Bridge URL
+          <input id="powershellUrl" value="http://127.0.0.1:17891">
+        </label>
+      </div>
+
+      <label>ชื่อเครื่องพิมพ์
+        <input id="printerName" value="RONGTA 80mm Series Printer">
+      </label>
+
+      <div class="two-column">
+        <label>ขนาดกระดาษ
+          <select id="paperWidth">
+            <option value="80">80 มม.</option>
+            <option value="58">58 มม.</option>
+          </select>
+        </label>
+        <label>Timeout
+          <select id="timeout">
+            <option value="1800">1.8 วินาที</option>
+            <option value="2500">2.5 วินาที</option>
+            <option value="5000">5 วินาที</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="check-row">
+        <input id="autoPrint" type="checkbox">
+        <span>พิมพ์ใบเสร็จอัตโนมัติหลังชำระเงิน</span>
+      </label>
+      <label class="check-row">
+        <input id="autoDrawer" type="checkbox" checked>
+        <span>เปิดลิ้นชักอัตโนมัติเฉพาะการชำระเงินสด</span>
+      </label>
+      <label class="check-row">
+        <input id="browserFallback" type="checkbox" checked>
+        <span>ใช้ Browser Print เมื่อ Service/Bridge ไม่พร้อม</span>
+      </label>
+
+      <div class="button-row">
+        <button class="button" type="submit">บันทึกการตั้งค่า</button>
+        <button id="checkStatus" class="button secondary" type="button">
+          ตรวจสถานะ
+        </button>
+        <button id="loadPrinters" class="button secondary" type="button">
+          ดูรายชื่อเครื่องพิมพ์
+        </button>
+        <button id="testDrawer" class="button danger" type="button">
+          ทดสอบเปิดลิ้นชัก
+        </button>
+        <button id="testPrint" class="button secondary" type="button">
+          ทดสอบ Browser Print
+        </button>
+      </div>
+
+      <p id="message" class="hardware-message"></p>
+      <pre id="printerList" class="printer-list" hidden></pre>
+    </form>
+
+    <section class="hardware-card">
+      <h2>หลักการทำงาน</h2>
+      <ol class="flow-list">
+        <li><strong>Auto:</strong> ตรวจ Windows Service ที่พอร์ต 17890</li>
+        <li>ถ้าไม่พร้อม ตรวจ PowerShell Bridge ที่พอร์ต 17891</li>
+        <li>ใบเสร็จใช้ Browser Print เมื่อไม่มี Service/Bridge หรือเมื่อเป็นใบเสร็จ HTML ภาษาไทย</li>
+        <li>ลิ้นชักไม่มี Browser fallback; ถ้าอุปกรณ์ไม่พร้อม ระบบแจ้งเตือนแต่บิลยังบันทึกต่อ</li>
+      </ol>
+    </section>
+  </main>
+
+  <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
+  <script src="./js/hardware-settings.js?v=3.4.9"></script>
+  <script src="./js/navigation.js?v=3.4.9"></script>
+</body>
+</html>

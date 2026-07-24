@@ -1,9 +1,12 @@
 {
-  "javascript_syntax": "passed",
-  "broken_local_references": [],
-  "shift_buttons": {
-    "openShift": 1,
-    "closeShift": 1
+  "javascript_syntax": {
+    "pos.js": true,
+    "js/receipt.js": true,
+    "js/tkn-hardware-client.js": true,
+    "js/hardware-settings.js": true
   },
-  "pack_files": 21
+  "duplicate_html_ids": {},
+  "broken_local_references": [],
+  "sql_required": false,
+  "note": "Runtime hardware and Supabase behavior require UAT on Windows 11."
 }

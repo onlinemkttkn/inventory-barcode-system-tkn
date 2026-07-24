@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
-  <link rel="stylesheet" href="./pos.css?v=3.4.8">
+  <link rel="stylesheet" href="./pos.css?v=3.4.7">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.0">
 </head>
@@ -56,11 +56,7 @@
         <label>ส่วนลดท้ายบิล
           <input id="discount" type="number" min="0" step="0.01" value="0">
         </label>
-        <div class="summary-tax">
-          <div class="summary-line"><span>มูลค่าก่อน VAT</span><strong id="beforeVat">฿0.00</strong></div>
-          <div class="summary-line"><span>VAT 7%</span><strong id="vatAmount">฿0.00</strong></div>
-        </div>
-        <div class="summary-line net"><span>ยอดชำระสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
+        <div class="summary-line net"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
 <label>หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
 
         <button id="checkout" class="btn success checkout-button" type="button">
@@ -163,8 +159,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script src="./js/hardware-config.js?v=3.4.8"></script>
-  <script type="module" src="./pos.js?v=3.4.8"></script>
+  <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
+  <script type="module" src="./pos.js?v=3.4.9"></script>
   <script src="./js/navigation.js?v=3.4.5-stable"></script>
 </body>
 </html>
