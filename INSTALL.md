@@ -1,11 +1,27 @@
-# Master 3.5.1 — Reports Load Hotfix
+# Master 3.5.2 — Reports Payment Breakdown Hotfix
 
-อัปโหลดเฉพาะ `reports.html` และ `js/reports.js`
+อัปโหลดเขียนทับเฉพาะ:
 
-แก้การโหลด Supabase ซ้ำ/ผิดลำดับ และตัด Event ของปุ่ม Logout ที่ไม่มีแล้ว โดย Sidebar Logout ยังทำงานผ่าน `navigation.js` ตามเดิม
+- `reports.html`
+- `js/reports.js`
 
-ไม่แก้ POS, Dashboard, Database, SQL หรือ RPC
+## แก้ไข
 
-Commit: `Deploy Master 3.5.1 Reports Load Hotfix`
+- แยกยอด QR และเงินโอนจากรายการบิลจริง
+- รองรับชื่อช่องทางเดิม เช่น TRANSFER, BANK_TRANSFER, เงินโอน และ โอน
+- ไม่พึ่งฟิลด์ `transfer_revenue` ที่ RPC ปัจจุบันไม่ได้ส่ง
+- ตาราง รายละเอียดบิล และ CSV แสดงชื่อช่องทางภาษาไทย
+
+## ไม่ได้แก้
+
+- POS
+- Dashboard
+- Database / SQL / RPC
+- Receipt / Hardware / Drawer
+
+Commit:
+`Deploy Master 3.5.2 Reports Payment Breakdown Hotfix`
 
 รอ Deploy แล้วกด `Ctrl + Shift + R`
+
+ไม่ต้องรัน SQL

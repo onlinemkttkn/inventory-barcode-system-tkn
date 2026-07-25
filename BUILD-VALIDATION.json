@@ -1,7 +1,8 @@
 {
   "javascript_syntax": true,
   "duplicate_html_ids": [],
-  "single_module_supabase_client": true,
-  "pos_changed": false,
-  "database_changes": false
+  "payment_split_source": "loaded bills",
+  "transfer_aliases_supported": true,
+  "database_changes": false,
+  "pos_changed": false
 }

@@ -1,11 +1,12 @@
 {
-  "version": "3.5.1",
+  "version": "3.5.2",
   "module": "Reports",
   "deploy_files": [
     "reports.html",
     "js/reports.js"
   ],
   "pos_changed": false,
+  "dashboard_changed": false,
   "database_changes": false,
   "sql_required": false,
   "rpc_changed": false

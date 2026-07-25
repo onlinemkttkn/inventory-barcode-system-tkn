@@ -100,8 +100,18 @@ async function load() {
 }
 
 function paymentGroup(method){
-  const value=String(method||'').toUpperCase();
-  return ['CASH','QR','TRANSFER','CARD','VOUCHER'].includes(value)?value:'OTHER';
+  const raw=String(method||'').trim();
+  const value=raw.toUpperCase().replace(/[\s-]+/g,'_');
+
+  if(['CASH','เงินสด'].includes(value)||raw==='เงินสด')return 'CASH';
+  if(['QR','PROMPTPAY','QR_CODE','พร้อมเพย์'].includes(value)||raw==='QR')return 'QR';
+  if(
+    ['TRANSFER','BANK_TRANSFER','BANK','WIRE_TRANSFER','MOBILE_BANKING'].includes(value)||
+    ['เงินโอน','โอน','โอนเงิน'].includes(raw)
+  )return 'TRANSFER';
+  if(['CARD','CREDIT_CARD','DEBIT_CARD'].includes(value)||raw==='บัตร')return 'CARD';
+  if(['VOUCHER','COUPON'].includes(value))return 'VOUCHER';
+  return 'OTHER';
 }
 
 function paymentLabel(method){
@@ -116,6 +126,38 @@ function applyPaymentFilter(){
   state.bills=selected==='ALL'?state.allBills:[...state.allBills].filter(bill=>paymentGroup(bill.payment_method)===selected);
 }
 
+function isRevenueBill(bill){
+  const status=String(bill?.status||'').toUpperCase();
+  return !['VOIDED','CANCELLED','CANCELED','REFUNDED'].includes(status);
+}
+
+function paymentBreakdown(bills){
+  return (bills||[]).reduce((totals,bill)=>{
+    if(!isRevenueBill(bill))return totals;
+    const group=paymentGroup(bill.payment_method);
+    totals[group]=(totals[group]||0)+Number(bill.net_total||0);
+    return totals;
+  },{
+    CASH:0,
+    QR:0,
+    TRANSFER:0,
+    CARD:0,
+    VOUCHER:0,
+    OTHER:0
+  });
+}
+
+function paymentLabel(method){
+  return {
+    CASH:'เงินสด',
+    QR:'QR',
+    TRANSFER:'เงินโอน',
+    CARD:'บัตร',
+    VOUCHER:'Voucher',
+    OTHER:'อื่น ๆ'
+  }[paymentGroup(method)]||String(method||'-');
+}
+
 function render(data) {
   state.allBills = data?.bills || [];
   applyPaymentFilter();
@@ -124,16 +166,17 @@ function render(data) {
   const s = data?.summary || {};
   const v = data?.voids || {};
   const r = data?.returns || {};
+  const payments = paymentBreakdown(state.allBills);
 
   const cards = [
     ['จำนวนบิล', Number(s.bill_count || 0).toLocaleString('th-TH')],
     ['รายรับรวม', money(s.gross_revenue)],
-    ['เงินสด', money(s.cash_revenue)],
-    ['QR', money(s.qr_revenue)],
-    ['เงินโอน', money(s.transfer_revenue)],
-    ['บัตร', money(s.card_revenue)],
-    ['Voucher', money(s.voucher_revenue)],
-    ['อื่น ๆ', money(s.other_revenue)],
+    ['เงินสด', money(payments.CASH)],
+    ['QR', money(payments.QR)],
+    ['เงินโอน', money(payments.TRANSFER)],
+    ['บัตร', money(payments.CARD)],
+    ['Voucher', money(payments.VOUCHER)],
+    ['อื่น ๆ', money(payments.OTHER)],
     ['เฉลี่ยต่อบิล', money(s.average_bill)],
     ['บิลยกเลิก', Number(v.void_count || 0).toLocaleString('th-TH')],
     ['ยอดคืนสินค้า', money(r.return_amount)]
