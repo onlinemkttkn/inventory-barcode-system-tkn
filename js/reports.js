@@ -100,62 +100,47 @@ async function load() {
 }
 
 function paymentGroup(method){
-  const raw=String(method||'').trim();
-  const value=raw.toUpperCase().replace(/[\s-]+/g,'_');
+  const raw = String(method || '').trim();
+  const value = raw.toUpperCase().replace(/[\s-]+/g, '_');
 
-  if(['CASH','เงินสด'].includes(value)||raw==='เงินสด')return 'CASH';
-  if(['QR','PROMPTPAY','QR_CODE','พร้อมเพย์'].includes(value)||raw==='QR')return 'QR';
-  if(
-    ['TRANSFER','BANK_TRANSFER','BANK','WIRE_TRANSFER','MOBILE_BANKING'].includes(value)||
-    ['เงินโอน','โอน','โอนเงิน'].includes(raw)
-  )return 'TRANSFER';
-  if(['CARD','CREDIT_CARD','DEBIT_CARD'].includes(value)||raw==='บัตร')return 'CARD';
-  if(['VOUCHER','COUPON'].includes(value))return 'VOUCHER';
+  if (value === 'CASH' || raw === 'เงินสด') return 'CASH';
+  if (['QR', 'PROMPTPAY', 'QR_CODE'].includes(value) || raw === 'พร้อมเพย์') return 'QR';
+  if (
+    ['TRANSFER', 'BANK_TRANSFER', 'BANK', 'WIRE_TRANSFER', 'MOBILE_BANKING'].includes(value) ||
+    ['เงินโอน', 'โอน', 'โอนเงิน'].includes(raw)
+  ) return 'TRANSFER';
+  if (['CARD', 'CREDIT_CARD', 'DEBIT_CARD'].includes(value) || raw === 'บัตร') return 'CARD';
+  if (['VOUCHER', 'COUPON'].includes(value)) return 'VOUCHER';
   return 'OTHER';
 }
 
 function paymentLabel(method){
   return ({
-    CASH:'เงินสด', QR:'QR', TRANSFER:'เงินโอน', CARD:'บัตร',
-    VOUCHER:'Voucher', OTHER:'อื่น ๆ'
+    CASH: 'เงินสด',
+    QR: 'QR',
+    TRANSFER: 'เงินโอน',
+    CARD: 'บัตร',
+    VOUCHER: 'Voucher',
+    OTHER: 'อื่น ๆ'
   })[paymentGroup(method)] || String(method || '-');
 }
-
 function applyPaymentFilter(){
   const selected=E.paymentFilter?.value||'ALL';
   state.bills=selected==='ALL'?state.allBills:[...state.allBills].filter(bill=>paymentGroup(bill.payment_method)===selected);
 }
 
 function isRevenueBill(bill){
-  const status=String(bill?.status||'').toUpperCase();
-  return !['VOIDED','CANCELLED','CANCELED','REFUNDED'].includes(status);
+  const status = String(bill?.status || '').toUpperCase();
+  return !['VOIDED', 'CANCELLED', 'CANCELED', 'REFUNDED'].includes(status);
 }
 
 function paymentBreakdown(bills){
-  return (bills||[]).reduce((totals,bill)=>{
-    if(!isRevenueBill(bill))return totals;
-    const group=paymentGroup(bill.payment_method);
-    totals[group]=(totals[group]||0)+Number(bill.net_total||0);
+  return (bills || []).reduce((totals, bill) => {
+    if (!isRevenueBill(bill)) return totals;
+    const group = paymentGroup(bill.payment_method);
+    totals[group] += Number(bill.net_total || 0);
     return totals;
-  },{
-    CASH:0,
-    QR:0,
-    TRANSFER:0,
-    CARD:0,
-    VOUCHER:0,
-    OTHER:0
-  });
-}
-
-function paymentLabel(method){
-  return {
-    CASH:'เงินสด',
-    QR:'QR',
-    TRANSFER:'เงินโอน',
-    CARD:'บัตร',
-    VOUCHER:'Voucher',
-    OTHER:'อื่น ๆ'
-  }[paymentGroup(method)]||String(method||'-');
+  }, { CASH: 0, QR: 0, TRANSFER: 0, CARD: 0, VOUCHER: 0, OTHER: 0 });
 }
 
 function render(data) {
@@ -253,11 +238,6 @@ function exportCsv() {
   URL.revokeObjectURL(link.href);
 }
 
-async function logout() {
-  await supabaseClient.auth.signOut();
-  sessionStorage.clear();
-  location.replace('./index.html');
-}
 
 E.paymentFilter.onchange=()=>{applyPaymentFilter();renderTableOnly();};
 
@@ -280,6 +260,5 @@ E.print.onclick = () => print();
 E.close.onclick = () => E.dialog.close();
 
 init().catch(error => {
-  console.error('Reports initialization error:', error);
-  E.message.textContent = error?.message || 'โหลดรายงานไม่สำเร็จ';
+  E.message.textContent = error.message;
 });
