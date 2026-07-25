@@ -2,6 +2,10 @@
   'use strict';
 
   const STORAGE_KEY = 'tkn_hardware_settings_v1';
+  const CIRCUIT_KEY = 'tkn_hardware_circuit_v1';
+  const DB_NAME = 'tkn_hardware_jobs_v1';
+  const DB_VERSION = 1;
+  const STORE_NAME = 'jobs';
   const DEFAULTS = Object.freeze({
     mode: 'AUTO',
     service_url: 'http://127.0.0.1:17890',
@@ -232,6 +236,304 @@
     return {ok: true, transport: 'BROWSER'};
   }
 
+
+  function openJobDb() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error('IndexedDB is unavailable'));
+        return;
+      }
+
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          const store = db.createObjectStore(
+            STORE_NAME,
+            {keyPath: 'idempotency_key'}
+          );
+          store.createIndex('status', 'status', {unique: false});
+          store.createIndex('updated_at', 'updated_at', {unique: false});
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function putJob(job) {
+    const value = {
+      ...job,
+      updated_at: new Date().toISOString()
+    };
+
+    try {
+      const db = await openJobDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(value);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    } catch (error) {
+      console.warn('Hardware job persistence unavailable:', error);
+      localStorage.setItem(
+        `tkn_hardware_job:${value.idempotency_key}`,
+        JSON.stringify(value)
+      );
+    }
+
+    return value;
+  }
+
+  async function getJob(idempotencyKey) {
+    if (!idempotencyKey) return null;
+
+    try {
+      const db = await openJobDb();
+      const result = await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get(idempotencyKey);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+      db.close();
+      return result;
+    } catch {
+      try {
+        return JSON.parse(
+          localStorage.getItem(`tkn_hardware_job:${idempotencyKey}`)
+          || 'null'
+        );
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  async function listJobs(statusFilter = null) {
+    try {
+      const db = await openJobDb();
+      const rows = await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+      db.close();
+      return rows
+        .filter(row => !statusFilter || row.status === statusFilter)
+        .sort((a, b) =>
+          String(b.updated_at || '').localeCompare(String(a.updated_at || ''))
+        );
+    } catch {
+      return [];
+    }
+  }
+
+  function getCircuit() {
+    try {
+      return JSON.parse(localStorage.getItem(CIRCUIT_KEY) || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  function saveCircuit(value) {
+    localStorage.setItem(CIRCUIT_KEY, JSON.stringify(value));
+  }
+
+  function circuitState() {
+    const current = getCircuit();
+    const openUntil = Number(current.open_until || 0);
+    if (openUntil && Date.now() < openUntil) {
+      return {
+        open: true,
+        retry_after_ms: openUntil - Date.now(),
+        failures: Number(current.failures || 0)
+      };
+    }
+    return {open: false, retry_after_ms: 0, failures: 0};
+  }
+
+  function recordHardwareSuccess() {
+    saveCircuit({
+      failures: 0,
+      open_until: 0,
+      last_success_at: new Date().toISOString()
+    });
+  }
+
+  function recordHardwareFailure(error) {
+    const current = getCircuit();
+    const failures = Number(current.failures || 0) + 1;
+    const openUntil = failures >= 3 ? Date.now() + 30000 : 0;
+
+    saveCircuit({
+      failures,
+      open_until: openUntil,
+      last_error: String(error?.message || error || ''),
+      last_failure_at: new Date().toISOString()
+    });
+
+    return circuitState();
+  }
+
+  function makeIdempotencyKey(meta = {}) {
+    if (meta.idempotency_key) return String(meta.idempotency_key);
+    const source = String(meta.source || meta.reason || 'DRAWER');
+    const entity = String(
+      meta.return_id
+      || meta.return_no
+      || meta.sale_id
+      || meta.sale_no
+      || Date.now()
+    );
+    return `${source}:${entity}:OPEN_DRAWER`;
+  }
+
+  async function openDrawerReliable(meta = {}) {
+    const idempotencyKey = makeIdempotencyKey(meta);
+    const existing = await getJob(idempotencyKey);
+
+    if (existing?.status === 'DONE') {
+      return {
+        ok: true,
+        duplicate: true,
+        skipped: true,
+        status: 'DONE',
+        idempotency_key: idempotencyKey,
+        transport: existing.transport || null
+      };
+    }
+
+    const circuit = circuitState();
+    if (circuit.open) {
+      const job = await putJob({
+        idempotency_key: idempotencyKey,
+        type: 'OPEN_DRAWER',
+        status: 'PENDING_MANUAL',
+        payload: meta,
+        attempts: Number(existing?.attempts || 0),
+        last_error: 'Hardware circuit is temporarily open',
+        created_at: existing?.created_at || new Date().toISOString()
+      });
+      return {
+        ok: false,
+        status: job.status,
+        idempotency_key: idempotencyKey,
+        retry_after_ms: circuit.retry_after_ms,
+        error: job.last_error
+      };
+    }
+
+    await putJob({
+      idempotency_key: idempotencyKey,
+      type: 'OPEN_DRAWER',
+      status: 'RUNNING',
+      payload: meta,
+      attempts: Number(existing?.attempts || 0) + 1,
+      created_at: existing?.created_at || new Date().toISOString()
+    });
+
+    try {
+      const healthResult = await status();
+      if (!healthResult.ok) {
+        throw new Error(
+          'Hardware Service and PowerShell Bridge are unavailable'
+        );
+      }
+
+      const result = await openDrawer({
+        ...meta,
+        idempotency_key: idempotencyKey
+      });
+
+      recordHardwareSuccess();
+      await putJob({
+        idempotency_key: idempotencyKey,
+        type: 'OPEN_DRAWER',
+        status: 'DONE',
+        payload: meta,
+        attempts: Number(existing?.attempts || 0) + 1,
+        transport: result?.transport || null,
+        result,
+        completed_at: new Date().toISOString(),
+        created_at: existing?.created_at || new Date().toISOString()
+      });
+
+      return {
+        ...result,
+        ok: true,
+        status: 'DONE',
+        idempotency_key: idempotencyKey
+      };
+    } catch (error) {
+      const state = recordHardwareFailure(error);
+      const uncertain = (
+        error?.name === 'AbortError'
+        || /timeout|network|fetch/i.test(String(error?.message || ''))
+      );
+
+      const job = await putJob({
+        idempotency_key: idempotencyKey,
+        type: 'OPEN_DRAWER',
+        status: uncertain ? 'UNKNOWN' : 'PENDING_MANUAL',
+        payload: meta,
+        attempts: Number(existing?.attempts || 0) + 1,
+        last_error: String(error?.message || error),
+        created_at: existing?.created_at || new Date().toISOString()
+      });
+
+      return {
+        ok: false,
+        status: job.status,
+        idempotency_key: idempotencyKey,
+        circuit_open: state.open,
+        error: job.last_error
+      };
+    }
+  }
+
+  async function retryDrawerJob(idempotencyKey, confirmed = false) {
+    if (!confirmed) {
+      throw new Error(
+        'Manual confirmation is required before retrying the drawer'
+      );
+    }
+
+    const job = await getJob(idempotencyKey);
+    if (!job) throw new Error('Hardware job not found');
+    if (job.status === 'DONE') {
+      return {
+        ok: true,
+        skipped: true,
+        duplicate: true,
+        status: 'DONE',
+        idempotency_key: idempotencyKey
+      };
+    }
+
+    return openDrawerReliable({
+      ...(job.payload || {}),
+      idempotency_key: idempotencyKey,
+      manual_retry: true
+    });
+  }
+
+  async function resolveDrawerJob(idempotencyKey, resolution) {
+    const job = await getJob(idempotencyKey);
+    if (!job) throw new Error('Hardware job not found');
+
+    return putJob({
+      ...job,
+      status: resolution === 'OPENED' ? 'DONE' : 'CANCELLED',
+      manual_resolution: resolution,
+      completed_at: new Date().toISOString()
+    });
+  }
+
   window.TKNHardware = Object.freeze({
     defaults: DEFAULTS,
     getSettings,
@@ -240,6 +542,12 @@
     health: status,
     printers,
     openDrawer,
+    openDrawerReliable,
+    getJob,
+    listJobs,
+    retryDrawerJob,
+    resolveDrawerJob,
+    circuitState,
     printRaw,
     printReceipt
   });
