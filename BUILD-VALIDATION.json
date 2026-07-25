@@ -1,9 +1,14 @@
 {
-  "es_module_syntax": true,
+  "javascript_es_module_syntax": true,
   "duplicate_html_ids": [],
-  "safe_role_rpc": true,
-  "permission_management_rpc": true,
-  "owner_protection": true,
+  "hardware_client_loaded_before_module": true,
+  "drawer_opens_for_cash_only": true,
+  "return_saved_before_drawer_request": true,
+  "manager_approval_threshold": 5000,
+  "hardware_failure_does_not_rollback_return": true,
+  "audit_best_effort": true,
+  "sql_changes": false,
   "pos_changed": false,
-  "data_deleted": false
+  "dashboard_changed": false,
+  "reports_changed": false
 }

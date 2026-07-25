@@ -1,13 +1,18 @@
 {
-  "version": "3.5.4",
-  "module": "Access Control",
+  "version": "3.5.9",
+  "module": "Sales Return",
   "deploy_files": [
-    "users-admin.html",
-    "js/users-admin.js",
-    "css/governance.css"
+    "sales-return.html",
+    "js/sales-return.js",
+    "css/sales-return.css"
   ],
-  "sql_file": "sql/UPGRADE-3.5.4-ACCESS-CONTROL.sql",
+  "cash_drawer_rule": "CASH only after successful return",
+  "approval_threshold_thb": 5000,
+  "hardware_failure_rolls_back_return": false,
+  "sql_required": false,
+  "database_changes": false,
   "pos_changed": false,
-  "database_change_type": "additive RPC only",
-  "data_deleted": false
+  "dashboard_changed": false,
+  "reports_changed": false,
+  "hardware_service_changed": false
 }

@@ -1,13 +1,39 @@
-# Master 3.5.4 — Access Control Stable
+# Master 3.5.9 — Cash Refund Drawer Hotfix
 
-## ลำดับติดตั้ง
-1. สำรองฐานข้อมูล/Commit ปัจจุบัน
-2. รัน `sql/UPGRADE-3.5.4-ACCESS-CONTROL.sql` ใน Supabase SQL Editor หนึ่งครั้ง
-3. อัปโหลดเขียนทับ:
-   - `users-admin.html`
-   - `js/users-admin.js`
-   - `css/governance.css`
-4. Commit: `Deploy Master 3.5.4 Access Control Stable`
-5. รอ Deploy และกด Ctrl+Shift+R
+## อัปโหลดเฉพาะ
 
-SQL เป็นแบบ Additive: ไม่ลบ Table, Column, User, Role หรือข้อมูลธุรกรรม
+- `sales-return.html`
+- `js/sales-return.js`
+- `css/sales-return.css`
+
+## การทำงาน
+
+- คืนเงินแบบ CASH:
+  - บันทึกคืนสินค้าสำเร็จก่อน
+  - เปิดลิ้นชักหนึ่งครั้ง
+  - Hardware ล้มไม่ Rollback การคืนสินค้า
+  - บันทึกผลเปิดลิ้นชักแบบ Best Effort
+
+- ยอดคืนเงินสดตั้งแต่ 5,000 บาท:
+  - ขอ Employee Code + PIN
+  - ตรวจผ่าน RPC เดิม `authorize_cash_drawer_reopen_v3_4`
+  - จึงบันทึกคืนสินค้าและเปิดลิ้นชัก
+
+- TRANSFER / STORE_CREDIT / ORIGINAL:
+  - ไม่เปิดลิ้นชัก
+
+## ไม่ได้แก้
+
+- POS
+- Dashboard
+- Reports
+- Hardware Service / PowerShell Bridge
+- SQL / Database / RPC
+- Receipt
+- หน้าอื่นทั้งหมด
+
+## Commit
+
+`Deploy Master 3.5.9 Cash Refund Drawer Hotfix`
+
+หลัง Deploy กด `Ctrl + Shift + R`
