@@ -1,7 +1,13 @@
-# UAT Reports 3.5.3
-- Console ไม่มี Supabase library is not loaded
-- Console ไม่มี paymentLabel has already been declared
-- Reports โหลดข้อมูลได้
-- เงินสด/QR/เงินโอน/บัตรแยกถูกต้อง
-- รายละเอียดบิล, CSV และ Print ทำงาน
-- POS ไม่มีการเปลี่ยนแปลง
+# UAT Access Control 3.5.4
+- [ ] หน้าโหลดโดยไม่กระพิบหรือวน Login
+- [ ] เปลี่ยน Role เป็น secretary ได้โดยไม่เกิด enum error
+- [ ] Admin แก้ Owner ไม่ได้
+- [ ] Owner แก้ Owner ได้
+- [ ] เปิด/ปิดบัญชีได้
+- [ ] เปลี่ยนสาขาได้
+- [ ] รหัสพนักงานและ PIN บันทึกได้
+- [ ] PIN สั้นกว่า 4 หลักถูกบล็อก
+- [ ] สิทธิ์เปิดลิ้นชักบันทึกได้
+- [ ] เพิ่ม/ถอด Permission ของ Role ได้
+- [ ] Permission ที่ไม่รู้จักถูกปฏิเสธ
+- [ ] POS ไม่มีการเปลี่ยนแปลง

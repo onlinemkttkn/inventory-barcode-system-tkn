@@ -1,11 +1,9 @@
 {
   "es_module_syntax": true,
-  "payment_label_declarations": 1,
-  "legacy_supabase_config_removed": true,
-  "obsolete_logout_reference_removed": true,
   "duplicate_html_ids": [],
-  "local_dependencies_exist": true,
-  "payment_breakdown_from_loaded_bills": true,
+  "safe_role_rpc": true,
+  "permission_management_rpc": true,
+  "owner_protection": true,
   "pos_changed": false,
-  "database_changes": false
+  "data_deleted": false
 }

@@ -55,3 +55,17 @@ background:rgba(15,23,42,.55)}.dialog-body{padding:20px}.dialog-head{display:fle
 .operation-card strong{font-size:1.25rem;color:var(--tkn-red)}.operation-card span{color:#6b6257}.operation-card:hover{border-color:var(--tkn-yellow);transform:translateY(-2px)}
 @media(max-width:850px){.operation-cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:550px){.operation-cards{grid-template-columns:1fr}}
 \n.users-page .shell,.shell{max-width:1480px}.table-wrap{max-width:100%;overflow:auto}.table-wrap table{min-width:1180px}#rows tr:hover{background:#fffaf0}#rows td{vertical-align:top}.cashier-fields input{min-width:0}.toolbar select{min-width:150px}@media(min-width:761px){.card .table-wrap{max-height:68vh}table thead th{position:sticky;top:0;z-index:2;background:#111;color:#fff}}@media(max-width:760px){.table-wrap{overflow:visible}.table-wrap table{min-width:0}.table-wrap tbody{display:grid;gap:14px}#rows tr{background:#fff;border:1px solid #e8dfd2;border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(17,17,17,.07)}#rows td{grid-template-columns:105px minmax(0,1fr)!important;padding:6px 0!important}#rows td:nth-child(6)::before{content:'แคชเชียร์'}#rows td:nth-child(7)::before{content:'บันทึก'}#rows .button.save{width:100%;min-height:45px}.toolbar>*{width:100%;min-width:0!important}}\n
+
+/* Master 3.5.4 — stable access control */
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.section-head h2,.section-head p{margin:0}.section-head p{margin-top:4px;color:#64748b}
+.permission-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.permission-actions select{min-width:240px}
+.permission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.permission-module{min-width:0;border:1px solid #d8dee9;border-radius:14px;padding:12px;background:#fff}
+.permission-module legend{padding:0 6px;font-weight:900;text-transform:uppercase;color:#991b1b}
+.permission-item{display:flex;align-items:flex-start;gap:9px;padding:8px;border-radius:9px}.permission-item:hover{background:#fff8dc}
+.permission-item input{margin-top:4px}.permission-item span{display:grid;gap:2px;min-width:0}.permission-item small{color:#64748b;overflow-wrap:anywhere}
+.message.error,#message.error,#permissionMessage.error{color:#b42318}.message.success,#message.success,#permissionMessage.success{color:#067647}
+.button:disabled,input:disabled,select:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:980px){.permission-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.permission-grid{grid-template-columns:1fr}.permission-actions,.permission-actions select,.permission-actions .button{width:100%}.section-head{display:grid}.table-wrap{overflow:auto}.cashier-fields{min-width:230px}}

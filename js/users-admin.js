@@ -1,143 +1,275 @@
 import { supabaseClient } from './supabase-client.js';
 import { loadAccessContext, guardPage } from './access-control.js';
 
-const E={
-  search:document.getElementById('search'),
-  reload:document.getElementById('reload'),
-  rows:document.getElementById('rows'),
-  message:document.getElementById('message'),
-  roleFilter:document.getElementById('roleFilter'),
-  statusFilter:document.getElementById('statusFilter')
+const E = {
+  search: document.getElementById('search'),
+  reload: document.getElementById('reload'),
+  rows: document.getElementById('rows'),
+  message: document.getElementById('message'),
+  roleFilter: document.getElementById('roleFilter'),
+  statusFilter: document.getElementById('statusFilter'),
+  permissionRole: document.getElementById('permissionRole'),
+  permissionGrid: document.getElementById('permissionGrid'),
+  permissionMessage: document.getElementById('permissionMessage'),
+  savePermissions: document.getElementById('savePermissions')
 };
-let roles=[],branches=[],users=[],cashiers=new Map();
 
-const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({
-  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+let accessContext = null;
+let roles = [];
+let branches = [];
+let users = [];
+let permissions = [];
+let rolePermissions = new Map();
+let cashiers = new Map();
+let busyUsers = new Set();
+
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
 })[char]);
 
-async function init(){
-  const context=await loadAccessContext(supabaseClient);
-  if(!guardPage(context,'user.manage')) return;
+const roleLabel = role => `${role.name_th || role.code} (${role.code})`;
+const canManageOwner = () => accessContext?.role === 'owner';
 
-  const [roleResult,branchResult,cashierResult]=await Promise.all([
-    supabaseClient.from('app_roles')
-      .select('code,name_th').eq('is_active',true).order('sort_order'),
-    supabaseClient.from('branches')
-      .select('id,code,name').eq('is_active',true).order('sort_order'),
-    supabaseClient.from('cashier_profiles')
-      .select('user_id,employee_code,display_name,branch_id,max_discount_percent,can_open_drawer,is_active')
-  ]);
+function setMessage(element, text, type = '') {
+  element.textContent = text || '';
+  element.className = type ? `message ${type}` : 'message';
+}
 
-  if(roleResult.error) throw roleResult.error;
-  if(branchResult.error) throw branchResult.error;
-  if(!cashierResult.error){
-    cashiers=new Map((cashierResult.data||[]).map(row=>[row.user_id,row]));
+async function init() {
+  accessContext = await loadAccessContext(supabaseClient);
+  if (!guardPage(accessContext, 'user.manage')) return;
+
+  const [roleResult, branchResult, cashierResult, permissionResult, rolePermissionResult] =
+    await Promise.all([
+      supabaseClient.from('app_roles')
+        .select('id,code,name_th,sort_order,is_active')
+        .eq('is_active', true).order('sort_order'),
+      supabaseClient.from('branches')
+        .select('id,code,name').eq('is_active', true).order('sort_order'),
+      supabaseClient.from('cashier_profiles')
+        .select('user_id,employee_code,display_name,branch_id,max_discount_percent,can_open_drawer,is_active'),
+      supabaseClient.from('app_permissions')
+        .select('id,code,module,name_th').order('module').order('code'),
+      supabaseClient.from('app_role_permissions')
+        .select('role_id,permission_id')
+    ]);
+
+  for (const result of [roleResult, branchResult, permissionResult, rolePermissionResult]) {
+    if (result.error) throw result.error;
   }
-  roles=roleResult.data||[];
-  E.roleFilter.innerHTML='<option value="ALL">ทุก Role</option>'+roles.map(role=>`<option value="${role.code}">${esc(role.name_th)}</option>`).join('');
-  branches=branchResult.data||[];
-  await load();
+
+  roles = roleResult.data || [];
+  branches = branchResult.data || [];
+  permissions = permissionResult.data || [];
+  cashiers = cashierResult.error
+    ? new Map()
+    : new Map((cashierResult.data || []).map(row => [row.user_id, row]));
+
+  rolePermissions = new Map();
+  for (const row of rolePermissionResult.data || []) {
+    if (!rolePermissions.has(row.role_id)) rolePermissions.set(row.role_id, new Set());
+    rolePermissions.get(row.role_id).add(row.permission_id);
+  }
+
+  const roleOptions = roles
+    .filter(role => canManageOwner() || role.code !== 'owner')
+    .map(role => `<option value="${esc(role.code)}">${esc(roleLabel(role))}</option>`)
+    .join('');
+
+  E.roleFilter.innerHTML = '<option value="ALL">ทุก Role</option>' +
+    roles.map(role => `<option value="${esc(role.code)}">${esc(roleLabel(role))}</option>`).join('');
+  E.permissionRole.innerHTML = roleOptions;
+  branches = branchResult.data || [];
+
+  renderPermissionGrid();
+  await loadUsers();
 }
 
-async function load(){
-  E.message.textContent='กำลังโหลด...';
-  const {data,error}=await supabaseClient.rpc('admin_list_users');
-  if(error){E.message.textContent=error.message;return}
-  users=data||[];
-  render();
-  E.message.textContent=`พบ ${users.length} บัญชี`;
+async function loadUsers() {
+  setMessage(E.message, 'กำลังโหลด...');
+  const { data, error } = await supabaseClient.rpc('admin_list_users');
+  if (error) {
+    setMessage(E.message, error.message, 'error');
+    return;
+  }
+  users = data || [];
+  renderUsers();
+  setMessage(E.message, `พบ ${users.length} บัญชี`, 'success');
 }
 
-function render(){
-  const q=E.search.value.trim().toLowerCase();
-  const roleFilter=E.roleFilter.value;
-  const statusFilter=E.statusFilter.value;
-  const filtered=users.filter(user=>
-    (roleFilter==='ALL'||user.role_code===roleFilter) &&
-    (statusFilter==='ALL'||(statusFilter==='ACTIVE'?user.is_active:!user.is_active)) &&
-    (!q||String(user.email||'').toLowerCase().includes(q)
-      ||String(user.full_name||'').toLowerCase().includes(q)
-      ||String(user.role_code||'').toLowerCase().includes(q)
-      ||String(cashiers.get(user.user_id)?.employee_code||'').toLowerCase().includes(q))
+function renderUsers() {
+  const q = E.search.value.trim().toLowerCase();
+  const roleFilter = E.roleFilter.value;
+  const statusFilter = E.statusFilter.value;
+
+  const filtered = users.filter(user =>
+    (roleFilter === 'ALL' || user.role_code === roleFilter) &&
+    (statusFilter === 'ALL' || (statusFilter === 'ACTIVE' ? user.is_active : !user.is_active)) &&
+    (!q || [
+      user.email,
+      user.full_name,
+      user.role_code,
+      cashiers.get(user.user_id)?.employee_code
+    ].some(value => String(value || '').toLowerCase().includes(q)))
   );
 
-  E.rows.innerHTML=filtered.map(user=>{
-    const cashier=cashiers.get(user.user_id)||{};
-    return `<tr data-id="${user.user_id}">
-      <td><strong>${esc(user.full_name)}</strong><br><small>${esc(user.email)}</small></td>
-      <td><select class="role">${roles.map(role=>
-        `<option value="${role.code}" ${role.code===user.role_code?'selected':''}>${esc(role.name_th)} (${role.code})</option>`
+  E.rows.innerHTML = filtered.map(user => {
+    const cashier = cashiers.get(user.user_id) || {};
+    const protectedOwner = user.role_code === 'owner' && !canManageOwner();
+    const availableRoles = roles.filter(role => canManageOwner() || role.code !== 'owner');
+
+    return `<tr data-id="${esc(user.user_id)}">
+      <td><strong>${esc(user.full_name || '-')}</strong><br><small>${esc(user.email || '-')}</small></td>
+      <td><select class="role" ${protectedOwner ? 'disabled' : ''}>${availableRoles.map(role =>
+        `<option value="${esc(role.code)}" ${role.code === user.role_code ? 'selected' : ''}>${esc(roleLabel(role))}</option>`
       ).join('')}</select></td>
-      <td><select class="branch"><option value="">ทุกสาขา/ไม่ระบุ</option>
-        ${branches.map(branch=>`<option value="${branch.id}" ${branch.id===(cashier.branch_id||user.branch_id)?'selected':''}>${esc(branch.code)} — ${esc(branch.name)}</option>`).join('')}
+      <td><select class="branch" ${protectedOwner ? 'disabled' : ''}><option value="">ทุกสาขา/ไม่ระบุ</option>
+        ${branches.map(branch => `<option value="${esc(branch.id)}" ${branch.id === (cashier.branch_id || user.branch_id) ? 'selected' : ''}>${esc(branch.code)} — ${esc(branch.name)}</option>`).join('')}
       </select></td>
-      <td><label class="active-label"><input class="active" type="checkbox" ${user.is_active?'checked':''}> ใช้งาน</label></td>
+      <td><label class="active-label"><input class="active" type="checkbox" ${user.is_active ? 'checked' : ''} ${protectedOwner ? 'disabled' : ''}> ใช้งาน</label></td>
       <td>${user.last_sign_in_at
         ? `${new Date(user.last_sign_in_at).toLocaleDateString('th-TH')}<br><small>${new Date(user.last_sign_in_at).toLocaleTimeString('th-TH')}</small>`
         : '-'}</td>
       <td class="cashier-fields">
-        <input class="display-name" placeholder="ชื่อแคชเชียร์บนใบเสร็จ" value="${esc(cashier.display_name||user.full_name||'')}">
-        <input class="employee-code" placeholder="รหัสพนักงาน" value="${esc(cashier.employee_code||'')}">
-        <input class="pin" type="password" inputmode="numeric" placeholder="${cashier.employee_code?'PIN ใหม่ (เว้นว่าง=ไม่เปลี่ยน)':'PIN อย่างน้อย 4 ตัว'}">
-        <label><input class="drawer" type="checkbox" ${cashier.can_open_drawer?'checked':''}> เปิดลิ้นชักเองได้</label>
-        <input class="max-discount" type="number" min="0" max="100" step=".01"
-          value="${Number(cashier.max_discount_percent||0)}" placeholder="ส่วนลดสูงสุด %">
+        <input class="display-name" placeholder="ชื่อแคชเชียร์บนใบเสร็จ" value="${esc(cashier.display_name || user.full_name || '')}" ${protectedOwner ? 'disabled' : ''}>
+        <input class="employee-code" placeholder="รหัสพนักงาน" value="${esc(cashier.employee_code || '')}" ${protectedOwner ? 'disabled' : ''}>
+        <input class="pin" type="password" inputmode="numeric" minlength="4" placeholder="${cashier.employee_code ? 'PIN ใหม่ (เว้นว่าง=ไม่เปลี่ยน)' : 'PIN อย่างน้อย 4 ตัว'}" ${protectedOwner ? 'disabled' : ''}>
+        <label><input class="drawer" type="checkbox" ${cashier.can_open_drawer ? 'checked' : ''} ${protectedOwner ? 'disabled' : ''}> เปิดลิ้นชักเองได้</label>
+        <input class="max-discount" type="number" min="0" max="100" step=".01" value="${Number(cashier.max_discount_percent || 0)}" placeholder="ส่วนลดสูงสุด %" ${protectedOwner ? 'disabled' : ''}>
       </td>
-      <td><button class="button save">บันทึก</button></td>
+      <td><button class="button save" ${protectedOwner ? 'disabled' : ''}>บันทึก</button></td>
     </tr>`;
-  }).join('')||'<tr><td colspan="7">ไม่พบข้อมูล</td></tr>';
+  }).join('') || '<tr><td colspan="7">ไม่พบข้อมูล</td></tr>';
 
-  E.rows.querySelectorAll('.save').forEach(button=>{
-    button.addEventListener('click',()=>save(button.closest('tr')));
+  E.rows.querySelectorAll('.save').forEach(button => {
+    button.addEventListener('click', () => saveUser(button.closest('tr')));
   });
 }
 
-async function save(row){
-  const userId=row.dataset.id;
-  const user=users.find(item=>item.user_id===userId);
-  const role=row.querySelector('.role').value;
-  const branch=row.querySelector('.branch').value||null;
-  const active=row.querySelector('.active').checked;
-  const displayName=row.querySelector('.display-name').value.trim();
-  const employeeCode=row.querySelector('.employee-code').value.trim();
-  const pin=row.querySelector('.pin').value;
-  const drawer=row.querySelector('.drawer').checked;
-  const maxDiscount=Number(row.querySelector('.max-discount').value)||0;
-  const button=row.querySelector('.save');
-
-  button.disabled=true;
-  E.message.textContent='กำลังบันทึก...';
-
-  const roleResult=await supabaseClient.rpc('admin_set_user_role',{
-    p_user_id:userId,p_role_code:role,p_branch_id:branch,p_is_active:active
-  });
-  if(roleResult.error){
-    button.disabled=false;E.message.textContent=roleResult.error.message;return;
+function renderPermissionGrid() {
+  const role = roles.find(item => item.code === E.permissionRole.value) ||
+    roles.find(item => canManageOwner() || item.code !== 'owner');
+  if (!role) {
+    E.permissionGrid.textContent = 'ไม่พบ Role';
+    return;
+  }
+  E.permissionRole.value = role.code;
+  const selected = rolePermissions.get(role.id) || new Set();
+  const modules = new Map();
+  for (const permission of permissions) {
+    const moduleName = permission.module || 'other';
+    if (!modules.has(moduleName)) modules.set(moduleName, []);
+    modules.get(moduleName).push(permission);
   }
 
-  if(employeeCode){
-    const cashierResult=await supabaseClient.rpc('admin_set_cashier_profile',{
-      p_user_id:userId,
-      p_employee_code:employeeCode,
-      p_display_name:displayName||user.full_name||user.email,
-      p_pin:pin||null,
-      p_branch_id:branch,
-      p_max_discount_percent:maxDiscount,
-      p_can_open_drawer:drawer,
-      p_is_active:active
+  E.permissionGrid.innerHTML = [...modules.entries()].map(([moduleName, items]) => `
+    <fieldset class="permission-module">
+      <legend>${esc(moduleName)}</legend>
+      ${items.map(permission => `
+        <label class="permission-item">
+          <input type="checkbox" value="${esc(permission.code)}" ${selected.has(permission.id) ? 'checked' : ''}>
+          <span><strong>${esc(permission.name_th || permission.code)}</strong><small>${esc(permission.code)}</small></span>
+        </label>`).join('')}
+    </fieldset>`).join('');
+}
+
+async function saveUser(row) {
+  const userId = row.dataset.id;
+  if (!userId || busyUsers.has(userId)) return;
+  busyUsers.add(userId);
+
+  const user = users.find(item => item.user_id === userId);
+  const role = row.querySelector('.role').value;
+  const branch = row.querySelector('.branch').value || null;
+  const active = row.querySelector('.active').checked;
+  const displayName = row.querySelector('.display-name').value.trim();
+  const employeeCode = row.querySelector('.employee-code').value.trim();
+  const pin = row.querySelector('.pin').value.trim();
+  const drawer = row.querySelector('.drawer').checked;
+  const maxDiscount = Number(row.querySelector('.max-discount').value) || 0;
+  const button = row.querySelector('.save');
+
+  if (pin && !/^\d{4,}$/.test(pin)) {
+    setMessage(E.message, 'PIN ต้องเป็นตัวเลขอย่างน้อย 4 หลัก', 'error');
+    busyUsers.delete(userId);
+    return;
+  }
+  if (maxDiscount < 0 || maxDiscount > 100) {
+    setMessage(E.message, 'ส่วนลดสูงสุดต้องอยู่ระหว่าง 0–100%', 'error');
+    busyUsers.delete(userId);
+    return;
+  }
+
+  button.disabled = true;
+  setMessage(E.message, 'กำลังบันทึก...');
+
+  try {
+    const roleResult = await supabaseClient.rpc('admin_set_user_role_safe', {
+      p_user_id: userId,
+      p_role_code: role,
+      p_branch_id: branch,
+      p_is_active: active
     });
-    if(cashierResult.error){
-      button.disabled=false;E.message.textContent=cashierResult.error.message;return;
-    }
-  }
+    if (roleResult.error) throw roleResult.error;
 
-  button.disabled=false;
-  E.message.textContent='บันทึกสิทธิ์และข้อมูลแคชเชียร์เรียบร้อย';
-  await init();
+    if (employeeCode) {
+      const cashierResult = await supabaseClient.rpc('admin_set_cashier_profile', {
+        p_user_id: userId,
+        p_employee_code: employeeCode,
+        p_display_name: displayName || user.full_name || user.email,
+        p_pin: pin || null,
+        p_branch_id: branch,
+        p_max_discount_percent: maxDiscount,
+        p_can_open_drawer: drawer,
+        p_is_active: active
+      });
+      if (cashierResult.error) throw cashierResult.error;
+    }
+
+    setMessage(E.message, 'บันทึกสิทธิ์และข้อมูลแคชเชียร์เรียบร้อย', 'success');
+    await init();
+  } catch (error) {
+    console.error('Save user access error:', error);
+    setMessage(E.message, error.message || 'บันทึกไม่สำเร็จ', 'error');
+  } finally {
+    busyUsers.delete(userId);
+    button.disabled = false;
+  }
 }
 
-E.reload.onclick=load;
-E.search.oninput=render;
-E.roleFilter.onchange=render;
-E.statusFilter.onchange=render;
-init().catch(error=>E.message.textContent=error.message);
+async function saveRolePermissions() {
+  const role = E.permissionRole.value;
+  if (!role) return;
+  E.savePermissions.disabled = true;
+  setMessage(E.permissionMessage, 'กำลังบันทึก...');
+
+  const codes = [...E.permissionGrid.querySelectorAll('input[type="checkbox"]:checked')]
+    .map(input => input.value);
+
+  try {
+    const { data, error } = await supabaseClient.rpc('admin_set_role_permissions', {
+      p_role_code: role,
+      p_permission_codes: codes
+    });
+    if (error) throw error;
+    setMessage(E.permissionMessage, `บันทึกสิทธิ์ ${data?.permission_count ?? codes.length} รายการแล้ว`, 'success');
+    await init();
+  } catch (error) {
+    console.error('Save role permissions error:', error);
+    setMessage(E.permissionMessage, error.message || 'บันทึกสิทธิ์ไม่สำเร็จ', 'error');
+  } finally {
+    E.savePermissions.disabled = false;
+  }
+}
+
+E.reload.addEventListener('click', loadUsers);
+E.search.addEventListener('input', renderUsers);
+E.roleFilter.addEventListener('change', renderUsers);
+E.statusFilter.addEventListener('change', renderUsers);
+E.permissionRole.addEventListener('change', renderPermissionGrid);
+E.savePermissions.addEventListener('click', saveRolePermissions);
+
+init().catch(error => {
+  console.error('Users admin init error:', error);
+  setMessage(E.message, error.message || 'เปิดหน้าจัดการสิทธิ์ไม่สำเร็จ', 'error');
+});

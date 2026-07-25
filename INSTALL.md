@@ -1,11 +1,13 @@
-# Master 3.5.3 — Reports Runtime Fix
+# Master 3.5.4 — Access Control Stable
 
-อัปโหลดเฉพาะ `reports.html` และ `js/reports.js`
+## ลำดับติดตั้ง
+1. สำรองฐานข้อมูล/Commit ปัจจุบัน
+2. รัน `sql/UPGRADE-3.5.4-ACCESS-CONTROL.sql` ใน Supabase SQL Editor หนึ่งครั้ง
+3. อัปโหลดเขียนทับ:
+   - `users-admin.html`
+   - `js/users-admin.js`
+   - `css/governance.css`
+4. Commit: `Deploy Master 3.5.4 Access Control Stable`
+5. รอ Deploy และกด Ctrl+Shift+R
 
-แก้ `supabase-config.js`, `paymentLabel` ซ้ำ, Logout element ที่ไม่มีอยู่ และการแยกยอดเงินโอนจากบิลจริง
-
-ไม่แก้ POS, Dashboard, Database, SQL, RPC, Receipt, Hardware หรือ Navigation
-
-Commit: `Deploy Master 3.5.3 Reports Runtime Fix`
-
-หลัง Deploy กด Ctrl+Shift+R และไม่ต้องรัน SQL
+SQL เป็นแบบ Additive: ไม่ลบ Table, Column, User, Role หรือข้อมูลธุรกรรม
