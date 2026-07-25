@@ -485,3 +485,20 @@ td {
     padding:9px 8px;
   }
 }
+\n\n/* Master 3.6.0 — dashboard view-only cleanup */
+.dashboard-grid,
+.sales-control-panel{
+  margin-top:20px;
+}
+.dashboard-grid{
+  align-items:start;
+}
+.top-actions .report-shortcut,
+.top-actions .bill-shortcut{
+  font-weight:900;
+}
+@media(max-width:760px){
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+}
