@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#991b1b">
-  <title>TKN POS / ERP — Version 2.0 Stable</title>
-  <link rel="stylesheet" href="./css/dashboard-v2.css?v=8.2.1">
+  <title>TKN POS / ERP — Dashboard Master 3.5</title>
+  <link rel="stylesheet" href="./css/dashboard-v2.css?v=3.5.0">
   <link rel="stylesheet" href="./css/phase-9-5-integration.css?v=1.0.0">
   <link rel="stylesheet" href="./css/phase-9-5-navigation-fix-v1-1.css?v=1.1.0">
 
@@ -33,23 +33,28 @@
     }
   </style>
 
-  <link rel="stylesheet" href="./css/executive-report.css?v=3.0.0">
+  <link rel="stylesheet" href="./css/executive-report.css?v=3.5.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
 </head>
 <body data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
   <header class="topbar">
     <div>
-      <p class="eyebrow">TKN POS / ERP · MASTER 3.3 LTS · SINGLE PRODUCTION VERSION</p>
+      <p class="eyebrow">TKN POS / ERP · MASTER 3.5 · DASHBOARD STABLE</p>
       <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
       <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
-      <p class="integration-note">หน้าหลักเดิม พร้อมโมดูลหลังการขายจาก Phase 09.2</p>
+      <p class="integration-note">ภาพรวมธุรกิจ สต็อก ยอดขาย และทางลัดสำหรับตรวจสอบรายงาน</p>
     </div>
-    <div class="top-actions">
-      <select id="branchFilter">
-        <option value="">ทุกสาขา</option>
-      </select>
-      <button id="refreshBtn" class="btn secondary" type="button">รีเฟรช</button>
+    <div class="top-actions dashboard-actions">
+      <label class="branch-control">
+        <span>สาขา</span>
+        <select id="branchFilter">
+          <option value="">ทุกสาขา</option>
+        </select>
+      </label>
+      <a class="btn report-shortcut" href="./reports.html">รายงานการขาย</a>
+      <a class="btn bill-shortcut" href="./phase-9-2-bill-search.html">ตรวจสอบบิล</a>
+      <button id="refreshBtn" class="btn primary" type="button">รีเฟรชข้อมูล</button>
     </div>
   </header>
 
@@ -216,7 +221,7 @@
 
     <section id="salesControlPanel" class="card sales-control-panel">
       <div class="section-title">
-        <div><h2>ตรวจสอบบิลและรายรับ</h2><p>รายวัน รายเดือน รายปี พร้อม Drill-down รายละเอียดสินค้า</p></div>
+        <div><h2>สรุปรายรับแบบรวดเร็ว</h2><p>ดูภาพรวมรายวัน รายเดือน หรือรายปี และเปิดรายละเอียดบิลได้ทันที</p></div>
       </div>
       <div class="sales-control-toolbar">
         <label>ช่วงเวลา<select id="reportPeriod"><option value="DAY">รายวัน</option><option value="MONTH">รายเดือน</option><option value="YEAR">รายปี</option></select></label>
@@ -227,7 +232,7 @@
         <article class="sales-control-stat"><span>จำนวนบิล</span><strong id="reportBillCount">0</strong></article>
         <article class="sales-control-stat"><span>รายรับรวม</span><strong id="reportRevenue">฿0.00</strong></article>
         <article class="sales-control-stat"><span>เงินสด</span><strong id="reportCash">฿0.00</strong></article>
-        <article class="sales-control-stat"><span>QR / โอน</span><strong id="reportQr">฿0.00</strong></article>
+        <article class="sales-control-stat"><span>QR / โอนรวม</span><strong id="reportQr">฿0.00</strong></article>
         <article class="sales-control-stat"><span>บัตร</span><strong id="reportCard">฿0.00</strong></article>
         <article class="sales-control-stat"><span>เฉลี่ยต่อบิล</span><strong id="reportAverage">฿0.00</strong></article>
         <article class="sales-control-stat"><span>บิลยกเลิก</span><strong id="reportVoidCount">0</strong></article>
@@ -237,6 +242,10 @@
         <thead><tr><th>วันที่</th><th>เลขบิล</th><th>ชำระ</th><th>ยอดสุทธิ</th><th>สถานะ</th><th>รายละเอียด</th></tr></thead>
         <tbody id="reportBillRows"><tr><td colspan="6">กำลังโหลด...</td></tr></tbody>
       </table></div>
+      <div class="dashboard-report-footer">
+        <a class="btn report-shortcut" href="./reports.html">เปิดรายงานฉบับเต็ม</a>
+        <a class="btn secondary" href="./phase-9-2-bill-search.html">ค้นหาเลขบิล</a>
+      </div>
       <p id="salesControlMessage" class="message"></p>
     </section>
 
@@ -254,7 +263,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="./js/supabase-config.js"></script>
-<script src="./js/dashboard.js?v=3.4.11"></script>
+<script src="./js/dashboard.js?v=3.5.0"></script>
 <script>
   document.querySelectorAll(".integration-card").forEach((link) => {
     link.addEventListener("click", () => {
@@ -263,6 +272,6 @@
   });
 </script>
   
-  <script src="./js/executive-report.js?v=3.0.0"></script>
+  <script src="./js/executive-report.js?v=3.5.0"></script>
 </body>
 </html>

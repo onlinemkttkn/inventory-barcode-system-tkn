@@ -4,11 +4,7 @@
   const root = document.querySelector('#salesControlPanel');
   if (!root) return;
 
-  const client = window.supabase?.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    { auth: { persistSession: true, autoRefreshToken: true } }
-  );
+  const client = window.supabaseClient;
 
   const E = {
     period: document.querySelector('#reportPeriod'),
@@ -31,6 +27,8 @@
   };
 
   let state = { bills: [], items: [] };
+  let loadSequence = 0;
+  let initialized = false;
 
   const money = v => new Intl.NumberFormat('th-TH', {
     style: 'currency', currency: 'THB', minimumFractionDigits: 2
@@ -41,6 +39,15 @@
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
   })[c]);
+
+  const paymentLabel = value => ({
+    CASH: 'เงินสด',
+    QR: 'QR',
+    TRANSFER: 'เงินโอน',
+    CARD: 'บัตร',
+    VOUCHER: 'Voucher',
+    OTHER: 'อื่น ๆ'
+  })[String(value || '').toUpperCase()] || String(value || '-');
 
   function currentBranchId() {
     const select = document.querySelector('#branchFilter');
@@ -67,7 +74,7 @@
       <tr>
         <td>${dateTime(b.created_at)}</td>
         <td><strong>${esc(b.sale_no)}</strong></td>
-        <td>${esc(b.payment_method || '-')}</td>
+        <td>${esc(paymentLabel(b.payment_method))}</td>
         <td>${money(b.net_total)}</td>
         <td><span class="badge ${String(b.status).toUpperCase()==='VOIDED'?'out':'ok'}">${esc(b.status)}</span></td>
         <td><button type="button" class="report-detail-btn" data-id="${esc(b.id)}">รายละเอียด</button></td>
@@ -86,7 +93,7 @@
     E.dialogBody.innerHTML = `
       <div class="report-bill-meta">
         <p><strong>วันที่</strong><br>${dateTime(bill.created_at)}</p>
-        <p><strong>ชำระ</strong><br>${esc(bill.payment_method || '-')}</p>
+        <p><strong>ชำระ</strong><br>${esc(paymentLabel(bill.payment_method))}</p>
         <p><strong>ลูกค้า</strong><br>${esc(bill.customer_name || 'Walk-in')}</p>
         <p><strong>สถานะ</strong><br>${esc(bill.status || '-')}</p>
       </div>
@@ -101,15 +108,22 @@
   }
 
   async function load() {
-    if (!client) return;
+    if (!client) {
+      E.message.textContent = 'ไม่พบ Supabase Client กลาง';
+      return;
+    }
+
+    const sequence = ++loadSequence;
     E.load.disabled = true;
     E.message.textContent = 'กำลังโหลดรายงาน...';
+
     const { data, error } = await client.rpc('get_sales_control_dashboard_v2_1', {
       p_period: E.period.value,
       p_anchor_date: E.anchor.value || new Date().toISOString().slice(0,10),
       p_branch_id: currentBranchId(),
       p_limit: 200
     });
+    if (sequence !== loadSequence) return;
     E.load.disabled = false;
     if (error) {
       console.error(error);
@@ -125,8 +139,15 @@
   E.period.addEventListener('change', load);
   E.anchor.addEventListener('change', load);
   E.dialogClose.addEventListener('click', () => E.dialog.close());
-  document.querySelector('#branchFilter')?.addEventListener('change', () => setTimeout(load, 0));
 
-  window.addEventListener('tkn-dashboard-loaded', load);
-  setTimeout(load, 1200);
+  window.addEventListener('tkn-dashboard-loaded', () => {
+    initialized = true;
+    load();
+  });
+
+  // If the event fired before this script finished, use the visible app state.
+  if (!document.querySelector('#appArea')?.classList.contains('hidden')) {
+    initialized = true;
+    load();
+  }
 })();

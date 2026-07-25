@@ -1,13 +1,12 @@
 {
-  "javascript_syntax": true,
+  "javascript_syntax": {
+    "js/dashboard.js": true,
+    "js/executive-report.js": true
+  },
   "duplicate_html_ids": [],
-  "logout_guard_capture_phase": true,
-  "active_shift_check": true,
-  "responsive_dialog_css": true,
+  "single_supabase_client": true,
+  "dashboard_loaded_event": true,
+  "pos_changed": false,
   "database_changes": false,
-  "navigation_changed": false,
-  "receipt_changed": false,
-  "hardware_changed": false,
-  "drawer_logic_changed": false,
-  "runtime_note": "Must be tested in the deployed POS with the real sidebar navigation."
+  "runtime_note": "Requires UAT against the existing Supabase views/RPC."
 }

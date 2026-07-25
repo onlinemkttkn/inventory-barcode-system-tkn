@@ -14,3 +14,56 @@
 .report-bill-meta { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0; }
 @media(max-width:900px){.sales-control-stats{grid-template-columns:repeat(2,1fr)}.report-bill-meta{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.sales-control-toolbar{grid-template-columns:1fr}.sales-control-stats{grid-template-columns:1fr}.report-bill-meta{grid-template-columns:1fr}}
+
+
+/* Master 3.5.0 — embedded sales summary */
+.sales-control-panel{
+  overflow:hidden;
+}
+.sales-control-toolbar label{
+  display:grid;
+  gap:6px;
+  color:#475569;
+  font-weight:800;
+}
+.sales-control-toolbar select,
+.sales-control-toolbar input{
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:9px 11px;
+  background:#fff;
+  font:inherit;
+}
+.sales-control-toolbar input[type="date"]{
+  padding:0 10px;
+}
+.sales-control-stat{
+  min-width:0;
+}
+.sales-control-stat strong{
+  overflow-wrap:anywhere;
+}
+.report-dialog{
+  max-height:90dvh;
+  overflow:auto;
+}
+.report-dialog-inner{
+  min-width:0;
+}
+@media(max-width:620px){
+  .report-dialog{
+    width:calc(100% - 14px);
+  }
+  .report-dialog-inner{
+    padding:14px;
+  }
+  .report-dialog-head{
+    align-items:flex-start;
+  }
+  .report-detail-btn{
+    min-height:42px;
+  }
+}

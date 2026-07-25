@@ -127,7 +127,11 @@ async function init() {
        * เรียก renderSession เฉพาะตอนเข้าสู่ระบบจริง
        * ไม่โหลด Dashboard ซ้ำตอน TOKEN_REFRESHED
        */
-      if (event === "SIGNED_IN" && nextSession && !currentProfile) {
+      if (
+        (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
+        nextSession &&
+        !currentProfile
+      ) {
         setTimeout(() => {
           renderSession(nextSession);
         }, 0);
@@ -194,11 +198,12 @@ async function renderSession(session) {
       await supabaseClient.rpc("current_access_context");
 
     if (accessError || !access?.user_id || access.is_active !== true) {
-      await supabaseClient.auth.signOut();
+      console.error("Access context error:", accessError || access);
       showLogin();
       msg(
         E.loginMessage,
-        accessError?.message || "บัญชีไม่มีสิทธิ์ใช้งาน",
+        accessError?.message ||
+          "ไม่สามารถตรวจสอบสิทธิ์ได้ กรุณารีเฟรชหรือลองใหม่",
         "error"
       );
       return;
@@ -434,6 +439,12 @@ async function loadDashboard() {
     renderChart(dailySales.data || []);
 
     msg(E.dashboardMessage, "อัปเดตข้อมูลแล้ว", "success");
+    window.dispatchEvent(new CustomEvent("tkn-dashboard-loaded", {
+      detail: {
+        branchId,
+        loadedAt: new Date().toISOString()
+      }
+    }));
   } catch (error) {
     console.error("Load dashboard error:", error);
     msg(
@@ -540,6 +551,11 @@ function renderTopProducts(rows) {
 }
 
 function renderChart(rows) {
+  if (typeof Chart !== "function") {
+    console.warn("Chart.js is unavailable; dashboard tables remain usable.");
+    return;
+  }
+
   const labels = [];
   const values = [];
 

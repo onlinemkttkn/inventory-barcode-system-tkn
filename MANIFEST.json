@@ -1,14 +1,15 @@
 {
-  "version": "3.4.17",
-  "scope": "Add logout button to shift lock screen only",
+  "version": "3.5.0",
+  "module": "Dashboard",
   "deploy_files": [
-    "pos.html",
-    "pos.js"
+    "dashboard.html",
+    "js/dashboard.js",
+    "js/executive-report.js",
+    "css/dashboard-v2.css",
+    "css/executive-report.css"
   ],
-  "css_changed": false,
+  "pos_changed": false,
   "database_changes": false,
-  "drawer_changed": false,
-  "hardware_changed": false,
-  "receipt_changed": false,
-  "navigation_changed": false
+  "sql_required": false,
+  "reports_page_changed": false
 }
