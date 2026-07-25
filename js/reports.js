@@ -15,7 +15,6 @@ const E = {
   load: document.getElementById('load'),
   csv: document.getElementById('csv'),
   print: document.getElementById('print'),
-  logout: document.getElementById('logoutBtn'),
   stats: document.getElementById('stats'),
   rows: document.getElementById('rows'),
   message: document.getElementById('message'),
@@ -104,6 +103,14 @@ function paymentGroup(method){
   const value=String(method||'').toUpperCase();
   return ['CASH','QR','TRANSFER','CARD','VOUCHER'].includes(value)?value:'OTHER';
 }
+
+function paymentLabel(method){
+  return ({
+    CASH:'เงินสด', QR:'QR', TRANSFER:'เงินโอน', CARD:'บัตร',
+    VOUCHER:'Voucher', OTHER:'อื่น ๆ'
+  })[paymentGroup(method)] || String(method || '-');
+}
+
 function applyPaymentFilter(){
   const selected=E.paymentFilter?.value||'ALL';
   state.bills=selected==='ALL'?state.allBills:[...state.allBills].filter(bill=>paymentGroup(bill.payment_method)===selected);
@@ -150,7 +157,7 @@ function openBill(id) {
   E.content.innerHTML = `
     <div class="bill-meta">
       <p><b>วันที่</b><br>${dateTime(bill.created_at)}</p>
-      <p><b>ชำระ</b><br>${escapeHtml(bill.payment_method || '-')}</p>
+      <p><b>ชำระ</b><br>${escapeHtml(paymentLabel(bill.payment_method))}</p>
       <p><b>สถานะ</b><br>${escapeHtml(bill.status || '-')}</p>
       <p><b>ลูกค้า</b><br>${escapeHtml(bill.customer_name || 'Walk-in')}</p>
     </div>
@@ -182,7 +189,7 @@ function exportCsv() {
     ...state.bills.map(bill => [
       dateTime(bill.created_at),
       bill.sale_no,
-      bill.payment_method,
+      paymentLabel(bill.payment_method),
       bill.net_total,
       bill.status
     ])
@@ -213,7 +220,7 @@ E.paymentFilter.onchange=()=>{applyPaymentFilter();renderTableOnly();};
 
 function renderTableOnly(){
   E.rows.innerHTML = state.bills.map(bill => `
-    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(bill.payment_method || '-')}</td><td>${money(bill.net_total)}</td><td>${escapeHtml(bill.status || '-')}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
+    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(paymentLabel(bill.payment_method))}</td><td>${money(bill.net_total)}</td><td>${escapeHtml(bill.status || '-')}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
   E.rows.querySelectorAll('.detail').forEach(button=>{button.onclick=()=>openBill(button.dataset.id)});
 }
 
@@ -228,8 +235,8 @@ E.load.onclick = load;
 E.csv.onclick = exportCsv;
 E.print.onclick = () => print();
 E.close.onclick = () => E.dialog.close();
-E.logout.onclick = logout;
 
 init().catch(error => {
-  E.message.textContent = error.message;
+  console.error('Reports initialization error:', error);
+  E.message.textContent = error?.message || 'โหลดรายงานไม่สำเร็จ';
 });

@@ -1,15 +1,12 @@
 {
-  "version": "3.5.0",
-  "module": "Dashboard",
+  "version": "3.5.1",
+  "module": "Reports",
   "deploy_files": [
-    "dashboard.html",
-    "js/dashboard.js",
-    "js/executive-report.js",
-    "css/dashboard-v2.css",
-    "css/executive-report.css"
+    "reports.html",
+    "js/reports.js"
   ],
   "pos_changed": false,
   "database_changes": false,
   "sql_required": false,
-  "reports_page_changed": false
+  "rpc_changed": false
 }

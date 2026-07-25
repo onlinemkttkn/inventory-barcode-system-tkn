@@ -1,12 +1,7 @@
 {
-  "javascript_syntax": {
-    "js/dashboard.js": true,
-    "js/executive-report.js": true
-  },
+  "javascript_syntax": true,
   "duplicate_html_ids": [],
-  "single_supabase_client": true,
-  "dashboard_loaded_event": true,
+  "single_module_supabase_client": true,
   "pos_changed": false,
-  "database_changes": false,
-  "runtime_note": "Requires UAT against the existing Supabase views/RPC."
+  "database_changes": false
 }
