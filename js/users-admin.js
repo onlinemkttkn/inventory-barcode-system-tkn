@@ -101,13 +101,52 @@ async function loadCatalog() {
   renderPermissionGrid();
 }
 
+function normalizeUsersPayload(data) {
+  const rows = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.users)
+      ? data.users
+      : Array.isArray(data?.data)
+        ? data.data
+        : [];
+
+  return rows
+    .filter(row => row && typeof row === 'object' && row.user_id)
+    .map(row => ({
+      user_id: String(row.user_id),
+      email: row.email == null ? '' : String(row.email),
+      full_name: row.full_name == null ? '' : String(row.full_name),
+      role_code: row.role_code == null ? 'staff' : String(row.role_code),
+      role_name_th: row.role_name_th == null ? '' : String(row.role_name_th),
+      is_active: row.is_active !== false,
+      last_sign_in_at: row.last_sign_in_at || null,
+      employee_code: row.employee_code == null ? '' : String(row.employee_code),
+      cashier_display_name: row.cashier_display_name == null
+        ? ''
+        : String(row.cashier_display_name),
+      cashier_branch_id: row.cashier_branch_id || null,
+      max_discount_percent: Number(row.max_discount_percent || 0),
+      can_open_drawer: row.can_open_drawer === true,
+      cashier_is_active: row.cashier_is_active === true
+    }));
+}
+
 async function loadUsers() {
   setMessage(E.message, 'กำลังโหลด...');
+
   const { data, error } = await supabaseClient.rpc('admin_list_users');
   if (error) throw error;
-  users = Array.isArray(data) ? data : [];
+
+  users = normalizeUsersPayload(data);
   renderUsers();
-  setMessage(E.message, `พบ ${users.length} บัญชี`, 'success');
+
+  setMessage(
+    E.message,
+    users.length
+      ? `พบ ${users.length} บัญชี`
+      : 'RPC ทำงาน แต่ไม่พบข้อมูลผู้ใช้',
+    users.length ? 'success' : ''
+  );
 }
 
 async function init() {
@@ -139,6 +178,8 @@ async function init() {
 }
 
 function renderUsers() {
+  if (!E.rows) return;
+
   const q = E.search.value.trim().toLowerCase();
   const roleFilter = E.roleFilter.value;
   const statusFilter = E.statusFilter.value;
@@ -203,7 +244,7 @@ function renderUsers() {
         </label>
       </td>
       <td>${
-        user.last_sign_in_at
+        user.last_sign_in_at && !Number.isNaN(Date.parse(user.last_sign_in_at))
           ? `${new Date(user.last_sign_in_at).toLocaleDateString('th-TH')}
              <br><small>${
                new Date(user.last_sign_in_at).toLocaleTimeString('th-TH')
