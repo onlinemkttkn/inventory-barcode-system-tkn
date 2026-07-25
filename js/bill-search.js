@@ -1,7 +1,8 @@
 import { supabaseClient } from './supabase-client.js';
 import {
   loadAccessContext,
-  hasPermission
+  hasPermission,
+  applyPermissionElements
 } from './access-control.js';
 
 const state = {
@@ -229,7 +230,15 @@ async function openBill(id) {
       <p><strong>ยอดสุทธิ: ${formatMoney(bill.net_total)}</strong></p>
     `;
 
-    applyPermissionUI({ role: state.role, root: els.billDialog });
+    applyPermissionElements(
+      {
+        role: state.role,
+        permissions: JSON.parse(
+          sessionStorage.getItem('tkn_permissions') || '[]'
+        )
+      },
+      els.billDialog
+    );
 
     const status = String(bill.status || '').toUpperCase();
     const isVoided = ['VOIDED', 'CANCELLED'].includes(status);
