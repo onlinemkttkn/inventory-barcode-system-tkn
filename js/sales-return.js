@@ -4,10 +4,14 @@ const params = new URLSearchParams(window.location.search);
 const saleId = params.get('sale_id');
 const saleNoFromUrl = params.get('sale_no') || '';
 
+const CASH_APPROVAL_THRESHOLD = 5000;
+
 const state = {
   header: null,
   items: [],
-  balanceBySaleItemId: new Map()
+  balanceBySaleItemId: new Map(),
+  pendingReturnRequest: null,
+  submitting: false
 };
 
 const els = {
@@ -29,7 +33,21 @@ const els = {
   resultDialogTitle: document.querySelector('#resultDialogTitle'),
   resultDialogMessage: document.querySelector('#resultDialogMessage'),
   closeCountdown: document.querySelector('#closeCountdown'),
-  closeResultDialog: document.querySelector('#closeResultDialog')
+  closeResultDialog: document.querySelector('#closeResultDialog'),
+  refundDrawerApprovalDialog:
+    document.querySelector('#refundDrawerApprovalDialog'),
+  refundDrawerApprovalForm:
+    document.querySelector('#refundDrawerApprovalForm'),
+  refundApproverCode:
+    document.querySelector('#refundApproverCode'),
+  refundApproverPin:
+    document.querySelector('#refundApproverPin'),
+  refundApprovalMessage:
+    document.querySelector('#refundApprovalMessage'),
+  cancelRefundApproval:
+    document.querySelector('#cancelRefundApproval'),
+  confirmRefundApproval:
+    document.querySelector('#confirmRefundApproval')
 };
 
 function formatMoney(value) {
@@ -51,6 +69,152 @@ function escapeHtml(value) {
 function setStatus(message, type = '') {
   els.statusMessage.textContent = message;
   els.statusMessage.dataset.type = type;
+}
+
+
+function setApprovalStatus(message, type = '') {
+  if (!els.refundApprovalMessage) return;
+  els.refundApprovalMessage.textContent = message || '';
+  els.refundApprovalMessage.dataset.type = type;
+}
+
+function currentShift() {
+  try {
+    const value = JSON.parse(
+      sessionStorage.getItem('tkn_cashier_shift') || 'null'
+    );
+    return value && typeof value === 'object' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeReturnAudit(
+  actionType,
+  entityId,
+  label,
+  details = {}
+) {
+  try {
+    const branchId =
+      state.header?.branch_id ||
+      currentShift()?.branch_id ||
+      null;
+
+    const result = await supabaseClient.rpc('write_audit_log', {
+      p_action_type: actionType,
+      p_entity_type: 'CASH_DRAWER',
+      p_entity_id: entityId ? String(entityId) : null,
+      p_action_label: label,
+      p_details: details,
+      p_branch_id: branchId,
+      p_user_agent: navigator.userAgent
+    });
+
+    if (result.error) {
+      console.warn('Return drawer audit skipped:', result.error.message);
+    }
+  } catch (error) {
+    console.warn('Return drawer audit unavailable:', error);
+  }
+}
+
+async function openCashRefundDrawer(returnData, approval = null) {
+  const returnNo = returnData?.return_no || null;
+  const refundAmount = Number(returnData?.refund_amount || 0);
+  const saleNo =
+    returnData?.sale_no ||
+    state.header?.sale_no ||
+    saleNoFromUrl ||
+    null;
+  const shift = currentShift();
+
+  const auditDetails = {
+    source: 'SALE_RETURN',
+    return_no: returnNo,
+    sale_id: saleId,
+    sale_no: saleNo,
+    refund_method: 'CASH',
+    refund_amount: refundAmount,
+    shift_id: shift?.shift_id || null,
+    cashier_employee_code: shift?.employee_code || null,
+    approver_employee_code: approval?.employee_code || null
+  };
+
+  if (!window.TKNHardware) {
+    await writeReturnAudit(
+      'CASH_DRAWER_OPEN_FAILED',
+      returnNo || saleNo || saleId,
+      'เปิดลิ้นชักคืนเงินสดไม่สำเร็จ',
+      {
+        ...auditDetails,
+        result: 'HARDWARE_CLIENT_MISSING'
+      }
+    );
+
+    return {
+      ok: false,
+      message:
+        'คืนสินค้าสำเร็จ แต่ไม่พบ Hardware Client สำหรับเปิดลิ้นชัก'
+    };
+  }
+
+  try {
+    const result = await window.TKNHardware.openDrawer({
+      reason: 'RETURN_CASH_REFUND',
+      source: 'SALE_RETURN',
+      return_no: returnNo,
+      sale_id: saleId,
+      sale_no: saleNo,
+      refund_amount: refundAmount,
+      shift_id: shift?.shift_id || null,
+      approval
+    });
+
+    await writeReturnAudit(
+      'CASH_DRAWER_OPEN_SUCCESS',
+      returnNo || saleNo || saleId,
+      'เปิดลิ้นชักเพื่อคืนเงินสดสำเร็จ',
+      {
+        ...auditDetails,
+        result: 'SUCCESS',
+        transport: result?.transport || result?.service || null
+      }
+    );
+
+    return {
+      ok: true,
+      message:
+        `เปิดลิ้นชักเพื่อคืนเงินสดผ่าน ${
+          result?.transport || result?.service || 'Hardware'
+        }`
+    };
+  } catch (error) {
+    await writeReturnAudit(
+      'CASH_DRAWER_OPEN_FAILED',
+      returnNo || saleNo || saleId,
+      'เปิดลิ้นชักคืนเงินสดไม่สำเร็จ',
+      {
+        ...auditDetails,
+        result: 'FAILED',
+        error_message: error.message
+      }
+    );
+
+    return {
+      ok: false,
+      message:
+        `คืนสินค้าสำเร็จ แต่เปิดลิ้นชักไม่สำเร็จ: ${error.message}`
+    };
+  }
+}
+
+function requestRefundApproval(request) {
+  state.pendingReturnRequest = request;
+  setApprovalStatus('');
+  els.refundDrawerApprovalForm?.reset();
+  els.refundDrawerApprovalDialog?.showModal();
+  setTimeout(() => els.refundApproverCode?.focus(), 0);
 }
 
 
@@ -282,42 +446,23 @@ function showSuccessDialog(data) {
   const returnNo=data?.return_no||'-';
   els.resultDialogIcon.textContent='✓';
   els.resultDialogTitle.textContent='คืนสินค้าสำเร็จ';
-  els.resultDialogMessage.textContent=`เลขที่คืน ${returnNo} · ยอดคืน ${formatMoney(data?.refund_amount)}`;
+  els.resultDialogMessage.textContent =
+    `เลขที่คืน ${returnNo} · ยอดคืน ${formatMoney(data?.refund_amount)}`
+    + (data?.drawer_message ? ` · ${data.drawer_message}` : '');
   if(els.closeCountdown) els.closeCountdown.closest('p')?.remove();
   if(!els.resultDialog.open) els.resultDialog.showModal();
   els.closeResultDialog.textContent='กลับไปหน้าตรวจสอบบิล';
   els.closeResultDialog.onclick=()=>goToBillSearch(data);
 }
 
-async function submitReturn() {
-  const lines = getReturnLines();
-  const reason = els.returnReason.value.trim();
+async function executeReturn(request, approval = null) {
+  if (state.submitting) return;
 
-  if (!lines.length) {
-    setStatus(
-      'กรุณาเลือกจำนวนสินค้าที่ต้องการคืน',
-      'error'
-    );
-    return;
-  }
-
-  if (reason.length < 5) {
-    setStatus(
-      'กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร',
-      'error'
-    );
-    return;
-  }
-
-  const confirmed = window.confirm(
-    `ยืนยันคืนสินค้าจากบิล `
-    + `${state.header?.sale_no || saleNoFromUrl || ''}`
-    + ` ใช่หรือไม่?`
-  );
-
-  if (!confirmed) return;
-
+  state.submitting = true;
   els.confirmButton.disabled = true;
+  if (els.confirmRefundApproval) {
+    els.confirmRefundApproval.disabled = true;
+  }
   setStatus('กำลังบันทึกคืนสินค้า...');
 
   try {
@@ -325,21 +470,39 @@ async function submitReturn() {
       'process_sale_return_phase_9_2',
       {
         p_sale_id: saleId,
-        p_reason: reason,
-        p_refund_method: els.refundMethod.value,
-        p_items: lines
+        p_reason: request.reason,
+        p_refund_method: request.refundMethod,
+        p_items: request.lines
       }
     );
 
     if (error) throw error;
 
-    setStatus(
+    let drawerResult = null;
+
+    if (request.refundMethod === 'CASH') {
+      drawerResult = await openCashRefundDrawer(data, approval);
+    }
+
+    const successText =
       `คืนสินค้าสำเร็จ ${data?.return_no || ''}`
-      + ` · ยอดคืน ${formatMoney(data?.refund_amount)}`,
-      'success'
+      + ` · ยอดคืน ${formatMoney(data?.refund_amount)}`;
+
+    setStatus(
+      drawerResult?.message
+        ? `${successText} · ${drawerResult.message}`
+        : successText,
+      drawerResult && !drawerResult.ok ? 'warning' : 'success'
     );
 
     sessionStorage.setItem('tkn_bill_search_refresh', '1');
+
+    if (drawerResult?.message) {
+      data.drawer_message = drawerResult.message;
+      data.drawer_ok = drawerResult.ok;
+    }
+
+    els.refundDrawerApprovalDialog?.close();
     showSuccessDialog(data);
   } catch (error) {
     console.error('Process sales return error:', error);
@@ -371,6 +534,124 @@ async function submitReturn() {
     }
 
     updateSummary();
+  } finally {
+    state.submitting = false;
+    state.pendingReturnRequest = null;
+    if (els.confirmRefundApproval) {
+      els.confirmRefundApproval.disabled = false;
+    }
+    updateSummary();
+  }
+}
+
+async function submitReturn() {
+  const lines = getReturnLines();
+  const reason = els.returnReason.value.trim();
+  const refundMethod = els.refundMethod.value;
+  const refundAmount = lines.reduce(
+    (sum, line) => sum + Number(line.refund_amount || 0),
+    0
+  );
+
+  if (!lines.length) {
+    setStatus(
+      'กรุณาเลือกจำนวนสินค้าที่ต้องการคืน',
+      'error'
+    );
+    return;
+  }
+
+  if (reason.length < 5) {
+    setStatus(
+      'กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร',
+      'error'
+    );
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `ยืนยันคืนสินค้าจากบิล `
+    + `${state.header?.sale_no || saleNoFromUrl || ''}`
+    + ` ใช่หรือไม่?`
+  );
+
+  if (!confirmed) return;
+
+  const request = {
+    lines,
+    reason,
+    refundMethod,
+    refundAmount
+  };
+
+  if (
+    refundMethod === 'CASH' &&
+    refundAmount >= CASH_APPROVAL_THRESHOLD
+  ) {
+    requestRefundApproval(request);
+    return;
+  }
+
+  await executeReturn(request);
+}
+
+async function approveCashRefund(event) {
+  event.preventDefault();
+
+  if (!state.pendingReturnRequest || state.submitting) return;
+
+  const employeeCode =
+    els.refundApproverCode.value.trim();
+  const pin = els.refundApproverPin.value;
+
+  if (!employeeCode || !pin) {
+    setApprovalStatus(
+      'กรุณากรอกรหัสผู้อนุมัติและ PIN',
+      'error'
+    );
+    return;
+  }
+
+  els.confirmRefundApproval.disabled = true;
+  setApprovalStatus('กำลังตรวจสอบสิทธิ์...');
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      'authorize_cash_drawer_reopen_v3_4',
+      {
+        p_employee_code: employeeCode,
+        p_pin: pin
+      }
+    );
+
+    if (error) {
+      await writeReturnAudit(
+        'CASH_DRAWER_OPEN_DENIED',
+        state.header?.sale_no || saleId,
+        'ปฏิเสธการเปิดลิ้นชักคืนเงินสด',
+        {
+          source: 'SALE_RETURN',
+          sale_id: saleId,
+          sale_no: state.header?.sale_no || saleNoFromUrl || null,
+          requested_employee_code: employeeCode,
+          refund_amount:
+            state.pendingReturnRequest.refundAmount,
+          error_message: error.message
+        }
+      );
+      throw error;
+    }
+
+    await executeReturn(
+      state.pendingReturnRequest,
+      data
+    );
+  } catch (error) {
+    setApprovalStatus(
+      error.message || 'ตรวจสอบสิทธิ์ไม่สำเร็จ',
+      'error'
+    );
+    els.confirmRefundApproval.disabled = false;
   }
 }
 
@@ -383,6 +664,20 @@ els.confirmButton.addEventListener(
   'click',
   submitReturn
 );
+
+
+els.refundDrawerApprovalForm?.addEventListener(
+  'submit',
+  approveCashRefund
+);
+
+els.cancelRefundApproval?.addEventListener('click', () => {
+  state.pendingReturnRequest = null;
+  els.refundDrawerApprovalForm?.reset();
+  setApprovalStatus('');
+  els.refundDrawerApprovalDialog?.close();
+  updateSummary();
+});
 
 function goBack() {
   if (history.length > 1) {

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TKN POS - คืนสินค้า Return Balance v2.2</title>
-  <link rel="stylesheet" href="./css/sales-return.css?v=3.0.0">
+  <link rel="stylesheet" href="./css/sales-return.css?v=3.5.9">
   <link rel="stylesheet" href="./css/return-balance.css?v=3.0.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.0.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
@@ -131,7 +131,57 @@
     </button>
   </dialog>
 
-  <script type="module" src="./js/sales-return.js?v=3.4.0"></script>
+
+  <dialog id="refundDrawerApprovalDialog" class="refund-approval-dialog">
+    <div class="refund-approval-card">
+      <h2>อนุมัติคืนเงินสด</h2>
+      <p>
+        ยอดคืนเงินสดตั้งแต่ 5,000 บาทขึ้นไป ต้องใช้รหัสพนักงาน
+        ที่มีสิทธิ์เปิดลิ้นชัก
+      </p>
+
+      <form id="refundDrawerApprovalForm">
+        <label>
+          รหัสผู้อนุมัติ
+          <input
+            id="refundApproverCode"
+            type="text"
+            autocomplete="off"
+            required>
+        </label>
+
+        <label>
+          PIN
+          <input
+            id="refundApproverPin"
+            type="password"
+            inputmode="numeric"
+            autocomplete="off"
+            required>
+        </label>
+
+        <p id="refundApprovalMessage" role="status" aria-live="polite"></p>
+
+        <div class="refund-approval-actions">
+          <button
+            id="cancelRefundApproval"
+            class="secondary-button"
+            type="button">
+            ยกเลิก
+          </button>
+          <button
+            id="confirmRefundApproval"
+            class="primary-button"
+            type="submit">
+            อนุมัติและคืนสินค้า
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="./js/tkn-hardware-client.js?v=3.4.0"></script>
+  <script type="module" src="./js/sales-return.js?v=3.5.9"></script>
   <script src="./js/navigation.js?v=3.4.0"></script>
 </body>
 </html>
