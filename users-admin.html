@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>จัดการผู้ใช้และสิทธิ์</title>
-  <link rel="stylesheet" href="./css/governance.css?v=3.5.4">
+  <link rel="stylesheet" href="./css/governance.css?v=3.5.5">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.2">
   <link rel="stylesheet" href="./css/navigation.css?v=3.4.2">
 </head>
 <body>
   <main class="shell">
     <header class="page-head">
-      <div><p class="eyebrow">MASTER 3.5.4 · ACCESS CONTROL STABLE</p>
+      <div><p class="eyebrow">MASTER 3.5.5 · ACCESS CONTROL REBUILD</p>
         <h1>จัดการผู้ใช้และสิทธิ์</h1>
         <p>กำหนด Role สาขา รหัสพนักงาน PIN และชื่อแคชเชียร์ที่แสดงบนใบเสร็จ</p></div>
       <div class="head-actions"><a class="button secondary" href="./hardware-settings.html">ตั้งค่าฮาร์ดแวร์</a><a class="button secondary" href="./dashboard.html">Dashboard</a></div>
@@ -25,7 +25,7 @@
     </section>
 
 
-    <section class="card permission-card">
+    <section id="permissionCard" class="card permission-card">
       <div class="section-head">
         <div>
           <h2>สิทธิ์ตาม Role</h2>
@@ -37,10 +37,15 @@
         </div>
       </div>
       <div id="permissionGrid" class="permission-grid">กำลังโหลดสิทธิ์...</div>
+      <p class="permission-warning">ระบบจะป้องกันสิทธิ์หลักของ Owner/Admin เพื่อไม่ให้ล็อกตัวเองออกจากหน้าจัดการสิทธิ์</p>
       <p id="permissionMessage"></p>
     </section>
 
-    <section class="card">
+    <section id="userCard" class="card user-card">
+      <div class="access-status">
+        <span id="rpcStatus" class="status-chip">กำลังตรวจ RPC...</span>
+        <span id="actorStatus" class="status-chip">กำลังตรวจสิทธิ์...</span>
+      </div>
       <div class="table-wrap"><table>
         <thead><tr><th>ผู้ใช้</th><th>Role</th><th>สาขา</th>
           <th>สถานะ</th><th>เข้าใช้ล่าสุด</th><th>แคชเชียร์</th><th>บันทึก</th></tr></thead>
@@ -49,7 +54,7 @@
       <p id="message"></p>
     </section>
   </main>
-  <script type="module" src="./js/users-admin.js?v=3.5.4"></script>
+  <script type="module" src="./js/users-admin.js?v=3.5.5"></script>
   <script src="./js/navigation.js?v=3.4.2"></script>
 </body>
 </html>
