@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TKN POS - คืนสินค้า Return Balance v2.2</title>
-  <link rel="stylesheet" href="./css/sales-return.css?v=3.5.9">
+  <link rel="stylesheet" href="./css/sales-return.css?v=3.6.2">
   <link rel="stylesheet" href="./css/return-balance.css?v=3.0.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.0.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.4.0">
@@ -33,7 +33,7 @@
       <div class="warning">
         <strong>ขั้นตอนตรวจสอบ</strong>
         <p>
-          ตรวจสอบสินค้า จำนวนคืน เหตุผล และวิธีคืนเงินให้ถูกต้อง
+          ตรวจสอบสินค้า จำนวนคืน เหตุผล และเลือกคืนเงินสดหรือเงินโอน
           ระบบจะบันทึกคืนสินค้าและคืนสต็อกในธุรกรรมเดียว
         </p>
       </div>
@@ -73,10 +73,8 @@
         <label>
           วิธีคืนเงิน
           <select id="refundMethod">
-            <option value="ORIGINAL">คืนตามช่องทางเดิม</option>
-            <option value="CASH">เงินสด</option>
-            <option value="TRANSFER">โอน</option>
-            <option value="STORE_CREDIT">เครดิตร้านค้า</option>
+            <option value="CASH">เงินสด — เปิดลิ้นชักหลังบันทึกสำเร็จ</option>
+            <option value="TRANSFER">เงินโอน — ไม่เปิดลิ้นชัก</option>
           </select>
         </label>
       </div>
@@ -181,7 +179,7 @@
   </dialog>
 
   <script src="./js/tkn-hardware-client.js?v=3.4.0"></script>
-  <script type="module" src="./js/sales-return.js?v=3.5.9"></script>
+  <script type="module" src="./js/sales-return.js?v=3.6.2"></script>
   <script src="./js/navigation.js?v=3.4.0"></script>
 </body>
 </html>

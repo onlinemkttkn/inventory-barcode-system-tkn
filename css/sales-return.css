@@ -218,3 +218,16 @@ button:disabled {
     min-height:50px;
   }
 }
+
+
+/* Master 3.6.2 — refund method clarity */
+#refundMethod{
+  min-height:48px;
+  font-weight:800;
+}
+#statusMessage[data-type="warning"]{
+  padding:10px 12px;
+  border:1px solid #f2c94c;
+  border-radius:10px;
+  background:#fff8dc;
+}
