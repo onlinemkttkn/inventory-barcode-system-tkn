@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/audit-details-ui.css?v=3.5.9-audit-ui-01">
 </head>
 <body class="audit-page">
 <main class="shell">
@@ -29,6 +30,10 @@
         <option value="STOCK_DOCUMENT">รับเข้า/เบิกจ่าย</option>
         <option value="TRANSFER_DOCUMENT">ใบโอน</option>
         <option value="STOCK_COUNT">ตรวจนับ</option>
+        <option value="SALE">รายการขาย</option>
+        <option value="SALE_RETURN">รายการคืนสินค้า</option>
+        <option value="CASH_DRAWER">ลิ้นชักเงินสด</option>
+        <option value="CASHIER_SHIFT">กะแคชเชียร์</option>
       </select>
     </label>
 
@@ -38,6 +43,11 @@
         <option value="CREATE">สร้าง</option>
         <option value="UPDATE">แก้ไข</option>
         <option value="DELETE">ลบ</option>
+        <option value="SHIFT_OPEN">เปิดกะแคชเชียร์</option>
+        <option value="SHIFT_CLOSE">ปิดกะแคชเชียร์</option>
+        <option value="CASH_DRAWER_OPEN_SUCCESS">เปิดลิ้นชักสำเร็จ</option>
+        <option value="CASH_DRAWER_OPEN_FAILED">เปิดลิ้นชักไม่สำเร็จ</option>
+        <option value="CASH_DRAWER_OPEN_DENIED">ปฏิเสธการเปิดลิ้นชัก</option>
       </select>
     </label>
 
@@ -75,9 +85,34 @@
   </section>
 </main>
 
+<dialog id="auditDetailDialog" class="audit-detail-dialog">
+  <div class="audit-dialog-shell">
+    <header class="audit-dialog-head">
+      <div>
+        <h2 id="auditDetailTitle">รายละเอียดการทำรายการ</h2>
+        <p id="auditDetailSummary"></p>
+      </div>
+      <button id="auditDetailClose" class="audit-dialog-close"
+        type="button" aria-label="ปิด">×</button>
+    </header>
+    <div class="audit-dialog-body">
+      <div id="auditDetailFields" class="audit-detail-fields"></div>
+      <div class="audit-dialog-actions">
+        <button id="auditCopyDetail" class="primary-action"
+          type="button">คัดลอกรายละเอียด</button>
+        <button id="auditToggleRaw"
+          type="button">ดูข้อมูลต้นฉบับ</button>
+      </div>
+      <section id="auditRawPanel" class="audit-raw-panel" hidden>
+        <pre id="auditRawJson"></pre>
+      </section>
+    </div>
+  </div>
+</dialog>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/audit-log.js?v=1.0.2"></script>
+<script src="./js/audit-log.js?v=3.5.9-audit-ui-01"></script>
   <script src="./js/navigation.js?v=1.0.2"></script>
 </body>
 </html>
