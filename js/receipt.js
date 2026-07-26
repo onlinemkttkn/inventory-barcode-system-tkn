@@ -65,6 +65,16 @@ function cashierCode(){
   );
 }
 function cashierName(){
+  const profileName=firstValue(
+    header.cashier_name,
+    header.cashier_full_name,
+    header.cashier_display_name
+  );
+
+  if(profileName&&profileName!=='-'){
+    return profileName;
+  }
+
   const shift=currentCashierShift();
   const receiptCode=normalizedCode(cashierCode());
   const shiftCode=normalizedCode(shift?.employee_code);
@@ -79,9 +89,6 @@ function cashierName(){
   }
 
   return firstValue(
-    header.cashier_name,
-    header.cashier_full_name,
-    header.cashier_display_name,
     header.cashier_email,
     cashierCode()
   );
