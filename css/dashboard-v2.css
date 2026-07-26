@@ -696,3 +696,10 @@ td {
     font-size:24px;
   }
 }
+
+
+/* Master 3.6.8 — Dashboard UI label hotfix
+   Realtime remains active in the background; only its status bar is hidden. */
+.realtime-indicator{
+  display:none !important;
+}
