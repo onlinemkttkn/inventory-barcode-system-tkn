@@ -1,0 +1,399 @@
+/* TKN POS / ERP — MASTER 3.6.9
+   Dashboard, Phase 07 operations, Reports and Audit UI refresh. */
+
+/* Dashboard: the document is the only vertical scrolling surface. */
+html.dashboard-document{
+  height:auto!important;
+  min-height:100%;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:auto!important;
+}
+
+body.dashboard-page{
+  position:static!important;
+  height:auto!important;
+  min-height:100dvh!important;
+  overflow-x:hidden!important;
+  overflow-y:visible!important;
+  overscroll-behavior-y:auto!important;
+  touch-action:pan-y;
+}
+
+.dashboard-page .shell{
+  min-height:100dvh;
+  padding-bottom:72px!important;
+}
+
+.dashboard-page #appArea,
+.dashboard-page .dashboard-workspace,
+.dashboard-page .dashboard-main-column{
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+.dashboard-page .dashboard-grid > .card,
+.dashboard-page .sales-control-panel{
+  min-width:0;
+  overflow:visible;
+}
+
+.dashboard-page .table-wrap{
+  max-height:none!important;
+}
+
+/* Phase 07 — receive and issue */
+.inventory-operation-page{
+  --op-red:#d90429;
+  --op-red-dark:#a70b23;
+  --op-yellow:#ffc62d;
+  --op-teal:#0f8b82;
+}
+
+.inventory-operation-page .shell{
+  width:min(1180px,calc(100% - 28px));
+  padding-top:24px;
+  padding-bottom:64px;
+}
+
+.inventory-operation-page .topbar{
+  padding:4px 0;
+}
+
+.inventory-operation-page .topbar h1{
+  font-size:clamp(1.75rem,3vw,2.35rem);
+  line-height:1.15;
+}
+
+.inventory-operation-page .card{
+  padding:clamp(16px,2.2vw,24px);
+  border-color:#e6dccf!important;
+  box-shadow:0 12px 32px rgba(44,24,16,.07)!important;
+}
+
+.inventory-operation-page .operation-search-card{
+  border-top:4px solid var(--op-yellow)!important;
+}
+
+.inventory-operation-page .operation-search-card h2{
+  margin:0 0 16px;
+}
+
+.inventory-operation-page .operation-search-bar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 118px 145px;
+  gap:10px;
+  align-items:stretch;
+}
+
+.inventory-operation-page .operation-search-bar input{
+  width:100%;
+  min-width:0;
+  min-height:48px;
+  padding:12px 14px;
+  border:1px solid #c8d3e1;
+  border-radius:12px;
+  background:#fff;
+  font:inherit;
+}
+
+.inventory-operation-page .operation-search-bar .btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  padding:11px 14px;
+}
+
+.inventory-operation-page .operation-search-bar .primary{
+  background:var(--op-red)!important;
+}
+
+.inventory-operation-page .operation-search-bar .scan{
+  background:var(--op-teal)!important;
+  color:#fff!important;
+}
+
+.inventory-operation-page .cart-card{
+  border-top:4px solid #e7edf4!important;
+}
+
+.inventory-operation-page .results:empty,
+.inventory-operation-page .cart-list:empty{
+  min-height:0;
+}
+
+/* Reports */
+.reports-page .shell{
+  width:min(1380px,calc(100% - 28px));
+  margin-bottom:72px;
+}
+
+.reports-page .report-toolbar{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(170px,1fr));
+  gap:12px;
+  align-items:end;
+  padding:20px;
+  border-top:4px solid var(--tkn-yellow,#ffc72c)!important;
+}
+
+.reports-page .report-toolbar label{
+  min-width:0;
+  color:#423a33;
+  font-size:.9rem;
+  font-weight:850;
+}
+
+.reports-page .report-toolbar input,
+.reports-page .report-toolbar select{
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  border-radius:11px;
+}
+
+.reports-page .report-toolbar .button{
+  width:100%;
+  min-height:46px;
+  border-radius:11px;
+}
+
+.reports-page .report-toolbar #load{
+  background:var(--tkn-red,#c8102e)!important;
+}
+
+.reports-page .report-toolbar #csv,
+.reports-page .report-toolbar #print{
+  background:var(--tkn-yellow-soft,#fff4bf)!important;
+  color:#111!important;
+  border:1px solid #e1c762!important;
+}
+
+.reports-page .table-wrap{
+  max-height:none!important;
+}
+
+.reports-page .table-wrap table{
+  min-width:0!important;
+  table-layout:fixed;
+}
+
+.reports-page #rows td{
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+}
+
+/* Audit log */
+.audit-page .shell{
+  width:min(1440px,calc(100% - 28px));
+  padding-bottom:72px;
+}
+
+.audit-page .audit-filter-card{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:end;
+  border-top:4px solid var(--tkn-yellow,#ffc72c)!important;
+}
+
+.audit-page .audit-filter-card .btn{
+  width:100%;
+  min-height:44px;
+  background:var(--tkn-red,#c8102e)!important;
+}
+
+.audit-page .audit-table-card{
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+.audit-page .audit-table-card table{
+  width:100%;
+  min-width:0!important;
+  table-layout:fixed;
+}
+
+.audit-page .audit-table-card th,
+.audit-page .audit-table-card td{
+  min-width:0;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+}
+
+.audit-page .audit-table-card th:nth-child(1){width:13%}
+.audit-page .audit-table-card th:nth-child(2){width:11%}
+.audit-page .audit-table-card th:nth-child(3){width:12%}
+.audit-page .audit-table-card th:nth-child(4){width:12%}
+.audit-page .audit-table-card th:nth-child(5){width:18%}
+.audit-page .audit-table-card th:nth-child(6){width:10%}
+.audit-page .audit-table-card th:nth-child(7){width:24%}
+
+.audit-page .details{
+  max-width:none;
+  line-height:1.45;
+}
+
+@media(max-width:1100px){
+  .reports-page .report-toolbar{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .inventory-operation-page .operation-search-bar{
+    grid-template-columns:minmax(0,1fr) 110px 138px;
+  }
+
+  .audit-page .audit-filter-card{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  .audit-page .audit-table-card table,
+  .audit-page .audit-table-card tbody{
+    display:block;
+  }
+
+  .audit-page .audit-table-card thead{display:none}
+
+  .audit-page #tableBody{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  }
+
+  .audit-page #tableBody tr{
+    display:grid;
+    align-content:start;
+    min-width:0;
+    padding:14px;
+    border:1px solid #e2e8f0;
+    border-radius:15px;
+    background:#fff;
+    box-shadow:0 7px 20px rgba(15,23,42,.05);
+  }
+
+  .audit-page #tableBody td{
+    display:grid;
+    grid-template-columns:105px minmax(0,1fr);
+    gap:8px;
+    width:auto!important;
+    padding:6px 0;
+    border:0;
+  }
+
+  .audit-page #tableBody td::before{
+    color:#64748b;
+    font-size:.82rem;
+    font-weight:900;
+  }
+
+  .audit-page #tableBody td:nth-child(1)::before{content:'วันเวลา'}
+  .audit-page #tableBody td:nth-child(2)::before{content:'ผู้ใช้งาน'}
+  .audit-page #tableBody td:nth-child(3)::before{content:'การทำรายการ'}
+  .audit-page #tableBody td:nth-child(4)::before{content:'ประเภท'}
+  .audit-page #tableBody td:nth-child(5)::before{content:'รายการ'}
+  .audit-page #tableBody td:nth-child(6)::before{content:'สาขา'}
+  .audit-page #tableBody td:nth-child(7)::before{content:'รายละเอียด'}
+}
+
+@media(max-width:760px){
+  .inventory-operation-page .shell,
+  .reports-page .shell,
+  .audit-page .shell{
+    width:100%;
+  }
+
+  .inventory-operation-page .operation-search-bar{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .inventory-operation-page .operation-search-bar input{
+    grid-column:1/-1;
+  }
+
+  .audit-page .audit-filter-card{
+    grid-template-columns:1fr!important;
+  }
+
+  .audit-page #tableBody{
+    grid-template-columns:1fr;
+  }
+
+  .reports-page .table-wrap{
+    overflow:visible!important;
+  }
+
+  .reports-page .table-wrap table,
+  .reports-page .table-wrap tbody{
+    display:block;
+  }
+
+  .reports-page .table-wrap thead{display:none}
+
+  .reports-page #rows{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+
+  .reports-page #rows tr{
+    display:grid;
+    gap:0;
+    padding:13px;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    background:#fff;
+  }
+
+  .reports-page #rows td{
+    display:grid;
+    grid-template-columns:100px minmax(0,1fr);
+    gap:8px;
+    align-items:start;
+    width:auto!important;
+    padding:6px 0!important;
+    border:0!important;
+  }
+
+  .reports-page #rows td::before{
+    color:#64748b;
+    font-size:.82rem;
+    font-weight:900;
+  }
+
+  .reports-page #rows td:nth-child(1)::before{content:'วันที่'}
+  .reports-page #rows td:nth-child(2)::before{content:'เลขบิล'}
+  .reports-page #rows td:nth-child(3)::before{content:'ชำระ'}
+  .reports-page #rows td:nth-child(4)::before{content:'ยอดสุทธิ'}
+  .reports-page #rows td:nth-child(5)::before{content:'สถานะ'}
+  .reports-page #rows td:nth-child(6)::before{content:'รายละเอียด'}
+}
+
+@media(max-width:560px){
+  .reports-page .report-toolbar{
+    grid-template-columns:1fr;
+  }
+
+  .inventory-operation-page .operation-search-bar{
+    grid-template-columns:1fr;
+  }
+
+  .inventory-operation-page .operation-search-bar input{
+    grid-column:auto;
+  }
+
+  .audit-page #tableBody td{
+    grid-template-columns:1fr;
+    gap:3px;
+  }
+
+  .reports-page #rows td{
+    grid-template-columns:1fr;
+    gap:3px;
+  }
+}
+
+@media print{
+  html.dashboard-document,
+  body.dashboard-page{overflow:visible!important}
+}
