@@ -102,8 +102,11 @@
   display:grid;
   gap:7px;
   overflow:auto;
-  scrollbar-width:thin;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
+
+.tkn-nav-menu::-webkit-scrollbar{display:none}
 
 .tkn-nav-btn{
   position:relative;
@@ -195,9 +198,9 @@
     box-shadow:0 8px 24px rgba(0,0,0,.16);
   }
 
-  .tkn-has-sidebar{
-    padding-left:0;
-  }
+.tkn-has-sidebar{
+  padding-left:0;
+}
 
   .tkn-nav-brand{
     min-height:48px;

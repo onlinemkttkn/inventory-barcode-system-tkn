@@ -1,0 +1,18 @@
+{
+  "version": "3.6.8",
+  "release": "Responsive Stable",
+  "base": "Master 3.5.9",
+  "scope": "UI only",
+  "html_pages_updated": 59,
+  "shared_stylesheet": "css/responsive-no-scroll.css",
+  "changes": [
+    "remove visible nested scrollbars",
+    "prevent page horizontal overflow",
+    "fluid desktop, tablet and mobile layouts",
+    "responsive access-control user cards",
+    "viewport metadata on every HTML page"
+  ],
+  "database_changes": false,
+  "sql_required": false,
+  "javascript_logic_changed": false
+}

@@ -14,11 +14,33 @@
   --tkn-shadow:0 12px 30px rgba(17,17,17,.08);
 }
 html{color-scheme:light}
+html{
+  max-width:100%;
+  overflow-x:hidden;
+}
 body{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:hidden;
   background:
     radial-gradient(circle at 90% 0,rgba(255,199,44,.18),transparent 28rem),
     #f7f3ec!important;
   color:var(--tkn-ink)!important;
+}
+body *,
+body *::before,
+body *::after{box-sizing:border-box}
+main,.shell,.app,.container,.card,.panel,.table-wrap,.wrap{
+  min-width:0;
+  max-width:100%;
+}
+img,svg,canvas,video{max-width:100%;height:auto}
+input,select,textarea,button{max-width:100%}
+table{max-width:100%}
+th,td{
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 button,input,select,textarea{font:inherit}
 .card,.panel,.modal-card,.stat{
@@ -55,4 +77,55 @@ input:focus,select:focus,textarea:focus{
 .badge.active,.msg.ok,.message.success-text{color:var(--tkn-success)!important}
 .msg.error,.message.error{color:var(--tkn-danger)!important}
 .eyebrow{color:var(--tkn-red)!important}
+
+/* MASTER 3.6.8 — responsive, single-page scroll layer.
+   Nested regions keep touch scrolling available but do not render scrollbars. */
+.table-wrap,.wrap,[class*="results"],[class*="queue"],.tkn-nav-menu{
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.table-wrap::-webkit-scrollbar,
+.wrap::-webkit-scrollbar,
+[class*="results"]::-webkit-scrollbar,
+[class*="queue"]::-webkit-scrollbar,
+.tkn-nav-menu::-webkit-scrollbar{display:none}
+
+@media(max-width:900px){
+  .shell,.app,.container{
+    width:100%!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  .card,.panel{max-width:100%}
+  .top,.topbar,.page-head,.section-head,.header-actions{
+    flex-wrap:wrap;
+  }
+  .grid,.grid-3,.stats-grid,.summary,.stat-grid,.value-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:600px){
+  .shell,.app,.container{
+    padding-left:9px!important;
+    padding-right:9px!important;
+  }
+  .card,.panel{
+    padding:13px!important;
+    border-radius:15px!important;
+  }
+  .grid,.grid-3,.stats-grid,.summary,.stat-grid,.value-grid{
+    grid-template-columns:1fr!important;
+  }
+  .row,.top,.topbar,.page-head,.section-head,.header-actions{
+    align-items:stretch!important;
+    flex-direction:column!important;
+  }
+  .btn,.button,.dashboard-button{
+    width:100%;
+    min-height:44px;
+    text-align:center;
+  }
+  input,select,textarea{width:100%;min-width:0}
+}
 @media print{.tkn-nav-bar,.no-print{display:none!important}}

@@ -1,0 +1,171 @@
+/* TKN POS / ERP — MASTER 3.6.8
+   Shared responsive layer for every screen.
+   Goal: one document scroll, no nested visible scrollbars, no page overflow-x. */
+
+:root{
+  --tkn-page-gutter:clamp(8px,1.6vw,22px);
+}
+
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  width:100%;
+  max-width:100%;
+  min-width:0!important;
+  overflow-x:hidden!important;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+main,.shell,.app,.container,.content,.page,.page-content,
+.card,.panel,.modal-card,.workspace,.layout,
+.grid,.grid-2,.grid-3,.grid-4,.row,
+.table-wrap,.wrap,.results,.queue,.items{
+  min-width:0!important;
+  max-width:100%;
+}
+
+img,svg,canvas,video,iframe{
+  max-width:100%;
+  height:auto;
+}
+
+input,select,textarea,button{
+  min-width:0;
+  max-width:100%;
+}
+
+/* Keep touch/wheel operation, remove the visual scrollbar requested by the UI. */
+html,body,.tkn-nav-menu,.tkn-mobile-drawer,
+.table-wrap,.wrap,.results,.queue,.items,
+[class*="table-wrap"],[class*="scroll"],[class*="results"],[class*="queue"]{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.tkn-nav-menu::-webkit-scrollbar,
+.tkn-mobile-drawer::-webkit-scrollbar,
+.table-wrap::-webkit-scrollbar,
+.wrap::-webkit-scrollbar,
+.results::-webkit-scrollbar,
+.queue::-webkit-scrollbar,
+.items::-webkit-scrollbar,
+[class*="table-wrap"]::-webkit-scrollbar,
+[class*="scroll"]::-webkit-scrollbar,
+[class*="results"]::-webkit-scrollbar,
+[class*="queue"]::-webkit-scrollbar{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+}
+
+/* Common data areas grow with their content instead of creating a second viewport. */
+.table-wrap,.wrap,
+.results:not(.search-results),.queue,.items,
+[class*="table-wrap"]{
+  max-height:none!important;
+}
+
+table{
+  width:100%;
+  max-width:100%;
+}
+
+th,td{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+@media(max-width:1100px){
+  .shell,.app,.container,.page,.page-content{
+    width:100%!important;
+    max-width:100%!important;
+    padding-left:var(--tkn-page-gutter)!important;
+    padding-right:var(--tkn-page-gutter)!important;
+  }
+
+  .workspace,.layout,
+  .generator-layout,.pos-layout,.dashboard-layout{
+    grid-template-columns:1fr!important;
+  }
+
+  .top,.topbar,.page-head,.section-head,.header-actions,.top-actions{
+    flex-wrap:wrap;
+  }
+
+  .grid-4,.stats-grid,.menu-grid,.summary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:780px){
+  .tkn-has-sidebar{padding-left:0!important}
+
+  .grid,.grid-2,.grid-3,.grid-4,
+  .stats-grid,.menu-grid,.summary,.stat-grid,.value-grid,
+  .toolbar,.filters,.filter-grid,.form-grid{
+    grid-template-columns:1fr!important;
+  }
+
+  .top,.topbar,.page-head,.section-head,.header-actions,.top-actions,
+  .row,.actions,.button-row{
+    align-items:stretch!important;
+  }
+
+  .card,.panel,.modal-card{
+    max-width:100%!important;
+  }
+
+  dialog{
+    width:calc(100% - 18px)!important;
+    max-width:calc(100% - 18px)!important;
+    max-height:calc(100dvh - 18px)!important;
+    margin:auto!important;
+  }
+}
+
+@media(max-width:600px){
+  body{font-size:15px}
+
+  .shell,.app,.container,.page,.page-content{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+
+  .card,.panel,.modal-card{
+    padding:12px!important;
+    border-radius:14px!important;
+  }
+
+  .top,.topbar,.page-head,.section-head,.header-actions,.top-actions,
+  .row,.actions,.button-row{
+    flex-direction:column!important;
+  }
+
+  .btn,.button,.dashboard-button,
+  button[type="submit"]{
+    width:100%;
+    min-height:44px;
+    white-space:normal;
+    text-align:center;
+  }
+
+  input,select,textarea{
+    width:100%;
+    font-size:16px; /* prevents automatic zoom on iOS */
+  }
+
+  h1{font-size:clamp(1.45rem,8vw,2rem)}
+  h2{font-size:clamp(1.15rem,6vw,1.5rem)}
+}
+
+@media print{
+  html,body{overflow:visible!important}
+}

@@ -477,3 +477,137 @@ background:rgba(15,23,42,.55)}.dialog-body{padding:20px}.dialog-head{display:fle
     font-size:1.65rem;
   }
 }
+
+/* ============================================================
+   MASTER 3.6.8 — NO NESTED SCROLL + FLUID ACCESS CONTROL
+   UI only. The document owns vertical scrolling; tables never
+   create an additional horizontal or vertical scroll region.
+   ============================================================ */
+.users-admin-ui-v367{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+.users-admin-ui-v367 .shell{
+  width:min(1480px,calc(100% - 24px));
+  max-width:100%;
+}
+
+.users-admin-ui-v367 .table-wrap{
+  width:100%;
+  max-width:100%;
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+.users-admin-ui-v367 .table-wrap table{
+  width:100%;
+  min-width:0!important;
+  table-layout:fixed;
+}
+
+.users-admin-ui-v367 table thead th{
+  position:static!important;
+}
+
+.users-admin-ui-v367 #rows td{
+  min-width:0!important;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+.users-admin-ui-v367 #rows input,
+.users-admin-ui-v367 #rows select,
+.users-admin-ui-v367 .cashier-fields{
+  width:100%;
+  min-width:0!important;
+  max-width:100%;
+}
+
+.users-admin-ui-v367 #rows td:nth-child(1){width:18%}
+.users-admin-ui-v367 #rows td:nth-child(2){width:17%}
+.users-admin-ui-v367 #rows td:nth-child(3){width:15%}
+.users-admin-ui-v367 #rows td:nth-child(4){width:10%}
+.users-admin-ui-v367 #rows td:nth-child(5){width:12%}
+.users-admin-ui-v367 #rows td:nth-child(6){width:20%}
+.users-admin-ui-v367 #rows td:nth-child(7){width:8%}
+
+@media(max-width:1280px){
+  .users-admin-ui-v367 .table-wrap{
+    border:0;
+    background:transparent;
+  }
+
+  .users-admin-ui-v367 .table-wrap table,
+  .users-admin-ui-v367 .table-wrap tbody{
+    display:block;
+  }
+
+  .users-admin-ui-v367 .table-wrap thead{display:none}
+
+  .users-admin-ui-v367 #rows{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  }
+
+  .users-admin-ui-v367 #rows tr{
+    display:grid;
+    align-content:start;
+    min-width:0;
+    padding:14px;
+    border:1px solid var(--u-line);
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 8px 22px rgba(17,17,17,.06);
+  }
+
+  .users-admin-ui-v367 #rows td{
+    display:grid;
+    grid-template-columns:112px minmax(0,1fr);
+    gap:10px;
+    align-items:start;
+    width:auto!important;
+    padding:7px 0!important;
+    border:0;
+  }
+
+  .users-admin-ui-v367 #rows td::before{
+    color:#746a60;
+    font-size:.85rem;
+    font-weight:900;
+  }
+
+  .users-admin-ui-v367 #rows td:nth-child(1)::before{content:'ผู้ใช้'}
+  .users-admin-ui-v367 #rows td:nth-child(2)::before{content:'Role'}
+  .users-admin-ui-v367 #rows td:nth-child(3)::before{content:'สาขา'}
+  .users-admin-ui-v367 #rows td:nth-child(4)::before{content:'สถานะ'}
+  .users-admin-ui-v367 #rows td:nth-child(5)::before{content:'เข้าใช้ล่าสุด'}
+  .users-admin-ui-v367 #rows td:nth-child(6)::before{content:'แคชเชียร์'}
+  .users-admin-ui-v367 #rows td:nth-child(7)::before{content:'บันทึก'}
+  .users-admin-ui-v367 #rows .button.save{width:100%}
+}
+
+@media(max-width:760px){
+  .users-admin-ui-v367 .shell{
+    width:100%;
+    margin:10px auto 36px;
+    padding:0 9px;
+  }
+
+  .users-admin-ui-v367 #rows{
+    grid-template-columns:1fr;
+  }
+
+  .users-admin-ui-v367 #rows td{
+    grid-template-columns:100px minmax(0,1fr)!important;
+  }
+}
+
+@media(max-width:430px){
+  .users-admin-ui-v367 #rows td{
+    grid-template-columns:1fr!important;
+    gap:4px;
+  }
+}
