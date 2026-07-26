@@ -251,34 +251,39 @@ function renderUsers() {
              }</small>`
           : '-'
       }</td>
-      <td class="cashier-fields">
-        <input class="display-name"
-          placeholder="ชื่อแคชเชียร์บนใบเสร็จ"
-          value="${esc(user.cashier_display_name || user.full_name || '')}"
-          ${protectedOwner ? 'disabled' : ''}>
-        <input class="employee-code"
-          placeholder="รหัสพนักงาน"
-          value="${esc(user.employee_code || '')}"
-          ${protectedOwner ? 'disabled' : ''}>
-        <input class="pin" type="password" inputmode="numeric"
-          minlength="4"
-          placeholder="${
-            user.employee_code
-              ? 'PIN ใหม่ (เว้นว่าง=ไม่เปลี่ยน)'
-              : 'PIN อย่างน้อย 4 ตัว'
-          }"
-          ${protectedOwner ? 'disabled' : ''}>
-        <label>
-          <input class="drawer" type="checkbox"
-            ${user.can_open_drawer ? 'checked' : ''}
-            ${protectedOwner ? 'disabled' : ''}>
-          เปิดลิ้นชักเองได้
-        </label>
-        <input class="max-discount" type="number"
-          min="0" max="100" step=".01"
-          value="${Number(user.max_discount_percent || 0)}"
-          placeholder="ส่วนลดสูงสุด %"
-          ${protectedOwner ? 'disabled' : ''}>
+      <td class="cashier-cell">
+        <details class="cashier-disclosure">
+          <summary>ตั้งค่าพนักงานและแคชเชียร์</summary>
+          <div class="cashier-fields">
+            <input class="display-name"
+              placeholder="ชื่อแคชเชียร์บนใบเสร็จ"
+              value="${esc(user.cashier_display_name || user.full_name || '')}"
+              ${protectedOwner ? 'disabled' : ''}>
+            <input class="employee-code"
+              placeholder="รหัสพนักงาน"
+              value="${esc(user.employee_code || '')}"
+              ${protectedOwner ? 'disabled' : ''}>
+            <input class="pin" type="password" inputmode="numeric"
+              minlength="4"
+              placeholder="${
+                user.employee_code
+                  ? 'PIN ใหม่ (เว้นว่าง=ไม่เปลี่ยน)'
+                  : 'PIN อย่างน้อย 4 ตัว'
+              }"
+              ${protectedOwner ? 'disabled' : ''}>
+            <label>
+              <input class="drawer" type="checkbox"
+                ${user.can_open_drawer ? 'checked' : ''}
+                ${protectedOwner ? 'disabled' : ''}>
+              เปิดลิ้นชักเองได้
+            </label>
+            <input class="max-discount" type="number"
+              min="0" max="100" step=".01"
+              value="${Number(user.max_discount_percent || 0)}"
+              placeholder="ส่วนลดสูงสุด %"
+              ${protectedOwner ? 'disabled' : ''}>
+          </div>
+        </details>
       </td>
       <td>
         <button class="button save"
@@ -296,6 +301,15 @@ function renderUsers() {
       () => saveUser(button.closest('tr'))
     );
   });
+}
+
+function refreshPermissionCount(moduleElement) {
+  const inputs = [
+    ...moduleElement.querySelectorAll('input[type="checkbox"]')
+  ];
+  const checked = inputs.filter(input => input.checked).length;
+  const count = moduleElement.querySelector('.permission-count');
+  if (count) count.textContent = `${checked}/${inputs.length} สิทธิ์`;
 }
 
 function renderPermissionGrid() {
@@ -321,22 +335,33 @@ function renderPermissionGrid() {
   }
 
   E.permissionGrid.innerHTML = [...modules.entries()]
-    .map(([moduleName, items]) => `
-      <fieldset class="permission-module">
-        <legend>${esc(moduleName)}</legend>
-        ${items.map(permission => `
-          <label class="permission-item">
-            <input type="checkbox"
-              value="${esc(permission.code)}"
-              ${selected.has(permission.id) ? 'checked' : ''}>
-            <span>
-              <strong>${esc(permission.name_th || permission.code)}</strong>
-              <small>${esc(permission.code)}</small>
-            </span>
-          </label>
-        `).join('')}
-      </fieldset>
+    .map(([moduleName, items], index) => `
+      <details class="permission-module" ${index === 0 ? 'open' : ''}>
+        <summary>
+          <span>${esc(moduleName)}</span>
+          <span class="permission-count">${
+            items.filter(permission => selected.has(permission.id)).length
+          }/${items.length} สิทธิ์</span>
+        </summary>
+        <div class="permission-items">
+          ${items.map(permission => `
+            <label class="permission-item">
+              <input type="checkbox"
+                value="${esc(permission.code)}"
+                ${selected.has(permission.id) ? 'checked' : ''}>
+              <span>
+                <strong>${esc(permission.name_th || permission.code)}</strong>
+                <small>${esc(permission.code)}</small>
+              </span>
+            </label>
+          `).join('')}
+        </div>
+      </details>
     `).join('');
+
+  E.permissionGrid.querySelectorAll('.permission-module').forEach(module => {
+    module.addEventListener('change', () => refreshPermissionCount(module));
+  });
 }
 
 async function saveUser(row) {
