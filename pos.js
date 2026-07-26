@@ -19,6 +19,9 @@ const E = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
 const cart = new Map();
 const QUICK_CASH = [20,50,100,200,300,400,500,1000];
 let access=null, cashier=null, shift=null, pendingSale=null;
+let checkoutSubmitting=false;
+const DEVICE_ID_KEY='tkn_pos_device_id';
+function deviceId(){let id=localStorage.getItem(DEVICE_ID_KEY);if(!id){id=(crypto.randomUUID?.()||`dev-${Date.now()}-${Math.random().toString(16).slice(2)}`);localStorage.setItem(DEVICE_ID_KEY,id)}return id}
 let orderCancelSubmitting=false;
 let drawerApprovalSubmitting=false;
 let branchReady=false;
@@ -358,16 +361,22 @@ function updatePayment(){
 }
 
 async function checkout(event){
-  event.preventDefault();if(E.confirmPayment.disabled)return;
+  event.preventDefault();
+  if(checkoutSubmitting)return;
+  checkoutSubmitting=true;if(E.confirmPayment.disabled)return;
   if(!shift?.shift_id)return msg(E.actionMsg,'ไม่พบกะที่เปิดอยู่ กรุณาเปิดกะใหม่','error');
   const total=net(),cash=E.payment.value==='CASH',received=cash?number(E.paymentDialogReceived.value):total;
   const items=[...cart.values()].map(x=>({product_id:x.id,quantity:x.qty,unit_price:x.price,discount_amount:0}));
   E.confirmPayment.disabled=true;msg(E.actionMsg,'กำลังบันทึกการขาย...');
-  const result=await supabaseClient.rpc('create_pos_sale',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:E.notes.value.trim()||null});
-  if(result.error){E.confirmPayment.disabled=false;return msg(E.actionMsg,result.error.message,'error')}
+  let result=await supabaseClient.rpc('create_pos_sale_safety_v3_5',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:E.notes.value.trim()||null,p_cashier_shift_id:shift.shift_id,p_vat_rate:7});
+  if(result.error&&/create_pos_sale_safety_v3_5|schema cache|function/i.test(result.error.message||'')){
+    console.warn('POS Safety RPC unavailable; using temporary legacy fallback.',result.error);
+    result=await supabaseClient.rpc('create_pos_sale',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:E.notes.value.trim()||null});
+  }
+  if(result.error){checkoutSubmitting=false;E.confirmPayment.disabled=false;return msg(E.actionMsg,result.error.message,'error')}
   const change=number(result.data?.change_amount,received-total);pendingSale={saleNo:result.data.sale_no,total,received,change};
   if(cash)await requestCashDrawer('SALE');
-  E.paymentDialog.close();E.successNet.textContent=money(total);E.successReceived.textContent=money(received);E.successChange.textContent=money(change);E.changeGivenButton.textContent=change>0?'จ่ายเงินทอนแล้ว / ไปพิมพ์ใบเสร็จ':'ไปพิมพ์ใบเสร็จ';E.paymentSuccessDialog.showModal();
+  checkoutSubmitting=false;E.confirmPayment.disabled=false;E.paymentDialog.close();E.successNet.textContent=money(total);E.successReceived.textContent=money(received);E.successChange.textContent=money(change);E.changeGivenButton.textContent=change>0?'จ่ายเงินทอนแล้ว / ไปพิมพ์ใบเสร็จ':'ไปพิมพ์ใบเสร็จ';E.paymentSuccessDialog.showModal();
 }
 async function requestCashDrawer(reason='SALE',approval=null,context={}){
   if(reason==='MANUAL'&&!approval){
@@ -513,19 +522,52 @@ async function approveCancelOrder(event){
   }
 }
 function finish(){if(!pendingSale)return;const saleNo=pendingSale.saleNo;E.paymentSuccessDialog.close();cart.clear();E.discount.value='0';E.customerName.value='';E.customerPhone.value='';E.notes.value='';E.results.innerHTML='';pendingSale=null;renderCart();location.href=`./receipt.html?sale_no=${encodeURIComponent(saleNo)}&from=pos`}
-function hold(){if(!cart.size)return msg(E.actionMsg,'ไม่มีสินค้าให้พักบิล','error');localStorage.setItem('tkn_pos_held_bill',JSON.stringify({branch:E.branch.value,payment:E.payment.value,customerName:E.customerName.value,customerPhone:E.customerPhone.value,discount:E.discount.value,notes:E.notes.value,items:[...cart.values()]}));cart.clear();renderCart();msg(E.actionMsg,'พักบิลแล้ว','ok')}
-function restore(){try{const p=JSON.parse(localStorage.getItem('tkn_pos_held_bill')||'null');if(!p)return msg(E.actionMsg,'ไม่พบบิลพัก','error');if(validUuid(p.branch))E.branch.value=p.branch;E.payment.value=p.payment||'CASH';E.customerName.value=p.customerName||'';E.customerPhone.value=p.customerPhone||'';E.discount.value=p.discount||0;E.notes.value=p.notes||'';cart.clear();for(const x of p.items||[])cart.set(x.id,x);localStorage.removeItem('tkn_pos_held_bill');renderCart()}catch(e){msg(E.actionMsg,e.message,'error')}}
+function heldPayload(){return {branch:E.branch.value,payment:E.payment.value,customerName:E.customerName.value,customerPhone:E.customerPhone.value,discount:E.discount.value,notes:E.notes.value,items:[...cart.values()]}}
+function applyHeldPayload(p){if(validUuid(p.branch))E.branch.value=p.branch;E.payment.value=p.payment||'CASH';E.customerName.value=p.customerName||'';E.customerPhone.value=p.customerPhone||'';E.discount.value=p.discount||0;E.notes.value=p.notes||'';cart.clear();for(const x of p.items||[])cart.set(x.id,x);renderCart()}
+async function hold(){
+  if(!cart.size)return msg(E.actionMsg,'ไม่มีสินค้าให้พักบิล','error');
+  const payload=heldPayload();
+  const title=E.customerName.value.trim()||`บิล ${new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}`;
+  const r=await supabaseClient.rpc('hold_pos_bill_v3_5',{p_branch_id:E.branch.value,p_cashier_shift_id:shift?.shift_id||null,p_device_id:deviceId(),p_title:title,p_payload:payload});
+  if(r.error){
+    localStorage.setItem('tkn_pos_held_bill',JSON.stringify(payload));
+    console.warn('Database held bill unavailable; saved legacy fallback.',r.error);
+    cart.clear();renderCart();return msg(E.actionMsg,'พักบิลในเครื่องแล้ว (โหมดสำรอง)','ok');
+  }
+  cart.clear();renderCart();msg(E.actionMsg,`พักบิลแล้ว ${r.data?.hold_no||''}`,'ok');
+}
+async function restore(){
+  const list=await supabaseClient.rpc('list_pos_held_bills_v3_5',{p_branch_id:E.branch.value});
+  if(!list.error&&Array.isArray(list.data)&&list.data.length){
+    const choices=list.data.map((x,i)=>`${i+1}. ${x.title||x.hold_no} · ${x.employee_code||'-'} · ${new Date(x.created_at).toLocaleString('th-TH')}`).join('\n');
+    const selected=Number(prompt(`เลือกบิลพักที่ต้องการเรียกคืน\n${choices}`));
+    if(!Number.isInteger(selected)||selected<1||selected>list.data.length)return;
+    const target=list.data[selected-1];
+    const r=await supabaseClient.rpc('restore_pos_held_bill_v3_5',{p_held_bill_id:target.id});
+    if(r.error)return msg(E.actionMsg,r.error.message,'error');
+    applyHeldPayload(r.data.payload||target.payload||{});return msg(E.actionMsg,`เรียกคืน ${target.hold_no} แล้ว`,'ok');
+  }
+  try{const p=JSON.parse(localStorage.getItem('tkn_pos_held_bill')||'null');if(!p)return msg(E.actionMsg,'ไม่พบบิลพัก','error');applyHeldPayload(p);localStorage.removeItem('tkn_pos_held_bill');msg(E.actionMsg,'เรียกคืนบิลจากโหมดสำรองแล้ว','ok')}catch(e){msg(E.actionMsg,e.message,'error')}
+}
 async function closeShift(event){
   event.preventDefault();
   if(!shift?.shift_id){
     E.closeShiftDialog.close();
     return msg(E.actionMsg,'ไม่พบกะที่เปิดอยู่','error');
   }
-  const r=await supabaseClient.rpc('close_cashier_shift',{
+  let r=await supabaseClient.rpc('close_cashier_shift_stable_v3_6',{
     p_shift_id:shift.shift_id,
     p_closing_cash_count:number(E.closingCash.value),
     p_notes:E.closingNotes.value.trim()||null
   });
+  if(r.error&&/close_cashier_shift_stable_v3_6|schema cache|function/i.test(r.error.message||'')){
+    console.warn('Stable close-shift RPC unavailable; using legacy fallback.',r.error);
+    r=await supabaseClient.rpc('close_cashier_shift',{
+      p_shift_id:shift.shift_id,
+      p_closing_cash_count:number(E.closingCash.value),
+      p_notes:E.closingNotes.value.trim()||null
+    });
+  }
   if(r.error)return msg(E.closeShiftMsg,r.error.message,'error');
   const closedShift={...shift};
   shift=null;cashier=null;saveShiftState();

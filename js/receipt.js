@@ -108,10 +108,19 @@ function receiptNetTotal(){
   return Number(header?.net_total||0);
 }
 function beforeVatAmount(){
-  return receiptNetTotal()/1.07;
+  const stored=Number(header?.vat_base_amount);
+  if(Number.isFinite(stored)&&stored>=0)return stored;
+  const rate=Math.max(Number(header?.vat_rate||7),0);
+  return rate>0?receiptNetTotal()/(1+(rate/100)):receiptNetTotal();
 }
 function vatAmount(){
+  const stored=Number(header?.vat_amount);
+  if(Number.isFinite(stored)&&stored>=0)return stored;
   return receiptNetTotal()-beforeVatAmount();
+}
+function vatRate(){
+  const rate=Number(header?.vat_rate||7);
+  return Number.isFinite(rate)?rate:7;
 }
 
 async function requireSession(){
@@ -149,7 +158,19 @@ async function loadReceipt(){
 
     if(iErr)throw iErr;
 
-    header=h;
+    // Read additive POS Stable fields directly from sales. This avoids replacing
+    // the existing receipt view and remains compatible with older bills.
+    const {data:stableFields,error:stableErr}=await supabaseClient
+      .from('sales')
+      .select('cashier_shift_id,cashier_user_id,cashier_employee_code,cashier_display_name,vat_rate,vat_included,vat_base_amount,vat_amount')
+      .eq('id',h.id)
+      .maybeSingle();
+
+    if(stableErr){
+      console.warn('Stable receipt fields unavailable; using legacy receipt data:',stableErr);
+    }
+
+    header={...h,...(stableFields||{})};
     items=i||[];
 
     await renderReceipt();
@@ -225,7 +246,7 @@ async function renderReceipt(){
         <div><span>ยอดสินค้า</span><strong>${money(header.subtotal)}</strong></div>
         <div><span>ส่วนลด</span><strong>${money(header.discount_amount)}</strong></div>
         <div><span>มูลค่าก่อน VAT</span><strong>${money(beforeVatAmount())}</strong></div>
-        <div><span>VAT 7%</span><strong>${money(vatAmount())}</strong></div>
+        <div><span>VAT ${esc(vatRate())}%</span><strong>${money(vatAmount())}</strong></div>
         <div class="receipt-net">
           <span>ยอดสุทธิ (รวม VAT)</span><strong>${money(receiptNetTotal())}</strong>
         </div>
