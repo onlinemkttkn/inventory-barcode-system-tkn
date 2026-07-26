@@ -252,36 +252,51 @@ function renderUsers() {
           : '-'
       }</td>
       <td class="cashier-cell">
-        <details class="cashier-disclosure">
-          <summary>ตั้งค่าพนักงานและแคชเชียร์</summary>
+        <details class="cashier-disclosure" open>
+          <summary>ข้อมูลพนักงานและสิทธิ์การขาย</summary>
           <div class="cashier-fields">
-            <input class="display-name"
-              placeholder="ชื่อแคชเชียร์บนใบเสร็จ"
-              value="${esc(user.cashier_display_name || user.full_name || '')}"
-              ${protectedOwner ? 'disabled' : ''}>
-            <input class="employee-code"
-              placeholder="รหัสพนักงาน"
-              value="${esc(user.employee_code || '')}"
-              ${protectedOwner ? 'disabled' : ''}>
-            <input class="pin" type="password" inputmode="numeric"
-              minlength="4"
-              placeholder="${
-                user.employee_code
-                  ? 'PIN ใหม่ (เว้นว่าง=ไม่เปลี่ยน)'
-                  : 'PIN อย่างน้อย 4 ตัว'
-              }"
-              ${protectedOwner ? 'disabled' : ''}>
-            <label>
+            <label class="cashier-field">
+              <span>ชื่อแคชเชียร์บนใบเสร็จ</span>
+              <input class="display-name"
+                placeholder="ชื่อที่แสดงบนใบเสร็จ"
+                value="${esc(user.cashier_display_name || user.full_name || '')}"
+                ${protectedOwner ? 'disabled' : ''}>
+            </label>
+            <label class="cashier-field">
+              <span>รหัสพนักงาน</span>
+              <input class="employee-code"
+                placeholder="เช่น STAFF001"
+                value="${esc(user.employee_code || '')}"
+                ${protectedOwner ? 'disabled' : ''}>
+            </label>
+            <label class="cashier-field">
+              <span>กำหนด PIN ใหม่</span>
+              <input class="pin" type="password" inputmode="numeric"
+                minlength="4"
+                placeholder="${
+                  user.employee_code
+                    ? 'เว้นว่างหากไม่เปลี่ยน PIN'
+                    : 'ตัวเลขอย่างน้อย 4 ตัว'
+                }"
+                ${protectedOwner ? 'disabled' : ''}>
+            </label>
+            <label class="cashier-field">
+              <span>ส่วนลดสูงสุด (%)</span>
+              <input class="max-discount" type="number"
+                min="0" max="100" step=".01"
+                value="${Number(user.max_discount_percent || 0)}"
+                placeholder="0–100"
+                ${protectedOwner ? 'disabled' : ''}>
+            </label>
+            <label class="cashier-toggle">
               <input class="drawer" type="checkbox"
                 ${user.can_open_drawer ? 'checked' : ''}
                 ${protectedOwner ? 'disabled' : ''}>
-              เปิดลิ้นชักเองได้
+              <span>
+                <strong>สิทธิ์เปิดลิ้นชักเงินสด</strong>
+                <small>อนุญาตให้พนักงานเปิดลิ้นชักได้ด้วยตนเอง</small>
+              </span>
             </label>
-            <input class="max-discount" type="number"
-              min="0" max="100" step=".01"
-              value="${Number(user.max_discount_percent || 0)}"
-              placeholder="ส่วนลดสูงสุด %"
-              ${protectedOwner ? 'disabled' : ''}>
           </div>
         </details>
       </td>

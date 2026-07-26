@@ -40,15 +40,21 @@
 .users-access-ui .active-label input,.users-access-ui .cashier-fields label input{width:18px!important;height:18px;accent-color:var(--access-red)}
 
 /* Advanced cashier fields are collapsed but remain inside each user row. */
-.users-access-ui .cashier-cell{display:block!important}
-.users-access-ui .cashier-cell::before{display:none}
-.users-access-ui .cashier-disclosure{overflow:hidden;border:1px solid #dbe2eb;border-radius:12px;background:#fbfcfe}
+.users-access-ui #rows .cashier-cell{display:block!important;width:100%!important;min-width:0!important}
+.users-access-ui #rows .cashier-cell::before{content:none!important;display:none!important}
+.users-access-ui .cashier-disclosure{display:block;width:100%;min-width:0;overflow:hidden;border:1px solid #dbe2eb;border-radius:12px;background:#fbfcfe}
 .users-access-ui .cashier-disclosure summary{display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:44px;padding:10px 12px;cursor:pointer;list-style:none;color:#423a33;font-weight:900}
 .users-access-ui .cashier-disclosure summary::after{content:"เปิด";color:var(--access-red);font-size:.8rem}
 .users-access-ui .cashier-disclosure[open] summary{border-bottom:1px solid #dbe2eb;background:#fff7d6}
 .users-access-ui .cashier-disclosure[open] summary::after{content:"พับ"}
-.users-access-ui .cashier-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;min-width:0!important;padding:12px}
-.users-access-ui .cashier-fields label{min-height:42px;padding:8px 10px;border:1px solid #d7dee8;border-radius:10px;background:#fff}
+.users-access-ui .cashier-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%!important;min-width:0!important;padding:12px}
+.users-access-ui .cashier-fields .cashier-field{display:grid;align-items:stretch;gap:6px;min-width:0;min-height:0;padding:0;border:0;background:transparent;color:#544b43;font-size:.8rem;font-weight:900}
+.users-access-ui .cashier-fields .cashier-field input{width:100%!important;min-width:0!important;min-height:44px;padding:10px 12px}
+.users-access-ui .cashier-toggle{grid-column:1/-1;display:flex!important;align-items:flex-start!important;gap:10px;min-width:0;min-height:58px;padding:11px 12px!important;border:1px solid #d7dee8!important;border-radius:11px!important;background:#fff!important}
+.users-access-ui .cashier-toggle input{flex:0 0 auto;margin-top:2px}
+.users-access-ui .cashier-toggle span{display:grid;gap:2px;min-width:0}
+.users-access-ui .cashier-toggle strong{color:#302925;font-size:.9rem}
+.users-access-ui .cashier-toggle small{color:#746a60;font-size:.78rem;line-height:1.4}
 .users-access-ui #rows .button.save{width:100%;min-height:46px}
 .users-access-ui #message{position:sticky;bottom:8px;z-index:5;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.94)}
 
@@ -65,4 +71,5 @@
   .users-access-ui .permission-actions{grid-template-columns:1fr!important}
   .users-access-ui #rows td{grid-template-columns:1fr!important;gap:4px!important}
   .users-access-ui .cashier-fields{grid-template-columns:1fr!important}
+  .users-access-ui .cashier-toggle{grid-column:1}
 }
