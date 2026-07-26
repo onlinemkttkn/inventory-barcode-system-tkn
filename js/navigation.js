@@ -83,7 +83,7 @@
         <div class="tkn-mobile-footer-slot"></div>
       </div>
       <div class="tkn-nav-footer">
-        <a class="tkn-nav-btn" href="${landing}">หน้าหลักของฉัน</a>
+        <a class="tkn-nav-btn" href="./products-admin.html">ข้อมูลหลังบ้าน</a>
         <button class="tkn-nav-btn tkn-logout-btn" type="button">ออกจากระบบ</button>
       </div>
     `;
