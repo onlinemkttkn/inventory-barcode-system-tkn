@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>รับสินค้าเข้า</title>
-  <link rel="stylesheet" href="./css/inventory.css?v=1.0.2">
+  <link rel="stylesheet" href="./css/inventory.css?v=3.6.10">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/mobile-operations.css?v=3.4.10">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
@@ -15,16 +15,21 @@
 <body class="inventory-operation-page receive-page">
 <main class="shell">
   <header class="topbar">
-    <div><p class="eyebrow">PHASE 07</p><h1>รับสินค้าเข้า</h1><p>ค้นหาหรือสแกนสินค้า แล้วเพิ่มจำนวนเข้าสู่คลัง</p></div>
+    <div><p class="eyebrow">PHASE 07</p><h1>รับสินค้าเข้า</h1><p>เลือกสาขา ค้นหาหรือสแกนสินค้า แล้วเพิ่มจำนวนเข้าสู่สต็อกสาขา</p></div>
     <div class="button-row"><a class="btn secondary" href="./dashboard.html">Dashboard</a><a class="btn secondary" href="./transactions.html">ประวัติ</a></div>
   </header>
 
   <section class="card operation-search-card">
     <div class="grid-2">
+      <label class="field">สาขารับสินค้า
+        <select id="branch" required disabled>
+          <option value="">กำลังโหลดสาขา...</option>
+        </select>
+      </label>
       <label class="field">ชื่อผู้ขาย<input id="supplierName" placeholder="ชื่อร้านหรือ Supplier"></label>
       <label class="field">เลขอ้างอิง/Invoice<input id="referenceNo" placeholder="INV-0001"></label>
+      <label class="field">หมายเหตุ<textarea id="notes" rows="2"></textarea></label>
     </div>
-    <label class="field" style="margin-top:14px">หมายเหตุ<textarea id="notes" rows="2"></textarea></label>
   </section>
 
   <section class="card">
@@ -54,8 +59,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/inventory-common.js?v=1.0.2"></script>
-<script type="module" src="./js/receive.js?v=3.4.10"></script>
-  <script src="./js/navigation.js?v=3.4.10"></script>
+<script src="./js/inventory-common.js?v=3.6.10"></script>
+<script type="module" src="./js/receive.js?v=3.6.10"></script>
+  <script src="./js/navigation.js?v=3.6.10"></script>
 </body>
 </html>
