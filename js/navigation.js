@@ -47,9 +47,9 @@
     const items = [
       ['dashboard.view', './dashboard.html', 'Dashboard', 'dashboard'],
       ['pos.use', './pos.html', 'POS / ขายหน้าร้าน', 'pos'],
-      ['report.view', './reports.html', 'รายงาน', 'report'],
       ['product.manage', './products-admin.html', 'สินค้า', 'product'],
       ['inventory.view', './inventory-operations.html', 'คลังสินค้า', 'inventory'],
+      ['report.view', './reports.html', 'รายงาน', 'report'],
       ['user.manage', './users-admin.html', 'ผู้ใช้และสิทธิ์', 'users'],
       ['audit.view', './audit-log.html', 'Audit Log', 'audit']
     ].filter(([permission]) => permissions.has(permission));
@@ -83,7 +83,6 @@
         <div class="tkn-mobile-footer-slot"></div>
       </div>
       <div class="tkn-nav-footer">
-        <a class="tkn-nav-btn" href="./products-admin.html">ข้อมูลหลังบ้าน</a>
         <button class="tkn-nav-btn tkn-logout-btn" type="button">ออกจากระบบ</button>
       </div>
     `;
