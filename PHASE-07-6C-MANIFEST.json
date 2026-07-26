@@ -1,0 +1,18 @@
+{
+  "phase": "07.6C",
+  "title": "Branch Receive and Issue Frontend",
+  "database_prerequisite": "PHASE 07.6A",
+  "files": [
+    "receive.html",
+    "issue.html",
+    "js/receive.js",
+    "js/issue.js",
+    "js/inventory-branch-common.js",
+    "receive.js",
+    "issue.js",
+    "sql/PHASE-07-6C-RECEIVE-ISSUE-PERMISSIONS.sql",
+    "sql/VERIFY-PHASE-07-6C.sql",
+    "README-PHASE-07-6C.md",
+    "UAT-PHASE-07-6C.md"
+  ]
+}
