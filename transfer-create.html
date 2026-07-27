@@ -4,24 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>โอนสินค้าระหว่างสาขา</title>
-  <link rel="stylesheet" href="./css/transfer.css?v=3.4.0">
-  <link rel="stylesheet" href="./css/mobile-operations.css?v=3.4.10">
-  <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/transfer.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/mobile-operations.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/navigation.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.9">
 </head>
 <body>
 <main class="shell">
   <header class="top">
-    <div><p class="eyebrow">MASTER 3.4 · MOBILE TRANSFER</p>
+    <div>
+      <p class="eyebrow">PHASE 07.6E · SAFE TRANSFER</p>
       <h1>โอนสินค้าระหว่างสาขา</h1>
-      <p>สแกน QR/Barcode เพิ่มหลายสินค้า และยืนยันครั้งเดียว</p></div>
+      <p>ตัดยอดต้นทางทันที และบันทึกสมุดกลาง TRANSFER_OUT</p>
+    </div>
+    <a class="btn secondary" href="./dashboard.html">Dashboard</a>
   </header>
 
   <section class="card operation-grid">
     <label>ต้นทาง<select id="source"></select></label>
     <label>ปลายทาง<select id="dest"></select></label>
-    <label>เลขอ้างอิง<input id="ref"></label>
+    <label>เลขอ้างอิง<input id="ref" autocomplete="off"></label>
     <label>หมายเหตุ<textarea id="notes" rows="2"></textarea></label>
   </section>
 
@@ -37,8 +40,10 @@
   </section>
 
   <section class="card">
-    <div class="section-head"><h2>รายการโอน</h2>
-      <span id="cartSummary">0 รายการ</span></div>
+    <div class="section-head">
+      <h2>รายการโอน</h2>
+      <span id="cartSummary">0 รายการ</span>
+    </div>
     <div id="cart" class="items"></div>
     <button id="save" class="btn primary full" type="button">
       ยืนยันส่งสินค้าทั้งหมด
@@ -48,10 +53,10 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
-<script src="./js/supabase-config.js?v=3.4.0"></script>
-<script src="./js/transfer-common.js?v=3.4.0"></script>
-<script type="module" src="./js/transfer-create.js?v=3.4.10"></script>
-<script src="./js/navigation.js?v=3.4.10"></script>
+<script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+<script src="./js/supabase-config.js?v=3.6.9"></script>
+<script src="./js/transfer-common.js?v=3.6.9"></script>
+<script type="module" src="./js/transfer-create.js?v=3.6.9"></script>
+<script src="./js/navigation.js?v=3.6.9"></script>
 </body>
 </html>

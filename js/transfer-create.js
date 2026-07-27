@@ -17,8 +17,11 @@ const E = {
 };
 
 const cart = new Map();
+let pendingRequest = null;
+let saving = false;
+let previousSource = '';
 
-const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+const html = value => String(value ?? '').replace(/[&<>"']/g, char => ({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
 })[char]);
 
@@ -27,21 +30,45 @@ function message(element, text, type='') {
   element.className = `message ${type}`.trim();
 }
 
+function invalidatePendingRequest() {
+  pendingRequest = null;
+}
+
+function clearCart(reason = '') {
+  cart.clear();
+  E.results.innerHTML = '';
+  renderCart();
+  invalidatePendingRequest();
+  if (reason) message(E.actionMsg, reason);
+}
+
 async function initialize() {
-  if (!await auth()) return;
+  const access = await inventoryAccess('inventory.transfer');
+  if (!access) return;
+
   const list = await branches();
+  if (list.length < 2) {
+    E.save.disabled = true;
+    throw new Error('ต้องมีสาขาที่เปิดใช้งานอย่างน้อย 2 สาขา');
+  }
+
   const options = list.map(branch =>
-    `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
+    `<option value="${branch.id}">${html(branch.code)} — ${html(branch.name)}</option>`
   ).join('');
+
   E.source.innerHTML = options;
   E.dest.innerHTML = options;
-  if (list.length > 1) E.dest.selectedIndex = 1;
+  E.dest.selectedIndex = 1;
+  previousSource = E.source.value;
+  message(E.actionMsg, `พร้อมใช้งาน · สิทธิ์ ${access.role_name_th || access.role || '-'}`);
 }
 
 async function search(query = E.search.value.trim()) {
   const q = String(query || '').trim().replace(/[%_,()]/g, '');
   if (!q) return message(E.searchMsg, 'กรุณากรอกหรือสแกนสินค้า', 'error');
+  if (!E.source.value) return message(E.searchMsg, 'กรุณาเลือกสาขาต้นทาง', 'error');
 
+  message(E.searchMsg, 'กำลังค้นหา...');
   const { data, error } = await supabaseClient
     .from('branch_inventory_list')
     .select('*')
@@ -51,12 +78,11 @@ async function search(query = E.search.value.trim()) {
 
   if (error) return message(E.searchMsg, error.message, 'error');
 
-  renderResults(data || []);
-  message(E.searchMsg, `พบ ${(data || []).length} รายการ`);
+  const items = (data || []).filter(item => Number(item.quantity) > 0);
+  renderResults(items);
+  message(E.searchMsg, `พบสินค้าที่โอนได้ ${items.length} รายการ`);
 
-  if ((data || []).length === 1 && query !== E.search.value.trim()) {
-    add(data[0]);
-  }
+  if (items.length === 1 && query !== E.search.value.trim()) add(items[0]);
 }
 
 function renderResults(items) {
@@ -64,8 +90,9 @@ function renderResults(items) {
   items.forEach(item => {
     const row = document.createElement('div');
     row.className = 'item operation-item';
-    row.innerHTML = `<div><b>${esc(item.product_name)}</b>
-      <small>${esc(item.product_code)} · คงเหลือ ${item.quantity}</small></div>`;
+    row.innerHTML = `<div><b>${html(item.product_name)}</b>
+      <small>${html(item.product_code)} · คงเหลือ ${Number(item.quantity).toLocaleString('th-TH')}</small></div>`;
+
     const button = document.createElement('button');
     button.className = 'btn primary';
     button.type = 'button';
@@ -83,6 +110,7 @@ function add(item) {
     return message(E.actionMsg, 'จำนวนเกินยอดคงเหลือ', 'error');
   }
   cart.set(item.product_id, { ...item, move: next });
+  invalidatePendingRequest();
   renderCart();
 }
 
@@ -93,8 +121,8 @@ function renderCart() {
     row.className = 'item operation-cart-item';
 
     const info = document.createElement('div');
-    info.innerHTML = `<b>${esc(item.product_name)}</b>
-      <small>${esc(item.product_code)} · คงเหลือ ${item.quantity}</small>`;
+    info.innerHTML = `<b>${html(item.product_name)}</b>
+      <small>${html(item.product_code)} · คงเหลือ ${Number(item.quantity).toLocaleString('th-TH')}</small>`;
 
     const quantity = document.createElement('input');
     quantity.type = 'number';
@@ -104,11 +132,14 @@ function renderCart() {
     quantity.inputMode = 'decimal';
     quantity.value = item.move;
     quantity.onchange = () => {
-      item.move = Math.max(
-        .001,
-        Math.min(Number(quantity.value) || 0, Number(item.quantity))
-      );
+      const entered = Number(quantity.value);
+      if (!Number.isFinite(entered) || entered <= 0) {
+        quantity.value = item.move;
+        return message(E.actionMsg, 'จำนวนโอนต้องมากกว่า 0', 'error');
+      }
+      item.move = Math.min(entered, Number(item.quantity));
       quantity.value = item.move;
+      invalidatePendingRequest();
       updateSummary();
     };
 
@@ -118,6 +149,7 @@ function renderCart() {
     remove.textContent = 'ลบ';
     remove.onclick = () => {
       cart.delete(item.product_id);
+      invalidatePendingRequest();
       renderCart();
     };
 
@@ -133,9 +165,35 @@ function updateSummary() {
   E.cartSummary.textContent = `${items.length} รายการ / ${qty.toLocaleString('th-TH')} หน่วย`;
 }
 
+function requestPayload() {
+  const items = [...cart.values()]
+    .filter(item => Number(item.move) > 0)
+    .map(item => ({ product_id: item.product_id, quantity: Number(item.move) }))
+    .sort((a, b) => a.product_id.localeCompare(b.product_id));
+
+  return {
+    source: E.source.value,
+    destination: E.dest.value,
+    reference: E.ref.value.trim() || null,
+    notes: E.notes.value.trim() || null,
+    items
+  };
+}
+
+function pendingKeyFor(payload) {
+  const fingerprint = JSON.stringify(payload);
+  if (!pendingRequest || pendingRequest.fingerprint !== fingerprint) {
+    pendingRequest = {
+      fingerprint,
+      key: makeIdempotencyKey('transfer')
+    };
+  }
+  return pendingRequest.key;
+}
+
 E.searchForm.onsubmit = event => {
   event.preventDefault();
-  search();
+  search().catch(error => message(E.searchMsg, error.message, 'error'));
 };
 
 const scanner = new MobileBarcodeScanner({
@@ -147,44 +205,60 @@ const scanner = new MobileBarcodeScanner({
 });
 E.scan.onclick = () => scanner.open();
 
+E.source.addEventListener('change', () => {
+  const selected = E.source.value;
+  if (cart.size && !confirm('เปลี่ยนสาขาต้นทางแล้วล้างรายการโอนเดิมหรือไม่?')) {
+    E.source.value = previousSource;
+    return;
+  }
+  previousSource = selected;
+  clearCart('เปลี่ยนสาขาต้นทางแล้ว กรุณาค้นหาสินค้าใหม่');
+});
+E.dest.addEventListener('change', invalidatePendingRequest);
+E.ref.addEventListener('input', invalidatePendingRequest);
+E.notes.addEventListener('input', invalidatePendingRequest);
+
 E.save.onclick = async () => {
+  if (saving) return;
   if (E.source.value === E.dest.value) {
     return message(E.actionMsg, 'ต้นทางและปลายทางต้องต่างกัน', 'error');
   }
 
-  const items = [...cart.values()]
-    .filter(item => Number(item.move) > 0)
-    .map(item => ({
-      product_id: item.product_id,
-      quantity: Number(item.move)
-    }));
-
-  if (!items.length) {
+  const payload = requestPayload();
+  if (!payload.items.length) {
     return message(E.actionMsg, 'กรุณาเพิ่มสินค้า', 'error');
   }
 
+  const key = pendingKeyFor(payload);
+  saving = true;
   E.save.disabled = true;
   message(E.actionMsg, 'กำลังสร้างเอกสารโอน...');
 
-  const { data, error } = await supabaseClient.rpc(
-    'create_branch_transfer',
-    {
-      p_source_branch_id: E.source.value,
-      p_destination_branch_id: E.dest.value,
-      p_items: items,
-      p_reference_no: E.ref.value.trim() || null,
-      p_notes: E.notes.value.trim() || null
-    }
-  );
+  try {
+    const { data, error } = await supabaseClient.rpc('create_branch_transfer', {
+      p_source_branch_id: payload.source,
+      p_destination_branch_id: payload.destination,
+      p_items: payload.items,
+      p_reference_no: payload.reference,
+      p_notes: payload.notes,
+      p_idempotency_key: key
+    });
 
-  E.save.disabled = false;
-  if (error) return message(E.actionMsg, error.message, 'error');
+    if (error) throw error;
 
-  message(E.actionMsg, `สำเร็จ ${data.transfer_no}`, 'success-text');
-  cart.clear();
-  renderCart();
-  E.ref.value = '';
-  E.notes.value = '';
+    message(E.actionMsg, `สร้างใบโอน ${data.transfer_no} เรียบร้อย`, 'success-text');
+    cart.clear();
+    renderCart();
+    E.ref.value = '';
+    E.notes.value = '';
+    E.results.innerHTML = '';
+    pendingRequest = null;
+  } catch (error) {
+    message(E.actionMsg, error.message || 'สร้างใบโอนไม่สำเร็จ', 'error');
+  } finally {
+    saving = false;
+    E.save.disabled = false;
+  }
 };
 
 initialize().catch(error => message(E.actionMsg, error.message, 'error'));
