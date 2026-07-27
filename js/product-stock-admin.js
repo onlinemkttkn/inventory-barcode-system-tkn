@@ -57,7 +57,7 @@ async function init() {
   if (error) throw error;
 
   E.branch.innerHTML = (data || []).map(branch =>
-    `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
+    `<option value="${branch.id}">${esc(branch.name)}</option>`
   ).join('');
 
   window.TKNInventoryWorkspace?.setBranch(

@@ -23,7 +23,7 @@ async function initialize() {
 
   const list = await scBranches();
   E.branch.innerHTML = list.map(branch =>
-    `<option value="${branch.id}">${scEsc(branch.code)} — ${scEsc(branch.name)}</option>`
+    `<option value="${branch.id}">${scEsc(branch.name)}</option>`
   ).join('');
 
   window.TKNInventoryWorkspace?.setBranch(E.branch.selectedOptions[0]?.textContent || 'สาขาตรวจนับ');

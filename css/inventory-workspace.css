@@ -39,18 +39,52 @@
   background:linear-gradient(#d90429 0 58%,#ffc72c 58%);
 }
 
-.inventory-workspace-branch{
-  max-width:48%;
-  overflow:hidden;
-  padding:6px 10px;
-  border:1px solid #ead48a;
-  border-radius:999px;
-  background:#fff8d7;
-  color:#574600;
+.inventory-workspace-branch-control{
+  display:flex;
+  min-width:310px;
+  align-items:center;
+  justify-content:flex-end;
+  gap:9px;
+  color:#6b5420;
   font-size:.78rem;
-  font-weight:850;
-  text-overflow:ellipsis;
+  font-weight:800;
   white-space:nowrap;
+}
+
+.inventory-workspace-branch-control span{
+  flex:0 0 auto;
+}
+
+.inventory-workspace-branch-control select{
+  width:min(360px,42vw);
+  min-height:40px;
+  padding:7px 38px 7px 13px;
+  border:1px solid #e8bd3e;
+  border-radius:999px;
+  outline:0;
+  background:#fff9df;
+  color:#574600;
+  font-family:'Prompt',sans-serif;
+  font-size:.82rem;
+  font-weight:750;
+  text-overflow:ellipsis;
+  cursor:pointer;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+
+.inventory-workspace-branch-control select:hover{
+  border-color:#d79e00;
+  background:#fff5c7;
+}
+
+.inventory-workspace-branch-control select:focus{
+  border-color:#cf8f00;
+  box-shadow:0 0 0 3px rgba(255,199,44,.24);
+}
+
+.inventory-workspace-branch-control select:disabled{
+  cursor:not-allowed;
+  opacity:.68;
 }
 
 .inventory-workspace-links{
@@ -142,7 +176,8 @@
 
   .inventory-workspace-head{margin-bottom:7px}
   .inventory-workspace-title{font-size:.92rem}
-  .inventory-workspace-branch{max-width:55%;font-size:.72rem}
+  .inventory-workspace-branch-control{min-width:260px;font-size:.72rem}
+  .inventory-workspace-branch-control select{width:min(330px,48vw);font-size:.76rem}
 
   .inventory-workspace-links{
     display:flex;
@@ -167,7 +202,8 @@
 @media(max-width:420px){
   .inventory-workspace-nav{top:64px}
   .inventory-workspace-head{align-items:flex-start;flex-direction:column;gap:5px}
-  .inventory-workspace-branch{max-width:100%}
+  .inventory-workspace-branch-control{width:100%;min-width:0;align-items:stretch;flex-direction:column;gap:5px}
+  .inventory-workspace-branch-control select{width:100%;max-width:none}
 }
 
 @media print{.inventory-workspace-nav{display:none!important}}

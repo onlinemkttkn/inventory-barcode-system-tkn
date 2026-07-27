@@ -53,7 +53,7 @@ async function initialize() {
   }
 
   const options = list.map(branch =>
-    `<option value="${branch.id}">${html(branch.code)} — ${html(branch.name)}</option>`
+    `<option value="${branch.id}">${html(branch.name)}</option>`
   ).join('');
 
   E.source.innerHTML = options;

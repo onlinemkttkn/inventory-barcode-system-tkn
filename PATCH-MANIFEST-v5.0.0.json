@@ -1,0 +1,118 @@
+{
+  "name": "TKN Inventory Branch Dropdown Name Only Final Patch",
+  "version": "5.0.0",
+  "type": "frontend_patch",
+  "database_changes": false,
+  "sql_changes": false,
+  "rpc_changes": false,
+  "rls_changes": false,
+  "behavior": {
+    "top_inventory_branch_dropdown": true,
+    "display_branch_name_only": true,
+    "preserve_branch_id_values": true,
+    "sync_submenu_branch_selects": true,
+    "includes_new_tab_fix_v4_9_1": true
+  },
+  "files": [
+    {
+      "path": "README-ติดตั้ง-PATCH-v5.0.0.txt",
+      "size": 3378,
+      "sha256": "c01258afb64f70d1085d447488ad60f6eec2bdb756980260035f5c6e2e299f1e"
+    },
+    {
+      "path": "css/inventory-workspace.css",
+      "size": 4838,
+      "sha256": "8547fe68bb1aa9f1e7d3901a4b4bbba67f1effe199e928d53a46310bd4d7f7dc"
+    },
+    {
+      "path": "inventory-operations.html",
+      "size": 3339,
+      "sha256": "f873d5d1dfaa7a4fba2be399d150eff5379d4980093aca57f6462135edc09b3c"
+    },
+    {
+      "path": "issue.html",
+      "size": 4072,
+      "sha256": "edbc9260f4a0f6d1af95516b780c912fd375853e806ab7f27597f16643749462"
+    },
+    {
+      "path": "js/inventory-branch-common.js",
+      "size": 3914,
+      "sha256": "52235c9d1296b8ee47c63bf323f5b7571a17580af6052e77198c2a4e74b6d4e3"
+    },
+    {
+      "path": "js/inventory-workspace.js",
+      "size": 14145,
+      "sha256": "f06b0c37884d48c2e08975e8df57e17551a99f6eaeacdf74e3c553450e7443c0"
+    },
+    {
+      "path": "js/issue.js",
+      "size": 11039,
+      "sha256": "e54cdfb5ec276ce5b983eae128df9c6bc498bb497f402484be9222a6b3b30208"
+    },
+    {
+      "path": "js/navigation-newtab-final.js",
+      "size": 13462,
+      "sha256": "1217955554833d8220a1b8026bf6df75d94c89e4b44481b4fb37a6ee48f2c125"
+    },
+    {
+      "path": "js/product-stock-admin.js",
+      "size": 7525,
+      "sha256": "0d6ccab004dfd56333aa502f8a64e9532adf1e20084bf77de4fe042c19f33f22"
+    },
+    {
+      "path": "js/receive.js",
+      "size": 9953,
+      "sha256": "15eef5fe29f0dae4d75ee5e81731fc1206bb3249a691288b354d82048005dca2"
+    },
+    {
+      "path": "js/stock-count.js",
+      "size": 10882,
+      "sha256": "6eadb7fc5f5d8819399ec6b1787e0a8d80ef01f84cf9822ccc0e4e6a144d6ac3"
+    },
+    {
+      "path": "js/transactions.js",
+      "size": 10481,
+      "sha256": "0df770c725ee2dca51002057a02b69f3f459c38d340e0141ab8c1b4b811cee44"
+    },
+    {
+      "path": "js/transfer-create.js",
+      "size": 9342,
+      "sha256": "5cf7b10756927577b9fad73f7cb4defaf49d89f37cadf0d68e2c520fb5ad7167"
+    },
+    {
+      "path": "js/transfer-receive.js",
+      "size": 3756,
+      "sha256": "0e39b2b20afcebb75a4138abd4b2901ea747232a01cccf0f3207bd2d72fb0cea"
+    },
+    {
+      "path": "product-stock-admin.html",
+      "size": 2554,
+      "sha256": "eb5ef35fc5c9df8ffc3206f67d1760239b76272fcb739751bdd53305fe3bc51d"
+    },
+    {
+      "path": "receive.html",
+      "size": 4065,
+      "sha256": "d96a6404a909afc6ab0a8e14fd127052209a189db61f6e59b2ec92fbc866f654"
+    },
+    {
+      "path": "stock-count.html",
+      "size": 3101,
+      "sha256": "c2520b4f3de25097c007ee45e40e6861da9f47d3f44a92ad10e264aee6367f9f"
+    },
+    {
+      "path": "transactions.html",
+      "size": 6344,
+      "sha256": "913c67d9de076e27fc6cfb04e64026748b4bcb29d24183c35b4831ada733d142"
+    },
+    {
+      "path": "transfer-create.html",
+      "size": 3296,
+      "sha256": "b18c7a9f3cd3f83237f26f0d9c33dda8bf45cc86d8c92564c2cfee9fabd49317"
+    },
+    {
+      "path": "transfer-receive.html",
+      "size": 2530,
+      "sha256": "f6fc2584a39a60ba9cc7409b9427672e78c82bb329482310d0dbc3b90493186d"
+    }
+  ]
+}

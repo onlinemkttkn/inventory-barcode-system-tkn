@@ -32,14 +32,14 @@ export function populateBranchSelect(selectElement, branches, accessContext) {
   if (!selectElement) return null;
 
   selectElement.innerHTML = branches.map((branch) => (
-    `<option value="${branch.id}">${escapeHtml(branch.code)} — ${escapeHtml(branch.name)}</option>`
+    `<option value="${branch.id}">${escapeHtml(branch.name)}</option>`
   )).join('');
 
   const validIds = new Set(branches.map((branch) => branch.id));
   const storedBranchId = sessionStorage.getItem(INVENTORY_BRANCH_STORAGE_KEY);
   const preferredBranchId = [
-    accessContext?.branch_id,
     storedBranchId,
+    accessContext?.branch_id,
     branches.find((branch) => branch.code === 'BR001')?.id,
     branches[0]?.id,
   ].find((branchId) => branchId && validIds.has(branchId));
@@ -49,7 +49,7 @@ export function populateBranchSelect(selectElement, branches, accessContext) {
     sessionStorage.setItem(INVENTORY_BRANCH_STORAGE_KEY, preferredBranchId);
     const selected = branches.find((branch) => branch.id === preferredBranchId);
     if (selected) {
-      const label = `${selected.code} — ${selected.name}`;
+      const label = selected.name;
       sessionStorage.setItem('tkn_inventory_branch_label', label);
       window.TKNInventoryWorkspace?.setBranch(label);
     }

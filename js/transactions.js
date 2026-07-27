@@ -1,7 +1,7 @@
 import {
   loadActiveBranches,
   loadInventoryAccess,
-} from './inventory-branch-common.js?v=3.6.11';
+} from './inventory-branch-common.js?v=5.0.0';
 
 const PAGE_SIZE = 200;
 
@@ -253,7 +253,7 @@ async function loadBranches(access) {
   const branches = await loadActiveBranches();
   el.branchFilter.innerHTML = '<option value="">ทุกสาขา</option>'
     + branches.map((branch) => (
-      `<option value="${branch.id}">${escapeHtml(branch.code)} — ${escapeHtml(branch.name)}</option>`
+      `<option value="${branch.id}">${escapeHtml(branch.name)}</option>`
     )).join('');
 
   if (access?.branch_id && branches.some((branch) => branch.id === access.branch_id)) {
