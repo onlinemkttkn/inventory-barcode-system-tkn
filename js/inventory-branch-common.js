@@ -7,44 +7,13 @@ function safeSearchText(value) {
 }
 
 export async function loadInventoryAccess(requiredPermission) {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabaseClient.auth.getSession();
-
-  if (sessionError) throw sessionError;
-
-  if (!session?.user?.id) {
-    location.replace('./dashboard.html');
-    return null;
+  if (!window.TKNAuthGuard) {
+    throw new Error('ไม่พบระบบตรวจสอบ Session รุ่นใหม่');
   }
 
-  const { data: access, error: accessError } =
-    await supabaseClient.rpc('current_access_context');
-
-  if (accessError) throw accessError;
-
-  if (!access?.user_id || access.is_active !== true) {
-    await supabaseClient.auth.signOut();
-    location.replace('./dashboard.html');
-    return null;
-  }
-
-  const permissions = Array.isArray(access.permissions)
-    ? access.permissions
-    : [];
-
-  sessionStorage.setItem('tkn_user_role', access.role || 'staff');
-  sessionStorage.setItem('tkn_permissions', JSON.stringify(permissions));
-
-  if (requiredPermission && !permissions.includes(requiredPermission)) {
-    const error = new Error('บัญชีนี้ไม่มีสิทธิ์ใช้งานหน้านี้');
-    error.code = 'INVENTORY_PERMISSION_DENIED';
-    error.redirectTo = access.landing_page || './dashboard.html';
-    throw error;
-  }
-
-  return access;
+  return window.TKNAuthGuard.requireAccess(requiredPermission, {
+    loadingText: 'กำลังตรวจสอบสิทธิ์คลังสินค้า...'
+  });
 }
 
 export async function loadActiveBranches() {
@@ -78,14 +47,24 @@ export function populateBranchSelect(selectElement, branches, accessContext) {
   if (preferredBranchId) {
     selectElement.value = preferredBranchId;
     sessionStorage.setItem(INVENTORY_BRANCH_STORAGE_KEY, preferredBranchId);
+    const selected = branches.find((branch) => branch.id === preferredBranchId);
+    if (selected) {
+      const label = `${selected.code} — ${selected.name}`;
+      sessionStorage.setItem('tkn_inventory_branch_label', label);
+      window.TKNInventoryWorkspace?.setBranch(label);
+    }
   }
 
   return preferredBranchId || null;
 }
 
-export function rememberInventoryBranch(branchId) {
+export function rememberInventoryBranch(branchId, label = '') {
   if (branchId) {
     sessionStorage.setItem(INVENTORY_BRANCH_STORAGE_KEY, branchId);
+  }
+  if (label) {
+    sessionStorage.setItem('tkn_inventory_branch_label', label);
+    window.TKNInventoryWorkspace?.setBranch(label);
   }
 }
 

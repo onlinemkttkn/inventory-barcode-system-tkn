@@ -7,7 +7,7 @@ import {
   populateBranchSelect,
   rememberInventoryBranch,
   selectedBranchLabel,
-} from './inventory-branch-common.js';
+} from './inventory-branch-common.js?v=3.6.11';
 
 const issueCart = new Map();
 let pageReady = false;
@@ -235,7 +235,7 @@ el.branch.addEventListener('change', () => {
   }
 
   previousBranchId = el.branch.value;
-  rememberInventoryBranch(previousBranchId);
+  rememberInventoryBranch(previousBranchId, selectedBranchLabel(el.branch));
   clearBranchWork();
   showMessage(el.actionMessage, `เลือก ${selectedBranchLabel(el.branch)} แล้ว`);
 });
@@ -326,13 +326,13 @@ async function init() {
     setPageControls(true);
     showMessage(el.actionMessage, `พร้อมเบิกสินค้าจาก ${selectedBranchLabel(el.branch)}`);
     el.requesterName.focus();
+    window.TKNAuthGuard?.ready();
   } catch (error) {
     showMessage(el.actionMessage, error.message, 'error');
     setPageControls(false);
 
-    if (error.code === 'INVENTORY_PERMISSION_DENIED') {
-      setTimeout(() => location.replace(error.redirectTo), 1500);
-    }
+    if (error.code === 'INVENTORY_PERMISSION_DENIED') return;
+    window.TKNAuthGuard?.fail(error, () => location.reload());
   }
 }
 

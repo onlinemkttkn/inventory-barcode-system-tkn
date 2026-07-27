@@ -11,8 +11,10 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
+  <link rel="stylesheet" href="./css/inventory-workspace.css?v=3.6.11">
 </head>
-<body class="inventory-operation-page issue-page">
+<body class="inventory-operation-page issue-page tkn-auth-loading" data-inventory-page="issue" data-loading-text="กำลังเปิดคลังสินค้า...">
 <main class="shell">
   <header class="topbar">
     <div><p class="eyebrow">PHASE 07</p><h1>เบิก/จ่ายสินค้า</h1><p>เลือกสาขา ค้นหาหรือสแกนสินค้า แล้วตัดยอดออกจากสต็อกสาขา</p></div>
@@ -58,8 +60,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
+<script src="./js/auth-guard.js?v=3.6.11"></script>
+<script src="./js/inventory-workspace.js?v=3.6.11"></script>
 <script src="./js/inventory-common.js?v=3.6.10"></script>
-<script type="module" src="./js/issue.js?v=3.6.10"></script>
-  <script src="./js/navigation.js?v=3.6.10"></script>
+<script type="module" src="./js/issue.js?v=3.6.11"></script>
+  <script src="./js/navigation.js?v=3.6.11"></script>
 </body>
 </html>

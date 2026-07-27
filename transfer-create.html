@@ -9,8 +9,10 @@
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.9">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.9">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
+  <link rel="stylesheet" href="./css/inventory-workspace.css?v=3.6.11">
 </head>
-<body>
+<body class="tkn-auth-loading" data-inventory-page="transfer" data-loading-text="กำลังเปิดคลังสินค้า...">
 <main class="shell">
   <header class="top">
     <div>
@@ -55,8 +57,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
 <script src="./js/supabase-config.js?v=3.6.9"></script>
-<script src="./js/transfer-common.js?v=3.6.9"></script>
-<script type="module" src="./js/transfer-create.js?v=3.6.9"></script>
-<script src="./js/navigation.js?v=3.6.9"></script>
+<script src="./js/auth-guard.js?v=3.6.11"></script>
+<script src="./js/inventory-workspace.js?v=3.6.11"></script>
+<script src="./js/transfer-common.js?v=3.6.11"></script>
+<script type="module" src="./js/transfer-create.js?v=3.6.11"></script>
+<script src="./js/navigation.js?v=3.6.11"></script>
 </body>
 </html>

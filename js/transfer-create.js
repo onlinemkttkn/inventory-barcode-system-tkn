@@ -60,7 +60,9 @@ async function initialize() {
   E.dest.innerHTML = options;
   E.dest.selectedIndex = 1;
   previousSource = E.source.value;
+  window.TKNInventoryWorkspace?.setBranch(E.source.selectedOptions[0]?.textContent || 'สาขาต้นทาง');
   message(E.actionMsg, `พร้อมใช้งาน · สิทธิ์ ${access.role_name_th || access.role || '-'}`);
+  window.TKNAuthGuard?.ready();
 }
 
 async function search(query = E.search.value.trim()) {
@@ -206,6 +208,7 @@ const scanner = new MobileBarcodeScanner({
 E.scan.onclick = () => scanner.open();
 
 E.source.addEventListener('change', () => {
+  window.TKNInventoryWorkspace?.setBranch(E.source.selectedOptions[0]?.textContent || 'สาขาต้นทาง');
   const selected = E.source.value;
   if (cart.size && !confirm('เปลี่ยนสาขาต้นทางแล้วล้างรายการโอนเดิมหรือไม่?')) {
     E.source.value = previousSource;
@@ -261,4 +264,9 @@ E.save.onclick = async () => {
   }
 };
 
-initialize().catch(error => message(E.actionMsg, error.message, 'error'));
+initialize().catch(error => {
+  message(E.actionMsg, error.message, 'error');
+  if (error.code !== 'INVENTORY_PERMISSION_DENIED') {
+    window.TKNAuthGuard?.fail(error, () => location.reload());
+  }
+});

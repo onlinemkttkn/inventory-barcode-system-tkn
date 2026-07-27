@@ -36,32 +36,15 @@ function makeKey(productId, payload) {
 }
 
 async function init() {
-  const { data: { session }, error: sessionError } =
-    await supabaseClient.auth.getSession();
+  if (!window.TKNAuthGuard) throw new Error('ไม่พบระบบตรวจสอบ Session รุ่นใหม่');
 
-  if (sessionError || !session?.user?.id) {
-    location.replace('./dashboard.html');
-    return;
-  }
-
-  const { data: access, error: accessError } =
-    await supabaseClient.rpc('current_access_context');
-
-  if (accessError || !access?.user_id || access.is_active !== true) {
-    await supabaseClient.auth.signOut();
-    location.replace('./dashboard.html');
-    return;
-  }
+  const access = await window.TKNAuthGuard.requireAccess('inventory.view', {
+    loadingText: 'กำลังเปิดหน้าปรับสต็อก...'
+  });
+  if (!access) return;
 
   role = access.role || 'staff';
   const permissions = new Set(access.permissions || []);
-  sessionStorage.setItem('tkn_user_role', role);
-  sessionStorage.setItem('tkn_permissions', JSON.stringify([...permissions]));
-
-  if (!permissions.has('inventory.view')) {
-    location.replace(access.landing_page || './pos.html');
-    return;
-  }
   canAdjust = permissions.has('inventory.adjust');
 
   const { data, error } = await supabaseClient
@@ -71,14 +54,19 @@ async function init() {
     .order('sort_order')
     .order('code');
 
-  if (error) return msg(error.message, 'error');
+  if (error) throw error;
 
   E.branch.innerHTML = (data || []).map(branch =>
     `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
   ).join('');
 
+  window.TKNInventoryWorkspace?.setBranch(
+    E.branch.selectedOptions[0]?.textContent || 'สาขาที่เลือก'
+  );
+
   if (!canAdjust) msg('บัญชีนี้ดูสต็อกได้ แต่ไม่มีสิทธิ์ปรับจำนวน', 'error');
   await load();
+  window.TKNAuthGuard.ready();
 }
 
 async function load() {
@@ -227,9 +215,17 @@ function renderRows(rows) {
 }
 
 E.loadBtn.addEventListener('click', load);
-E.branch.addEventListener('change', load);
+E.branch.addEventListener('change', () => {
+  window.TKNInventoryWorkspace?.setBranch(E.branch.selectedOptions[0]?.textContent || 'สาขาที่เลือก');
+  load();
+});
 E.search.addEventListener('keydown', event => {
   if (event.key === 'Enter') load();
 });
 
-init().catch(error => msg(error.message, 'error'));
+init().catch(error => {
+  msg(error.message, 'error');
+  if (error.code !== 'INVENTORY_PERMISSION_DENIED') {
+    window.TKNAuthGuard?.fail(error, () => location.reload());
+  }
+});

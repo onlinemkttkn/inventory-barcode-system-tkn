@@ -8,8 +8,10 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
+  <link rel="stylesheet" href="./css/inventory-workspace.css?v=3.6.11">
 </head>
-<body>
+<body class="tkn-auth-loading inventory-hub-page" data-inventory-page="hub" data-loading-text="กำลังเปิดคลังสินค้า...">
 <main class="shell">
   <header class="page-head">
     <div><p class="eyebrow">MASTER 3.4 LTS · INVENTORY MODULE</p>
@@ -32,6 +34,9 @@
     <a class="operation-card" href="./transactions.html">
       <strong>ประวัติสินค้าเคลื่อนไหว</strong><span>ตรวจ Receive / Issue / Transfer</span>
     </a>
+    <a class="operation-card" href="./stock-count.html">
+      <strong>ตรวจนับสต็อก</strong><span>เปิดรอบนับจริงและบันทึกผลต่างอย่างปลอดภัย</span>
+    </a>
     <a class="operation-card" href="./product-stock-admin.html">
       <strong>ปรับสต็อก</strong><span>ปรับยอดพร้อมเหตุผลและ Audit Log</span>
     </a>
@@ -39,6 +44,8 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=3.4.0"></script>
-<script src="./js/navigation.js?v=3.4.0"></script>
+<script src="./js/auth-guard.js?v=3.6.11"></script>
+<script src="./js/inventory-workspace.js?v=3.6.11"></script>
+<script src="./js/navigation.js?v=3.6.11"></script>
 </body>
 </html>

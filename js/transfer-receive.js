@@ -16,7 +16,9 @@ async function initialize() {
     `<option value="${branch.id}">${esc(branch.code)} — ${esc(branch.name)}</option>`
   ).join('');
 
+  window.TKNInventoryWorkspace?.setBranch(E.branch.selectedOptions[0]?.textContent || 'สาขาปลายทาง');
   await loadTransfers();
+  window.TKNAuthGuard?.ready();
 }
 
 async function loadTransfers() {
@@ -96,6 +98,14 @@ async function receiveTransfer(item, button) {
 }
 
 E.load.onclick = loadTransfers;
-E.branch.onchange = loadTransfers;
+E.branch.onchange = () => {
+  window.TKNInventoryWorkspace?.setBranch(E.branch.selectedOptions[0]?.textContent || 'สาขาปลายทาง');
+  loadTransfers();
+};
 
-initialize().catch(error => msg(E.message, error.message, 'error'));
+initialize().catch(error => {
+  msg(E.message, error.message, 'error');
+  if (error.code !== 'INVENTORY_PERMISSION_DENIED') {
+    window.TKNAuthGuard?.fail(error, () => location.reload());
+  }
+});

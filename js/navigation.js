@@ -24,18 +24,13 @@
     if (current === 'index.html') return;
     if (document.querySelector('.tkn-nav-bar')) return;
 
-    let access = null;
+    let access = window.TKNAuthGuard?.getCachedAccess?.() || null;
     try {
-      if (window.supabaseClient) {
-        const result = await window.supabaseClient.rpc('current_access_context');
-        if (!result.error && result.data?.user_id) {
-          access = result.data;
-          sessionStorage.setItem('tkn_user_role', access.role || 'staff');
-          sessionStorage.setItem(
-            'tkn_permissions',
-            JSON.stringify(access.permissions || [])
-          );
-        }
+      if (!access && window.TKNAuthGuard && window.supabaseClient) {
+        access = await window.TKNAuthGuard.requireAccess(null, {
+          loadingText: 'กำลังเตรียมเมนูใช้งาน...',
+          suppressLoading: true
+        });
       }
     } catch (error) {
       console.warn('Navigation access lookup failed:', error);
@@ -95,7 +90,15 @@
       link.href = href;
       link.textContent = label;
       if (key === 'pos') link.classList.add('tkn-pos-entry');
-      if (current === href.replace('./', '')) link.classList.add('active');
+      const inventoryPages = new Set([
+        'inventory-operations.html','receive.html','issue.html',
+        'transfer-create.html','transfer-receive.html','transactions.html',
+        'stock-count.html','product-stock-admin.html'
+      ]);
+      if (
+        current === href.replace('./', '') ||
+        (key === 'inventory' && inventoryPages.has(current))
+      ) link.classList.add('active');
       menu.appendChild(link);
     }
 

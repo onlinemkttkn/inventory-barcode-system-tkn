@@ -26,9 +26,11 @@ async function initialize() {
     `<option value="${branch.id}">${scEsc(branch.code)} — ${scEsc(branch.name)}</option>`
   ).join('');
 
+  window.TKNInventoryWorkspace?.setBranch(E.branch.selectedOptions[0]?.textContent || 'สาขาตรวจนับ');
   await resumeActiveSession();
   render();
   if (!session) scMsg(E.actionMsg, `พร้อมตรวจนับ · สิทธิ์ ${access.role_name_th || access.role || '-'}`);
+  window.TKNAuthGuard?.ready();
 }
 
 
@@ -268,6 +270,7 @@ E.complete.onclick = async () => {
 
 
 E.branch.addEventListener('change', async () => {
+  window.TKNInventoryWorkspace?.setBranch(E.branch.selectedOptions[0]?.textContent || 'สาขาตรวจนับ');
   if (session) return;
   try {
     await resumeActiveSession();
@@ -311,4 +314,9 @@ E.cancel.onclick = async () => {
   }
 };
 
-initialize().catch(error => scMsg(E.actionMsg, error.message, 'error'));
+initialize().catch(error => {
+  scMsg(E.actionMsg, error.message, 'error');
+  if (error.code !== 'INVENTORY_PERMISSION_DENIED') {
+    window.TKNAuthGuard?.fail(error, () => location.reload());
+  }
+});

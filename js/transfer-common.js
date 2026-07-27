@@ -11,35 +11,17 @@ function esc(value) {
 }
 
 async function auth() {
-  const { data: { session }, error } = await supabaseClient.auth.getSession();
-  if (error || !session?.user?.id) {
-    location.replace('./dashboard.html');
-    return null;
-  }
-  return session;
+  if (!window.TKNAuthGuard) throw new Error('ไม่พบระบบตรวจสอบ Session รุ่นใหม่');
+  return window.TKNAuthGuard.getSession({ retries: 1 });
 }
 
 async function inventoryAccess(requiredPermission) {
-  const session = await auth();
-  if (!session) return null;
-
-  const { data, error } = await supabaseClient.rpc('current_access_context');
-  if (error || !data?.user_id || data.is_active !== true) {
-    await supabaseClient.auth.signOut();
-    location.replace('./dashboard.html');
-    return null;
-  }
-
-  const permissions = new Set(data.permissions || []);
-  sessionStorage.setItem('tkn_user_role', data.role || 'staff');
-  sessionStorage.setItem('tkn_permissions', JSON.stringify([...permissions]));
-
-  if (requiredPermission && !permissions.has(requiredPermission)) {
-    location.replace(data.landing_page || './pos.html');
-    return null;
-  }
-
-  return { ...data, permissions };
+  if (!window.TKNAuthGuard) throw new Error('ไม่พบระบบตรวจสอบ Session รุ่นใหม่');
+  const data = await window.TKNAuthGuard.requireAccess(requiredPermission, {
+    loadingText: 'กำลังตรวจสอบสิทธิ์การโอนสินค้า...'
+  });
+  if (!data) return null;
+  return { ...data, permissions: new Set(data.permissions || []) };
 }
 
 async function branches() {

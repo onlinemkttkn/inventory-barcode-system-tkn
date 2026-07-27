@@ -1,7 +1,7 @@
 import {
   loadActiveBranches,
   loadInventoryAccess,
-} from './inventory-branch-common.js';
+} from './inventory-branch-common.js?v=3.6.11';
 
 const PAGE_SIZE = 200;
 
@@ -259,6 +259,9 @@ async function loadBranches(access) {
   if (access?.branch_id && branches.some((branch) => branch.id === access.branch_id)) {
     el.branchFilter.value = access.branch_id;
   }
+  window.TKNInventoryWorkspace?.setBranch(
+    el.branchFilter.selectedOptions[0]?.textContent || 'ทุกสาขา'
+  );
 }
 
 function clearFilters() {
@@ -273,7 +276,10 @@ function clearFilters() {
 el.refreshBtn.addEventListener('click', () => loadHistory());
 el.searchBtn.addEventListener('click', () => loadHistory());
 el.clearBtn.addEventListener('click', clearFilters);
-el.branchFilter.addEventListener('change', () => loadHistory());
+el.branchFilter.addEventListener('change', () => {
+  window.TKNInventoryWorkspace?.setBranch(el.branchFilter.selectedOptions[0]?.textContent || 'ทุกสาขา');
+  loadHistory();
+});
 el.typeFilter.addEventListener('change', () => loadHistory());
 el.dateFrom.addEventListener('change', () => loadHistory());
 el.dateTo.addEventListener('change', () => loadHistory());
@@ -287,12 +293,16 @@ el.loadMoreBtn.addEventListener('click', async () => {
 
 async function init() {
   try {
-    const access = await loadInventoryAccess();
+    const access = await loadInventoryAccess('inventory.view');
     if (!access) return;
     await loadBranches(access);
     await loadHistory();
+    window.TKNAuthGuard?.ready();
   } catch (error) {
     showMessage(el.message, error.message, 'error');
+    if (error.code !== 'INVENTORY_PERMISSION_DENIED') {
+      window.TKNAuthGuard?.fail(error, () => location.reload());
+    }
   }
 }
 

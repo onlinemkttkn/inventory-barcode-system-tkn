@@ -80,6 +80,7 @@ function showLogin() {
   E.logoutBtn?.classList.add("hidden");
   E.branchFilter.classList.add("hidden");
   E.refreshBtn.classList.add("hidden");
+  window.TKNAuthGuard?.ready();
 }
 
 function showApp() {
@@ -88,9 +89,12 @@ function showApp() {
   E.logoutBtn?.classList.remove("hidden");
   E.branchFilter.classList.remove("hidden");
   E.refreshBtn.classList.remove("hidden");
+  window.TKNAuthGuard?.ready();
 }
 
 async function init() {
+  window.TKNAuthGuard?.start('กำลังตรวจสอบผู้ใช้งาน...');
+
   if (!configReady()) {
     E.configWarning.textContent =
       "กรุณาตรวจสอบ Supabase URL และ Publishable Key";
@@ -100,16 +104,9 @@ async function init() {
   }
 
   try {
-    const {
-      data: { session },
-      error,
-    } = await supabaseClient.auth.getSession();
-
-    if (error) {
-      showLogin();
-      msg(E.loginMessage, error.message, "error");
-      return;
-    }
+    const session = window.TKNAuthGuard
+      ? await window.TKNAuthGuard.getSession({ retries: 1 })
+      : (await supabaseClient.auth.getSession()).data.session;
 
     await renderSession(session);
 
@@ -117,30 +114,23 @@ async function init() {
       if (event === "SIGNED_OUT") {
         currentProfile = null;
         branchesLoaded = false;
+        window.TKNAuthGuard?.clearAccessCache();
         showLogin();
-        E.welcomeText.textContent =
-          "กรุณาเข้าสู่ระบบภายในองค์กร";
+        E.welcomeText.textContent = "กรุณาเข้าสู่ระบบภายในองค์กร";
         return;
       }
 
-      /*
-       * เรียก renderSession เฉพาะตอนเข้าสู่ระบบจริง
-       * ไม่โหลด Dashboard ซ้ำตอน TOKEN_REFRESHED
-       */
       if (
         (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
         nextSession &&
         !currentProfile
       ) {
-        setTimeout(() => {
-          renderSession(nextSession);
-        }, 0);
+        setTimeout(() => renderSession(nextSession), 0);
       }
     });
   } catch (error) {
     console.error("Initialization error:", error);
-    showLogin();
-    msg(E.loginMessage, `เริ่มต้นระบบไม่สำเร็จ: ${error.message}`, "error");
+    window.TKNAuthGuard?.fail(error, init);
   }
 }
 
@@ -151,88 +141,32 @@ async function renderSession(session) {
   try {
     if (!session?.user?.id) {
       showLogin();
-      E.welcomeText.textContent =
-        "กรุณาเข้าสู่ระบบภายในองค์กร";
+      E.welcomeText.textContent = "กรุณาเข้าสู่ระบบภายในองค์กร";
       return;
     }
 
-    const { data: profile, error } = await supabaseClient
-      .from("profiles")
-      .select("id,email,full_name,role,is_active")
-      .eq("id", session.user.id)
-      .maybeSingle();
+    const access = window.TKNAuthGuard
+      ? await window.TKNAuthGuard.requireAccess("dashboard.view", {
+          session,
+          loadingText: "กำลังโหลด Dashboard..."
+        })
+      : null;
 
-    if (error) {
-      console.error("Profile query error:", error);
-      showLogin();
-      msg(
-        E.loginMessage,
-        `อ่านข้อมูลผู้ใช้ไม่สำเร็จ: ${error.message}`,
-        "error"
-      );
-      return;
-    }
-
-    if (!profile) {
-      showLogin();
-      msg(
-        E.loginMessage,
-        "ไม่พบข้อมูลผู้ใช้ในตาราง profiles",
-        "error"
-      );
-      return;
-    }
-
-    if (profile.is_active !== true) {
-      await supabaseClient.auth.signOut();
-      showLogin();
-      msg(
-        E.loginMessage,
-        "บัญชีไม่มีสิทธิ์หรือถูกปิดใช้งาน",
-        "error"
-      );
-      return;
-    }
-
-    const { data: access, error: accessError } =
-      await supabaseClient.rpc("current_access_context");
-
-    if (accessError || !access?.user_id || access.is_active !== true) {
-      console.error("Access context error:", accessError || access);
-      showLogin();
-      msg(
-        E.loginMessage,
-        accessError?.message ||
-          "ไม่สามารถตรวจสอบสิทธิ์ได้ กรุณารีเฟรชหรือลองใหม่",
-        "error"
-      );
-      return;
-    }
+    if (!access) return;
 
     const permissions = new Set(access.permissions || []);
-    sessionStorage.setItem("tkn_user_role", access.role || "staff");
-    sessionStorage.setItem(
-      "tkn_permissions",
-      JSON.stringify(access.permissions || [])
-    );
-
-    if (!permissions.has("dashboard.view")) {
-      window.location.replace(access.landing_page || "./pos.html");
-      return;
-    }
-
     document.querySelectorAll("[data-permission]").forEach((element) => {
-      const allowed = permissions.has(
-        element.getAttribute("data-permission")
-      );
-      element.hidden = !allowed;
+      element.hidden = !permissions.has(element.getAttribute("data-permission"));
     });
 
     currentProfile = {
-      ...profile,
+      id: access.user_id,
+      email: access.email,
       role: access.role,
-      full_name: access.full_name || profile.full_name
+      full_name: access.full_name,
+      is_active: access.is_active
     };
+
     showApp();
 
     E.welcomeText.textContent =
@@ -252,12 +186,9 @@ async function renderSession(session) {
     await loadDashboard();
   } catch (error) {
     console.error("Render session error:", error);
-    showLogin();
-    msg(
-      E.loginMessage,
-      `ตรวจสอบผู้ใช้งานไม่สำเร็จ: ${error.message}`,
-      "error"
-    );
+    if (error.code !== "INVENTORY_PERMISSION_DENIED") {
+      window.TKNAuthGuard?.fail(error, () => renderSession(session));
+    }
   } finally {
     isRenderingSession = false;
   }
@@ -324,6 +255,7 @@ E.logoutBtn?.addEventListener("click", async () => {
 
     currentProfile = null;
     branchesLoaded = false;
+    window.TKNAuthGuard?.clearAccessCache();
     showLogin();
   } finally {
     E.logoutBtn.disabled = false;

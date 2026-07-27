@@ -11,8 +11,9 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
 </head>
-<body class="dashboard-page" data-integrated-page="dashboard" data-lock-back="true">
+<body class="dashboard-page tkn-auth-loading" data-loading-text="กำลังตรวจสอบผู้ใช้งาน..." data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
   <header class="topbar">
     <div>
@@ -47,7 +48,7 @@
 
   <section id="configWarning" class="alert warning hidden"></section>
 
-  <section id="loginCard" class="card login-card">
+  <section id="loginCard" class="card login-card hidden">
     <h2>เข้าสู่ระบบภายในองค์กร</h2>
     <form id="loginForm" class="form-grid">
       <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
@@ -215,7 +216,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="./js/supabase-config.js"></script>
-<script src="./js/dashboard.js?v=3.5.0"></script>
+<script src="./js/auth-guard.js?v=3.6.11"></script>
+<script src="./js/dashboard.js?v=3.6.11"></script>
 <script src="./js/executive-report.js?v=3.5.0"></script>
 <script src="./js/dashboard-realtime.js?v=3.6.5"></script>
 </body>
