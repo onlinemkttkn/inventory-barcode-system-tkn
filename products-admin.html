@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>จัดการสินค้า</title>
-  <link rel="stylesheet" href="./css/products-admin.css?v=1.0.2">
+  <link rel="stylesheet" href="./css/products-admin.css?v=3.7.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
@@ -14,7 +14,7 @@
 <main class="shell">
   <header class="top">
     <div><h1>จัดการสินค้า</h1><p>ร้านเถ้าแก่น้อยชลบุรี</p></div>
-    <div class="row">
+    <div class="row nav-actions">
       <a class="btn secondary" href="./dashboard.html">Dashboard</a>
       <a class="btn secondary" href="./categories-admin.html">หมวดหมู่/ยี่ห้อ</a>
       <a class="btn secondary" href="./product-stock-admin.html">ปรับสต๊อก</a>
@@ -22,23 +22,26 @@
     </div>
   </header>
 
-  <section class="card">
-    <div class="row">
-      <input id="search" placeholder="ค้นหาชื่อ รหัสสินค้า หรือบาร์โค้ด">
+  <section class="card toolbar-card">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="search" placeholder="ค้นหาชื่อ รหัสสินค้า หรือบาร์โค้ด" autocomplete="off">
+        <button id="clearSearchBtn" class="icon-btn hidden" type="button" aria-label="ล้างคำค้น">×</button>
+      </div>
       <button id="searchBtn" class="btn primary">ค้นหา</button>
-      <button id="newBtn" class="btn success">เพิ่มสินค้าใหม่</button>
+      <button id="newBtn" class="btn success add-product-btn"><span aria-hidden="true">＋</span> เพิ่มสินค้าใหม่</button>
     </div>
+    <small class="toolbar-hint">กด Enter เพื่อค้นหา • เพิ่มสินค้าใหม่ได้จากปุ่มสีเหลือง</small>
   </section>
 
   <section class="card wrap">
     <table>
-      <thead>
-        <tr>
-          <th>รหัส</th><th>สินค้า</th><th>บาร์โค้ด</th><th>หมวดหมู่</th>
-          <th>ยี่ห้อ</th><th>ต้นทุน</th><th>ราคาขาย</th><th>คงเหลือรวม</th>
-          <th>สถานะ</th><th>จัดการ</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th>รหัส</th><th>สินค้า</th><th>บาร์โค้ด</th><th>หมวดหมู่</th>
+        <th>ยี่ห้อ</th><th>ต้นทุน</th><th>ราคาขาย</th><th>คงเหลือ</th>
+        <th>สถานะ</th><th>จัดการ</th>
+      </tr></thead>
       <tbody id="body"></tbody>
     </table>
     <p id="message" class="msg"></p>
@@ -46,56 +49,99 @@
 </main>
 
 <div id="modal" class="modal hidden">
-  <div class="modal-card">
-    <div class="top">
-      <div><h2 id="modalTitle">เพิ่มสินค้า</h2><small>ผู้บันทึกจะดึงจากบัญชีที่ล็อกอินอัตโนมัติ</small></div>
-      <button id="closeBtn" class="btn secondary">ปิด</button>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div>
+        <span class="eyebrow">จัดการข้อมูลสินค้า</span>
+        <h2 id="modalTitle">เพิ่มสินค้าใหม่</h2>
+        <p>กรอกช่องที่มีเครื่องหมาย <b class="required-mark">*</b> ให้ครบก่อนบันทึก</p>
+      </div>
+      <button id="closeBtn" class="close-modal" type="button" aria-label="ปิดหน้าต่าง">×</button>
     </div>
 
-    <form id="productForm" class="grid">
+    <form id="productForm">
       <input id="productId" type="hidden">
 
-      <label class="field">รหัสสินค้า<input id="productCode" required></label>
-      <label class="field">ชื่อสินค้า<input id="productName" required></label>
-
-      <label class="field">บาร์โค้ด
-        <div class="row">
-          <input id="barcode">
-          <button id="generateBarcodeBtn" class="btn secondary" type="button">สร้างอัตโนมัติ</button>
+      <section class="form-section">
+        <div class="section-heading">
+          <span class="step">1</span>
+          <div><h3>ข้อมูลหลัก</h3><p>ข้อมูลที่ใช้ค้นหาและขายสินค้า</p></div>
         </div>
-      </label>
+        <div class="form-grid">
+          <label class="field field-wide">ชื่อสินค้า <b class="required-mark">*</b>
+            <input id="productName" required placeholder="เช่น เสื้อยืดสีดำ ไซซ์ L" autocomplete="off">
+          </label>
+          <label class="field">รหัสสินค้า <b class="required-mark">*</b>
+            <input id="productCode" required placeholder="เช่น PD000001" autocomplete="off">
+          </label>
+          <label class="field">บาร์โค้ด
+            <div class="input-action">
+              <input id="barcode" inputmode="numeric" placeholder="สแกนหรือกรอกบาร์โค้ด" autocomplete="off">
+              <button id="generateBarcodeBtn" class="inline-btn" type="button">สร้างให้</button>
+            </div>
+          </label>
+        </div>
+      </section>
 
-      <label class="field">หมวดหมู่<select id="category" required></select></label>
-      <label class="field">หน่วยนับ<select id="unit" required></select></label>
-      <label class="field">ยี่ห้อ<select id="brand"></select></label>
+      <section class="form-section">
+        <div class="section-heading">
+          <span class="step">2</span>
+          <div><h3>จัดหมวดหมู่</h3><p>ช่วยให้ค้นหาและทำรายงานได้ง่าย</p></div>
+        </div>
+        <div class="form-grid form-grid-3">
+          <label class="field">หมวดหมู่ <b class="required-mark">*</b><select id="category" required></select></label>
+          <label class="field">หน่วยนับ <b class="required-mark">*</b><select id="unit" required></select></label>
+          <label class="field">ยี่ห้อ<select id="brand"></select></label>
+        </div>
+      </section>
 
-      <label class="field">ราคาทุน<input id="costPrice" type="number" min="0" step="0.01" value="0"></label>
-      <label class="field">ราคาขาย<input id="sellingPrice" type="number" min="0" step="0.01" value="0"></label>
-      <label class="field">ขั้นต่ำแจ้งเตือน<input id="minimumStock" type="number" min="0" step="0.001" value="0"></label>
-      <label class="field">VAT %<input id="vatRate" type="number" min="0" max="100" step="0.01" value="0"></label>
+      <section class="form-section">
+        <div class="section-heading">
+          <span class="step">3</span>
+          <div><h3>ราคาและสต๊อกเริ่มต้น</h3><p>กำหนดราคาขายและยอดแรกเข้า</p></div>
+        </div>
+        <div class="form-grid form-grid-4">
+          <label class="field">ราคาทุน
+            <div class="money-input"><span>฿</span><input id="costPrice" type="number" min="0" step="0.01" value="0"></div>
+          </label>
+          <label class="field">ราคาขาย <b class="required-mark">*</b>
+            <div class="money-input"><span>฿</span><input id="sellingPrice" type="number" min="0" step="0.01" value="0" required></div>
+          </label>
+          <label class="field">สาขาสต๊อกเริ่มต้น<select id="initialBranch"></select></label>
+          <label class="field">จำนวนเริ่มต้น<input id="initialQuantity" type="number" min="0" step="0.001" value="0"></label>
+        </div>
+        <p class="field-help">หากยังไม่นำเข้าสินค้า ให้เว้นสาขาและจำนวนเป็น 0 ได้</p>
+      </section>
 
-      <label class="field">URL รูปสินค้า<input id="imageUrl"></label>
-      <label class="field">สถานะ
-        <select id="isActive">
-          <option value="true">ใช้งาน</option>
-          <option value="false">ปิดใช้งาน</option>
-        </select>
-      </label>
+      <details class="advanced">
+        <summary>ข้อมูลเพิ่มเติม <span>รูปสินค้า, VAT, จุดแจ้งเตือน และรายละเอียด</span></summary>
+        <div class="form-grid advanced-grid">
+          <label class="field">ขั้นต่ำแจ้งเตือน<input id="minimumStock" type="number" min="0" step="0.001" value="0"></label>
+          <label class="field">VAT %<input id="vatRate" type="number" min="0" max="100" step="0.01" value="0"></label>
+          <label class="field">สถานะ
+            <select id="isActive"><option value="true">ใช้งาน</option><option value="false">ปิดใช้งาน</option></select>
+          </label>
+          <label class="field field-wide">URL รูปสินค้า<input id="imageUrl" type="url" placeholder="https://..."></label>
+          <label class="field field-full">รายละเอียด<textarea id="description" rows="3" placeholder="รายละเอียดเพิ่มเติมของสินค้า"></textarea></label>
+        </div>
+      </details>
 
-      <label class="field">สาขาสต๊อกเริ่มต้น<select id="initialBranch"></select></label>
-      <label class="field">จำนวนเริ่มต้น<input id="initialQuantity" type="number" min="0" step="0.001" value="0"></label>
-
-      <label class="field" style="grid-column:1/-1">รายละเอียด<textarea id="description" rows="3"></textarea></label>
-
-      <button class="btn primary" type="submit">บันทึกสินค้า</button>
+      <p id="formMessage" class="msg form-message" aria-live="polite"></p>
+      <div class="form-footer">
+        <small>ผู้บันทึกจะดึงจากบัญชีที่ล็อกอินอัตโนมัติ</small>
+        <div class="footer-actions">
+          <button id="cancelBtn" class="btn secondary" type="button">ยกเลิก</button>
+          <button id="saveAndNewBtn" class="btn outline-primary" type="submit" value="save-new">บันทึกและเพิ่มต่อ</button>
+          <button id="saveBtn" class="btn primary" type="submit" value="save">บันทึกสินค้า</button>
+        </div>
+      </div>
     </form>
-    <p id="formMessage" class="msg"></p>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/products-admin.js?v=1.0.2"></script>
-  <script src="./js/navigation.js?v=3.0.0"></script>
+<script src="./js/products-admin.js?v=3.7.0"></script>
+<script src="./js/navigation.js?v=3.0.0"></script>
 </body>
 </html>

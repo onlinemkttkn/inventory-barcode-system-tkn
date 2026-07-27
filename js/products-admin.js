@@ -1,12 +1,16 @@
 const E={
   search:document.getElementById('search'),
   searchBtn:document.getElementById('searchBtn'),
+  clearSearchBtn:document.getElementById('clearSearchBtn'),
   newBtn:document.getElementById('newBtn'),
   body:document.getElementById('body'),
   message:document.getElementById('message'),
   modal:document.getElementById('modal'),
   modalTitle:document.getElementById('modalTitle'),
   closeBtn:document.getElementById('closeBtn'),
+  cancelBtn:document.getElementById('cancelBtn'),
+  saveBtn:document.getElementById('saveBtn'),
+  saveAndNewBtn:document.getElementById('saveAndNewBtn'),
   form:document.getElementById('productForm'),
   productId:document.getElementById('productId'),
   productCode:document.getElementById('productCode'),
@@ -104,18 +108,19 @@ function render(){
   rows.forEach(x=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td>${esc(x.product_code)}</td>
-      <td>${esc(x.name)}</td>
-      <td>${esc(x.barcode||'-')}</td>
-      <td>${esc(x.category_name||'-')}</td>
-      <td>${esc(x.brand_name||'-')}</td>
-      <td>${money(x.cost_price)}</td>
-      <td>${money(x.selling_price)}</td>
-      <td>${Number(x.total_branch_quantity||0).toLocaleString('th-TH')}</td>
-      <td><span class="badge ${x.is_active?'active':'inactive'}">${x.is_active?'ใช้งาน':'ปิด'}</span></td>`;
+      <td data-label="รหัส">${esc(x.product_code)}</td>
+      <td data-label="สินค้า" class="product-name">${esc(x.name)}</td>
+      <td data-label="บาร์โค้ด">${esc(x.barcode||'-')}</td>
+      <td data-label="หมวดหมู่">${esc(x.category_name||'-')}</td>
+      <td data-label="ยี่ห้อ">${esc(x.brand_name||'-')}</td>
+      <td data-label="ต้นทุน">${money(x.cost_price)}</td>
+      <td data-label="ราคาขาย" class="selling-price">${money(x.selling_price)}</td>
+      <td data-label="คงเหลือ">${Number(x.total_branch_quantity||0).toLocaleString('th-TH')}</td>
+      <td data-label="สถานะ"><span class="badge ${x.is_active?'active':'inactive'}">${x.is_active?'ใช้งาน':'ปิด'}</span></td>`;
 
     const td=document.createElement('td');
     td.className='actions';
+    td.dataset.label='จัดการ';
 
     const edit=document.createElement('button');
     edit.className='btn secondary';
@@ -149,12 +154,15 @@ function resetForm(){
 function openNew(){
   resetForm();
   E.modalTitle.textContent='เพิ่มสินค้าใหม่';
+  E.saveAndNewBtn.classList.remove('hidden');
   E.modal.classList.remove('hidden');
+  requestAnimationFrame(()=>E.productName.focus());
 }
 
 function openEdit(x){
   resetForm();
   E.modalTitle.textContent='แก้ไขสินค้า';
+  E.saveAndNewBtn.classList.add('hidden');
   E.productId.value=x.id;
   E.productCode.value=x.product_code||'';
   E.productName.value=x.name||'';
@@ -172,6 +180,7 @@ function openEdit(x){
   E.initialBranch.disabled=true;
   E.initialQuantity.disabled=true;
   E.modal.classList.remove('hidden');
+  requestAnimationFrame(()=>E.productName.focus());
 }
 
 E.generateBarcodeBtn.onclick=async()=>{
@@ -182,10 +191,15 @@ E.generateBarcodeBtn.onclick=async()=>{
 
 E.form.onsubmit=async event=>{
   event.preventDefault();
+  const submitMode=event.submitter?.value||'save';
 
   if(!(access?.permissions||[]).includes('product.manage')){
     return msg(E.formMessage,'เฉพาะ Owner หรือ Admin เท่านั้น','error');
   }
+
+  E.saveBtn.disabled=true;
+  E.saveAndNewBtn.disabled=true;
+  msg(E.formMessage,'กำลังบันทึกสินค้า...');
 
   const common={
     p_product_code:E.productCode.value,
@@ -218,17 +232,42 @@ E.form.onsubmit=async event=>{
     });
   }
 
-  if(result.error)return msg(E.formMessage,result.error.message,'error');
+  if(result.error){
+    E.saveBtn.disabled=false;
+    E.saveAndNewBtn.disabled=false;
+    return msg(E.formMessage,result.error.message,'error');
+  }
 
   msg(E.formMessage,'บันทึกสินค้าเรียบร้อย','ok');
   await loadProducts();
-  setTimeout(()=>E.modal.classList.add('hidden'),500);
+  E.saveBtn.disabled=false;
+  E.saveAndNewBtn.disabled=false;
+
+  if(submitMode==='save-new'&&!E.productId.value){
+    resetForm();
+    msg(E.formMessage,'บันทึกแล้ว พร้อมเพิ่มสินค้ารายการถัดไป','ok');
+    E.productName.focus();
+  }else{
+    setTimeout(closeModal,450);
+  }
 };
 
 E.searchBtn.onclick=loadProducts;
+E.search.oninput=()=>E.clearSearchBtn.classList.toggle('hidden',!E.search.value);
 E.search.onkeydown=e=>{if(e.key==='Enter')loadProducts()};
+E.clearSearchBtn.onclick=()=>{
+  E.search.value='';
+  E.clearSearchBtn.classList.add('hidden');
+  loadProducts();
+  E.search.focus();
+};
 E.newBtn.onclick=openNew;
-E.closeBtn.onclick=()=>E.modal.classList.add('hidden');
-E.modal.onclick=e=>{if(e.target===E.modal)E.modal.classList.add('hidden')};
+function closeModal(){E.modal.classList.add('hidden')}
+E.closeBtn.onclick=closeModal;
+E.cancelBtn.onclick=closeModal;
+E.modal.onclick=e=>{if(e.target===E.modal)closeModal()};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!E.modal.classList.contains('hidden'))closeModal();
+});
 
 init();
