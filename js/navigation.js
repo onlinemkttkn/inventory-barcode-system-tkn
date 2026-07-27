@@ -1,12 +1,54 @@
 (() => {
   'use strict';
 
-  function parsePermissions() {
+  const ACCESS_CACHE_KEY = 'tkn_access_context_v3';
+  const ACCESS_CACHE_TTL = 10 * 60_000;
+  const ACCESS_RPC = 'current_access_context';
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  function parseJson(value, fallback = null) {
     try {
-      return new Set(JSON.parse(sessionStorage.getItem('tkn_permissions') || '[]'));
+      return JSON.parse(value);
     } catch {
-      return new Set();
+      return fallback;
     }
+  }
+
+  function readCachedAccess() {
+    const cached = parseJson(sessionStorage.getItem(ACCESS_CACHE_KEY), null);
+    if (!cached?.data?.user_id || !cached?.savedAt) return null;
+    if (Date.now() - Number(cached.savedAt) > ACCESS_CACHE_TTL) return null;
+    return cached.data;
+  }
+
+  function parsePermissions() {
+    const values = parseJson(sessionStorage.getItem('tkn_permissions'), []);
+    return new Set(Array.isArray(values) ? values : []);
+  }
+
+  function cacheAccess(access) {
+    if (!access?.user_id) return;
+
+    sessionStorage.setItem(ACCESS_CACHE_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      data: access
+    }));
+    sessionStorage.setItem('tkn_user_role', access.role || 'staff');
+    sessionStorage.setItem(
+      'tkn_permissions',
+      JSON.stringify(Array.isArray(access.permissions) ? access.permissions : [])
+    );
+    sessionStorage.setItem(
+      'tkn_current_actor',
+      access.full_name || access.email || access.user_id
+    );
+  }
+
+  function clearAccessCache() {
+    sessionStorage.removeItem(ACCESS_CACHE_KEY);
+    sessionStorage.removeItem('tkn_user_role');
+    sessionStorage.removeItem('tkn_permissions');
+    sessionStorage.removeItem('tkn_current_actor');
   }
 
   async function signOut() {
@@ -19,25 +61,143 @@
     }
   }
 
+  async function waitForSupabaseClient(timeoutMs = 2500) {
+    const startedAt = Date.now();
+    while (!window.supabaseClient && Date.now() - startedAt < timeoutMs) {
+      await sleep(40);
+    }
+    return window.supabaseClient || null;
+  }
+
+  async function fetchAccessDirectly() {
+    const client = await waitForSupabaseClient();
+    if (!client?.auth?.getSession || !client?.rpc) return null;
+
+    let session = null;
+    let sessionError = null;
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const result = await client.auth.getSession();
+        sessionError = result.error || null;
+        session = result.data?.session || null;
+        if (session?.user?.id) break;
+      } catch (error) {
+        sessionError = error;
+      }
+      await sleep(180);
+    }
+
+    if (!session?.user?.id) {
+      if (sessionError) console.warn('Navigation session lookup failed:', sessionError);
+      return null;
+    }
+
+    let accessResult = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      accessResult = await client.rpc(ACCESS_RPC);
+      if (!accessResult.error && accessResult.data?.user_id) break;
+      await sleep(220);
+    }
+
+    if (accessResult?.error) {
+      console.warn('Navigation access lookup failed:', accessResult.error);
+      return null;
+    }
+
+    const access = accessResult?.data || null;
+    if (!access?.user_id || access.user_id !== session.user.id) return null;
+
+    if (access.is_active !== true) {
+      clearAccessCache();
+      try {
+        await client.auth.signOut();
+      } catch (error) {
+        console.warn('Navigation inactive-account sign-out failed:', error);
+      }
+      location.replace('./dashboard.html');
+      return null;
+    }
+
+    cacheAccess(access);
+    return access;
+  }
+
+  async function resolveAccess() {
+    const guardCache = window.TKNAuthGuard?.getCachedAccess?.() || null;
+    if (guardCache?.user_id) return guardCache;
+
+    const ownCache = readCachedAccess();
+    if (ownCache?.user_id) return ownCache;
+
+    if (window.TKNAuthGuard && window.supabaseClient) {
+      try {
+        const guarded = await window.TKNAuthGuard.requireAccess(null, {
+          loadingText: 'กำลังเตรียมเมนูใช้งาน...',
+          suppressLoading: true,
+          redirect: false
+        });
+        if (guarded?.user_id) {
+          cacheAccess(guarded);
+          return guarded;
+        }
+      } catch (error) {
+        console.warn('Navigation guard lookup failed:', error);
+      }
+    }
+
+    return fetchAccessDirectly();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    })[character]);
+  }
+
+  function roleLabel(access) {
+    if (access?.role_name_th) return access.role_name_th;
+    return ({
+      owner: 'เจ้าของกิจการ',
+      admin: 'ผู้ดูแลระบบ',
+      secretary: 'เลขานุการ',
+      warehouse: 'คลังสินค้า',
+      sales: 'ฝ่ายขาย',
+      cashier: 'แคชเชียร์',
+      accounting: 'บัญชี',
+      staff: 'พนักงาน'
+    })[String(access?.role || '').toLowerCase()] || access?.role || 'ผู้ใช้งาน';
+  }
+
   async function start() {
     const current = location.pathname.split('/').pop() || 'index.html';
     if (current === 'index.html') return;
     if (document.querySelector('.tkn-nav-bar')) return;
 
-    let access = window.TKNAuthGuard?.getCachedAccess?.() || null;
-    try {
-      if (!access && window.TKNAuthGuard && window.supabaseClient) {
-        access = await window.TKNAuthGuard.requireAccess(null, {
-          loadingText: 'กำลังเตรียมเมนูใช้งาน...',
-          suppressLoading: true
-        });
+    const access = await resolveAccess();
+
+    /*
+     * ห้ามสร้างเมนูปลอมเป็น staff เมื่อเปิดหน้าในแท็บใหม่
+     * เพราะ sessionStorage ไม่ถูกคัดลอกไปยังแท็บใหม่เสมอไป
+     * เมนูต้องสร้างจาก current_access_context ของผู้ใช้จริงเท่านั้น
+     */
+    if (!access?.user_id) {
+      const cachedPermissions = parsePermissions();
+      if (!cachedPermissions.size) {
+        console.warn('Navigation was not rendered because access context is unavailable.');
+        return;
       }
-    } catch (error) {
-      console.warn('Navigation access lookup failed:', error);
     }
 
-    const permissions = new Set(access?.permissions || [...parsePermissions()]);
-    const landing = access?.landing_page || './pos.html';
+    const permissions = new Set(
+      Array.isArray(access?.permissions)
+        ? access.permissions
+        : [...parsePermissions()]
+    );
 
     const items = [
       ['dashboard.view', './dashboard.html', 'Dashboard', 'dashboard'],
@@ -70,8 +230,8 @@
         </button>
       </div>
       <div class="tkn-nav-user">
-        <strong>${String(access?.full_name || access?.email || 'ผู้ใช้งาน')}</strong>
-        <small>${String(access?.role_name_th || access?.role || 'staff')}</small>
+        <strong>${escapeHtml(access?.full_name || access?.email || 'ผู้ใช้งาน')}</strong>
+        <small>${escapeHtml(roleLabel(access))}</small>
       </div>
       <div class="tkn-mobile-drawer" id="tknPrimaryNavigation">
         <nav class="tkn-nav-menu"></nav>
@@ -83,6 +243,12 @@
     `;
 
     const menu = nav.querySelector('.tkn-nav-menu');
+    const inventoryPages = new Set([
+      'inventory-operations.html', 'receive.html', 'issue.html',
+      'transfer-create.html', 'transfer-receive.html', 'transactions.html',
+      'stock-count.html', 'product-stock-admin.html'
+    ]);
+
     for (const [, href, label, key] of items) {
       const link = document.createElement('a');
       link.className = 'tkn-nav-btn';
@@ -90,20 +256,16 @@
       link.href = href;
       link.textContent = label;
       if (key === 'pos') link.classList.add('tkn-pos-entry');
-      const inventoryPages = new Set([
-        'inventory-operations.html','receive.html','issue.html',
-        'transfer-create.html','transfer-receive.html','transactions.html',
-        'stock-count.html','product-stock-admin.html'
-      ]);
       if (
         current === href.replace('./', '') ||
         (key === 'inventory' && inventoryPages.has(current))
-      ) link.classList.add('active');
+      ) {
+        link.classList.add('active');
+      }
       menu.appendChild(link);
     }
 
     const toggle = nav.querySelector('.tkn-nav-toggle');
-    const drawer = nav.querySelector('.tkn-mobile-drawer');
 
     function setMobileMenu(open) {
       nav.classList.toggle('tkn-mobile-open', open);

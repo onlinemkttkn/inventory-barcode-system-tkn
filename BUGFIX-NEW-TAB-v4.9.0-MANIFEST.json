@@ -1,0 +1,11 @@
+{
+  "name": "TKN Navigation New Tab Bugfix",
+  "version": "4.9.0",
+  "scope": "UI navigation and access-context bootstrap",
+  "database_changes": false,
+  "sql_changes": false,
+  "rpc_changes": false,
+  "primary_file": "js/navigation.js",
+  "cache_bust": "navigation.js?v=4.9.0",
+  "issue_fixed": "New tabs no longer fall back to staff or lose the permission-based sidebar for Owner/Admin users."
+}

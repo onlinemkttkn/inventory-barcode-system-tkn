@@ -28,3 +28,8 @@
 - Purchase Order
 - Import / Export
 - Audit Log
+
+## Navigation New Tab Bugfix v4.9.0
+- แก้ Owner/Admin เปิดลิงก์ในแท็บใหม่แล้วเมนูแสดงเป็น staff
+- ให้ navigation โหลดสิทธิ์จาก session และ current_access_context ใหม่ในแต่ละแท็บ
+- ไม่เปลี่ยนฐานข้อมูลหรือสิทธิ์เดิม
