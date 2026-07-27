@@ -2,6 +2,16 @@ const E={
   search:document.getElementById('search'),
   searchBtn:document.getElementById('searchBtn'),
   clearSearchBtn:document.getElementById('clearSearchBtn'),
+  categoryFilter:document.getElementById('categoryFilter'),
+  stockFilter:document.getElementById('stockFilter'),
+  activeFilter:document.getElementById('activeFilter'),
+  sortFilter:document.getElementById('sortFilter'),
+  totalProducts:document.getElementById('totalProducts'),
+  activeProducts:document.getElementById('activeProducts'),
+  lowStockProducts:document.getElementById('lowStockProducts'),
+  outStockProducts:document.getElementById('outStockProducts'),
+  resultCount:document.getElementById('resultCount'),
+  emptyState:document.getElementById('emptyState'),
   newBtn:document.getElementById('newBtn'),
   body:document.getElementById('body'),
   message:document.getElementById('message'),
@@ -75,6 +85,7 @@ async function loadOptions(){
   if(error)return msg(E.message,error.message,'error');
 
   E.category.innerHTML=(cats.data||[]).map(x=>`<option value="${x.id}">${esc(x.code)} — ${esc(x.name)}</option>`).join('');
+  E.categoryFilter.innerHTML='<option value="">ทุกหมวดหมู่</option>'+(cats.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
   E.unit.innerHTML=(units.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
   E.brand.innerHTML='<option value="">ไม่ระบุยี่ห้อ</option>'+(brands.data||[]).map(x=>`<option value="${x.id}">${esc(x.code)} — ${esc(x.name)}</option>`).join('');
   E.initialBranch.innerHTML='<option value="">ไม่กำหนดสต๊อกเริ่มต้น</option>'+(branches.data||[]).map(x=>`<option value="${x.id}">${esc(x.code)} — ${esc(x.name)}</option>`).join('');
@@ -98,24 +109,59 @@ async function loadProducts(){
   if(error)return msg(E.message,error.message,'error');
 
   rows=data||[];
+  renderSummary();
   render();
-  msg(E.message,`พบ ${rows.length} รายการ`);
+}
+
+function stockState(x){
+  const quantity=Number(x.total_branch_quantity||0);
+  const minimum=Number(x.minimum_stock||0);
+  if(quantity<=0)return 'out';
+  if(minimum>0&&quantity<=minimum)return 'low';
+  return 'ready';
+}
+
+function renderSummary(){
+  const active=rows.filter(x=>x.is_active).length;
+  const low=rows.filter(x=>stockState(x)==='low').length;
+  const out=rows.filter(x=>stockState(x)==='out').length;
+  E.totalProducts.textContent=rows.length.toLocaleString('th-TH');
+  E.activeProducts.textContent=active.toLocaleString('th-TH');
+  E.lowStockProducts.textContent=low.toLocaleString('th-TH');
+  E.outStockProducts.textContent=out.toLocaleString('th-TH');
+}
+
+function filteredRows(){
+  let result=rows.filter(x=>{
+    if(E.categoryFilter.value&&x.category_id!==E.categoryFilter.value)return false;
+    if(E.stockFilter.value&&stockState(x)!==E.stockFilter.value)return false;
+    if(E.activeFilter.value&&String(x.is_active)!==E.activeFilter.value)return false;
+    return true;
+  });
+
+  if(E.sortFilter.value==='name')result.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'th'));
+  if(E.sortFilter.value==='stock')result.sort((a,b)=>Number(a.total_branch_quantity||0)-Number(b.total_branch_quantity||0));
+  if(E.sortFilter.value==='price')result.sort((a,b)=>Number(b.selling_price||0)-Number(a.selling_price||0));
+  return result;
 }
 
 function render(){
   E.body.innerHTML='';
+  const visible=filteredRows();
+  E.resultCount.textContent=`${visible.length.toLocaleString('th-TH')} รายการ`;
+  E.emptyState.classList.toggle('hidden',visible.length!==0);
 
-  rows.forEach(x=>{
+  visible.forEach(x=>{
+    const stock=stockState(x);
+    const stockText=stock==='out'?'สินค้าหมด':stock==='low'?'ใกล้หมด':'ปกติ';
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td data-label="รหัส">${esc(x.product_code)}</td>
-      <td data-label="สินค้า" class="product-name">${esc(x.name)}</td>
-      <td data-label="บาร์โค้ด">${esc(x.barcode||'-')}</td>
-      <td data-label="หมวดหมู่">${esc(x.category_name||'-')}</td>
-      <td data-label="ยี่ห้อ">${esc(x.brand_name||'-')}</td>
-      <td data-label="ต้นทุน">${money(x.cost_price)}</td>
+      <td data-label="สินค้า"><div class="product-cell"><span class="product-avatar">${esc(String(x.name||'?').charAt(0))}</span><div><strong>${esc(x.name)}</strong><small>${esc(x.brand_name||'ไม่ระบุยี่ห้อ')}</small></div></div></td>
+      <td data-label="รหัส / บาร์โค้ด"><strong class="code-text">${esc(x.product_code)}</strong><small class="barcode-text">${esc(x.barcode||'ไม่มีบาร์โค้ด')}</small></td>
+      <td data-label="หมวดหมู่"><span class="category-chip">${esc(x.category_name||'-')}</span></td>
+      <td data-label="ราคาทุน">${money(x.cost_price)}</td>
       <td data-label="ราคาขาย" class="selling-price">${money(x.selling_price)}</td>
-      <td data-label="คงเหลือ">${Number(x.total_branch_quantity||0).toLocaleString('th-TH')}</td>
+      <td data-label="คงเหลือ"><div class="stock-value ${stock}"><strong>${Number(x.total_branch_quantity||0).toLocaleString('th-TH')}</strong><small>${stockText}</small></div></td>
       <td data-label="สถานะ"><span class="badge ${x.is_active?'active':'inactive'}">${x.is_active?'ใช้งาน':'ปิด'}</span></td>`;
 
     const td=document.createElement('td');
@@ -123,12 +169,12 @@ function render(){
     td.dataset.label='จัดการ';
 
     const edit=document.createElement('button');
-    edit.className='btn secondary';
+    edit.className='btn table-btn edit-btn';
     edit.textContent='แก้ไข';
     edit.onclick=()=>openEdit(x);
 
     const barcode=document.createElement('a');
-    barcode.className='btn secondary';
+    barcode.className='btn table-btn barcode-btn';
     barcode.href=`./generator.html?product=${x.id}`;
     barcode.textContent='Barcode';
 
@@ -136,6 +182,7 @@ function render(){
     tr.appendChild(td);
     E.body.appendChild(tr);
   });
+  msg(E.message,visible.length?`แสดง ${visible.length.toLocaleString('th-TH')} จาก ${rows.length.toLocaleString('th-TH')} รายการ`:'');
 }
 
 function resetForm(){
@@ -155,8 +202,12 @@ function openNew(){
   resetForm();
   E.modalTitle.textContent='เพิ่มสินค้าใหม่';
   E.saveAndNewBtn.classList.remove('hidden');
+  E.form.scrollTop=0;
   E.modal.classList.remove('hidden');
-  requestAnimationFrame(()=>E.productName.focus());
+  requestAnimationFrame(()=>{
+    E.form.scrollTop=0;
+    E.productName.focus({preventScroll:true});
+  });
 }
 
 function openEdit(x){
@@ -179,8 +230,12 @@ function openEdit(x){
   E.description.value=x.description||'';
   E.initialBranch.disabled=true;
   E.initialQuantity.disabled=true;
+  E.form.scrollTop=0;
   E.modal.classList.remove('hidden');
-  requestAnimationFrame(()=>E.productName.focus());
+  requestAnimationFrame(()=>{
+    E.form.scrollTop=0;
+    E.productName.focus({preventScroll:true});
+  });
 }
 
 E.generateBarcodeBtn.onclick=async()=>{
@@ -261,6 +316,7 @@ E.clearSearchBtn.onclick=()=>{
   loadProducts();
   E.search.focus();
 };
+[E.categoryFilter,E.stockFilter,E.activeFilter,E.sortFilter].forEach(el=>el.onchange=render);
 E.newBtn.onclick=openNew;
 function closeModal(){E.modal.classList.add('hidden')}
 E.closeBtn.onclick=closeModal;
