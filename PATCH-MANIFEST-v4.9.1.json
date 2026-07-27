@@ -1,0 +1,198 @@
+{
+  "name": "TKN New Tab Owner/Admin Final Patch",
+  "version": "4.9.1-final",
+  "type": "patch-only",
+  "database_changes": false,
+  "files": [
+    {
+      "path": "README-ติดตั้ง-PATCH-v4.9.1.txt",
+      "size": 1762,
+      "sha256": "ee65366072a234b68de39f9e97856004bd2de44d4cbcd932104f244d058d9806"
+    },
+    {
+      "path": "audit-log.html",
+      "size": 5075,
+      "sha256": "270058b9f2598bad1ad437432b46466f564ebb2ae23bd2a5b06cebeac42ab63c"
+    },
+    {
+      "path": "branch-stock.html",
+      "size": 1602,
+      "sha256": "f54c20dc5382cee908d7c77232c737c0ce3b2651ad6d0f2f85703f6fbcc01c51"
+    },
+    {
+      "path": "categories-admin.html",
+      "size": 7764,
+      "sha256": "92b4960567e7cc6d5fe0ac070fe2aafbfd968f0900774f402e1bee406e6b2761"
+    },
+    {
+      "path": "generator.html",
+      "size": 5753,
+      "sha256": "59e957038d66fd0a69366d15ead5ea244598ca9f5fbbc39f50b97eccce337267"
+    },
+    {
+      "path": "hardware-settings.html",
+      "size": 6051,
+      "sha256": "1427586bfc380f63d120a63d1d179b55e5460f880f9f381c26b97786acf06b50"
+    },
+    {
+      "path": "import-export.html",
+      "size": 3424,
+      "sha256": "cd2439f9cdce65fe59bc200a8e64421316e90beb27e3ae577b498816541fbc14"
+    },
+    {
+      "path": "inventory-operations.html",
+      "size": 3341,
+      "sha256": "78de88ded961aa1983dc2ba2a349f315c807ec050b096441b9c38a2931d2fbd9"
+    },
+    {
+      "path": "issue.html",
+      "size": 4075,
+      "sha256": "f5d1ccb7e4d3925140fa05b8d10a5f0e144b6c99c2194917b3c4135a5ab13426"
+    },
+    {
+      "path": "js/navigation-newtab-final.js",
+      "size": 13462,
+      "sha256": "1217955554833d8220a1b8026bf6df75d94c89e4b44481b4fb37a6ee48f2c125"
+    },
+    {
+      "path": "js/products-admin.js",
+      "size": 13880,
+      "sha256": "3318eb6b1d2bebde5666fe518e03fb837fda2180529b3f59abe8ba9bd69adb6c"
+    },
+    {
+      "path": "member-history.html",
+      "size": 1791,
+      "sha256": "3946c2a47fdea9d8ad386a0e4e517d935d7ffc627305b50936d995fc6714004d"
+    },
+    {
+      "path": "members.html",
+      "size": 2538,
+      "sha256": "79f6ba50c319885279c46b70485823b1812d1a21fd84e490b56155ef2c065b7d"
+    },
+    {
+      "path": "phase-9-2-bill-search.html",
+      "size": 6421,
+      "sha256": "80842fa0de05fb90404bdc24979d8a73b994401df0340b167fe5f9013816cb5e"
+    },
+    {
+      "path": "pos-member.html",
+      "size": 1714,
+      "sha256": "6d249c33ddb899474109b1b9e194729dde686c95106ebc402673c90d8e95ae03"
+    },
+    {
+      "path": "pos.html",
+      "size": 14168,
+      "sha256": "c9f7dac3eb648ce934f4bbf652fc62e3eb1e74ed64efd0c810cb9d73af953096"
+    },
+    {
+      "path": "print-labels.html",
+      "size": 6907,
+      "sha256": "78f07f20340cd13764ab9a43aa93002f4e3874521a1bd51730f731cd707b22ea"
+    },
+    {
+      "path": "product-stock-admin.html",
+      "size": 2557,
+      "sha256": "7001a43967487a883299080dc21d2718f6658f3fd2725f16aaf5facf84f8a895"
+    },
+    {
+      "path": "products-admin.html",
+      "size": 12169,
+      "sha256": "9b148818e8aa2a354951988064ea8f2e0ff691e61cca5edefe4b8965b53b158a"
+    },
+    {
+      "path": "purchase-order-create.html",
+      "size": 2976,
+      "sha256": "fae52dbe33e22ddb9754169ea86501fb8dd11c3b928cb1a2ec4125432496008a"
+    },
+    {
+      "path": "purchase-order-history.html",
+      "size": 1758,
+      "sha256": "3af7fd86a62aa965c62d3a80938a8e92519485c05a3836bd6d2ac7df71ae3fdc"
+    },
+    {
+      "path": "receive.html",
+      "size": 4068,
+      "sha256": "a9f3e989939bd5c9639f5e10db2fd1b018047db4ca28813f9fc7e44feeaa24df"
+    },
+    {
+      "path": "reports.html",
+      "size": 4516,
+      "sha256": "42a5ec943638fd0e35a0d51d187d7ed2b9bc2dd831e73a4255a79835fd21c78a"
+    },
+    {
+      "path": "sales-history.html",
+      "size": 2554,
+      "sha256": "6f498ef83b2011266288d8f1b64171b78dd8861da231d79da0a51b20bddb0136"
+    },
+    {
+      "path": "sales-return-history.html",
+      "size": 4935,
+      "sha256": "102fb60efe900296f16aa12fdccd037d69f2115235369cb6249d97ae344548ee"
+    },
+    {
+      "path": "sales-return-receipt.html",
+      "size": 2410,
+      "sha256": "2624d2ef14f2f7de4bde46e52987c026f62bfbcaced0a047d6ca26a2ac7b83ae"
+    },
+    {
+      "path": "sales-return-report.html",
+      "size": 3044,
+      "sha256": "ba1a963ef3d6674c043b59fdecbc2882dbd55dcef68853e4e03516278dae7d4e"
+    },
+    {
+      "path": "sales-return.html",
+      "size": 6922,
+      "sha256": "ce0e179125fa1b09341757aa90f822fced2c263ce0d339b611482ad4a81e6a99"
+    },
+    {
+      "path": "scanner.html",
+      "size": 4650,
+      "sha256": "ae995cbb1e18335c908ad6cb0b652f67f1afa9195a57665e2b881bae86e466b8"
+    },
+    {
+      "path": "stock-alerts.html",
+      "size": 3239,
+      "sha256": "bbdaf2ece577b4f9edc6cae154a0ff125a9d7e6fed41f70cbd8b76ba6e4e0898"
+    },
+    {
+      "path": "stock-count-history.html",
+      "size": 1548,
+      "sha256": "44c324bd4478eb7801448fed34a51adc61559db3c34aaa0b5f94840440c6f9f8"
+    },
+    {
+      "path": "stock-count.html",
+      "size": 3104,
+      "sha256": "84499403b13e081aae9b76ca1fbcac1cdd7f98c552fc9d80f552be70e6f979ee"
+    },
+    {
+      "path": "suppliers.html",
+      "size": 2892,
+      "sha256": "c3b210d49091375ad626c3dc065ff88d52702c82fa2d248218d49ac342345a9c"
+    },
+    {
+      "path": "transactions.html",
+      "size": 6347,
+      "sha256": "ce3a29630cb1bda001626b4466d0e0a15ea6b43aa6ed3094d771ce574e728637"
+    },
+    {
+      "path": "transfer-create.html",
+      "size": 3299,
+      "sha256": "267cf49b12c80dce4f77ad7012e617c30a8bc96eb5cdcdd6c46855794d7e0eb8"
+    },
+    {
+      "path": "transfer-history.html",
+      "size": 1533,
+      "sha256": "96684d6c785dbe938429e43cbfab3a1e0c8d814f9fbd5646645ebbf5ee43796d"
+    },
+    {
+      "path": "transfer-receive.html",
+      "size": 2533,
+      "sha256": "e7b2a405fc05cedc22495155113f9fa4a33c91129b115789a037d9dbd9fae8fb"
+    },
+    {
+      "path": "users-admin.html",
+      "size": 4999,
+      "sha256": "3819101ac4aab57b20e70bb58a2c3f86fd35f3473917f6a79d3f646144e10bf7"
+    }
+  ]
+}

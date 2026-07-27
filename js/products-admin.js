@@ -62,7 +62,17 @@ async function init(){
   }
 
   access=a;
+  const accessPacket=JSON.stringify({savedAt:Date.now(),data:{
+    ...a,
+    role:String(a.role||'staff').trim().toLowerCase(),
+    permissions:Array.isArray(a.permissions)?a.permissions:[]
+  }});
+  sessionStorage.setItem('tkn_access_context_v3',accessPacket);
+  localStorage.setItem('tkn_access_context_shared_v4',accessPacket);
+  sessionStorage.setItem('tkn_user_role',String(a.role||'staff').trim().toLowerCase());
+  sessionStorage.setItem('tkn_permissions',JSON.stringify(Array.isArray(a.permissions)?a.permissions:[]));
   sessionStorage.setItem('tkn_current_actor',a.full_name||a.email||a.user_id);
+  window.dispatchEvent(new CustomEvent('tkn:access-ready',{detail:a}));
   if(!(a.permissions||[]).includes('product.manage')){
     alert('บัญชีนี้ไม่มีสิทธิ์จัดการสินค้า (product.manage)');
     location.href=a.landing_page||'./dashboard.html';
