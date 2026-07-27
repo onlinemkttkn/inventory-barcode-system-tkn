@@ -4,12 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS / ERP - แคชเชียร์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./pos.css?v=3.4.16">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/pos-product-ui.css?v=4.5.0">
 </head>
-<body>
+<body class="pos-product-ui">
   <header class="pos-topbar">
     <div>
       <p class="eyebrow">MASTER 3.4 LTS · CASHIER</p>
@@ -27,6 +31,10 @@
 
   <main class="page">
     <section class="card form-grid pos-customer-grid">
+      <div class="pos-card-heading">
+        <div><span class="pos-section-kicker">SALE INFORMATION</span><h2>ข้อมูลลูกค้าและสาขา</h2></div>
+        <span class="pos-ready-chip">พร้อมรับรายการขาย</span>
+      </div>
       <label>สาขา<select id="branch" disabled></select><small id="branchStatus" class="field-status">กำลังโหลดสาขา...</small></label>
       <label>ชื่อลูกค้า<input id="customerName" autocomplete="off"></label>
       <label>เบอร์โทร<input id="customerPhone" inputmode="tel" autocomplete="off"></label>
@@ -34,7 +42,10 @@
 
     <section class="pos-layout">
       <div class="work-column">
-        <section class="card">
+        <section class="card search-card">
+          <div class="pos-card-heading compact">
+            <div><span class="pos-section-kicker">PRODUCT SEARCH</span><h2>ค้นหาและเพิ่มสินค้า</h2></div>
+          </div>
           <form id="searchForm" class="search-row">
             <input id="search" autocomplete="off"
               placeholder="สแกนบาร์โค้ด หรือค้นหาชื่อ/รหัสสินค้า">
@@ -44,7 +55,7 @@
           <p id="searchMsg" class="msg"></p>
         </section>
 
-        <section class="card">
+        <section class="card cart-card">
           <div class="section-heading">
             <h2>ตะกร้าสินค้า</h2><strong id="cartCount">0 รายการ</strong>
           </div>
