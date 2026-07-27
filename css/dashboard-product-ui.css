@@ -1,4 +1,4 @@
-/* TKN Dashboard Product UI v4.2.0
+/* TKN Dashboard Product UI v5.1.0
    Visual-only layer: aligns Dashboard with the Product Management page.
    No data, Supabase, RPC, or JavaScript behavior is changed. */
 
@@ -204,6 +204,18 @@ body.dashboard-page{
   border:1px solid var(--dash-red)!important;
 }
 
+.dashboard-page .product-shortcut{
+  background:#211b18!important;
+  color:#fff!important;
+  border:1px solid #211b18!important;
+}
+
+.dashboard-page .product-shortcut:hover,
+.dashboard-page .product-shortcut:focus-visible{
+  background:#3a2b27!important;
+  border-color:#3a2b27!important;
+}
+
 /* KPI cards */
 .dashboard-page .stats-grid{
   display:grid;
@@ -368,7 +380,7 @@ body.dashboard-page{
 .dashboard-page .dashboard-action-rail{
   position:static!important;
   display:grid!important;
-  grid-template-columns:minmax(190px,1.2fr) repeat(3,minmax(150px,.62fr)) minmax(260px,1.5fr);
+  grid-template-columns:minmax(185px,1.15fr) repeat(4,minmax(145px,.66fr)) minmax(245px,1.45fr);
   align-items:center;
   gap:11px;
   margin:0 0 16px;
@@ -377,6 +389,11 @@ body.dashboard-page{
   border-radius:20px!important;
   background:#fff!important;
   box-shadow:var(--dash-shadow)!important;
+}
+
+.dashboard-page .dashboard-action-rail--top{
+  margin-top:0;
+  margin-bottom:16px;
 }
 
 .dashboard-page .action-rail-heading{
@@ -728,7 +745,7 @@ body.dashboard-page{
   }
 
   .dashboard-page .dashboard-action-rail{
-    grid-template-columns:minmax(180px,1fr) repeat(3,minmax(140px,.75fr));
+    grid-template-columns:minmax(180px,1fr) repeat(4,minmax(138px,.75fr));
   }
 
   .dashboard-page .action-rail-note{

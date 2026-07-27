@@ -1,0 +1,19 @@
+{
+  "name": "TKN Dashboard Top Tools + Product Link Final Patch",
+  "version": "5.1.0",
+  "type": "frontend-ui-patch",
+  "files": [
+    "dashboard.html",
+    "css/dashboard-product-ui.css",
+    "README-ติดตั้ง-PATCH-v5.1.0.txt"
+  ],
+  "changes": [
+    "Move dashboard tools toolbar above KPI cards",
+    "Add product management shortcut next to system settings",
+    "Link system settings to hardware-settings.html",
+    "Hide dashboard stable eyebrow text",
+    "Update responsive toolbar columns"
+  ],
+  "backend_changes": false,
+  "database_changes": false
+}

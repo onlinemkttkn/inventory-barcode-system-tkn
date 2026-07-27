@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
   <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
-  <link rel="stylesheet" href="./css/dashboard-product-ui.css?v=4.2.0">
+  <link rel="stylesheet" href="./css/dashboard-product-ui.css?v=5.1.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -20,7 +20,6 @@
 <main class="shell">
   <header class="topbar">
     <div>
-      <p class="eyebrow">TKN POS / ERP · MASTER 3.5 · DASHBOARD STABLE</p>
       <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
       <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
       <p class="integration-note">ภาพรวมตัวเลขธุรกิจ ยอดขาย สต็อก และรายงานสำหรับผู้บริหาร</p>
@@ -62,6 +61,28 @@
   </section>
 
   <section id="appArea" class="hidden">
+    <aside class="dashboard-action-rail dashboard-action-rail--top" aria-label="เครื่องมือ Dashboard">
+      <div class="action-rail-heading">
+        <span>เครื่องมือ</span>
+        <strong>รายงานและตรวจสอบ</strong>
+      </div>
+      <a class="btn report-shortcut settings-shortcut" href="./hardware-settings.html">
+        ตั้งค่าระบบ
+      </a>
+      <a class="btn product-shortcut" href="./products-admin.html">
+        จัดการสินค้า
+      </a>
+      <a class="btn bill-shortcut" href="./phase-9-2-bill-search.html">
+        ตรวจสอบบิล
+      </a>
+      <button id="refreshBtn" class="btn primary" type="button">
+        รีเฟรชข้อมูล
+      </button>
+      <p class="action-rail-note">
+        ข้อมูลจะรีเฟรชอัตโนมัติเมื่อมีรายการขายหรือสต็อกเปลี่ยน
+      </p>
+    </aside>
+
     <section class="stats-grid">
       <article class="stat"><span>สินค้าทั้งหมด</span><strong id="totalProducts">-</strong></article>
       <article class="stat danger-stat"><span>สินค้าหมด</span><strong id="outStock">-</strong></article>
@@ -85,25 +106,6 @@
     </section>
 
     <section class="dashboard-workspace">
-      <aside class="dashboard-action-rail" aria-label="เครื่องมือรายงาน">
-        <div class="action-rail-heading">
-          <span>เครื่องมือ</span>
-          <strong>รายงานและตรวจสอบ</strong>
-        </div>
-        <a class="btn report-shortcut" href="./products-admin.html">
-          ตั้งค่าระบบ
-        </a>
-        <a class="btn bill-shortcut" href="./phase-9-2-bill-search.html">
-          ตรวจสอบบิล
-        </a>
-        <button id="refreshBtn" class="btn primary" type="button">
-          รีเฟรชข้อมูล
-        </button>
-        <p class="action-rail-note">
-          ข้อมูลจะรีเฟรชอัตโนมัติเมื่อมีรายการขายหรือสต็อกเปลี่ยน
-        </p>
-      </aside>
-
       <div class="dashboard-main-column">
 
 <section class="dashboard-grid">
