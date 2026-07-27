@@ -1,4 +1,4 @@
-/* TKN POS / ERP — Categories, Units & Brands UI v4.6.0
+/* TKN POS / ERP — Categories, Units & Brands UI v4.8.0
    Presentation layer only. Existing element IDs and database actions remain unchanged. */
 
 :root{
@@ -511,5 +511,177 @@ body.category-master-page{
 
   .master-list-scroll{
     max-height:300px;
+  }
+}
+
+/* ============================================================
+   TKN Master Data Edit Controls v4.8.0
+   แก้ไขข้อมูลด้วยการ UPDATE แถวเดิม เพื่อรักษา UUID และความสัมพันธ์สินค้า
+   ============================================================ */
+.master-form-actions{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:9px;
+  min-width:0;
+}
+
+.master-form-actions.field-full{
+  grid-column:1/-1;
+}
+
+.master-form-actions .master-add-btn{
+  width:100%;
+}
+
+.master-cancel-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:44px!important;
+  padding:10px 15px!important;
+  border:1px solid #d8d0c5!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  color:#5c524b!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  box-shadow:none!important;
+}
+
+.master-cancel-btn:hover{
+  border-color:#c90d2e!important;
+  background:#fff3f5!important;
+  color:#a90a29!important;
+}
+
+.master-cancel-btn[hidden]{
+  display:none!important;
+}
+
+.master-card.is-editing{
+  border-color:#e1ae28!important;
+  box-shadow:0 0 0 3px rgba(255,199,44,.14),var(--master-shadow)!important;
+}
+
+.master-card.is-editing .master-form{
+  margin-left:-7px;
+  margin-right:-7px;
+  padding:14px 7px 7px;
+  border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,244,199,.62),rgba(255,255,255,0));
+}
+
+.master-items .item>.master-item-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+}
+
+.master-item-main{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+
+.master-item-copy{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+
+.master-item-copy em{
+  color:#948a80;
+  font-size:10.5px;
+  font-style:normal;
+  font-weight:400;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+
+.unit-item-main{
+  grid-template-columns:minmax(0,1fr);
+}
+
+.compact-items .unit-item-main b{
+  width:auto;
+  border:0;
+  background:#f3eee7;
+}
+
+.item-edit-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:66px;
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid #e7bf52;
+  border-radius:9px;
+  background:#fff5ce;
+  color:#664600;
+  font-family:"Prompt",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .15s ease,border-color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+
+.item-edit-btn:hover{
+  transform:translateY(-1px);
+  border-color:#d59d0a;
+  background:#ffe58d;
+  box-shadow:0 5px 12px rgba(122,84,0,.10);
+}
+
+.master-data-item.is-selected{
+  margin:2px -5px;
+  padding-left:9px;
+  padding-right:9px;
+  border:1px solid #e6bb45;
+  border-radius:11px;
+  background:#fff9e6;
+}
+
+.master-message.editing{
+  border-color:#e7c765;
+  background:#fff8dc;
+  color:#6c4d00!important;
+}
+
+@media(min-width:561px){
+  .master-card.is-editing .master-form-actions{
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+
+  .master-card.is-editing .master-cancel-btn{
+    min-width:124px;
+  }
+}
+
+@media(max-width:560px){
+  .master-items .item>.master-item-row{
+    grid-template-columns:minmax(0,1fr) 62px;
+    gap:8px;
+  }
+
+  .master-item-main{
+    gap:7px;
+  }
+
+  .master-items .item b{
+    min-width:48px;
+    padding-left:7px;
+    padding-right:7px;
+  }
+
+  .item-edit-btn{
+    min-width:62px;
+    padding-left:8px;
+    padding-right:8px;
   }
 }
