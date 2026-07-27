@@ -1,0 +1,159 @@
+/* =========================================================
+   TKN GLOBAL TYPOGRAPHY v4.7.0
+   ใช้ฟอนต์ Prompt และกำหนดขนาดข้อความมาตรฐานทั้งระบบ
+   หมายเหตุ: หน้าพิมพ์ใบเสร็จ/ฉลากจะเปลี่ยนเฉพาะฟอนต์
+   โดยไม่บังคับขนาด เพื่อรักษารูปแบบการพิมพ์เดิม
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --tkn-font-family: 'Prompt', Tahoma, Arial, sans-serif;
+  --tkn-font-size: 15px;
+  --tkn-line-height: 1.55;
+  --tkn-heading-1: 28px;
+  --tkn-heading-2: 23px;
+  --tkn-heading-3: 19px;
+  --tkn-heading-4: 16px;
+}
+
+html,
+body {
+  font-family: var(--tkn-font-family) !important;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ฟอนต์สำหรับข้อความและส่วนควบคุม โดยไม่แตะฟอนต์ไอคอนเฉพาะทาง */
+body,
+button,
+input,
+select,
+textarea,
+option,
+table,
+th,
+td,
+label,
+legend,
+summary,
+a,
+p,
+li,
+small {
+  font-family: var(--tkn-font-family) !important;
+}
+
+/* ขนาดข้อความมาตรฐานสำหรับหน้าจอใช้งาน */
+body:not(.tkn-print-layout) {
+  font-size: var(--tkn-font-size) !important;
+  line-height: var(--tkn-line-height);
+}
+
+body:not(.tkn-print-layout) button,
+body:not(.tkn-print-layout) input,
+body:not(.tkn-print-layout) select,
+body:not(.tkn-print-layout) textarea,
+body:not(.tkn-print-layout) option,
+body:not(.tkn-print-layout) table,
+body:not(.tkn-print-layout) th,
+body:not(.tkn-print-layout) td,
+body:not(.tkn-print-layout) label,
+body:not(.tkn-print-layout) legend,
+body:not(.tkn-print-layout) summary,
+body:not(.tkn-print-layout) a,
+body:not(.tkn-print-layout) p,
+body:not(.tkn-print-layout) li {
+  font-size: var(--tkn-font-size) !important;
+}
+
+body:not(.tkn-print-layout) input::placeholder,
+body:not(.tkn-print-layout) textarea::placeholder {
+  font-family: var(--tkn-font-family) !important;
+  font-size: var(--tkn-font-size) !important;
+  opacity: 0.72;
+}
+
+body:not(.tkn-print-layout) button,
+body:not(.tkn-print-layout) input,
+body:not(.tkn-print-layout) select,
+body:not(.tkn-print-layout) textarea {
+  line-height: 1.4;
+}
+
+/* หัวข้อทุกหน้ามีมาตรฐานเดียวกัน แต่ยังแยกลำดับข้อมูลชัดเจน */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--tkn-font-family) !important;
+  line-height: 1.35;
+}
+
+body:not(.tkn-print-layout) h1 {
+  font-size: var(--tkn-heading-1) !important;
+  font-weight: 700 !important;
+}
+
+body:not(.tkn-print-layout) h2 {
+  font-size: var(--tkn-heading-2) !important;
+  font-weight: 700 !important;
+}
+
+body:not(.tkn-print-layout) h3 {
+  font-size: var(--tkn-heading-3) !important;
+  font-weight: 600 !important;
+}
+
+body:not(.tkn-print-layout) h4,
+body:not(.tkn-print-layout) h5,
+body:not(.tkn-print-layout) h6 {
+  font-size: var(--tkn-heading-4) !important;
+  font-weight: 600 !important;
+}
+
+body:not(.tkn-print-layout) th,
+body:not(.tkn-print-layout) button,
+body:not(.tkn-print-layout) .btn {
+  font-weight: 600;
+}
+
+/* ข้อความเสริมยังอ่านง่าย แต่ไม่แย่งลำดับจากข้อมูลหลัก */
+body:not(.tkn-print-layout) small,
+body:not(.tkn-print-layout) .text-small,
+body:not(.tkn-print-layout) .helper-text,
+body:not(.tkn-print-layout) .hint,
+body:not(.tkn-print-layout) .subtitle,
+body:not(.tkn-print-layout) .muted {
+  font-size: 13px !important;
+  line-height: 1.5;
+}
+
+/* หน้าพิมพ์: ใช้ Prompt แต่รักษาขนาดเดิมจาก CSS ใบเสร็จ/ฉลาก */
+body.tkn-print-layout,
+body.tkn-print-layout button,
+body.tkn-print-layout input,
+body.tkn-print-layout select,
+body.tkn-print-layout textarea,
+body.tkn-print-layout table,
+body.tkn-print-layout th,
+body.tkn-print-layout td,
+body.tkn-print-layout label,
+body.tkn-print-layout p,
+body.tkn-print-layout span,
+body.tkn-print-layout div {
+  font-family: var(--tkn-font-family) !important;
+}
+
+@media (max-width: 768px) {
+  :root {
+    /* คงขนาดข้อความหลัก 15px เพื่อไม่ให้ตัวหนังสือเล็กเกินไปบนมือถือ */
+    --tkn-heading-1: 24px;
+    --tkn-heading-2: 21px;
+    --tkn-heading-3: 18px;
+  }
+}
