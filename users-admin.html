@@ -4,34 +4,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>จัดการผู้ใช้และสิทธิ์</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/governance.css?v=3.6.8">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/users-access-ui.css?v=3.7.1">
+  <link rel="stylesheet" href="./css/users-access-ui.css?v=4.4.0">
 </head>
 <body class="users-page users-admin-ui-v367 users-access-ui">
   <main class="shell">
-    <header class="page-head">
-      <div><p class="eyebrow">MASTER 3.5.5 · ACCESS CONTROL REBUILD</p>
+    <header class="page-head access-hero">
+      <div><p class="eyebrow">USER & ACCESS MANAGEMENT</p>
         <h1>จัดการผู้ใช้และสิทธิ์</h1>
-        <p>กำหนด Role สาขา รหัสพนักงาน PIN และชื่อแคชเชียร์ที่แสดงบนใบเสร็จ</p></div>
+        <p>กำหนด Role สาขา รหัสพนักงาน PIN และสิทธิ์การใช้งานจากหน้าเดียว</p></div>
       <div class="head-actions"><a class="button secondary" href="./hardware-settings.html">ตั้งค่าฮาร์ดแวร์</a><a class="button secondary" href="./dashboard.html">Dashboard</a></div>
     </header>
 
-    <section class="card toolbar">
-      <input id="search" placeholder="ค้นหาชื่อ อีเมล รหัสพนักงาน หรือ Role">
-      <select id="roleFilter"><option value="ALL">ทุก Role</option></select>
-      <select id="statusFilter"><option value="ALL">ทุกสถานะ</option><option value="ACTIVE">ใช้งาน</option><option value="INACTIVE">ปิดใช้งาน</option></select>
-      <button id="reload" class="button">รีเฟรช</button>
+    <section class="card toolbar access-filter-card">
+      <label class="filter-field search-field"><span>ค้นหาผู้ใช้</span><input id="search" placeholder="ค้นหาชื่อ อีเมล รหัสพนักงาน หรือ Role"></label>
+      <label class="filter-field"><span>Role</span><select id="roleFilter"><option value="ALL">ทุก Role</option></select></label>
+      <label class="filter-field"><span>สถานะบัญชี</span><select id="statusFilter"><option value="ALL">ทุกสถานะ</option><option value="ACTIVE">ใช้งาน</option><option value="INACTIVE">ปิดใช้งาน</option></select></label>
+      <button id="reload" class="button">รีเฟรชข้อมูล</button>
     </section>
 
 
     <section id="permissionCard" class="card permission-card">
       <div class="section-head">
-        <div>
-          <h2>สิทธิ์ตาม Role</h2>
-          <p>เพิ่มหรือถอดสิทธิ์ของ Role โดยไม่แก้บัญชีผู้ใช้ทีละคน</p>
+        <div class="section-title">
+          <span class="section-icon" aria-hidden="true">✓</span>
+          <div>
+            <span class="section-kicker">ROLE PERMISSIONS</span>
+            <h2>สิทธิ์ตาม Role</h2>
+            <p>เพิ่มหรือถอดสิทธิ์ของ Role โดยไม่ต้องแก้บัญชีผู้ใช้ทีละคน</p>
+          </div>
         </div>
         <div class="permission-actions">
           <select id="permissionRole"></select>
@@ -44,9 +51,19 @@
     </section>
 
     <section id="userCard" class="card user-card">
-      <div class="access-status">
-        <span id="rpcStatus" class="status-chip">กำลังตรวจ RPC...</span>
-        <span id="actorStatus" class="status-chip">กำลังตรวจสิทธิ์...</span>
+      <div class="user-list-head">
+        <div class="section-title">
+          <span class="section-icon" aria-hidden="true">👤</span>
+          <div>
+            <span class="section-kicker">USER ACCOUNTS</span>
+            <h2>บัญชีผู้ใช้</h2>
+            <p>ตรวจสอบ Role สาขา สถานะ และข้อมูลพนักงานของแต่ละบัญชี</p>
+          </div>
+        </div>
+        <div class="access-status">
+          <span id="rpcStatus" class="status-chip">กำลังตรวจ RPC...</span>
+          <span id="actorStatus" class="status-chip">กำลังตรวจสิทธิ์...</span>
+        </div>
       </div>
       <div class="table-wrap"><table>
         <thead><tr><th>ผู้ใช้</th><th>Role</th><th>สาขา</th>
