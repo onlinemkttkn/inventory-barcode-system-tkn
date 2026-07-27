@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
+  <link rel="stylesheet" href="./css/reports-product-ui.css?v=4.3.0">
 </head>
 <body class="reports-page">
 <main class="shell">
@@ -25,6 +26,12 @@
   </header>
 
   <section class="card report-toolbar">
+    <div class="report-control-heading">
+      <div>
+        <h2>ตัวกรองรายงาน</h2>
+        <p>เลือกรูปแบบ ช่วงเวลา และช่องทางชำระ ก่อนโหลดข้อมูล</p>
+      </div>
+    </div>
     <label>รูปแบบรายงาน
       <select id="period">
         <option value="DAY">รายวัน</option>
@@ -50,7 +57,14 @@
 
   <section class="stats" id="stats"></section>
 
-  <section class="card">
+  <section class="card report-list-card">
+    <div class="report-list-head">
+      <div>
+        <h2>รายการบิล</h2>
+        <p>ตรวจสอบยอดขาย สถานะ และเปิดดูรายละเอียดสินค้าในแต่ละบิล</p>
+      </div>
+      <span class="report-list-count">ข้อมูลตามตัวกรอง</span>
+    </div>
     <div class="table-wrap">
       <table>
         <thead>
