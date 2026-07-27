@@ -3,50 +3,128 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>ประวัติสต๊อก</title>
-  <link rel="stylesheet" href="./css/inventory.css?v=1.0.2">
+  <title>ประวัติการเคลื่อนไหวสต็อก</title>
+  <link rel="stylesheet" href="./css/inventory.css?v=3.6.0">
+  <link rel="stylesheet" href="./css/transactions-ledger.css?v=3.6.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
-  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <link rel="icon" href="./assets/icons/favicon.svg?v=3.6.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
 </head>
 <body>
-<main class="shell">
+<main class="shell ledger-page">
   <header class="topbar">
-    <div><p class="eyebrow">PHASE 07</p><h1>ประวัติการเคลื่อนไหวสต๊อก</h1><p>ตรวจสอบเอกสารรับเข้าและเบิกจ่ายย้อนหลัง</p></div>
-    <div class="button-row"><a class="btn secondary" href="./dashboard.html">Dashboard</a><button id="refreshBtn" class="btn primary">รีเฟรช</button></div>
+    <div>
+      <p class="eyebrow">PHASE 07.6D</p>
+      <h1>ประวัติการเคลื่อนไหวสต็อก</h1>
+      <p>ตรวจสอบยอดก่อน เปลี่ยนแปลง และยอดหลัง แยกตามสาขาจากสมุดกลาง</p>
+    </div>
+    <div class="button-row">
+      <a class="btn secondary" href="./dashboard.html">Dashboard</a>
+      <button id="refreshBtn" class="btn primary" type="button">รีเฟรช</button>
+    </div>
   </header>
 
-  <section class="card">
-    <div class="grid-2">
-      <label class="field">ประเภทเอกสาร
-        <select id="typeFilter">
-          <option value="">ทั้งหมด</option>
-          <option value="RECEIVE">รับเข้า</option>
-          <option value="ISSUE">เบิก/จ่าย</option>
+  <section class="card filter-card">
+    <div class="filter-grid">
+      <label class="field">สาขา
+        <select id="branchFilter">
+          <option value="">ทุกสาขา</option>
         </select>
       </label>
-      <label class="field">ค้นหา
-        <input id="searchInput" placeholder="เลขเอกสาร ผู้ขาย ผู้เบิก หรือเลขอ้างอิง">
+
+      <label class="field">ประเภทการเคลื่อนไหว
+        <select id="typeFilter">
+          <option value="">ทั้งหมด</option>
+          <option value="RECEIVE_IN">รับสินค้าเข้า</option>
+          <option value="ISSUE_OUT">เบิก/จ่ายสินค้า</option>
+          <option value="SALE_OUT">ขายสินค้า</option>
+          <option value="RETURN_IN">คืนสินค้า</option>
+          <option value="SALE_VOID_IN">ยกเลิกการขาย</option>
+          <option value="TRANSFER_OUT">โอนออก</option>
+          <option value="TRANSFER_IN">รับโอนเข้า</option>
+          <option value="ADJUST_IN">ปรับเพิ่ม</option>
+          <option value="ADJUST_OUT">ปรับลด</option>
+          <option value="DIRECT_ADJUST">ปรับยอดโดยตรง</option>
+          <option value="STOCK_COUNT">ตรวจนับสต็อก</option>
+          <option value="RESET_TO_ZERO">รีเซ็ตเป็นศูนย์</option>
+          <option value="DATABASE_CHANGE">เปลี่ยนแปลงจากฐานข้อมูล</option>
+        </select>
       </label>
+
+      <label class="field">ตั้งแต่วันที่
+        <input id="dateFrom" type="date">
+      </label>
+
+      <label class="field">ถึงวันที่
+        <input id="dateTo" type="date">
+      </label>
+
+      <label class="field search-field">ค้นหา
+        <input id="searchInput" autocomplete="off"
+          placeholder="เลขเอกสาร รหัสสินค้า ชื่อสินค้า อ้างอิง หรือผู้บันทึก">
+      </label>
+
+      <div class="filter-actions">
+        <button id="clearBtn" class="btn secondary" type="button">ล้างตัวกรอง</button>
+        <button id="searchBtn" class="btn primary" type="button">ค้นหา</button>
+      </div>
     </div>
   </section>
 
+  <section class="ledger-summary" aria-label="สรุปการเคลื่อนไหว">
+    <article class="summary-box">
+      <span>รายการที่แสดง</span>
+      <strong id="summaryRows">0</strong>
+    </article>
+    <article class="summary-box incoming">
+      <span>จำนวนเพิ่มเข้า</span>
+      <strong id="summaryIn">0</strong>
+    </article>
+    <article class="summary-box outgoing">
+      <span>จำนวนจ่ายออก</span>
+      <strong id="summaryOut">0</strong>
+    </article>
+    <article class="summary-box">
+      <span>ผลต่างสุทธิ</span>
+      <strong id="summaryNet">0</strong>
+    </article>
+  </section>
+
   <section class="card">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>วันที่</th><th>เลขเอกสาร</th><th>ประเภท</th><th>อ้างอิง</th><th>ผู้ขาย/ผู้เบิก</th><th>จำนวนรายการ</th><th>จำนวนรวม</th><th>ผู้บันทึก</th></tr></thead>
+    <div class="table-wrap ledger-table-wrap">
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th>วันที่</th>
+            <th>สาขา</th>
+            <th>เลขเอกสาร/ต้นทาง</th>
+            <th>ประเภท</th>
+            <th>สินค้า</th>
+            <th class="number-cell">ก่อน</th>
+            <th class="number-cell">เปลี่ยน</th>
+            <th class="number-cell">หลัง</th>
+            <th>อ้างอิง/หมายเหตุ</th>
+            <th>ผู้บันทึก</th>
+          </tr>
+        </thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
-    <p id="message" class="message"></p>
+
+    <div id="emptyState" class="empty-state hidden">ไม่พบประวัติที่ตรงกับตัวกรอง</div>
+
+    <div class="history-footer">
+      <p id="message" class="message"></p>
+      <button id="loadMoreBtn" class="btn secondary hidden" type="button">โหลดเพิ่ม</button>
+    </div>
   </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/inventory-common.js?v=1.0.2"></script>
-<script src="./js/transactions.js?v=1.0.2"></script>
-  <script src="./js/navigation.js?v=1.0.2"></script>
+<script src="./js/supabase-config.js?v=3.6.0"></script>
+<script src="./js/inventory-common.js?v=3.6.0"></script>
+<script type="module" src="./js/transactions.js?v=3.6.0"></script>
+<script src="./js/navigation.js?v=3.6.8"></script>
 </body>
 </html>
