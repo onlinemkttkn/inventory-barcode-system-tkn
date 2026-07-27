@@ -3,51 +3,149 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>หมวดหมู่และยี่ห้อ</title>
+<title>หมวดหมู่ หน่วยนับ และยี่ห้อ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/products-admin.css?v=1.0.2">
-  <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
-  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
-  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
+<link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
+<link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+<link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
+<link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
+<link rel="stylesheet" href="./css/categories-admin-product-ui.css?v=4.6.0">
 </head>
-<body>
-<main class="shell">
-<header class="top">
-  <div><h1>หมวดหมู่ หน่วยนับ และยี่ห้อ</h1></div>
-  <a class="btn secondary" href="./products-admin.html">กลับหน้าสินค้า</a>
-</header>
+<body class="category-master-page">
+<main class="shell category-shell">
+  <header class="page-hero category-hero">
+    <div class="hero-copy">
+      <span class="page-kicker">PRODUCT MASTER DATA</span>
+      <h1>หมวดหมู่ หน่วยนับ และยี่ห้อ</h1>
+      <p>จัดการข้อมูลหลักของสินค้าให้เป็นระเบียบ เลือกดูรายการแบบดรอปดาวน์ และเพิ่มข้อมูลใหม่ได้จากหน้าเดียว</p>
+    </div>
+    <a class="btn secondary hero-back-btn" href="./products-admin.html">
+      <span aria-hidden="true">←</span> กลับหน้าสินค้า
+    </a>
+  </header>
 
-<section class="grid-3">
-  <article class="card">
-    <h2>เพิ่มหมวดหมู่</h2>
-    <label class="field">รหัส<input id="categoryCode"></label>
-    <label class="field">ชื่อ<input id="categoryName"></label>
-    <label class="field">หมวดหมู่แม่<select id="parentCategory"></select></label>
-    <button id="addCategory" class="btn primary">เพิ่มหมวดหมู่</button>
-    <div id="categoryList" class="items"></div>
-  </article>
+  <section class="master-grid" aria-label="จัดการข้อมูลหลักสินค้า">
+    <article class="card master-card category-card">
+      <div class="master-card-head">
+        <span class="master-icon category-icon" aria-hidden="true">▦</span>
+        <div>
+          <h2>หมวดหมู่สินค้า</h2>
+          <p>เพิ่มหมวดหมู่หลักหรือกำหนดหมวดหมู่แม่</p>
+        </div>
+      </div>
 
-  <article class="card">
-    <h2>เพิ่มหน่วยนับ</h2>
-    <label class="field">ชื่อหน่วย<input id="unitName"></label>
-    <button id="addUnit" class="btn primary">เพิ่มหน่วย</button>
-    <div id="unitList" class="items"></div>
-  </article>
+      <div class="master-form category-form">
+        <label class="field">
+          <span>รหัสหมวดหมู่</span>
+          <input id="categoryCode" placeholder="เช่น TOY" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>ชื่อหมวดหมู่</span>
+          <input id="categoryName" placeholder="กรอกชื่อหมวดหมู่" autocomplete="off">
+        </label>
+        <label class="field field-full">
+          <span>หมวดหมู่แม่</span>
+          <select id="parentCategory" aria-label="เลือกหมวดหมู่แม่"></select>
+        </label>
+        <button id="addCategory" class="btn primary master-add-btn field-full" type="button">
+          <span aria-hidden="true">＋</span> เพิ่มหมวดหมู่
+        </button>
+      </div>
 
-  <article class="card">
-    <h2>เพิ่มยี่ห้อ</h2>
-    <label class="field">รหัส<input id="brandCode"></label>
-    <label class="field">ชื่อยี่ห้อ<input id="brandName"></label>
-    <button id="addBrand" class="btn primary">เพิ่มยี่ห้อ</button>
-    <div id="brandList" class="items"></div>
-  </article>
-</section>
-<p id="message" class="msg"></p>
+      <details class="master-dropdown">
+        <summary>
+          <span class="summary-copy">
+            <strong>รายการหมวดหมู่ทั้งหมด</strong>
+            <small>กดเพื่อเปิดหรือปิดรายการ</small>
+          </span>
+          <span class="summary-arrow" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="master-list-scroll">
+          <div id="categoryList" class="items master-items"></div>
+        </div>
+      </details>
+    </article>
+
+    <article class="card master-card unit-card">
+      <div class="master-card-head">
+        <span class="master-icon unit-icon" aria-hidden="true">น</span>
+        <div>
+          <h2>หน่วยนับ</h2>
+          <p>กำหนดหน่วยที่ใช้กับจำนวนสินค้า</p>
+        </div>
+      </div>
+
+      <div class="master-form single-form">
+        <label class="field">
+          <span>ชื่อหน่วยนับ</span>
+          <input id="unitName" placeholder="เช่น ชิ้น, กล่อง, คัน" autocomplete="off">
+        </label>
+        <button id="addUnit" class="btn primary master-add-btn" type="button">
+          <span aria-hidden="true">＋</span> เพิ่มหน่วยนับ
+        </button>
+      </div>
+
+      <details class="master-dropdown">
+        <summary>
+          <span class="summary-copy">
+            <strong>รายการหน่วยนับทั้งหมด</strong>
+            <small>กดเพื่อเปิดหรือปิดรายการ</small>
+          </span>
+          <span class="summary-arrow" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="master-list-scroll">
+          <div id="unitList" class="items master-items compact-items"></div>
+        </div>
+      </details>
+    </article>
+
+    <article class="card master-card brand-card">
+      <div class="master-card-head">
+        <span class="master-icon brand-icon" aria-hidden="true">ย</span>
+        <div>
+          <h2>ยี่ห้อสินค้า</h2>
+          <p>เพิ่มรหัสและชื่อยี่ห้อสำหรับสินค้า</p>
+        </div>
+      </div>
+
+      <div class="master-form brand-form">
+        <label class="field">
+          <span>รหัสยี่ห้อ</span>
+          <input id="brandCode" placeholder="เช่น TKN" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>ชื่อยี่ห้อ</span>
+          <input id="brandName" placeholder="กรอกชื่อยี่ห้อ" autocomplete="off">
+        </label>
+        <button id="addBrand" class="btn primary master-add-btn field-full" type="button">
+          <span aria-hidden="true">＋</span> เพิ่มยี่ห้อ
+        </button>
+      </div>
+
+      <details class="master-dropdown">
+        <summary>
+          <span class="summary-copy">
+            <strong>รายการยี่ห้อทั้งหมด</strong>
+            <small>กดเพื่อเปิดหรือปิดรายการ</small>
+          </span>
+          <span class="summary-arrow" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="master-list-scroll">
+          <div id="brandList" class="items master-items"></div>
+        </div>
+      </details>
+    </article>
+  </section>
+
+  <p id="message" class="msg master-message" role="status" aria-live="polite"></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
 <script src="./js/categories-admin.js?v=1.0.2"></script>
-  <script src="./js/navigation.js?v=3.0.0"></script>
+<script src="./js/navigation.js?v=3.0.0"></script>
 </body>
 </html>
