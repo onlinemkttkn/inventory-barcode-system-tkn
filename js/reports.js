@@ -124,6 +124,39 @@ function paymentLabel(method){
     OTHER: 'อื่น ๆ'
   })[paymentGroup(method)] || String(method || '-');
 }
+
+// แสดงสถานะบิลเป็นภาษาไทย โดยยังคงค่าจริงจากฐานข้อมูลไว้เหมือนเดิม
+function statusLabel(status) {
+  const raw = String(status ?? '').trim();
+  if (!raw) return '-';
+
+  // ถ้าฐานข้อมูลส่งข้อความภาษาไทยมาอยู่แล้ว ให้แสดงตามเดิม
+  if (/[ก-๙]/.test(raw)) return raw;
+
+  const key = raw.toUpperCase().replace(/[\s-]+/g, '_');
+  const labels = {
+    COMPLETED: 'สำเร็จ',
+    COMPLETE: 'สำเร็จ',
+    PAID: 'ชำระเงินแล้ว',
+    RETURNED: 'คืนสินค้าแล้ว',
+    PARTIALLY_RETURNED: 'คืนสินค้าบางส่วน',
+    PARTIAL_RETURN: 'คืนสินค้าบางส่วน',
+    REFUNDED: 'คืนเงินแล้ว',
+    VOIDED: 'ยกเลิกบิล',
+    VOID: 'ยกเลิกบิล',
+    CANCELLED: 'ยกเลิก',
+    CANCELED: 'ยกเลิก',
+    PENDING: 'รอดำเนินการ',
+    OPEN: 'เปิดอยู่',
+    DRAFT: 'แบบร่าง',
+    HELD: 'พักบิล',
+    ON_HOLD: 'พักบิล',
+    UNPAID: 'ยังไม่ชำระเงิน',
+    FAILED: 'ไม่สำเร็จ'
+  };
+
+  return labels[key] || raw;
+}
 function applyPaymentFilter(){
   const selected=E.paymentFilter?.value||'ALL';
   state.bills=selected==='ALL'?state.allBills:[...state.allBills].filter(bill=>paymentGroup(bill.payment_method)===selected);
@@ -186,7 +219,7 @@ function openBill(id) {
     <div class="bill-meta">
       <p><b>วันที่</b><br>${dateTime(bill.created_at)}</p>
       <p><b>ชำระ</b><br>${escapeHtml(paymentLabel(bill.payment_method))}</p>
-      <p><b>สถานะ</b><br>${escapeHtml(bill.status || '-')}</p>
+      <p><b>สถานะ</b><br>${escapeHtml(statusLabel(bill.status))}</p>
       <p><b>ลูกค้า</b><br>${escapeHtml(bill.customer_name || 'Walk-in')}</p>
     </div>
     <div class="table-wrap">
@@ -219,7 +252,7 @@ function exportCsv() {
       bill.sale_no,
       paymentLabel(bill.payment_method),
       bill.net_total,
-      bill.status
+      statusLabel(bill.status)
     ])
   ];
 
@@ -243,7 +276,7 @@ E.paymentFilter.onchange=()=>{applyPaymentFilter();renderTableOnly();};
 
 function renderTableOnly(){
   E.rows.innerHTML = state.bills.map(bill => `
-    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(paymentLabel(bill.payment_method))}</td><td>${money(bill.net_total)}</td><td>${escapeHtml(bill.status || '-')}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
+    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(paymentLabel(bill.payment_method))}</td><td>${money(bill.net_total)}</td><td>${escapeHtml(statusLabel(bill.status))}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
   E.rows.querySelectorAll('.detail').forEach(button=>{button.onclick=()=>openBill(button.dataset.id)});
 }
 
