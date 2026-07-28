@@ -230,8 +230,8 @@ async function openShiftWithCredentials(employeeCode,pin,openingFloat,messageEle
     p_branch_id:E.branch.value,
     p_opening_float:number(openingFloat)
   });
-  if(result.error){
-    msg(messageElement,result.error.message,'error');
+  if(result.error || result.data?.success === false){
+    msg(messageElement,result.error?.message || result.data?.error || 'ไม่สามารถเปิดกะได้','error');
     return false;
   }
   shift={...result.data,branch_id:E.branch.value};
@@ -441,13 +441,14 @@ async function approveDrawer(event){
       p_employee_code:E.drawerApproverCode.value.trim(),
       p_pin:E.drawerApproverPin.value
     });
-    if(r.error){
+    if(r.error || r.data?.success === false){
+      const hardwareAuthError = r.error?.message || r.data?.error || 'ไม่สามารถยืนยันผู้อนุมัติได้';
       await writeAudit('CASH_DRAWER_OPEN_DENIED','CASH_DRAWER',shift?.shift_id,'ปฏิเสธการเปิดลิ้นชัก',{
         requested_employee_code:E.drawerApproverCode.value.trim(),
         manual_reason:reason,
-        error_message:r.error.message
+        error_message:hardwareAuthError
       });
-      return msg(E.drawerApprovalMsg,r.error.message,'error');
+      return msg(E.drawerApprovalMsg,hardwareAuthError,'error');
     }
     const opened=await requestCashDrawer('MANUAL',r.data,{
       manual_reason:reason,
@@ -485,8 +486,8 @@ async function approveCancelOrder(event){
       p_employee_code:E.cancelOrderApproverCode.value.trim(),
       p_pin:E.cancelOrderApproverPin.value
     });
-    if(verify.error||verify.data?.can_open_drawer!==true){
-      const text=verify.error?.message||'ผู้อนุมัติไม่มีสิทธิ์อนุมัติรายการสำคัญ';
+    if(verify.error || verify.data?.success === false || verify.data?.can_open_drawer !== true){
+      const text=verify.error?.message || verify.data?.error || 'ผู้อนุมัติไม่มีสิทธิ์อนุมัติรายการสำคัญ';
       await writeAudit('ORDER_CANCEL_DENIED','POS_ORDER',shift?.shift_id,'ปฏิเสธการยกเลิกออเดอร์',{
         requested_employee_code:E.cancelOrderApproverCode.value.trim(),
         reason,

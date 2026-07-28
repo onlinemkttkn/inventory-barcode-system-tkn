@@ -11,7 +11,7 @@
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
-<body>
+<body data-required-permission="hardware.manage">
   <main class="hardware-shell">
     <header class="hardware-head">
       <div>
@@ -63,6 +63,12 @@
           <input id="powershellUrl" value="http://127.0.0.1:17891">
         </label>
       </div>
+
+
+      <label>Hardware Security Token
+        <input id="hardwareToken" type="password" autocomplete="off" placeholder="วาง Token จาก SETUP-SECURITY.bat">
+        <small>Token เก็บเฉพาะ session ของ Browser เครื่องนี้ และจะหายเมื่อปิด Browser</small>
+      </label>
 
       <label>ชื่อเครื่องพิมพ์
         <input id="printerName" value="RONGTA 80mm Series Printer">
@@ -128,8 +134,11 @@
     </section>
   </main>
 
-  <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
-  <script src="./js/hardware-settings.js?v=3.4.9"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase-config.js?v=5.2.0"></script>
+  <script src="./js/tkn-hardware-client.js?v=5.2.0"></script>
+  <script src="./js/go-live-security.js?v=5.2.0"></script>
+  <script src="./js/hardware-settings.js?v=5.2.0"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>
