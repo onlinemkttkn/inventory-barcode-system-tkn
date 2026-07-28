@@ -1,0 +1,271 @@
+/* TKN Dashboard Realtime Analytics v5.3.0
+   Adds analytics cards, Thai status/payment badges, and number motion.
+   Keeps the Product Management visual theme. */
+
+.dashboard-page .dashboard-analytics-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);
+  gap:16px;
+  margin:0 0 16px;
+}
+
+.dashboard-page .dashboard-analytics-card{
+  min-width:0;
+  overflow:hidden;
+  padding:0!important;
+  border:1px solid var(--dash-line,#e7e0d4)!important;
+  border-radius:20px!important;
+  background:#fff!important;
+  box-shadow:var(--dash-shadow,0 10px 30px rgba(45,35,18,.065))!important;
+}
+
+.dashboard-page .analytics-live-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:30px;
+  padding:5px 10px;
+  border:1px solid #bce9d0;
+  border-radius:999px;
+  background:#e7f8ef;
+  color:#147344;
+  font-size:12px;
+  font-weight:900;
+}
+
+.dashboard-page .analytics-live-badge::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#18a861;
+  box-shadow:0 0 0 4px rgba(24,168,97,.12);
+}
+
+.dashboard-page .analytics-card-body{
+  padding:18px 20px 20px;
+}
+
+.dashboard-page .analytics-category-layout{
+  display:grid;
+  grid-template-columns:minmax(210px,.9fr) minmax(220px,1.1fr);
+  align-items:center;
+  gap:18px;
+}
+
+.dashboard-page .analytics-chart-shell{
+  position:relative;
+  width:100%;
+  min-width:0;
+  overflow:hidden;
+  border:1px solid #eee8df;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff 0%,#fffdf7 100%);
+}
+
+.dashboard-page .analytics-chart-shell--pie{
+  height:300px;
+  min-height:300px;
+  padding:14px;
+}
+
+.dashboard-page .analytics-chart-shell--trend{
+  height:330px;
+  min-height:330px;
+  padding:16px;
+}
+
+.dashboard-page .analytics-legend{
+  display:grid;
+  gap:9px;
+  max-height:300px;
+  overflow:auto;
+  padding-right:4px;
+}
+
+.dashboard-page .analytics-legend-item{
+  display:grid;
+  grid-template-columns:12px minmax(0,1fr) auto;
+  grid-template-areas:
+    "dot name percent"
+    ". amount amount";
+  align-items:center;
+  gap:2px 9px;
+  padding:10px 12px;
+  border:1px solid #eee7dc;
+  border-radius:12px;
+  background:#fffdf8;
+}
+
+.dashboard-page .analytics-legend-dot{
+  grid-area:dot;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--legend-color,#d10a2c);
+}
+
+.dashboard-page .analytics-legend-name{
+  grid-area:name;
+  min-width:0;
+  overflow:hidden;
+  color:#302923;
+  font-size:13px;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.dashboard-page .analytics-legend-item strong{
+  grid-area:percent;
+  color:#a50b27;
+  font-size:14px;
+  font-weight:950;
+}
+
+.dashboard-page .analytics-legend-item small{
+  grid-area:amount;
+  color:#817970;
+  font-size:12px;
+  font-weight:700;
+  text-align:right;
+}
+
+.dashboard-page .analytics-empty,
+.dashboard-page .analytics-message{
+  margin:0;
+  color:#7b736a;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.5;
+}
+
+.dashboard-page .analytics-empty{
+  display:grid;
+  min-height:150px;
+  place-items:center;
+  text-align:center;
+}
+
+.dashboard-page .analytics-message{
+  min-height:22px;
+  margin-top:9px;
+  text-align:right;
+}
+
+.dashboard-page .analytics-title-with-actions{
+  align-items:center;
+}
+
+.dashboard-page .analytics-mode-switch{
+  display:inline-flex;
+  gap:5px;
+  padding:4px;
+  border:1px solid #e3dacd;
+  border-radius:12px;
+  background:#f7f3ec;
+}
+
+.dashboard-page .analytics-mode-switch button{
+  min-height:36px;
+  padding:7px 12px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#6d655c;
+  font-family:"Prompt",sans-serif;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.dashboard-page .analytics-mode-switch button.is-active{
+  background:#211b18;
+  color:#fff;
+  box-shadow:0 4px 12px rgba(33,27,24,.14);
+}
+
+.dashboard-page .payment-badge,
+.dashboard-page .dashboard-status-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:5px 10px;
+  border:1px solid transparent;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.2;
+  white-space:nowrap;
+}
+
+.dashboard-page .payment-cash{background:#e7f8ef;color:#147344;border-color:#c7edd8}
+.dashboard-page .payment-transfer,
+.dashboard-page .payment-qr{background:#e8f2ff;color:#155ea8;border-color:#caddf6}
+.dashboard-page .payment-card{background:#f1eaff;color:#6841b5;border-color:#dfd2f7}
+.dashboard-page .payment-voucher{background:#fff5cc;color:#7b5700;border-color:#f1dda0}
+.dashboard-page .payment-other{background:#f0f1f3;color:#535b66;border-color:#dde0e4}
+
+.dashboard-page .status-completed{background:#dcf7e8;color:#137443;border-color:#c5edd5}
+.dashboard-page .status-returned{background:#fff0db;color:#a34c00;border-color:#f3d3a9}
+.dashboard-page .status-partial,
+.dashboard-page .status-pending{background:#fff5c9;color:#846000;border-color:#eedb94}
+.dashboard-page .status-refunded{background:#f0e8ff;color:#6d3db0;border-color:#dfd0f7}
+.dashboard-page .status-voided{background:#ffe3e3;color:#b31921;border-color:#f2c7c9}
+.dashboard-page .status-open{background:#e5f3ff;color:#12669d;border-color:#c8e2f4}
+.dashboard-page .status-held{background:#f4eadf;color:#7b4c1f;border-color:#e5d2bd}
+.dashboard-page .status-default{background:#eef0f2;color:#555e68;border-color:#dfe2e6}
+
+.dashboard-page .is-live-number-updating{
+  animation:tkn-live-number-pulse .62s ease;
+}
+
+@keyframes tkn-live-number-pulse{
+  0%{transform:translateY(0);filter:none}
+  35%{transform:translateY(-2px);filter:drop-shadow(0 5px 7px rgba(209,10,44,.18))}
+  100%{transform:translateY(0);filter:none}
+}
+
+.dashboard-page .sales-control-panel .table-wrap{
+  max-height:660px;
+}
+
+@media(max-width:1100px){
+  .dashboard-page .dashboard-analytics-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:760px){
+  .dashboard-page .analytics-category-layout{
+    grid-template-columns:1fr;
+  }
+
+  .dashboard-page .analytics-chart-shell--pie{
+    height:270px;
+    min-height:270px;
+  }
+
+  .dashboard-page .analytics-chart-shell--trend{
+    height:290px;
+    min-height:290px;
+  }
+
+  .dashboard-page .analytics-title-with-actions{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .dashboard-page .analytics-mode-switch{
+    width:100%;
+  }
+
+  .dashboard-page .analytics-mode-switch button{
+    flex:1;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .dashboard-page .is-live-number-updating{animation:none}
+}

@@ -49,6 +49,43 @@
     OTHER: 'อื่น ๆ'
   })[String(value || '').toUpperCase()] || String(value || '-');
 
+
+  const statusLabel = value => ({
+    COMPLETED: 'สำเร็จ',
+    RETURNED: 'คืนสินค้าแล้ว',
+    PARTIALLY_RETURNED: 'คืนสินค้าบางส่วน',
+    VOIDED: 'ยกเลิกบิล',
+    CANCELLED: 'ยกเลิก',
+    CANCELED: 'ยกเลิก',
+    REFUNDED: 'คืนเงินแล้ว',
+    PENDING: 'รอดำเนินการ',
+    HELD: 'พักบิล',
+    OPEN: 'เปิดอยู่',
+    FAILED: 'ไม่สำเร็จ'
+  })[String(value || '').toUpperCase()] || String(value || '-');
+
+  const statusClass = value => ({
+    COMPLETED: 'status-completed',
+    RETURNED: 'status-returned',
+    PARTIALLY_RETURNED: 'status-partial',
+    VOIDED: 'status-voided',
+    CANCELLED: 'status-voided',
+    CANCELED: 'status-voided',
+    REFUNDED: 'status-refunded',
+    PENDING: 'status-pending',
+    HELD: 'status-held',
+    OPEN: 'status-open',
+    FAILED: 'status-voided'
+  })[String(value || '').toUpperCase()] || 'status-default';
+
+  const setLiveNumber = (element, value, type = 'number') => {
+    if (window.TKNLiveNumber?.set) {
+      window.TKNLiveNumber.set(element, value, { type });
+      return;
+    }
+    if (element) element.textContent = type === 'money' ? money(value) : Number(value || 0).toLocaleString('th-TH');
+  };
+
   function currentBranchId() {
     const select = document.querySelector('#branchFilter');
     return select?.value || null;
@@ -58,17 +95,17 @@
     const s = data?.summary || {};
     const v = data?.voids || {};
     const r = data?.returns || {};
-    state.bills = data?.bills || [];
+    state.bills = (data?.bills || []).slice(0, 10);
     state.items = data?.items || [];
 
-    E.billCount.textContent = Number(s.bill_count || 0).toLocaleString('th-TH');
-    E.revenue.textContent = money(s.gross_revenue);
-    E.cash.textContent = money(s.cash_revenue);
-    E.qr.textContent = money(s.qr_transfer_revenue);
-    E.card.textContent = money(s.card_revenue);
-    E.avg.textContent = money(s.average_bill);
-    E.voidCount.textContent = Number(v.void_count || 0).toLocaleString('th-TH');
-    E.returnAmount.textContent = money(r.return_amount);
+    setLiveNumber(E.billCount, s.bill_count, 'number');
+    setLiveNumber(E.revenue, s.gross_revenue, 'money');
+    setLiveNumber(E.cash, s.cash_revenue, 'money');
+    setLiveNumber(E.qr, s.qr_transfer_revenue, 'money');
+    setLiveNumber(E.card, s.card_revenue, 'money');
+    setLiveNumber(E.avg, s.average_bill, 'money');
+    setLiveNumber(E.voidCount, v.void_count, 'number');
+    setLiveNumber(E.returnAmount, r.return_amount, 'money');
 
     E.rows.innerHTML = state.bills.length ? state.bills.map(b => `
       <tr>
@@ -76,7 +113,7 @@
         <td><strong>${esc(b.sale_no)}</strong></td>
         <td>${esc(paymentLabel(b.payment_method))}</td>
         <td>${money(b.net_total)}</td>
-        <td><span class="badge ${String(b.status).toUpperCase()==='VOIDED'?'out':'ok'}">${esc(b.status)}</span></td>
+        <td><span class="dashboard-status-badge ${statusClass(b.status)}">${esc(statusLabel(b.status))}</span></td>
         <td><button type="button" class="report-detail-btn" data-id="${esc(b.id)}">รายละเอียด</button></td>
       </tr>`).join('') : '<tr><td colspan="6">ไม่พบข้อมูลในช่วงเวลานี้</td></tr>';
 
@@ -95,7 +132,7 @@
         <p><strong>วันที่</strong><br>${dateTime(bill.created_at)}</p>
         <p><strong>ชำระ</strong><br>${esc(paymentLabel(bill.payment_method))}</p>
         <p><strong>ลูกค้า</strong><br>${esc(bill.customer_name || 'Walk-in')}</p>
-        <p><strong>สถานะ</strong><br>${esc(bill.status || '-')}</p>
+        <p><strong>สถานะ</strong><br><span class="dashboard-status-badge ${statusClass(bill.status)}">${esc(statusLabel(bill.status))}</span></p>
       </div>
       <div class="table-wrap"><table>
         <thead><tr><th>รหัส</th><th>สินค้า</th><th>ขาย</th><th>คืนแล้ว</th><th>ราคาต่อหน่วย</th><th>รวม</th></tr></thead>
@@ -121,7 +158,7 @@
       p_period: E.period.value,
       p_anchor_date: E.anchor.value || new Date().toISOString().slice(0,10),
       p_branch_id: currentBranchId(),
-      p_limit: 200
+      p_limit: 10
     });
     if (sequence !== loadSequence) return;
     E.load.disabled = false;
@@ -131,7 +168,7 @@
       return;
     }
     render(data);
-    E.message.textContent = 'อัปเดตข้อมูลแล้ว';
+    E.message.textContent = 'อัปเดตข้อมูลแล้ว · แสดง 10 รายการล่าสุด';
   }
 
   E.anchor.value = new Date().toISOString().slice(0,10);

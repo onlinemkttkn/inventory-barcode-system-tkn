@@ -63,6 +63,27 @@ function money(value) {
   }).format(Number(value || 0));
 }
 
+function paymentLabel(value) {
+  return ({
+    CASH: "เงินสด",
+    TRANSFER: "เงินโอน",
+    QR: "QR",
+    CARD: "บัตร",
+    VOUCHER: "คูปอง",
+    OTHER: "อื่น ๆ",
+  })[String(value || "").toUpperCase()] || String(value || "-");
+}
+
+function setLiveNumber(element, value, type = "number", options = {}) {
+  if (window.TKNLiveNumber?.set) {
+    window.TKNLiveNumber.set(element, value, { type, ...options });
+    return;
+  }
+
+  if (!element) return;
+  element.textContent = type === "money" ? money(value) : num(value);
+}
+
 function configReady() {
   return (
     typeof SUPABASE_URL === "string" &&
@@ -391,16 +412,16 @@ async function loadDashboard() {
 }
 
 function renderSummary(summary) {
-  E.totalProducts.textContent = num(summary.total_products);
-  E.totalCategories.textContent = num(summary.total_categories);
-  E.outStock.textContent = num(summary.out_of_stock_count);
-  E.lowStock.textContent = num(summary.low_stock_count);
-  E.salesToday.textContent = money(summary.sales_today);
-  E.billsToday.textContent = num(summary.bills_today);
-  E.salesMonth.textContent = money(summary.sales_month);
-  E.pendingTransfers.textContent = num(summary.pending_transfers);
-  E.stockCostValue.textContent = money(summary.stock_cost_value);
-  E.stockSaleValue.textContent = money(summary.stock_sale_value);
+  setLiveNumber(E.totalProducts, summary.total_products, "number");
+  setLiveNumber(E.totalCategories, summary.total_categories, "number");
+  setLiveNumber(E.outStock, summary.out_of_stock_count, "number");
+  setLiveNumber(E.lowStock, summary.low_stock_count, "number");
+  setLiveNumber(E.salesToday, summary.sales_today, "money");
+  setLiveNumber(E.billsToday, summary.bills_today, "number");
+  setLiveNumber(E.salesMonth, summary.sales_month, "money");
+  setLiveNumber(E.pendingTransfers, summary.pending_transfers, "number");
+  setLiveNumber(E.stockCostValue, summary.stock_cost_value, "money");
+  setLiveNumber(E.stockSaleValue, summary.stock_sale_value, "money");
 }
 
 function renderInventory(rows) {
@@ -452,7 +473,7 @@ function renderSales(rows) {
       <td>${esc(sale.sale_no)}</td>
       <td>${esc(sale.branch_code)}</td>
       <td>${money(sale.net_total)}</td>
-      <td>${esc(sale.payment_method)}</td>
+      <td><span class="payment-badge payment-${esc(String(sale.payment_method || "OTHER").toLowerCase())}">${esc(paymentLabel(sale.payment_method))}</span></td>
     `;
 
     E.recentSales.appendChild(tr);
@@ -520,8 +541,10 @@ function renderChart(rows) {
   }
 
   if (chart) {
-    chart.destroy();
-    chart = null;
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = values;
+    chart.update();
+    return;
   }
 
   chart = new Chart(E.salesChart, {
@@ -544,7 +567,7 @@ function renderChart(rows) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: false,
+      animation: { duration: 550 },
       resizeDelay: 300,
 
       interaction: {

@@ -10,6 +10,7 @@
   let refreshTimer = null;
   let lastRefreshAt = 0;
   let reconnectTimer = null;
+  let pollingTimer = null;
 
   function setState(state, message) {
     if (indicator) indicator.dataset.state = state;
@@ -37,17 +38,27 @@
       }
 
       setState(
-        'connected',
+        source === 'polling' ? 'connecting' : 'connected',
         source === 'realtime'
           ? 'อัปเดตล่าสุดจาก Realtime'
-          : 'เชื่อมต่อ Realtime แล้ว'
+          : source === 'polling'
+            ? 'ตรวจสอบข้อมูลอัตโนมัติแล้ว'
+            : 'เชื่อมต่อ Realtime แล้ว'
       );
     }, 650);
+  }
+
+  function startPolling() {
+    window.clearInterval(pollingTimer);
+    pollingTimer = window.setInterval(() => {
+      if (!document.hidden && navigator.onLine) requestRefresh('polling');
+    }, 30000);
   }
 
   function cleanup() {
     window.clearTimeout(refreshTimer);
     window.clearTimeout(reconnectTimer);
+    window.clearInterval(pollingTimer);
 
     try {
       if (channel && typeof supabaseClient !== 'undefined') {
@@ -61,62 +72,69 @@
   }
 
   function subscribe() {
-    cleanup();
+    if (channel) {
+      try { supabaseClient.removeChannel(channel); } catch (_) { /* no-op */ }
+      channel = null;
+    }
+
+    window.clearTimeout(reconnectTimer);
+    startPolling();
 
     if (
       typeof supabaseClient === 'undefined' ||
       !supabaseClient?.channel
     ) {
-      setState('offline', 'Realtime ยังไม่พร้อม — ใช้ปุ่มรีเฟรชได้ตามปกติ');
+      setState('offline', 'Realtime ยังไม่พร้อม — ระบบตรวจข้อมูลทุก 30 วินาที');
       return;
     }
 
     setState('connecting', 'กำลังเชื่อมต่อ Realtime');
 
     try {
-      channel = supabaseClient
-        .channel(`tkn-dashboard-${Date.now()}`)
-        .on(
-          'postgres_changes',
-          {event:'*',schema:'public',table:'sales'},
-          () => requestRefresh('realtime')
-        )
-        .on(
-          'postgres_changes',
-          {event:'*',schema:'public',table:'sales_returns'},
-          () => requestRefresh('realtime')
-        )
-        .on(
-          'postgres_changes',
-          {event:'*',schema:'public',table:'branch_inventory'},
-          () => requestRefresh('realtime')
-        )
-        .subscribe(status => {
-          if (status === 'SUBSCRIBED') {
-            setState('connected', 'Realtime พร้อมใช้งาน');
-            requestRefresh('connected');
-            return;
-          }
+      const builder = supabaseClient.channel(`tkn-dashboard-${Date.now()}`);
+      const watchedTables = [
+        'sales',
+        'sales_returns',
+        'branch_inventory',
+        'products',
+        'categories',
+        'transfer_documents',
+      ];
 
-          if (
-            status === 'CHANNEL_ERROR' ||
-            status === 'TIMED_OUT' ||
-            status === 'CLOSED'
-          ) {
-            setState(
-              'offline',
-              'Realtime ขัดข้อง — ระบบยังใช้ปุ่มรีเฟรชได้'
-            );
+      watchedTables.forEach((table) => {
+        builder.on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table },
+          () => requestRefresh('realtime')
+        );
+      });
 
-            window.clearTimeout(reconnectTimer);
-            reconnectTimer = window.setTimeout(subscribe, 10000);
-          }
-        });
+      channel = builder.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setState('connected', 'Realtime พร้อมใช้งาน');
+          requestRefresh('connected');
+          return;
+        }
+
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          setState(
+            'offline',
+            'Realtime ขัดข้อง — ระบบตรวจข้อมูลทุก 30 วินาที'
+          );
+
+          window.clearTimeout(reconnectTimer);
+          reconnectTimer = window.setTimeout(subscribe, 10000);
+        }
+      });
     } catch (error) {
       console.warn('Dashboard realtime unavailable:', error);
       setState(
         'offline',
-        'Realtime ขัดข้อง — ระบบยังใช้ปุ่มรีเฟรชได้'
+        'Realtime ขัดข้อง — ระบบตรวจข้อมูลทุก 30 วินาที'
       );
     }
   }
@@ -126,6 +144,9 @@
     setState('offline', 'ออฟไลน์ — รอเชื่อมต่ออินเทอร์เน็ต');
   });
   window.addEventListener('beforeunload', cleanup);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && navigator.onLine) requestRefresh('polling');
+  });
 
   subscribe();
 })();

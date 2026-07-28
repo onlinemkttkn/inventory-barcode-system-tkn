@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
   <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
   <link rel="stylesheet" href="./css/dashboard-product-ui.css?v=5.1.0">
+  <link rel="stylesheet" href="./css/dashboard-analytics-v5-3.css?v=5.3.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -107,6 +108,45 @@
       </article>
     </section>
 
+    <section class="dashboard-analytics-grid" aria-label="กราฟวิเคราะห์ยอดขาย">
+      <article class="card dashboard-analytics-card">
+        <div class="section-title">
+          <div>
+            <h2>สัดส่วนยอดขายตามประเภทสินค้า</h2>
+            <p>สัดส่วนยอดขายเดือนปัจจุบัน แสดงเป็นเปอร์เซ็นต์</p>
+          </div>
+          <span class="analytics-live-badge">Realtime</span>
+        </div>
+        <div class="analytics-card-body analytics-category-layout">
+          <div class="analytics-chart-shell analytics-chart-shell--pie">
+            <canvas id="categorySalesChart" aria-label="กราฟสัดส่วนยอดขายตามประเภทสินค้า"></canvas>
+          </div>
+          <div id="categorySalesLegend" class="analytics-legend" aria-live="polite">
+            <p class="analytics-empty">กำลังโหลดข้อมูล...</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card dashboard-analytics-card">
+        <div class="section-title analytics-title-with-actions">
+          <div>
+            <h2>แนวโน้มยอดขาย</h2>
+            <p>เปรียบเทียบยอดขายรายเดือนและรายไตรมาส</p>
+          </div>
+          <div class="analytics-mode-switch" role="group" aria-label="เลือกรูปแบบกราฟยอดขาย">
+            <button type="button" class="is-active" data-analytics-mode="MONTH">รายเดือน</button>
+            <button type="button" data-analytics-mode="QUARTER">รายไตรมาส</button>
+          </div>
+        </div>
+        <div class="analytics-card-body">
+          <div class="analytics-chart-shell analytics-chart-shell--trend">
+            <canvas id="salesTrendChart" aria-label="กราฟแนวโน้มยอดขาย"></canvas>
+          </div>
+          <p id="dashboardAnalyticsMessage" class="analytics-message" aria-live="polite"></p>
+        </div>
+      </article>
+    </section>
+
     <section class="dashboard-workspace">
       <div class="dashboard-main-column">
 
@@ -178,7 +218,7 @@
 
     <section id="salesControlPanel" class="card sales-control-panel">
       <div class="section-title">
-        <div><h2>สรุปรายรับแบบรวดเร็ว</h2><p>ดูภาพรวมรายวัน รายเดือน หรือรายปี และเปิดรายละเอียดบิลได้ทันที</p></div>
+        <div><h2>สรุปรายรับแบบรวดเร็ว</h2><p>ดูภาพรวมรายวัน รายเดือน หรือรายปี โดยแสดง 10 รายการล่าสุด</p></div>
       </div>
       <div class="sales-control-toolbar">
         <label>ช่วงเวลา<select id="reportPeriod"><option value="DAY">รายวัน</option><option value="MONTH">รายเดือน</option><option value="YEAR">รายปี</option></select></label>
@@ -225,9 +265,11 @@
 <script src="./js/supabase-config.js"></script>
 <script src="./js/auth-guard.js?v=3.6.11"></script>
 <script src="./js/go-live-security.js?v=5.2.0"></script>
-<script src="./js/dashboard.js?v=3.6.11"></script>
-<script src="./js/executive-report.js?v=3.5.0"></script>
-<script src="./js/dashboard-realtime.js?v=3.6.5"></script>
-  <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
+<script src="./js/dashboard-live-numbers.js?v=5.3.0"></script>
+<script src="./js/dashboard.js?v=5.3.0"></script>
+<script src="./js/executive-report.js?v=5.3.0"></script>
+<script src="./js/dashboard-analytics-v5-3.js?v=5.3.0"></script>
+<script src="./js/dashboard-realtime.js?v=5.3.0"></script>
+  <script src="./js/navigation-newtab-final.js?v=5.2.5"></script>
 </body>
 </html>
