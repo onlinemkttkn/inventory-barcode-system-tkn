@@ -247,12 +247,13 @@ E.loginForm?.addEventListener("submit", async (event) => {
 
     E.password.value = "";
     msg(E.loginMessage, "");
-
     /*
-     * เรียกตรงนี้ครั้งเดียว
-     * Auth callback จะไม่เรียกซ้ำ เพราะ currentProfile จะถูกตั้งค่า
+     * Reload the Dashboard document after authentication so the user always
+     * receives the latest HTML/CSS/JS instead of the pre-login DOM or cache.
+     * The newly created Supabase session is restored on the next page load.
      */
-    await renderSession(data.session);
+    window.location.replace("./dashboard.html?view=latest&v=5.4.0");
+    return;
   } catch (error) {
     console.error("Login error:", error);
     msg(

@@ -870,6 +870,83 @@ body.dashboard-page{
     top:-125px;
   }
 
+  /* Mobile tables become readable detail cards instead of clipped wide rows. */
+  .dashboard-page .dashboard-grid .table-wrap{
+    padding:10px;
+    overflow:visible!important;
+  }
+
+  .dashboard-page .dashboard-grid table,
+  .dashboard-page .dashboard-grid tbody,
+  .dashboard-page .dashboard-grid tr,
+  .dashboard-page .dashboard-grid td{
+    display:block;
+    width:100%;
+    min-width:0!important;
+  }
+
+  .dashboard-page .dashboard-grid thead{
+    display:none;
+  }
+
+  .dashboard-page .dashboard-grid tbody{
+    display:grid;
+    gap:10px;
+  }
+
+  .dashboard-page .dashboard-grid tr{
+    overflow:hidden;
+    border:1px solid #e8ded2;
+    border-radius:14px;
+    background:#fffdfa;
+    box-shadow:0 4px 12px rgba(45,30,20,.05);
+  }
+
+  .dashboard-page .dashboard-grid td{
+    min-height:0;
+    height:auto;
+    padding:9px 11px;
+    border-bottom:1px solid #f0e9df;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+
+  .dashboard-page .dashboard-grid td:last-child{
+    border-bottom:0;
+  }
+
+  .dashboard-page .dashboard-grid td:not([colspan]){
+    display:grid;
+    grid-template-columns:minmax(92px,35%) minmax(0,1fr);
+    align-items:center;
+    gap:10px;
+  }
+
+  .dashboard-page .dashboard-grid td:not([colspan])::before{
+    color:#817970;
+    font-size:12px;
+    font-weight:800;
+  }
+
+  #recentProducts td:nth-child(1)::before{content:"สาขา"}
+  #recentProducts td:nth-child(2)::before{content:"รหัส"}
+  #recentProducts td:nth-child(3)::before{content:"สินค้า"}
+  #recentProducts td:nth-child(4)::before{content:"บาร์โค้ด"}
+  #recentProducts td:nth-child(5)::before{content:"คงเหลือ"}
+  #recentProducts td:nth-child(6)::before{content:"สถานะ"}
+
+  #recentSales td:nth-child(1)::before{content:"เวลา"}
+  #recentSales td:nth-child(2)::before{content:"เลขที่"}
+  #recentSales td:nth-child(3)::before{content:"สาขา"}
+  #recentSales td:nth-child(4)::before{content:"ยอดสุทธิ"}
+  #recentSales td:nth-child(5)::before{content:"ชำระ"}
+
+  #topProducts td:nth-child(1)::before{content:"อันดับ"}
+  #topProducts td:nth-child(2)::before{content:"รหัส"}
+  #topProducts td:nth-child(3)::before{content:"สินค้า"}
+  #topProducts td:nth-child(4)::before{content:"จำนวนขาย"}
+  #topProducts td:nth-child(5)::before{content:"ยอดขาย"}
+
   .dashboard-page .topbar h1{
     font-size:30px;
   }
