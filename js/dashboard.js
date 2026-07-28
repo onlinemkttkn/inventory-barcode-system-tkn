@@ -96,6 +96,7 @@ function configReady() {
 }
 
 function showLogin() {
+  document.body.classList.add("tkn-login-view");
   E.loginCard.classList.remove("hidden");
   E.appArea.classList.add("hidden");
   E.logoutBtn?.classList.add("hidden");
@@ -105,6 +106,7 @@ function showLogin() {
 }
 
 function showApp() {
+  document.body.classList.remove("tkn-login-view");
   E.loginCard.classList.add("hidden");
   E.appArea.classList.remove("hidden");
   E.logoutBtn?.classList.remove("hidden");

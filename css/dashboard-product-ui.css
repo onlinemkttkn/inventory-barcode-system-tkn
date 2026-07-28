@@ -139,6 +139,61 @@ body.dashboard-page{
   box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
+.dashboard-page .dashboard-login-brand{
+  display:none;
+}
+
+/* Login is a dedicated company welcome screen; Dashboard controls appear only after authentication. */
+.dashboard-page.tkn-login-view .shell{
+  width:min(920px,calc(100% - 32px));
+  padding-top:clamp(24px,6vh,72px)!important;
+}
+
+.dashboard-page.tkn-login-view .topbar{
+  display:flex!important;
+  justify-content:center;
+  min-height:245px;
+  padding:32px!important;
+  text-align:center;
+}
+
+.dashboard-page.tkn-login-view .dashboard-title-block,
+.dashboard-page.tkn-login-view .dashboard-context-panel{
+  display:none!important;
+}
+
+.dashboard-page.tkn-login-view .dashboard-login-brand{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+}
+
+.dashboard-page.tkn-login-view .dashboard-login-brand img{
+  display:block;
+  width:min(410px,82vw);
+  max-height:105px;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.24));
+}
+
+.dashboard-page.tkn-login-view .dashboard-login-brand strong{
+  margin-top:5px;
+  color:#fff;
+  font-size:clamp(20px,3vw,27px);
+  font-weight:900;
+}
+
+.dashboard-page.tkn-login-view .dashboard-login-brand span{
+  color:#ffe9a6;
+  font-size:14px;
+  font-weight:750;
+}
+
 /* Alerts and login */
 .dashboard-page .alert,
 .dashboard-page .login-card{
@@ -153,9 +208,20 @@ body.dashboard-page{
   padding:26px;
 }
 
+.dashboard-page.tkn-login-view .login-card{
+  max-width:560px;
+  margin:24px auto 0;
+  padding:30px;
+}
+
 .dashboard-page .login-card h2{
   margin-top:0;
   font-size:24px;
+}
+
+.dashboard-page.tkn-login-view .login-card h2{
+  margin-bottom:20px;
+  text-align:center;
 }
 
 .dashboard-page .form-grid label{

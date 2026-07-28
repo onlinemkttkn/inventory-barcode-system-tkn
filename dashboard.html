@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
   <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
-  <link rel="stylesheet" href="./css/dashboard-product-ui.css?v=5.3.8">
+  <link rel="stylesheet" href="./css/dashboard-product-ui.css?v=5.3.9">
   <link rel="stylesheet" href="./css/dashboard-analytics-v5-3.css?v=5.3.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
@@ -21,10 +21,15 @@
 <body class="dashboard-page tkn-auth-loading" data-loading-text="กำลังตรวจสอบผู้ใช้งาน..." data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
   <header class="topbar">
-    <div>
+    <div class="dashboard-title-block">
       <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
       <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
       <p class="integration-note">ภาพรวมตัวเลขธุรกิจ ยอดขาย สต็อก และรายงานสำหรับผู้บริหาร</p>
+    </div>
+    <div class="dashboard-login-brand" aria-label="บริษัท เถ้าแก่น้อย ชลบุรี จำกัด">
+      <img src="./assets/tkn-company-logo.png" alt="เถ้าแก่น้อย ชลบุรี">
+      <strong>บริษัท เถ้าแก่น้อย ชลบุรี จำกัด</strong>
+      <span>ระบบบริหารร้านค้า POS / ERP</span>
     </div>
     <div class="dashboard-context-panel">
       <label class="dashboard-scope-control">
@@ -266,7 +271,7 @@
 <script src="./js/auth-guard.js?v=3.6.11"></script>
 <script src="./js/go-live-security.js?v=5.2.0"></script>
 <script src="./js/dashboard-live-numbers.js?v=5.3.0"></script>
-<script src="./js/dashboard.js?v=5.3.0"></script>
+<script src="./js/dashboard.js?v=5.3.9"></script>
 <script src="./js/executive-report.js?v=5.3.0"></script>
 <script src="./js/dashboard-analytics-v5-3.js?v=5.3.0"></script>
 <script src="./js/dashboard-realtime.js?v=5.3.0"></script>
