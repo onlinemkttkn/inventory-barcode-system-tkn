@@ -48,6 +48,25 @@ let access=null;
 function msg(el,text,cls=''){el.textContent=text;el.className='msg '+cls}
 function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
 function money(v){return new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(Number(v||0))}
+function friendlyProductError(error){
+  const text=String(error?.message||'');
+  if(text.includes('products_product_code_key')){
+    const code=E.productCode.value.trim();
+    return code
+      ? `รหัสสินค้า "${code}" มีอยู่ในระบบแล้ว กรุณาใช้รหัสอื่น`
+      : 'รหัสสินค้านี้มีอยู่ในระบบแล้ว กรุณาใช้รหัสอื่น';
+  }
+  if(text.includes('products_barcode_key')){
+    const barcode=E.barcode.value.trim();
+    return barcode
+      ? `บาร์โค้ด "${barcode}" มีอยู่ในระบบแล้ว กรุณาใช้บาร์โค้ดอื่น`
+      : 'บาร์โค้ดนี้มีอยู่ในระบบแล้ว กรุณาใช้บาร์โค้ดอื่น';
+  }
+  if(error?.code==='23505'){
+    return 'รหัสสินค้าหรือบาร์โค้ดซ้ำกับข้อมูลเดิม กรุณาตรวจสอบอีกครั้ง';
+  }
+  return text||'ไม่สามารถบันทึกสินค้าได้ กรุณาลองใหม่อีกครั้ง';
+}
 
 async function init(){
   const {data:{session}}=await supabaseClient.auth.getSession();
@@ -300,7 +319,7 @@ E.form.onsubmit=async event=>{
   if(result.error){
     E.saveBtn.disabled=false;
     E.saveAndNewBtn.disabled=false;
-    return msg(E.formMessage,result.error.message,'error');
+    return msg(E.formMessage,friendlyProductError(result.error),'error');
   }
 
   msg(E.formMessage,'บันทึกสินค้าเรียบร้อย','ok');
