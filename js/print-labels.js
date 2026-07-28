@@ -98,8 +98,8 @@ el.searchForm.addEventListener("submit", async (event) => {
 
   const clean = query.replace(/[,%()]/g, "");
   const { data, error } = await supabaseClient
-    .from("product_list")
-    .select("id,product_code,barcode,name,selling_price,quantity,category_code,category_name,unit_name,is_active")
+    .from("product_management_list")
+    .select("id,product_code,barcode,name,selling_price,total_branch_quantity,category_code,category_name,unit_name,is_active")
     .or(`name.ilike.%${clean}%,product_code.ilike.%${clean}%,barcode.eq.${clean}`)
     .eq("is_active", true)
     .order("name")
