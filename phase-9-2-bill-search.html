@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TKN POS - ค้นหาบิลย้อนหลัง v2.1</title>
+  <title>TKN POS - ค้นหาบิลย้อนหลัง</title>
   <link rel="stylesheet" href="./css/bill-search.css?v=3.0.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/bill-search-product-ui.css?v=5.2.6">
 </head>
-<body data-integrated-page="bill-search" data-lock-back="true">
+<body class="bill-history-page" data-integrated-page="bill-search" data-lock-back="true">
   <main class="page-shell">
 <nav class="integration-breadcrumb" aria-label="เส้นทาง">
   <a href="./dashboard.html" data-nav-dashboard>Dashboard</a>
@@ -27,7 +28,7 @@
       <a class="secondary-button" href="./dashboard.html" data-nav-dashboard>กลับ Dashboard</a>
     </header>
 
-    <section class="panel" aria-labelledby="search-title">
+    <section class="panel search-panel" aria-labelledby="search-title">
       <h2 id="search-title">เงื่อนไขค้นหา</h2>
 
       <div class="search-grid">
@@ -97,25 +98,28 @@
     </section>
 
     <section class="summary-grid" aria-label="สรุปผลการค้นหา">
-      <article class="summary-card">
+      <article class="summary-card summary-bills">
         <span>จำนวนบิล</span>
         <strong id="summaryBills">0</strong>
       </article>
 
-      <article class="summary-card">
+      <article class="summary-card summary-sales">
         <span>ยอดขายรวม</span>
         <strong id="summaryTotal">฿0.00</strong>
       </article>
 
-      <article class="summary-card">
+      <article class="summary-card summary-returns">
         <span>คืนสินค้า</span>
         <strong id="summaryReturns">0</strong>
       </article>
     </section>
 
-    <section class="panel">
+    <section class="panel result-panel">
       <div class="section-heading">
-        <h2>ผลการค้นหา</h2>
+        <div>
+          <span class="section-kicker">BILL RESULTS</span>
+          <h2>ผลการค้นหา</h2>
+        </div>
         <span id="resultMessage" role="status" aria-live="polite"></span>
       </div>
 
