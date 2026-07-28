@@ -456,6 +456,12 @@ body.dashboard-page{
   box-shadow:var(--dash-shadow)!important;
 }
 
+/* Operational tables need the full row so every column remains visible. */
+.dashboard-page .dashboard-grid > .card:nth-child(1),
+.dashboard-page .dashboard-grid > .card:nth-child(2){
+  grid-column:1 / -1;
+}
+
 .dashboard-page .section-title{
   display:flex;
   align-items:center;
