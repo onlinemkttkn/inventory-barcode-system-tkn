@@ -1,0 +1,69 @@
+import { supabaseClient } from './supabase-client.js';
+
+const els = {
+  dateFrom: document.querySelector('#dateFrom'),
+  dateTo: document.querySelector('#dateTo'),
+  loadButton: document.querySelector('#loadButton'),
+  thisMonthButton: document.querySelector('#thisMonthButton'),
+  returnCount: document.querySelector('#returnCount'),
+  refundTotal: document.querySelector('#refundTotal'),
+  affectedSales: document.querySelector('#affectedSales'),
+  topProducts: document.querySelector('#topProducts'),
+  dailyRows: document.querySelector('#dailyRows'),
+  message: document.querySelector('#message')
+};
+
+const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+}[char]));
+const money = value => new Intl.NumberFormat('th-TH', {
+  style: 'currency', currency: 'THB'
+}).format(Number(value || 0));
+const date = value => new Intl.DateTimeFormat('th-TH', {
+  dateStyle: 'medium'
+}).format(new Date(`${value}T00:00:00`));
+
+async function loadReport() {
+  els.loadButton.disabled = true;
+  els.message.textContent = 'กำลังโหลด...';
+  const {data, error} = await supabaseClient.rpc(
+    'get_sales_return_report_phase_9_2',
+    {p_date_from: els.dateFrom.value || null, p_date_to: els.dateTo.value || null}
+  );
+  els.loadButton.disabled = false;
+  if (error) {
+    console.error(error);
+    els.message.textContent = `โหลดไม่สำเร็จ: ${error.message}`;
+    return;
+  }
+  const summary = data?.summary || {};
+  const products = data?.top_products || [];
+  const daily = data?.daily || [];
+  els.returnCount.textContent = String(summary.return_count || 0);
+  els.refundTotal.textContent = money(summary.refund_total);
+  els.affectedSales.textContent = String(summary.affected_sales || 0);
+  els.topProducts.innerHTML = products.length
+    ? products.map((row, index) => `<tr><td>${index + 1}</td><td>${esc(row.product_code || '-')}</td><td>${esc(row.product_name || '-')}</td><td>${Number(row.returned_quantity || 0)}</td><td>${money(row.refund_amount)}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="empty-row">ยังไม่มีข้อมูล</td></tr>';
+  els.dailyRows.innerHTML = daily.length
+    ? daily.map(row => `<tr><td>${esc(date(row.return_date))}</td><td>${Number(row.return_count || 0)}</td><td>${money(row.refund_amount)}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="empty-row">ยังไม่มีข้อมูล</td></tr>';
+  els.message.textContent = 'อัปเดตรายงานแล้ว';
+}
+
+els.thisMonthButton.addEventListener('click', () => {
+  const now = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth(), 1);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  els.dateFrom.value = fmt(first);
+  els.dateTo.value = fmt(now);
+  loadReport();
+});
+els.loadButton.addEventListener('click', loadReport);
+(async () => {
+  if (window.TKNSecurityReady) {
+    const access = await window.TKNSecurityReady;
+    if (!access) return;
+  }
+  loadReport();
+})();
