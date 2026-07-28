@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const NAV_VERSION = '5.2.5';
+  const NAV_VERSION = '5.3.7';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
   const SHARED_CACHE_TTL = 5 * 60_000;
@@ -275,10 +275,9 @@
       </div>
       <div class="tkn-mobile-drawer" id="tknPrimaryNavigation">
         <nav class="tkn-nav-menu"></nav>
-        <div class="tkn-mobile-footer-slot"></div>
-      </div>
-      <div class="tkn-nav-footer">
-        <button class="tkn-nav-btn tkn-logout-btn" type="button">ออกจากระบบ</button>
+        <div class="tkn-nav-footer">
+          <button class="tkn-nav-btn tkn-logout-btn" type="button">ออกจากระบบ</button>
+        </div>
       </div>`;
 
     const menu = nav.querySelector('.tkn-nav-menu');
