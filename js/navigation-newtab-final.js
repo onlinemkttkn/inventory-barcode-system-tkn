@@ -239,7 +239,7 @@
       ['dashboard.view', './dashboard.html', 'Dashboard', 'dashboard'],
       ['pos.use', './pos.html', 'POS / ขายหน้าร้าน', 'pos'],
       ['pos.search_bill', './phase-9-2-bill-search.html', 'ค้นหาบิลย้อนหลัง', 'bill-search'],
-      ['product.manage', './products-admin.html', 'สินค้า', 'product'],
+      ['product.manage', './products-admin.html', 'จัดการสินค้า', 'product'],
       ['inventory.view', './inventory-operations.html', 'คลังสินค้า', 'inventory'],
       ['report.view', './reports.html', 'รายงาน', 'report'],
       ['user.manage', './users-admin.html', 'ผู้ใช้และสิทธิ์', 'users'],
