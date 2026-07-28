@@ -329,10 +329,7 @@
     if (current === 'index.html') return;
 
     const access = await resolveAccess();
-    if (!access?.user_id) {
-      console.warn('Navigation access context is unavailable; no fallback role was created.');
-      return;
-    }
+    if (!access?.user_id) return;
     renderNavigation(access);
   }
 

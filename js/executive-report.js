@@ -150,6 +150,20 @@
       return;
     }
 
+    /*
+     * The report panel exists in dashboard.html even while the Login view is
+     * visible. Never call a protected RPC until both the authenticated
+     * Dashboard and its Supabase session are ready.
+     */
+    if (document.querySelector('#appArea')?.classList.contains('hidden')) return;
+
+    const {
+      data: { session },
+      error: sessionError
+    } = await client.auth.getSession();
+
+    if (sessionError || !session?.user?.id) return;
+
     const sequence = ++loadSequence;
     E.load.disabled = true;
     E.message.textContent = 'กำลังโหลดรายงาน...';
