@@ -1,6 +1,7 @@
 import { supabaseClient } from './supabase-client.js';
 import {
   loadAccessContext,
+  guardPage,
   hasPermission,
   applyPermissionElements
 } from './access-control.js';
@@ -342,10 +343,7 @@ async function initializeBillSearch() {
   try {
     const access = await loadAccessContext(supabaseClient);
 
-    if (!access) {
-      window.location.replace('./index.html');
-      return;
-    }
+    if (!guardPage(access, 'pos.search_bill')) return;
 
     state.role = access.role;
 

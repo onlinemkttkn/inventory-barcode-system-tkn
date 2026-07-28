@@ -15,6 +15,7 @@ const E = {
   load: document.getElementById('load'),
   csv: document.getElementById('csv'),
   print: document.getElementById('print'),
+  billSearchButton: document.getElementById('billSearchButton'),
   stats: document.getElementById('stats'),
   rows: document.getElementById('rows'),
   message: document.getElementById('message'),
@@ -57,6 +58,13 @@ async function init() {
   if (!guardPage(state.context, 'report.view')) return;
 
   E.csv.hidden = !hasPermission(state.context, 'report.export');
+
+  const canSearchBills = hasPermission(state.context, 'pos.search_bill');
+  if (E.billSearchButton) {
+    E.billSearchButton.hidden = !canSearchBills;
+    E.billSearchButton.setAttribute('aria-hidden', String(!canSearchBills));
+    E.billSearchButton.tabIndex = canSearchBills ? 0 : -1;
+  }
   E.anchor.value = today();
   E.startDate.value = today();
   E.endDate.value = today();

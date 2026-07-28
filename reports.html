@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
   <link rel="stylesheet" href="./css/reports-product-ui.css?v=4.3.0">
   <link rel="stylesheet" href="./css/reports-status-colors.css?v=5.2.3">
+  <link rel="stylesheet" href="./css/reports-bill-history-button.css?v=5.2.4">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -23,8 +24,21 @@
       <h1>รายงานยอดขายและรายรับ</h1>
       <p>กำหนดช่วงวันได้ พร้อมรายวัน รายเดือน รายปี และรายละเอียดสินค้าในบิล</p>
     </div>
-    <div class="header-actions">
-      <a class="button secondary" href="./dashboard.html">Dashboard</a>
+    <div class="header-actions" aria-label="เมนูด่วนหน้ารายงาน">
+      <a
+        id="billSearchButton"
+        class="button report-bill-search-button"
+        href="./phase-9-2-bill-search.html"
+        data-permission="pos.search_bill"
+        hidden
+        aria-hidden="true">
+        <span class="report-action-icon" aria-hidden="true">⌕</span>
+        <span>ค้นหาบิลย้อนหลัง</span>
+      </a>
+      <a class="button secondary report-dashboard-button" href="./dashboard.html">
+        <span class="report-action-icon" aria-hidden="true">⌂</span>
+        <span>Dashboard</span>
+      </a>
     </div>
   </header>
 
@@ -90,7 +104,7 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.2.3"></script>
+<script type="module" src="./js/reports.js?v=5.2.4"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>
