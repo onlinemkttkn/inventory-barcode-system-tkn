@@ -1,0 +1,119 @@
+/* TKN Reports Thai Status Colors v5.2.3 */
+.report-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: 'Prompt', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.report-status::before {
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
+  flex: 0 0 auto;
+}
+
+/* สำเร็จ / ชำระเงินแล้ว */
+.report-status--success {
+  color: #087a4b;
+  background: #e6f8ee;
+  border-color: #bfead2;
+}
+
+/* คืนสินค้าแล้ว */
+.report-status--returned {
+  color: #a34f00;
+  background: #fff0d4;
+  border-color: #f3ce8b;
+}
+
+/* คืนสินค้าบางส่วน */
+.report-status--partial {
+  color: #856000;
+  background: #fff6c9;
+  border-color: #ead37b;
+}
+
+/* คืนเงินแล้ว */
+.report-status--refunded {
+  color: #6b3cac;
+  background: #f1e9ff;
+  border-color: #d9c5f6;
+}
+
+/* ยกเลิก / ไม่สำเร็จ */
+.report-status--danger {
+  color: #b00020;
+  background: #ffe8ec;
+  border-color: #f3bdc7;
+}
+
+/* รอดำเนินการ / ยังไม่ชำระ */
+.report-status--warning {
+  color: #8a5a00;
+  background: #fff4cd;
+  border-color: #ecd17d;
+}
+
+/* เปิดอยู่ */
+.report-status--info {
+  color: #075f9f;
+  background: #e7f3ff;
+  border-color: #bfdcf4;
+}
+
+/* พักบิล */
+.report-status--held {
+  color: #7a4a12;
+  background: #f6eadc;
+  border-color: #dfc4a5;
+}
+
+/* แบบร่างหรือสถานะที่ระบบยังไม่รู้จัก */
+.report-status--neutral {
+  color: #4f5965;
+  background: #edf1f4;
+  border-color: #d5dde4;
+}
+
+/* ให้ badge ในช่องตารางไม่ดันความสูงเกินไป */
+.report-list-card td .report-status {
+  min-width: 112px;
+}
+
+/* หน้าต่างรายละเอียดบิล */
+.bill-meta .report-status {
+  margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .report-status {
+    min-height: 28px;
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  .report-list-card td .report-status {
+    min-width: 0;
+  }
+}
+
+@media print {
+  .report-status {
+    color: #000 !important;
+    background: transparent !important;
+    border-color: #777 !important;
+  }
+}

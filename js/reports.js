@@ -126,6 +126,10 @@ function paymentLabel(method){
 }
 
 // แสดงสถานะบิลเป็นภาษาไทย โดยยังคงค่าจริงจากฐานข้อมูลไว้เหมือนเดิม
+function normalizeStatus(status) {
+  return String(status ?? '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+}
+
 function statusLabel(status) {
   const raw = String(status ?? '').trim();
   if (!raw) return '-';
@@ -133,7 +137,6 @@ function statusLabel(status) {
   // ถ้าฐานข้อมูลส่งข้อความภาษาไทยมาอยู่แล้ว ให้แสดงตามเดิม
   if (/[ก-๙]/.test(raw)) return raw;
 
-  const key = raw.toUpperCase().replace(/[\s-]+/g, '_');
   const labels = {
     COMPLETED: 'สำเร็จ',
     COMPLETE: 'สำเร็จ',
@@ -155,7 +158,28 @@ function statusLabel(status) {
     FAILED: 'ไม่สำเร็จ'
   };
 
-  return labels[key] || raw;
+  return labels[normalizeStatus(raw)] || raw;
+}
+
+function statusTone(status) {
+  const key = normalizeStatus(status);
+
+  if (['COMPLETED', 'COMPLETE', 'PAID'].includes(key)) return 'success';
+  if (['RETURNED'].includes(key)) return 'returned';
+  if (['PARTIALLY_RETURNED', 'PARTIAL_RETURN'].includes(key)) return 'partial';
+  if (['REFUNDED'].includes(key)) return 'refunded';
+  if (['VOIDED', 'VOID', 'CANCELLED', 'CANCELED', 'FAILED'].includes(key)) return 'danger';
+  if (['PENDING', 'UNPAID'].includes(key)) return 'warning';
+  if (['OPEN'].includes(key)) return 'info';
+  if (['HELD', 'ON_HOLD'].includes(key)) return 'held';
+  return 'neutral';
+}
+
+function statusBadge(status) {
+  const label = escapeHtml(statusLabel(status));
+  const tone = statusTone(status);
+  const raw = escapeHtml(String(status ?? '').trim() || '-');
+  return `<span class="report-status report-status--${tone}" title="สถานะระบบ: ${raw}">${label}</span>`;
 }
 function applyPaymentFilter(){
   const selected=E.paymentFilter?.value||'ALL';
@@ -219,7 +243,7 @@ function openBill(id) {
     <div class="bill-meta">
       <p><b>วันที่</b><br>${dateTime(bill.created_at)}</p>
       <p><b>ชำระ</b><br>${escapeHtml(paymentLabel(bill.payment_method))}</p>
-      <p><b>สถานะ</b><br>${escapeHtml(statusLabel(bill.status))}</p>
+      <p><b>สถานะ</b><br>${statusBadge(bill.status)}</p>
       <p><b>ลูกค้า</b><br>${escapeHtml(bill.customer_name || 'Walk-in')}</p>
     </div>
     <div class="table-wrap">
@@ -276,7 +300,7 @@ E.paymentFilter.onchange=()=>{applyPaymentFilter();renderTableOnly();};
 
 function renderTableOnly(){
   E.rows.innerHTML = state.bills.map(bill => `
-    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(paymentLabel(bill.payment_method))}</td><td>${money(bill.net_total)}</td><td>${escapeHtml(statusLabel(bill.status))}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
+    <tr><td>${dateTime(bill.created_at)}</td><td><strong>${escapeHtml(bill.sale_no)}</strong></td><td>${escapeHtml(paymentLabel(bill.payment_method))}</td><td>${money(bill.net_total)}</td><td>${statusBadge(bill.status)}</td><td><button class="button secondary detail" data-id="${bill.id}" type="button">รายละเอียด</button></td></tr>`).join('') || '<tr><td colspan="6">ไม่พบข้อมูล</td></tr>';
   E.rows.querySelectorAll('.detail').forEach(button=>{button.onclick=()=>openBill(button.dataset.id)});
 }
 
