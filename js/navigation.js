@@ -202,6 +202,7 @@
     const items = [
       ['dashboard.view', './dashboard.html', 'Dashboard', 'dashboard'],
       ['pos.use', './pos.html', 'POS / ขายหน้าร้าน', 'pos'],
+      ['pos.search_bill', './phase-9-2-bill-search.html', 'ค้นหาบิลย้อนหลัง', 'bill-search'],
       ['product.manage', './products-admin.html', 'สินค้า', 'product'],
       ['inventory.view', './inventory-operations.html', 'คลังสินค้า', 'inventory'],
       ['report.view', './reports.html', 'รายงาน', 'report'],
@@ -256,6 +257,7 @@
       link.href = href;
       link.textContent = label;
       if (key === 'pos') link.classList.add('tkn-pos-entry');
+      if (key === 'bill-search') link.classList.add('tkn-bill-history-entry');
       if (
         current === href.replace('./', '') ||
         (key === 'inventory' && inventoryPages.has(current))

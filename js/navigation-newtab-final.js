@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const NAV_VERSION = '4.9.1-final';
+  const NAV_VERSION = '5.2.5';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
   const SHARED_CACHE_TTL = 5 * 60_000;
@@ -238,6 +238,7 @@
     const items = [
       ['dashboard.view', './dashboard.html', 'Dashboard', 'dashboard'],
       ['pos.use', './pos.html', 'POS / ขายหน้าร้าน', 'pos'],
+      ['pos.search_bill', './phase-9-2-bill-search.html', 'ค้นหาบิลย้อนหลัง', 'bill-search'],
       ['product.manage', './products-admin.html', 'สินค้า', 'product'],
       ['inventory.view', './inventory-operations.html', 'คลังสินค้า', 'inventory'],
       ['report.view', './reports.html', 'รายงาน', 'report'],
@@ -294,6 +295,7 @@
       link.href = href;
       link.textContent = label;
       if (key === 'pos') link.classList.add('tkn-pos-entry');
+      if (key === 'bill-search') link.classList.add('tkn-bill-history-entry');
       if (current === href.replace('./', '') || (key === 'inventory' && inventoryPages.has(current))) {
         link.classList.add('active');
       }
