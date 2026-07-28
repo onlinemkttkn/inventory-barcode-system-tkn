@@ -266,12 +266,12 @@ E.addCategory.addEventListener('click', async () => {
   E.addCategory.disabled = true;
 
   try {
-    const updatePayload = { code, name, parent_id: parentId };
-    const insertPayload = { ...updatePayload, is_active: true };
-
-    const result = S.editingCategoryId
-      ? await supabaseClient.from('categories').update(updatePayload).eq('id', S.editingCategoryId)
-      : await supabaseClient.from('categories').insert(insertPayload);
+    const result = await supabaseClient.rpc('upsert_category_master_v5_2', {
+      p_category_id: S.editingCategoryId || null,
+      p_code: code,
+      p_name: name,
+      p_parent_id: parentId
+    });
 
     if (result.error) {
       msg(friendlyError(result.error, 'หมวดหมู่'), 'error');
@@ -302,9 +302,10 @@ E.addUnit.addEventListener('click', async () => {
   E.addUnit.disabled = true;
 
   try {
-    const result = S.editingUnitId
-      ? await supabaseClient.from('units').update({ name }).eq('id', S.editingUnitId)
-      : await supabaseClient.from('units').insert({ name });
+    const result = await supabaseClient.rpc('upsert_unit_master_v5_2', {
+      p_unit_id: S.editingUnitId || null,
+      p_name: name
+    });
 
     if (result.error) {
       msg(friendlyError(result.error, 'หน่วยนับ'), 'error');
@@ -336,11 +337,11 @@ E.addBrand.addEventListener('click', async () => {
   E.addBrand.disabled = true;
 
   try {
-    const updatePayload = { code, name };
-    const insertPayload = { ...updatePayload, is_active: true };
-    const result = S.editingBrandId
-      ? await supabaseClient.from('brands').update(updatePayload).eq('id', S.editingBrandId)
-      : await supabaseClient.from('brands').insert(insertPayload);
+    const result = await supabaseClient.rpc('upsert_brand_master_v5_2', {
+      p_brand_id: S.editingBrandId || null,
+      p_code: code,
+      p_name: name
+    });
 
     if (result.error) {
       msg(friendlyError(result.error, 'ยี่ห้อ'), 'error');
