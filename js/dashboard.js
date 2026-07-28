@@ -74,6 +74,17 @@ function paymentLabel(value) {
   })[String(value || "").toUpperCase()] || String(value || "-");
 }
 
+// Presentation-only branch labels for Dashboard.
+// Keep database codes and IDs unchanged so existing transactions remain intact.
+function dashboardBranchLabel(code) {
+  const normalized = String(code || "").trim().toUpperCase();
+  return {
+    BR001: "โกดังเก็บสินค้า",
+    BR002: "สาขา 1",
+    ONLINE: "ONLINE",
+  }[normalized] || String(code || "-");
+}
+
 function setLiveNumber(element, value, type = "number", options = {}) {
   if (window.TKNLiveNumber?.set) {
     window.TKNLiveNumber.set(element, value, { type, ...options });
@@ -308,9 +319,7 @@ async function loadBranches() {
     (data || [])
       .map(
         (branch) =>
-          `<option value="${branch.id}">${esc(branch.code)} — ${esc(
-            branch.name
-          )}</option>`
+          `<option value="${branch.id}">${esc(dashboardBranchLabel(branch.code))}</option>`
       )
       .join("");
 
@@ -448,7 +457,7 @@ function renderInventory(rows) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${esc(item.branch_code)}</td>
+      <td>${esc(dashboardBranchLabel(item.branch_code))}</td>
       <td>${esc(item.product_code)}</td>
       <td>${esc(item.product_name)}</td>
       <td>${esc(item.barcode || "-")}</td>
@@ -474,7 +483,7 @@ function renderSales(rows) {
     tr.innerHTML = `
       <td>${new Date(sale.created_at).toLocaleString("th-TH")}</td>
       <td>${esc(sale.sale_no)}</td>
-      <td>${esc(sale.branch_code)}</td>
+      <td>${esc(dashboardBranchLabel(sale.branch_code))}</td>
       <td>${money(sale.net_total)}</td>
       <td><span class="payment-badge payment-${esc(String(sale.payment_method || "OTHER").toLowerCase())}">${esc(paymentLabel(sale.payment_method))}</span></td>
     `;

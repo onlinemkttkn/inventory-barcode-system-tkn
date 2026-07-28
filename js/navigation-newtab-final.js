@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const NAV_VERSION = '5.3.7';
+  const NAV_VERSION = '5.4.2';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
   const SHARED_CACHE_TTL = 5 * 60_000;
@@ -276,6 +276,10 @@
       <div class="tkn-mobile-drawer" id="tknPrimaryNavigation">
         <nav class="tkn-nav-menu"></nav>
         <div class="tkn-nav-footer">
+          ${permissions.has('hardware.manage') ? `
+            <a class="tkn-nav-btn tkn-settings-footer-btn" href="./hardware-settings.html">
+              ตั้งค่าระบบ
+            </a>` : ''}
           <button class="tkn-nav-btn tkn-logout-btn" type="button">ออกจากระบบ</button>
         </div>
       </div>`;
