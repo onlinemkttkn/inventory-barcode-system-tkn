@@ -31,6 +31,28 @@ function money(v){return new Intl.NumberFormat('th-TH',{style:'currency',currenc
 function has(permission){return state.permissions.has(permission);}
 function branchById(id){return state.branches.find(x=>x.id===id)||null;}
 
+function isPseudoBranch(branch){
+  const code=String(branch?.code??'').trim().toLowerCase();
+  const name=String(branch?.name??'').trim().toLowerCase();
+  const text=`${code} ${name}`;
+  const pseudoCodes=new Set([
+    'all','all-branch','all-branches','all_branch','all_branches',
+    'unassigned','unspecified','none','null','n/a','na','000','-'
+  ]);
+  return !branch?.id
+    || pseudoCodes.has(code)
+    || /ทุกสาขา|ไม่ระบุ|ไม่กำหนด|ไม่ได้ระบุ|unassigned|unspecified|all branches/.test(text);
+}
+
+function normalizeBranches(rows){
+  const seen=new Set();
+  return (Array.isArray(rows)?rows:[]).filter(branch=>{
+    if(isPseudoBranch(branch)||seen.has(branch.id))return false;
+    seen.add(branch.id);
+    return true;
+  });
+}
+
 function renderBranchControls(){
   const allBranches=has('member.all_branches');
   const ownBranch=branchById(state.access.branch_id);
@@ -66,7 +88,7 @@ async function loadBranches(){
     .eq('is_active',true)
     .order('sort_order');
   if(error)throw error;
-  state.branches=data||[];
+  state.branches=normalizeBranches(data);
 }
 
 async function init(){
@@ -149,7 +171,7 @@ E.searchForm?.addEventListener('submit',async event=>{
         <b>${esc(x.member_no)} — ${esc(x.full_name)}</b>
         <small>${esc(x.phone)} • คะแนน ${Number(x.points_balance||0)} • ยอดซื้อ ${money(x.total_spent)} • ${Number(x.total_visits||0)} ครั้ง</small>
       </div>
-      <div class="branch-badge">${esc(x.branch_name||'-')}</div>`;
+      <div class="branch-badge">${esc(x.branch_name||'ไม่ระบุสาขา')}</div>`;
     E.results.appendChild(row);
   });
 

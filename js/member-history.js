@@ -15,6 +15,28 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&l
 function has(permission){return state.permissions.has(permission);}
 function branchById(id){return state.branches.find(x=>x.id===id)||null;}
 
+function isPseudoBranch(branch){
+  const code=String(branch?.code??'').trim().toLowerCase();
+  const name=String(branch?.name??'').trim().toLowerCase();
+  const text=`${code} ${name}`;
+  const pseudoCodes=new Set([
+    'all','all-branch','all-branches','all_branch','all_branches',
+    'unassigned','unspecified','none','null','n/a','na','000','-'
+  ]);
+  return !branch?.id
+    || pseudoCodes.has(code)
+    || /ทุกสาขา|ไม่ระบุ|ไม่กำหนด|ไม่ได้ระบุ|unassigned|unspecified|all branches/.test(text);
+}
+
+function normalizeBranches(rows){
+  const seen=new Set();
+  return (Array.isArray(rows)?rows:[]).filter(branch=>{
+    if(isPseudoBranch(branch)||seen.has(branch.id))return false;
+    seen.add(branch.id);
+    return true;
+  });
+}
+
 async function loadBranches(){
   const {data,error}=await supabaseClient
     .from('branches')
@@ -22,7 +44,7 @@ async function loadBranches(){
     .eq('is_active',true)
     .order('sort_order');
   if(error)throw error;
-  state.branches=data||[];
+  state.branches=normalizeBranches(data);
 }
 
 function renderBranchFilter(){
@@ -62,7 +84,7 @@ async function load(){
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td>${new Date(x.created_at).toLocaleString('th-TH')}</td>
-      <td>${esc(x.branch_name||'-')}</td>
+      <td>${esc(x.branch_name||'ไม่ระบุสาขา')}</td>
       <td>${esc(x.member_no)} — ${esc(x.full_name)}</td>
       <td>${esc(x.transaction_type)}</td>
       <td>${Number(x.points_change||0)}</td>
