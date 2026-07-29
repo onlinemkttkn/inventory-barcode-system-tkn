@@ -1,0 +1,26 @@
+{
+  "version": "5.5.2",
+  "scope": "generator print only",
+  "files": [
+    "generator.html",
+    "js/generator.js",
+    "css/generator.css"
+  ],
+  "supported_papers": [
+    "58mm Rongta",
+    "80mm Rongta",
+    "A4",
+    "screen preview"
+  ],
+  "supported_modes": [
+    "barcode",
+    "qr",
+    "both"
+  ],
+  "supported_layouts": [
+    "portrait full-page",
+    "landscape side-by-side"
+  ],
+  "source_audited": "inventory-barcode-system-tkn-main-v5.4.8-FINAL-QR-RONGTA-80MM.zip",
+  "notes": "Uses a single raster print image; barcode is rendered to exact content width; QR is sized close to paper width."
+}

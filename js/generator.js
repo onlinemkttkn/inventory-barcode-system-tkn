@@ -416,6 +416,28 @@ function svgToImage(svgElement) {
   });
 }
 
+function drawBarcodeBitmap(context, value, x, y, width, height, displayValue) {
+  const source = document.createElement('canvas');
+  JsBarcode(source, value, {
+    format: 'CODE128',
+    displayValue: Boolean(displayValue),
+    width: 3,
+    height: Math.max(48, Math.round(height * (displayValue ? 0.72 : 0.9))),
+    margin: 0,
+    textMargin: displayValue ? 4 : 0,
+    fontSize: displayValue ? Math.max(16, Math.round(height * 0.13)) : 0,
+    background: '#ffffff',
+    lineColor: '#000000'
+  });
+
+  context.save();
+  context.imageSmoothingEnabled = false;
+  context.fillStyle = '#ffffff';
+  context.fillRect(x, y, width, height);
+  context.drawImage(source, x, y, width, height);
+  context.restore();
+}
+
 function drawQrModel(context, model, x, y, requestedSize) {
   if (!model || typeof model.getModuleCount !== 'function') {
     throw new Error('ไม่พบข้อมูล QR Code สำหรับจัดทำไฟล์พิมพ์');
@@ -452,59 +474,52 @@ function drawQrModel(context, model, x, y, requestedSize) {
 function thermalCanvasConfig() {
   const size = els.labelSize.value;
   const layout = (els.layoutMode?.value || 'portrait');
+
   if (size === '58mm') {
     return {
       canvasWidth: 384,
-      printableWidthMm: 48,
       pageWidthMm: 58,
-      padding: 14,
-      nameSize: 22,
-      priceSize: 30,
-      codeSize: 15,
-      barcodeHeight: layout === 'portrait' ? 108 : 96,
-      qrSize: layout === 'portrait' ? 240 : 148,
-      gap: 10
+      printWidthMm: 58,
+      padding: 6,
+      nameSize: 24,
+      priceSize: 33,
+      codeSize: 16,
+      barcodeHeight: layout === 'portrait' ? 122 : 102,
+      qrSize: layout === 'portrait' ? 354 : 144,
+      landscapeQrSize: 144,
+      gap: 8
     };
   }
+
   if (size === 'a4') {
     return {
       canvasWidth: 1500,
-      printableWidthMm: 190,
       pageWidthMm: 210,
-      padding: 60,
-      nameSize: 62,
-      priceSize: 78,
-      codeSize: 38,
-      barcodeHeight: layout === 'portrait' ? 280 : 240,
-      qrSize: layout === 'portrait' ? 700 : 420,
+      printWidthMm: 210,
+      padding: 36,
+      nameSize: 68,
+      priceSize: 86,
+      codeSize: 40,
+      barcodeHeight: layout === 'portrait' ? 310 : 250,
+      qrSize: layout === 'portrait' ? 1240 : 520,
+      landscapeQrSize: 520,
       gap: 28
     };
   }
-  if (size === 'screen') {
-    return {
-      canvasWidth: 576,
-      printableWidthMm: 72,
-      pageWidthMm: 80,
-      padding: 22,
-      nameSize: 30,
-      priceSize: 40,
-      codeSize: 20,
-      barcodeHeight: layout === 'portrait' ? 128 : 120,
-      qrSize: layout === 'portrait' ? 320 : 210,
-      gap: 14
-    };
-  }
+
+  // 80 mm and screen preview both use the Rongta 576-dot layout.
   return {
     canvasWidth: 576,
-    printableWidthMm: 72,
     pageWidthMm: 80,
-    padding: 18,
-    nameSize: 30,
-    priceSize: 40,
-    codeSize: 18,
-    barcodeHeight: layout === 'portrait' ? 126 : 112,
-    qrSize: layout === 'portrait' ? 320 : 205,
-    gap: 12
+    printWidthMm: 80,
+    padding: 8,
+    nameSize: 32,
+    priceSize: 44,
+    codeSize: 20,
+    barcodeHeight: layout === 'portrait' ? 160 : 126,
+    qrSize: layout === 'portrait' ? 528 : 210,
+    landscapeQrSize: 210,
+    gap: 10
   };
 }
 
@@ -520,26 +535,28 @@ async function buildThermalPrintCanvas() {
   const includeProductCode = els.showProductCode.checked;
   const includeBarcode = type === 'barcode' || type === 'both';
   const includeQr = type === 'qr' || type === 'both';
-  const sideBySide = layout === 'landscape' && includeBarcode && includeQr && type === 'both' && (els.labelSize.value === '80mm' || els.labelSize.value === '58mm' || els.labelSize.value === 'screen');
+  const sideBySide = layout === 'landscape' && type === 'both' && includeBarcode && includeQr;
 
   const measure = document.createElement('canvas').getContext('2d');
-  const nameFontSize = fitTextSize(measure, name, contentWidth, cfg.nameSize, Math.max(14, cfg.nameSize - 10));
+  const nameFontSize = fitTextSize(measure, name, contentWidth, cfg.nameSize, Math.max(15, cfg.nameSize - 12));
   measure.font = canvasFont(nameFontSize, 900);
   const nameLines = includeName ? wrapText(measure, name, contentWidth) : [];
-  const nameLineHeight = Math.round(nameFontSize * 1.18);
-
-  const codeRowHeight = sideBySide ? Math.max(cfg.barcodeHeight, cfg.qrSize) : 0;
+  const nameLineHeight = Math.round(nameFontSize * 1.16);
+  const priceLineHeight = Math.round(cfg.priceSize * 1.15);
+  const productCodeLineHeight = Math.round(cfg.codeSize * 1.28);
+  const qrPortraitSize = Math.min(cfg.qrSize, contentWidth);
+  const rowHeight = sideBySide ? Math.max(cfg.barcodeHeight, cfg.landscapeQrSize) : 0;
 
   let canvasHeight = cfg.padding;
   if (includeName) canvasHeight += (nameLines.length * nameLineHeight) + cfg.gap;
-  if (includePrice) canvasHeight += Math.round(cfg.priceSize * 1.18) + cfg.gap;
+  if (includePrice) canvasHeight += priceLineHeight + cfg.gap;
   if (sideBySide) {
-    canvasHeight += codeRowHeight + cfg.gap;
+    canvasHeight += rowHeight + cfg.gap;
   } else {
     if (includeBarcode) canvasHeight += cfg.barcodeHeight + cfg.gap;
-    if (includeQr) canvasHeight += cfg.qrSize + cfg.gap;
+    if (includeQr) canvasHeight += qrPortraitSize + cfg.gap;
   }
-  if (includeProductCode) canvasHeight += Math.round(cfg.codeSize * 1.25) + cfg.gap;
+  if (includeProductCode) canvasHeight += productCodeLineHeight + cfg.gap;
   canvasHeight += cfg.padding;
 
   const canvas = document.createElement('canvas');
@@ -569,50 +586,51 @@ async function buildThermalPrintCanvas() {
   if (includePrice) {
     context.font = canvasFont(cfg.priceSize, 900);
     context.fillText(money(selectedProduct?.selling_price), canvas.width / 2, y);
-    y += Math.round(cfg.priceSize * 1.18) + cfg.gap;
+    y += priceLineHeight + cfg.gap;
   }
 
   if (sideBySide) {
-    const barcodeImage = await svgToImage(els.barcodeSvg);
-    const sourceWidth = Math.max(1, barcodeImage.naturalWidth || barcodeImage.width || 1);
-    const sourceHeight = Math.max(1, barcodeImage.naturalHeight || barcodeImage.height || 1);
+    const gapBetween = Math.max(8, cfg.gap);
+    const qrArea = cfg.landscapeQrSize;
+    const barcodeAreaWidth = contentWidth - qrArea - gapBetween;
     const rowTop = y;
-    const gapBetween = Math.max(8, Math.round(cfg.gap * 0.8));
-    const qrArea = els.labelSize.value === '58mm' ? 148 : 210;
-    const leftWidth = contentWidth - qrArea - gapBetween;
-    const barScale = Math.min(leftWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
-    const barW = Math.max(1, Math.round(sourceWidth * barScale));
-    const barH = Math.max(1, Math.round(sourceHeight * barScale));
-    const barX = cfg.padding + Math.round((leftWidth - barW) / 2);
-    const barY = rowTop + Math.round((codeRowHeight - barH) / 2);
-    context.drawImage(barcodeImage, barX, barY, barW, barH);
 
-    const model = qrInstance?._oQRCode;
-    const requestedQr = els.labelSize.value === '58mm' ? 144 : 205;
-    const qrX = cfg.padding + leftWidth + gapBetween + Math.round((qrArea - requestedQr) / 2);
-    drawQrModel(context, model, qrX, rowTop + Math.round((codeRowHeight - requestedQr) / 2), requestedQr);
-    y += codeRowHeight + cfg.gap;
+    drawBarcodeBitmap(
+      context,
+      barVal(),
+      cfg.padding,
+      rowTop + Math.round((rowHeight - cfg.barcodeHeight) / 2),
+      barcodeAreaWidth,
+      cfg.barcodeHeight,
+      els.showBarcodeText.checked
+    );
+
+    drawQrModel(
+      context,
+      qrInstance?._oQRCode,
+      cfg.padding + barcodeAreaWidth + gapBetween,
+      rowTop + Math.round((rowHeight - qrArea) / 2),
+      qrArea
+    );
+    y += rowHeight + cfg.gap;
   } else {
     if (includeBarcode) {
-      const barcodeImage = await svgToImage(els.barcodeSvg);
-      const sourceWidth = Math.max(1, barcodeImage.naturalWidth || barcodeImage.width || 1);
-      const sourceHeight = Math.max(1, barcodeImage.naturalHeight || barcodeImage.height || 1);
-      const targetWidth = contentWidth;
-      const barScale = Math.min(targetWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
-      const drawWidth = Math.max(1, Math.round(sourceWidth * barScale));
-      const drawHeight = Math.max(1, Math.round(sourceHeight * barScale));
-      const drawX = Math.round((canvas.width - drawWidth) / 2);
-      const drawY = y + Math.round((cfg.barcodeHeight - drawHeight) / 2);
-      context.drawImage(barcodeImage, drawX, drawY, drawWidth, drawHeight);
+      drawBarcodeBitmap(
+        context,
+        barVal(),
+        cfg.padding,
+        y,
+        contentWidth,
+        cfg.barcodeHeight,
+        els.showBarcodeText.checked
+      );
       y += cfg.barcodeHeight + cfg.gap;
     }
 
     if (includeQr) {
-      const model = qrInstance?._oQRCode;
-      const requestedQr = Math.min(cfg.qrSize, contentWidth);
-      const qrX = Math.round((canvas.width - requestedQr) / 2);
-      drawQrModel(context, model, qrX, y, requestedQr);
-      y += requestedQr + cfg.gap;
+      const qrX = Math.round((canvas.width - qrPortraitSize) / 2);
+      drawQrModel(context, qrInstance?._oQRCode, qrX, y, qrPortraitSize);
+      y += qrPortraitSize + cfg.gap;
     }
   }
 
@@ -638,7 +656,7 @@ function printRasterLabel(canvas, cfg) {
     frame.style.border = '0';
     document.body.appendChild(frame);
 
-    const heightMm = Math.max(30, Math.ceil((canvas.height / canvas.width) * cfg.printableWidthMm) + 2);
+    const heightMm = Math.max(30, Math.ceil((canvas.height / canvas.width) * cfg.printWidthMm) + 1);
     updateDynamicPageSize(cfg.pageWidthMm, heightMm);
 
     const dataUrl = canvas.toDataURL('image/png');
@@ -659,7 +677,7 @@ function printRasterLabel(canvas, cfg) {
   @page { size: ${cfg.pageWidthMm}mm ${heightMm}mm; margin: 0; }
   html,body { margin:0; padding:0; width:${cfg.pageWidthMm}mm; min-height:${heightMm}mm; background:#fff; overflow:hidden; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body { display:flex; align-items:flex-start; justify-content:center; }
-  img { display:block; width:${cfg.printableWidthMm}mm; height:auto; margin:0 auto; image-rendering:auto; }
+  img { display:block; width:100%; max-width:none; height:auto; margin:0; object-fit:fill; image-rendering:auto; }
 </style>
 </head>
 <body><img id="tknLabelImage" alt="QR Barcode label"></body>

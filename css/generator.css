@@ -168,3 +168,22 @@ select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:1
 #printArea.layout-portrait.code-type-qr #qrCanvas canvas,
 #printArea.layout-portrait.code-type-qr #qrCanvas img{width:min(100%,260px)!important;height:auto!important;}
 #printArea.layout-portrait #barcodeSvg{width:100%!important;max-width:100%!important;}
+
+
+/* v5.5.2 FINAL full-paper preview */
+#printArea.layout-portrait{justify-content:flex-start!important;}
+#printArea.size-80mm.layout-portrait{width:80mm!important;min-height:82mm!important;padding:2mm!important;gap:2mm!important;}
+#printArea.size-58mm.layout-portrait{width:58mm!important;min-height:68mm!important;padding:1.5mm!important;gap:1.5mm!important;}
+#printArea.size-80mm.layout-portrait.code-type-both #qrCanvas .tkn-qr-print-svg,
+#printArea.size-80mm.layout-portrait.code-type-both #qrCanvas canvas,
+#printArea.size-80mm.layout-portrait.code-type-both #qrCanvas img{width:68mm!important;max-width:68mm!important;height:auto!important;}
+#printArea.size-58mm.layout-portrait.code-type-both #qrCanvas .tkn-qr-print-svg,
+#printArea.size-58mm.layout-portrait.code-type-both #qrCanvas canvas,
+#printArea.size-58mm.layout-portrait.code-type-both #qrCanvas img{width:49mm!important;max-width:49mm!important;height:auto!important;}
+#printArea.size-80mm.layout-portrait.code-type-qr #qrCanvas .tkn-qr-print-svg,
+#printArea.size-80mm.layout-portrait.code-type-qr #qrCanvas canvas,
+#printArea.size-80mm.layout-portrait.code-type-qr #qrCanvas img{width:72mm!important;max-width:72mm!important;height:auto!important;}
+#printArea.size-58mm.layout-portrait.code-type-qr #qrCanvas .tkn-qr-print-svg,
+#printArea.size-58mm.layout-portrait.code-type-qr #qrCanvas canvas,
+#printArea.size-58mm.layout-portrait.code-type-qr #qrCanvas img{width:52mm!important;max-width:52mm!important;height:auto!important;}
+#printArea.layout-portrait #barcodeSvg{width:100%!important;max-width:100%!important;height:auto!important;}
