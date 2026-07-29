@@ -132,17 +132,42 @@ async function requireSession(){
   return session;
 }
 
-function scheduleAutoPrintIfNeeded(){
-  const params=new URLSearchParams(location.search);
-  if(params.get('from')!=='pos' || !header?.sale_no) return;
-  const settings=window.TKNHardware?.getSettings?.();
-  if(!settings?.auto_print) return;
-  const key=`tkn_auto_printed:${header.sale_no}`;
-  if(sessionStorage.getItem(key)==='1') return;
-  sessionStorage.setItem(key,'1');
-  setTimeout(()=>{
-    if(!E.printBtn.disabled) E.printBtn.click();
-  },350);
+
+function applyReceiptPageStyle(){
+  const paper=E.paperSize?.value||'receipt-80';
+  const isA4=paper==='receipt-a4';
+  const width=paper==='receipt-58'?58:paper==='receipt-80'?80:210;
+  let style=document.getElementById('tknReceiptDynamicPage');
+  if(!style){
+    style=document.createElement('style');
+    style.id='tknReceiptDynamicPage';
+    document.head.appendChild(style);
+  }
+
+  if(isA4){
+    style.textContent=`
+      @page{size:A4 portrait;margin:0}
+      @media print{
+        html,body,.shell,.card,#receiptArea{width:210mm!important;max-width:210mm!important;min-width:210mm!important;margin:0!important;padding:0!important}
+        .receipt-a4{width:210mm!important;max-width:210mm!important;min-height:297mm!important;margin:0!important;padding:15mm!important}
+      }`;
+  }else{
+    style.textContent=`
+      @page{size:${width}mm auto;margin:0}
+      @media print{
+        html,body,.shell,.card,#receiptArea{width:${width}mm!important;max-width:${width}mm!important;min-width:${width}mm!important;margin:0!important;padding:0!important}
+        .receipt{width:${width}mm!important;max-width:${width}mm!important;margin:0!important;padding:${width===58?'3mm':'3mm 4mm'}!important}
+      }`;
+  }
+}
+
+async function waitForReceiptPrintReady(){
+  try{
+    if(document.fonts?.ready) await document.fonts.ready;
+  }catch(error){
+    console.warn('Font readiness check skipped:',error);
+  }
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 }
 
 async function loadReceipt(){
@@ -189,7 +214,6 @@ async function loadReceipt(){
     await renderReceipt();
     E.printBtn.disabled=false;
     msg('โหลดใบเสร็จแล้ว','ok');
-    scheduleAutoPrintIfNeeded();
   }catch(error){
     console.error('Receipt load error:',error);
     msg(error.message||'โหลดใบเสร็จไม่สำเร็จ','error');
@@ -307,8 +331,11 @@ async function renderReceipt(){
 }
 
 E.loadBtn.onclick=loadReceipt;
-E.paperSize.onchange=()=>header&&renderReceipt();
-E.copies.onchange=()=>header&&renderReceipt();
+E.paperSize.onchange=async()=>{
+  applyReceiptPageStyle();
+  if(header) await renderReceipt();
+};
+E.copies.onchange=async()=>header&&renderReceipt();
 
 // Master 3.4.13: return to POS only after the active print dialog closes.
 // This does not change Browser Print, Hardware Client, or cash-drawer logic.
@@ -329,14 +356,18 @@ E.printBtn.onclick=async()=>{
   printReturnHandled=false;
   E.printBtn.disabled=true;
   try{
+    applyReceiptPageStyle();
+    await renderReceipt();
+    await waitForReceiptPrintReady();
     if(window.TKNHardware){
       const result=await window.TKNHardware.printReceipt();
-      msg(`ส่งพิมพ์ผ่าน ${result.transport||'Browser'}`,'ok');
+      msg(`เปิดหน้าต่างพิมพ์ผ่าน ${result.transport||'Browser'}`,'ok');
     }else{
       window.print();
     }
   }catch(error){
     console.warn('Hardware print fallback:',error);
+    await waitForReceiptPrintReady();
     window.print();
     msg('Hardware ไม่พร้อม จึงใช้ Browser Print','error');
   }finally{
@@ -349,6 +380,7 @@ E.printBtn.onclick=async()=>{
 if (E.paperSize && !E.paperSize.dataset.userSelected) {
   E.paperSize.value = 'receipt-80';
 }
+applyReceiptPageStyle();
 E.paperSize?.addEventListener('change', () => {
   E.paperSize.dataset.userSelected = '1';
 });

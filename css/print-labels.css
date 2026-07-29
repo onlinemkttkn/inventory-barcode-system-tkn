@@ -15,3 +15,35 @@
   .preset-portable50x30{width:50mm}
   .preset-portable40x30{width:40mm}
 }
+
+
+/* v5.7.2 — reliable paper presets and complete-code printing */
+.barcode-holder{min-width:0;flex:1;display:flex;align-items:center;justify-content:center}
+.barcode-holder svg{display:block;width:100%;max-width:100%;height:auto}
+.qr-holder{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.qr-holder svg{display:block;max-width:100%;height:auto}
+.code-mode-both .codes-row{display:grid;grid-template-columns:minmax(0,1.25fr) auto;width:100%;align-items:center;gap:1.5mm}
+.code-mode-barcode .codes-row,.code-mode-qr .codes-row{width:100%}
+.code-error{font-size:10px;font-weight:800;color:#991b1b}
+
+@media print{
+  html,body,.app{width:auto!important;min-width:0!important;height:auto!important;overflow:visible!important}
+  .print-sheet{display:block!important;width:auto!important;min-height:0!important;padding:0!important;gap:0!important;overflow:visible!important}
+  .product-label{margin:0!important;box-shadow:none!important;break-inside:avoid!important;page-break-inside:avoid!important}
+
+  .preset-label58 .product-label{width:58mm!important;height:38mm!important;min-height:38mm!important;break-after:page;page-break-after:always}
+  .preset-peripage57 .product-label{width:57mm!important;height:35mm!important;min-height:35mm!important;break-after:page;page-break-after:always}
+  .preset-portable50x30 .product-label{width:50mm!important;height:30mm!important;min-height:30mm!important;break-after:page;page-break-after:always}
+  .preset-portable40x30 .product-label{width:40mm!important;height:30mm!important;min-height:30mm!important;break-after:page;page-break-after:always}
+  .preset-label80 .product-label{width:80mm!important;height:48mm!important;min-height:48mm!important;break-after:page;page-break-after:always}
+  .preset-label58 .product-label:last-child,
+  .preset-peripage57 .product-label:last-child,
+  .preset-portable50x30 .product-label:last-child,
+  .preset-portable40x30 .product-label:last-child,
+  .preset-label80 .product-label:last-child{break-after:auto;page-break-after:auto}
+
+  .preset-a4-40x30,.preset-a4-50x30,.preset-a4-70x40{display:grid!important;width:210mm!important;min-height:297mm!important;margin:0!important;padding:8mm!important;gap:2mm!important}
+  .preset-a4-40x30{grid-template-columns:repeat(4,40mm)!important}
+  .preset-a4-50x30{grid-template-columns:repeat(3,50mm)!important}
+  .preset-a4-70x40{grid-template-columns:repeat(2,70mm)!important}
+}

@@ -147,3 +147,13 @@
     width:100%;
   }
 }
+
+
+/* v5.7.2 — dynamic 58/80/A4 print sizing; JS injects the final @page rule */
+.receipt-58{width:58mm;max-width:58mm;padding:3mm;font-size:11px;line-height:1.28}
+.receipt-a4{width:210mm;max-width:210mm;min-height:297mm;padding:15mm;font-size:14px}
+@media print{
+  html,body{overflow:visible!important}
+  .receipt-page-break{break-after:page;page-break-after:always}
+  .receipt-page-break:last-child{break-after:auto;page-break-after:auto}
+}

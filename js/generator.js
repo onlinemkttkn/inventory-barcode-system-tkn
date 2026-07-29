@@ -352,8 +352,13 @@ function updateDynamicPageSize(pageWidthMm, pageHeightMm) {
   style.textContent = `@page { size: ${pageWidthMm}mm ${pageHeightMm}mm; margin: 0; }`;
 }
 
-function waitForPaint() {
-  return new Promise((resolve) => {
+async function waitForPaint() {
+  try {
+    if (document.fonts?.ready) await document.fonts.ready;
+  } catch (error) {
+    console.warn('Font readiness check skipped:', error);
+  }
+  await new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
 }

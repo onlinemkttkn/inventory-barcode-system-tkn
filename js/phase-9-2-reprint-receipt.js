@@ -92,13 +92,48 @@ async function load() {
   }
 }
 
-els.paperSize.addEventListener('change', () => {
+function applyReprintPageStyle() {
   const is58 = els.paperSize.value === '58';
+  const width = is58 ? 58 : 80;
   els.receipt.classList.toggle('receipt-58', is58);
   els.receipt.classList.toggle('receipt-80', !is58);
-});
 
-els.printButton.addEventListener('click', () => window.print());
+  let style = document.getElementById('tknReprintDynamicPage');
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'tknReprintDynamicPage';
+    document.head.appendChild(style);
+  }
+  style.textContent = `
+    @page{size:${width}mm auto;margin:0}
+    @media print{
+      html,body,.receipt-page{width:${width}mm!important;max-width:${width}mm!important;min-width:${width}mm!important;margin:0!important;padding:0!important}
+      .receipt{width:${width}mm!important;max-width:${width}mm!important;margin:0!important;padding:3mm!important}
+    }`;
+}
+
+async function waitForPrintReady() {
+  try {
+    if (document.fonts?.ready) await document.fonts.ready;
+  } catch (error) {
+    console.warn('Font readiness check skipped:', error);
+  }
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+els.paperSize.addEventListener('change', applyReprintPageStyle);
+
+els.printButton.addEventListener('click', async () => {
+  els.printButton.disabled = true;
+  try {
+    applyReprintPageStyle();
+    await waitForPrintReady();
+    window.print();
+  } finally {
+    els.printButton.disabled = false;
+  }
+});
 els.closeButton.addEventListener('click', () => window.close());
 
+applyReprintPageStyle();
 load();

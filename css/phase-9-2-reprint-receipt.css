@@ -73,3 +73,9 @@ footer p { margin: 3px 0; }
   .receipt-page { margin: 0; padding: 0; width: auto; }
   .receipt { box-shadow: none; margin: 0 auto; padding: 3mm; }
 }
+
+
+/* v5.7.2 — selected paper width is enforced by dynamic print CSS */
+.receipt-80{max-width:80mm}
+.receipt-58{max-width:58mm}
+@media print{html,body{overflow:visible!important}.receipt{box-shadow:none!important}}

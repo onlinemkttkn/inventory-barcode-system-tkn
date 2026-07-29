@@ -31,6 +31,8 @@ const el = {
 };
 
 const queue = new Map();
+let printBusy = false;
+let renderRevision = 0;
 
 function message(node, text, type = "") {
   node.textContent = text;
@@ -188,13 +190,126 @@ function getBarcodeValue(product) {
     : product.barcode;
 }
 
-function renderLabels() {
+const PRESET_CONFIG = Object.freeze({
+  label58: { pageWidth: 58, pageHeight: 38, qrOnly: 68, qrBoth: 56, barcodeHeight: 38, barcodeBothHeight: 30, barcodeWidth: 1.25, fontSize: 9 },
+  peripage57: { pageWidth: 57, pageHeight: 35, qrOnly: 58, qrBoth: 52, barcodeHeight: 34, barcodeBothHeight: 27, barcodeWidth: 1.15, fontSize: 9 },
+  portable50x30: { pageWidth: 50, pageHeight: 30, qrOnly: 48, qrBoth: 38, barcodeHeight: 27, barcodeBothHeight: 22, barcodeWidth: 1.0, fontSize: 8 },
+  portable40x30: { pageWidth: 40, pageHeight: 30, qrOnly: 42, qrBoth: 32, barcodeHeight: 24, barcodeBothHeight: 19, barcodeWidth: 0.85, fontSize: 7 },
+  label80: { pageWidth: 80, pageHeight: 48, qrOnly: 96, qrBoth: 78, barcodeHeight: 48, barcodeBothHeight: 38, barcodeWidth: 1.55, fontSize: 11 },
+  "a4-40x30": { pageWidth: 210, pageHeight: 297, qrOnly: 42, qrBoth: 32, barcodeHeight: 24, barcodeBothHeight: 18, barcodeWidth: 0.9, fontSize: 7 },
+  "a4-50x30": { pageWidth: 210, pageHeight: 297, qrOnly: 46, qrBoth: 36, barcodeHeight: 27, barcodeBothHeight: 20, barcodeWidth: 1.0, fontSize: 8 },
+  "a4-70x40": { pageWidth: 210, pageHeight: 297, qrOnly: 64, qrBoth: 48, barcodeHeight: 36, barcodeBothHeight: 28, barcodeWidth: 1.25, fontSize: 9 }
+});
+
+function presetConfig() {
+  return PRESET_CONFIG[el.paperPreset.value] || PRESET_CONFIG.label58;
+}
+
+function updatePrintPageStyle() {
+  const preset = el.paperPreset.value;
+  const cfg = presetConfig();
+  let style = document.getElementById("tknPrintLabelsDynamicPage");
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "tknPrintLabelsDynamicPage";
+    document.head.appendChild(style);
+  }
+
+  if (preset.startsWith("a4-")) {
+    style.textContent = "@page{size:A4 portrait;margin:0}";
+  } else {
+    style.textContent = `@page{size:${cfg.pageWidth}mm ${cfg.pageHeight}mm;margin:0}`;
+  }
+}
+
+async function waitForPrintReady() {
+  try {
+    if (document.fonts?.ready) await document.fonts.ready;
+  } catch (error) {
+    console.warn("Font readiness check skipped:", error);
+  }
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
+function buildQrSvg(model, pixelSize) {
+  if (!model || typeof model.getModuleCount !== "function") {
+    throw new Error("ไม่สามารถสร้าง QR Code สำหรับพิมพ์ได้");
+  }
+
+  const moduleCount = model.getModuleCount();
+  const quietZone = 4;
+  const viewSize = moduleCount + (quietZone * 2);
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", `0 0 ${viewSize} ${viewSize}`);
+  svg.setAttribute("width", String(pixelSize));
+  svg.setAttribute("height", String(pixelSize));
+  svg.setAttribute("shape-rendering", "crispEdges");
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.setAttribute("aria-label", "QR Code");
+
+  const bg = document.createElementNS(ns, "rect");
+  bg.setAttribute("width", String(viewSize));
+  bg.setAttribute("height", String(viewSize));
+  bg.setAttribute("fill", "#fff");
+  svg.appendChild(bg);
+
+  let d = "";
+  for (let row = 0; row < moduleCount; row += 1) {
+    for (let column = 0; column < moduleCount; column += 1) {
+      if (!model.isDark(row, column)) continue;
+      d += `M${column + quietZone} ${row + quietZone}h1v1h-1z`;
+    }
+  }
+
+  const path = document.createElementNS(ns, "path");
+  path.setAttribute("d", d);
+  path.setAttribute("fill", "#000");
+  svg.appendChild(path);
+  return svg;
+}
+
+function validateQueueForCurrentMode() {
+  const mode = el.codeMode.value;
+  const invalid = [];
+
+  queue.forEach(({ product }) => {
+    const barcodeValue = getBarcodeValue(product);
+    const qrValue = product.barcode || product.product_code;
+    if ((mode === "barcode" || mode === "both") && !barcodeValue) {
+      invalid.push(`${product.name}: ไม่มีค่าที่ใช้สร้าง Barcode`);
+    }
+    if ((mode === "qr" || mode === "both") && !qrValue) {
+      invalid.push(`${product.name}: ไม่มีค่าที่ใช้สร้าง QR Code`);
+    }
+  });
+
+  return invalid;
+}
+
+async function renderLabels(options = {}) {
+  const revision = ++renderRevision;
   el.printSheet.innerHTML = "";
-  el.printSheet.className = `print-sheet preset-${el.paperPreset.value}`;
+  el.printSheet.className = `print-sheet preset-${el.paperPreset.value} code-mode-${el.codeMode.value}`;
+  updatePrintPageStyle();
 
   if (!queue.size) {
     message(el.actionMessage, "กรุณาเพิ่มสินค้าในรายการรอพิมพ์", "error");
-    return;
+    return false;
+  }
+
+  const invalid = validateQueueForCurrentMode();
+  if (invalid.length) {
+    message(el.actionMessage, invalid.slice(0, 3).join(" | "), "error");
+    return false;
+  }
+
+  const totalLabels = [...queue.values()].reduce((sum, item) => sum + item.copies, 0);
+  if (totalLabels > 500) {
+    message(el.actionMessage, "จำนวนป้ายรวมเกิน 500 ป้าย กรุณาแบ่งพิมพ์เป็นรอบ", "error");
+    return false;
   }
 
   for (const { product, copies } of queue.values()) {
@@ -203,10 +318,27 @@ function renderLabels() {
     }
   }
 
-  message(el.actionMessage, "สร้างตัวอย่างเรียบร้อย", "success");
+  await waitForPrintReady();
+  if (revision !== renderRevision) return false;
+
+  const barcodeErrors = el.printSheet.querySelectorAll(".code-error");
+  if (barcodeErrors.length) {
+    message(el.actionMessage, "พบ Barcode หรือ QR Code ที่สร้างไม่สำเร็จ กรุณาตรวจข้อมูลสินค้า", "error");
+    return false;
+  }
+
+  message(
+    el.actionMessage,
+    options.forPrint
+      ? `เตรียมงานพิมพ์ครบ ${totalLabels} ป้ายแล้ว`
+      : `สร้างตัวอย่างครบ ${totalLabels} ป้ายแล้ว`,
+    "success"
+  );
+  return true;
 }
 
 function createLabel(product) {
+  const cfg = presetConfig();
   const label = document.createElement("article");
   label.className = "product-label";
 
@@ -234,47 +366,52 @@ function createLabel(product) {
 
   if (codeMode === "barcode" || codeMode === "both") {
     const value = getBarcodeValue(product);
-    if (value) {
-      const holder = document.createElement("div");
-      holder.className = "barcode-holder";
-      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      holder.appendChild(svg);
-      codeRow.appendChild(holder);
+    const holder = document.createElement("div");
+    holder.className = "barcode-holder";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    holder.appendChild(svg);
+    codeRow.appendChild(holder);
 
-      requestAnimationFrame(() => {
-        try {
-          JsBarcode(svg, value, {
-            format: "CODE128",
-            displayValue: el.showBarcodeText.checked,
-            width: el.paperPreset.value.includes("40x30") ? 1 : 1.45,
-            height: el.paperPreset.value.startsWith("a4") ? 28 : 42,
-            margin: 0,
-            fontSize: 10,
-            background: "#ffffff",
-            lineColor: "#000000",
-          });
-        } catch (error) {
-          holder.textContent = "Barcode error";
-        }
+    try {
+      JsBarcode(svg, value, {
+        format: "CODE128",
+        displayValue: el.showBarcodeText.checked,
+        width: cfg.barcodeWidth,
+        height: codeMode === "both" ? cfg.barcodeBothHeight : cfg.barcodeHeight,
+        margin: 0,
+        fontSize: cfg.fontSize,
+        background: "#ffffff",
+        lineColor: "#000000",
       });
+    } catch (error) {
+      holder.classList.add("code-error");
+      holder.textContent = "Barcode error";
+      console.error("Barcode render failed:", error);
     }
   }
 
   if (codeMode === "qr" || codeMode === "both") {
     const value = product.barcode || product.product_code;
-    if (value) {
-      const holder = document.createElement("div");
-      holder.className = "qr-holder";
-      codeRow.appendChild(holder);
+    const holder = document.createElement("div");
+    holder.className = "qr-holder";
+    codeRow.appendChild(holder);
 
-      requestAnimationFrame(() => {
-        new QRCode(holder, {
-          text: value,
-          width: el.paperPreset.value.includes("40x30") ? 50 : 72,
-          height: el.paperPreset.value.includes("40x30") ? 50 : 72,
-          correctLevel: QRCode.CorrectLevel.M,
-        });
+    try {
+      const staging = document.createElement("div");
+      const qr = new QRCode(staging, {
+        text: value,
+        width: codeMode === "both" ? cfg.qrBoth : cfg.qrOnly,
+        height: codeMode === "both" ? cfg.qrBoth : cfg.qrOnly,
+        correctLevel: QRCode.CorrectLevel.M,
       });
+      holder.appendChild(buildQrSvg(
+        qr?._oQRCode,
+        codeMode === "both" ? cfg.qrBoth : cfg.qrOnly
+      ));
+    } catch (error) {
+      holder.classList.add("code-error");
+      holder.textContent = "QR error";
+      console.error("QR render failed:", error);
     }
   }
 
@@ -290,15 +427,30 @@ function createLabel(product) {
   return label;
 }
 
-el.previewBtn.addEventListener("click", renderLabels);
+el.previewBtn.addEventListener("click", async () => {
+  await renderLabels();
+});
 
-el.printBtn.addEventListener("click", () => {
+el.printBtn.addEventListener("click", async () => {
+  if (printBusy) return;
   if (!queue.size) {
     message(el.actionMessage, "ไม่มีรายการสำหรับพิมพ์", "error");
     return;
   }
-  renderLabels();
-  setTimeout(() => window.print(), 300);
+
+  printBusy = true;
+  el.printBtn.disabled = true;
+  try {
+    const ready = await renderLabels({ forPrint: true });
+    if (!ready) return;
+    window.print();
+  } catch (error) {
+    console.error(error);
+    message(el.actionMessage, `เตรียมงานพิมพ์ไม่สำเร็จ: ${error.message}`, "error");
+  } finally {
+    printBusy = false;
+    el.printBtn.disabled = false;
+  }
 });
 
 el.clearBtn.addEventListener("click", () => {
@@ -324,10 +476,8 @@ init();
 
 
 async function renderPrintSheetToBlob() {
-  if (!el.printSheet.children.length) {
-    message(el.actionMessage, "กรุณาสร้างตัวอย่างป้ายก่อน", "error");
-    return null;
-  }
+  const ready = await renderLabels();
+  if (!ready || !el.printSheet.children.length) return null;
 
   const canvas = await html2canvas(el.printSheet, {
     backgroundColor: "#ffffff",
