@@ -20,6 +20,7 @@ const els = {
   customQrField: $('customQrField'),
   customQrText: $('customQrText'),
   labelSize: $('labelSize'),
+  layoutMode: $('layoutMode'),
   showName: $('showName'),
   showPrice: $('showPrice'),
   showProductCode: $('showProductCode'),
@@ -263,7 +264,7 @@ function generate() {
   els.labelProductCode.classList.toggle('hidden', !els.showProductCode.checked);
   els.barcodeBlock.classList.toggle('hidden', type === 'qr');
   els.qrBlock.classList.toggle('hidden', type === 'barcode');
-  els.printArea.className = `label-preview size-${els.labelSize.value} code-type-${type}`;
+  els.printArea.className = `label-preview size-${els.labelSize.value} code-type-${type} layout-${els.layoutMode?.value || 'portrait'}`;
 
   if (type !== 'qr') {
     JsBarcode('#barcodeSvg', barcodeValue, {
@@ -455,14 +456,13 @@ function thermalCanvasConfig() {
       canvasWidth: 384,
       printableWidthMm: 48,
       pageWidthMm: 58,
-      padding: 12,
+      padding: 18,
       nameSize: 24,
       priceSize: 31,
-      codeSize: 16,
-      barcodeHeight: 100,
-      qrSize: 220,
-      bothQrSize: 0,
-      gap: 10
+      codeSize: 18,
+      barcodeHeight: 105,
+      qrSize: 230,
+      gap: 13
     };
   }
   if (size === 'a4') {
@@ -476,30 +476,27 @@ function thermalCanvasConfig() {
       codeSize: 40,
       barcodeHeight: 300,
       qrSize: 720,
-      bothQrSize: 0,
       gap: 36
     };
   }
   return {
-    // Rongta 80 mm at 203 dpi has a 576-dot / 72 mm printable head.
     canvasWidth: 576,
     printableWidthMm: 72,
     pageWidthMm: 80,
-    padding: 10,
-    nameSize: 32,
-    priceSize: 44,
-    codeSize: 18,
-    barcodeHeight: 122,
-    qrSize: 360,
-    bothQrSize: 208,
-    gap: 10
+    padding: 24,
+    nameSize: 30,
+    priceSize: 40,
+    codeSize: 20,
+    barcodeHeight: 135,
+    qrSize: 325,
+    gap: 16
   };
 }
 
 async function buildThermalPrintCanvas() {
   const type = els.codeType.value;
-  const size = els.labelSize.value;
   const cfg = thermalCanvasConfig();
+  const layout = (els.layoutMode?.value || 'portrait');
   const contentWidth = cfg.canvasWidth - (cfg.padding * 2);
   const name = selectedProduct?.name || '-';
   const productCode = `รหัสสินค้า ${selectedProduct?.product_code || '-'}`;
@@ -508,25 +505,28 @@ async function buildThermalPrintCanvas() {
   const includeProductCode = els.showProductCode.checked;
   const includeBarcode = type === 'barcode' || type === 'both';
   const includeQr = type === 'qr' || type === 'both';
-  const compactBoth = type === 'both' && (size === '80mm' || size === 'screen');
-  const bothRowHeight = compactBoth ? Math.max(cfg.barcodeHeight, cfg.bothQrSize) : 0;
+  const sideBySide = layout === 'landscape' && includeBarcode && includeQr && type === 'both' && (els.labelSize.value === '80mm' || els.labelSize.value === '58mm' || els.labelSize.value === 'screen');
 
   const measure = document.createElement('canvas').getContext('2d');
-  const nameFontSize = fitTextSize(measure, name, contentWidth, cfg.nameSize, Math.max(16, cfg.nameSize - 12));
+  const nameFontSize = fitTextSize(measure, name, contentWidth, cfg.nameSize, Math.max(16, cfg.nameSize - 10));
   measure.font = canvasFont(nameFontSize, 900);
   const nameLines = includeName ? wrapText(measure, name, contentWidth) : [];
-  const nameLineHeight = Math.round(nameFontSize * 1.15);
+  const nameLineHeight = Math.round(nameFontSize * 1.2);
+
+  const codeRowHeight = sideBySide
+    ? Math.max(cfg.barcodeHeight, cfg.qrSize)
+    : 0;
 
   let canvasHeight = cfg.padding;
   if (includeName) canvasHeight += (nameLines.length * nameLineHeight) + cfg.gap;
-  if (includePrice) canvasHeight += Math.round(cfg.priceSize * 1.15) + cfg.gap;
-  if (compactBoth) {
-    canvasHeight += bothRowHeight + cfg.gap;
+  if (includePrice) canvasHeight += Math.round(cfg.priceSize * 1.25) + cfg.gap;
+  if (sideBySide) {
+    canvasHeight += codeRowHeight + cfg.gap;
   } else {
     if (includeBarcode) canvasHeight += cfg.barcodeHeight + cfg.gap;
     if (includeQr) canvasHeight += cfg.qrSize + cfg.gap;
   }
-  if (includeProductCode) canvasHeight += Math.round(cfg.codeSize * 1.25) + cfg.gap;
+  if (includeProductCode) canvasHeight += Math.round(cfg.codeSize * 1.35) + cfg.gap;
   canvasHeight += cfg.padding;
 
   const canvas = document.createElement('canvas');
@@ -556,32 +556,30 @@ async function buildThermalPrintCanvas() {
   if (includePrice) {
     context.font = canvasFont(cfg.priceSize, 900);
     context.fillText(money(selectedProduct?.selling_price), canvas.width / 2, y);
-    y += Math.round(cfg.priceSize * 1.15) + cfg.gap;
+    y += Math.round(cfg.priceSize * 1.25) + cfg.gap;
   }
 
-  if (compactBoth) {
-    const qrSize = cfg.bothQrSize;
-    const barcodeRegionWidth = contentWidth - qrSize - cfg.gap;
-    if (barcodeRegionWidth < 180) {
-      throw new Error('พื้นที่ป้ายไม่พอสำหรับ Barcode และ QR Code');
-    }
-
+  if (sideBySide) {
     const barcodeImage = await svgToImage(els.barcodeSvg);
     const sourceWidth = Math.max(1, barcodeImage.naturalWidth || barcodeImage.width || 1);
     const sourceHeight = Math.max(1, barcodeImage.naturalHeight || barcodeImage.height || 1);
-    const scale = Math.min(barcodeRegionWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
-    const drawWidth = Math.max(1, Math.round(sourceWidth * scale));
-    const drawHeight = Math.max(1, Math.round(sourceHeight * scale));
-    const barcodeCenterX = cfg.padding + (barcodeRegionWidth / 2);
-    const drawX = Math.round(barcodeCenterX - (drawWidth / 2));
-    const drawY = y + Math.round((bothRowHeight - drawHeight) / 2);
-    context.drawImage(barcodeImage, drawX, drawY, drawWidth, drawHeight);
+    const rowTop = y;
+    const gapBetween = Math.round(cfg.gap * 0.75);
+    const qrArea = els.labelSize.value === '58mm' ? 150 : 220;
+    const leftWidth = contentWidth - qrArea - gapBetween;
+    const drawWidth = Math.max(1, leftWidth);
+    const scale = Math.min(drawWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
+    const barW = Math.max(1, Math.round(sourceWidth * scale));
+    const barH = Math.max(1, Math.round(sourceHeight * scale));
+    const barX = cfg.padding + Math.round((leftWidth - barW) / 2);
+    const barY = rowTop + Math.round((codeRowHeight - barH) / 2);
+    context.drawImage(barcodeImage, barX, barY, barW, barH);
 
     const model = qrInstance?._oQRCode;
-    const qrX = cfg.padding + barcodeRegionWidth + cfg.gap;
-    const qrY = y + Math.round((bothRowHeight - qrSize) / 2);
-    drawQrModel(context, model, qrX, qrY, qrSize);
-    y += bothRowHeight + cfg.gap;
+    const qrX = cfg.padding + leftWidth + gapBetween + Math.round((qrArea - (els.labelSize.value === '58mm' ? 145 : 205)) / 2);
+    const requestedQr = els.labelSize.value === '58mm' ? 145 : 205;
+    drawQrModel(context, model, qrX, rowTop + Math.round((codeRowHeight - requestedQr) / 2), requestedQr);
+    y += codeRowHeight + cfg.gap;
   } else {
     if (includeBarcode) {
       const barcodeImage = await svgToImage(els.barcodeSvg);
@@ -628,7 +626,7 @@ function printRasterLabel(canvas, cfg) {
 
     const heightMm = Math.max(
       30,
-      Math.ceil((canvas.height / canvas.width) * cfg.printableWidthMm) + 1
+      Math.ceil((canvas.height / canvas.width) * cfg.printableWidthMm) + 3
     );
     updateDynamicPageSize(cfg.pageWidthMm, heightMm);
 
@@ -692,14 +690,14 @@ async function printLabel() {
 
   printInProgress = true;
   els.printBtn.disabled = true;
-  msg(els.generatorMessage, 'กำลังจัดป้ายให้พอดีกับกระดาษ Rongta 80 มม....', 'success');
+  msg(els.generatorMessage, 'กำลังรวมชื่อสินค้า Barcode และ QR Code เป็นภาพเดียว...', 'success');
 
   try {
     if (els.codeType.value !== 'barcode') ensurePrintableQrSvg();
     await waitForPaint();
     const { canvas, cfg } = await buildThermalPrintCanvas();
     await printRasterLabel(canvas, cfg);
-    msg(els.generatorMessage, 'ส่งงานพิมพ์ขนาดพอดีกระดาษเรียบร้อย', 'success');
+    msg(els.generatorMessage, 'ส่งงานพิมพ์แบบภาพรวมเรียบร้อย', 'success');
   } catch (error) {
     msg(els.generatorMessage, error?.message || 'เตรียมงานพิมพ์ไม่สำเร็จ', 'error');
   } finally {
@@ -721,6 +719,7 @@ els.qrSource.onchange = () => {
   els.barcodeSource,
   els.qrSource,
   els.labelSize,
+  els.layoutMode,
   els.showName,
   els.showPrice,
   els.showProductCode,

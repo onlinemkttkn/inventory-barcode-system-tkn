@@ -144,3 +144,17 @@ select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:1
 /* FINAL v5.4.8 — Rongta printing uses a single raster label in an isolated iframe.
    This avoids driver clipping or omitting the QR element while preserving the screen preview. */
 .tkn-thermal-print-frame{position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0}
+
+
+/* v5.5.0 orientation controls */
+#printArea.layout-landscape.code-type-both{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,42%);grid-template-areas:"name name" "price price" "barcode qr" "product product";align-items:center;column-gap:14px;row-gap:10px;}
+#printArea.layout-landscape.code-type-both #labelName{grid-area:name;}
+#printArea.layout-landscape.code-type-both #labelPrice{grid-area:price;}
+#printArea.layout-landscape.code-type-both #barcodeBlock{grid-area:barcode;min-width:0;}
+#printArea.layout-landscape.code-type-both #qrBlock{grid-area:qr;min-width:0;}
+#printArea.layout-landscape.code-type-both #labelProductCode{grid-area:product;}
+#printArea.layout-landscape.code-type-both #qrCanvas .tkn-qr-print-svg,
+#printArea.layout-landscape.code-type-both #qrCanvas canvas,
+#printArea.layout-landscape.code-type-both #qrCanvas img{width:min(100%,180px)!important;height:auto!important;}
+#printArea.layout-portrait.code-type-both{display:flex;flex-direction:column;}
+@media(max-width:760px){#printArea.layout-landscape.code-type-both{grid-template-columns:1fr;grid-template-areas:"name" "price" "barcode" "qr" "product";}}
