@@ -1,0 +1,63 @@
+{
+  "name": "TKN Member Security All Branches Final Patch",
+  "version": "5.8.0",
+  "base_reviewed": "inventory-barcode-system-tkn-main (23).zip",
+  "patch_only": true,
+  "files": [
+    {
+      "path": "README-INSTALL-AND-UAT.txt",
+      "sha256": "5f9e6da19c13fca1303620407df4be1adaa50f1e50deefc1d67da81df2fa0ac3",
+      "size": 1690
+    },
+    {
+      "path": "css/members.css",
+      "sha256": "507aac33c33674b80af1007b24099a79e7532141c5e88090c1b1940f1591d27b",
+      "size": 2379
+    },
+    {
+      "path": "docs/TKN-MEMBER-SECURITY-AUDIT-v5.8.0.md",
+      "sha256": "dec158390560e360ae6493d208d64ccb66a6eaf5f53959658e001fb1fa7e3fa0",
+      "size": 1639
+    },
+    {
+      "path": "js/member-history.js",
+      "sha256": "f96124dee598883e827e15d44380f901a94d20ae795e6a5fade41a15f645e446",
+      "size": 3778
+    },
+    {
+      "path": "js/members.js",
+      "sha256": "0c329d4cfea5d8a2639ecd79ec21f2f4b23575aadf0f824d69e725ae92ef0927",
+      "size": 5951
+    },
+    {
+      "path": "js/pos-member.js",
+      "sha256": "edd059d69383f78f27ef7bd0475ed00971674dd3642ffa9032ecbde8c5de880a",
+      "size": 2457
+    },
+    {
+      "path": "member-history.html",
+      "sha256": "1d79b23cfc750d443c6845c25a44529be996108f925243301596f1867decf13c",
+      "size": 2181
+    },
+    {
+      "path": "members.html",
+      "sha256": "4c0ec2313c200aee27f4cb51ecbb89c2cbbae6ac521673f7dc2931a7b8431b0c",
+      "size": 2946
+    },
+    {
+      "path": "pos-member.html",
+      "sha256": "9f649a3d4bb7d197d568f89d6d564a8ceeca05a363dbad4ca7b376106a747fe5",
+      "size": 2243
+    },
+    {
+      "path": "sql/TKN-MEMBER-SECURITY-ALL-BRANCHES-v5.8.0.sql",
+      "sha256": "31d79f43f7d4446fbe9e64f2fcf6f846627bafd63e08862802341489d166ca60",
+      "size": 19341
+    },
+    {
+      "path": "sql/TKN-MEMBER-SECURITY-VERIFY-READONLY-v5.8.0.sql",
+      "sha256": "dd34948d03dccc28ca9f0a8c6214a1ce06f332beb5150521276f5b0490ec7eeb",
+      "size": 2859
+    }
+  ]
+}
