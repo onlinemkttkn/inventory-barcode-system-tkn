@@ -4,8 +4,7 @@ const ids = [
   'branch','payment','customerName','customerPhone','searchForm','search','searchButton',
   'results','searchMsg','cart','cartCount','subtotal','discount','netTotal','notes',
   'checkout','manualDrawer','actionMsg','cashierStatus','holdBill','restoreBill','openShift','closeShift',
-  'logoutBtn','branchStatus','cashierUnlockDialog','cashierUnlockForm','employeeCode','cashierPin',
-  'openingFloat','unlockMsg','closeShiftDialog','closeShiftForm','closingCash','closingNotes',
+  'logoutBtn','branchStatus','closeShiftDialog','closeShiftForm','closingCash','closingNotes',
   'cancelCloseShift','closeShiftMsg','paymentDialog','paymentForm','paymentDialogNet',
   'paymentReceivedLabel','paymentDialogReceived','paymentQuickCash','paymentDialogChange',
   'paymentDialogWarning','cancelPayment','confirmPayment','paymentSuccessDialog','successNet',
@@ -13,7 +12,7 @@ const ids = [
   'drawerApproverCode','drawerApproverPin','drawerReason','drawerReasonNotes','confirmDrawerApproval','cancelDrawerApproval','drawerApprovalMsg',
   'cancelOrder','cancelOrderDialog','cancelOrderForm','cancelOrderSummary','cancelOrderReason','cancelOrderNotes',
   'cancelOrderApproverCode','cancelOrderApproverPin','cancelOrderClose','confirmCancelOrder','cancelOrderMsg',
-  'shiftLockScreen','shiftLockForm','shiftLockBranch','shiftLockEmployeeCode','shiftLockPin','shiftLockOpeningFloat','shiftLockSubmit','shiftLockLogout','shiftLockClose','shiftLockMsg','shiftRequiredDialog','shiftRequiredClose','shiftRequiredOpen','logoutGuardDialog','logoutGuardBack'
+  'shiftLockScreen','shiftLockForm','shiftLockBranch','shiftLockTitle','shiftLockDescription','shiftLockEmployeeCode','shiftLockPin','shiftLockOpeningFloat','shiftLockSubmit','shiftLockLogout','shiftLockClose','shiftLockMsg','shiftRequiredDialog','shiftRequiredClose','shiftRequiredOpen','logoutGuardDialog','logoutGuardBack'
 ];
 const E = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
 const cart = new Map();
@@ -48,18 +47,30 @@ async function writeAudit(actionType,entityType,entityId,label,details={}){
     console.warn('Audit log unavailable:',error);
   }
 }
-function setShiftLockVisible(visible,message=''){
+function setShiftLockVisible(visible,message='',mode='required'){
   if(!E.shiftLockScreen)return;
   E.shiftLockScreen.hidden=!visible;
   document.body.classList.toggle('shift-locked',visible);
   if(E.openShift)E.openShift.hidden=visible||Boolean(shift?.shift_id);
+
+  const content={
+    manual:{title:'เปิดกะแคชเชียร์',description:'กรอกรหัสพนักงานและ PIN เพื่อเปิดกะและเริ่มขาย'},
+    required:{title:'รอพนักงานเปิดกะใหม่',description:'บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย'},
+    blocked:{title:'กรุณาเปิดกะก่อนทำรายการ',description:'ต้องเปิดกะแคชเชียร์ก่อนใช้งานส่วนขายสินค้า'}
+  }[mode]||{};
+
+  if(E.shiftLockTitle)E.shiftLockTitle.textContent=content.title||'เปิดกะแคชเชียร์';
+  if(E.shiftLockDescription)E.shiftLockDescription.textContent=content.description||'';
   if(E.shiftLockBranch){
     E.shiftLockBranch.textContent=hasBranch()
       ? `สาขา: ${E.branch.options[E.branch.selectedIndex]?.text||'-'}`
       : 'ยังไม่พบสาขาที่ใช้งานได้';
   }
-  if(message)msg(E.shiftLockMsg,message);
-  if(visible)setTimeout(()=>E.shiftLockEmployeeCode?.focus(),0);
+  msg(E.shiftLockMsg,message||'');
+  if(visible){
+    E.shiftLockPin.value='';
+    setTimeout(()=>E.shiftLockEmployeeCode?.focus(),0);
+  }
 }
 function clearOrder(){
   cart.clear();
@@ -232,7 +243,7 @@ async function init(){
       ? 'ยังไม่ได้เปิดกะ · รอพนักงานเปิดกะใหม่'
       : 'ยังไม่ได้ตั้งค่ารหัสพนักงาน/PIN · กรุณาตั้งค่าในหน้าผู้ใช้และสิทธิ์';
     refreshPosAvailability();
-    setShiftLockVisible(true);
+    setShiftLockVisible(true,'','required');
   }else{
     setShiftLockVisible(false);
   }
@@ -266,18 +277,6 @@ async function openShiftWithCredentials(employeeCode,pin,openingFloat,messageEle
     opening_float:number(openingFloat)
   });
   return true;
-}
-async function openShift(event){
-  event.preventDefault();
-  const ok=await openShiftWithCredentials(
-    E.employeeCode.value,
-    E.cashierPin.value,
-    E.openingFloat.value,
-    E.unlockMsg
-  );
-  if(!ok)return;
-  E.cashierPin.value='';
-  E.cashierUnlockDialog.close();
 }
 async function openShiftFromLock(event){
   event.preventDefault();
@@ -606,7 +605,7 @@ async function closeShift(event){
   E.closingNotes.value='';
   E.cashierStatus.textContent='ปิดกะแล้ว · รอพนักงานเปิดกะใหม่';
   refreshPosAvailability();
-  setShiftLockVisible(true,'ปิดกะเรียบร้อย กรุณาระบุพนักงานกะถัดไป');
+  setShiftLockVisible(true,'ปิดกะเรียบร้อย กรุณาระบุพนักงานกะถัดไป','required');
   await writeAudit('SHIFT_CLOSE','CASHIER_SHIFT',closedShift.shift_id,'ปิดกะแคชเชียร์',{
     employee_code:closedShift.employee_code,
     expected_cash:r.data.expected_cash,
@@ -615,8 +614,16 @@ async function closeShift(event){
   alert(`ปิดกะเรียบร้อย\nเงินสดที่ควรมี ${money(r.data.expected_cash)}\nผลต่าง ${money(r.data.difference)}`);
 }
 
-E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');E.cashierUnlockDialog.showModal()};E.cashierUnlockForm.onsubmit=openShift;E.shiftLockForm.onsubmit=openShiftFromLock;E.shiftLockLogout.onclick=logout;E.shiftLockClose.onclick=()=>{setShiftLockVisible(false);refreshPosAvailability()};E.shiftRequiredClose.onclick=()=>E.shiftRequiredDialog.close();E.shiftRequiredOpen.onclick=()=>{E.shiftRequiredDialog.close();setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะก่อนทำรายการ')};E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.payment.onchange=configurePaymentFields;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>{E.drawerApprovalForm.reset();E.drawerApprovalDialog.close()};E.cancelOrder.onclick=showCancelOrderDialog;E.cancelOrderForm.onsubmit=approveCancelOrder;E.cancelOrderClose.onclick=()=>{E.cancelOrderForm.reset();E.cancelOrderDialog.close()};E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');if(cart.size)return msg(E.actionMsg,'กรุณาชำระหรือยกเลิกออเดอร์ก่อนปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
+E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');setShiftLockVisible(true,'','manual')};E.shiftLockForm.onsubmit=openShiftFromLock;E.shiftLockLogout.onclick=logout;E.shiftLockClose.onclick=()=>{setShiftLockVisible(false);refreshPosAvailability()};E.shiftRequiredClose.onclick=()=>E.shiftRequiredDialog.close();E.shiftRequiredOpen.onclick=()=>{E.shiftRequiredDialog.close();setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะก่อนทำรายการ','blocked')};E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.payment.onchange=configurePaymentFields;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>{E.drawerApprovalForm.reset();E.drawerApprovalDialog.close()};E.cancelOrder.onclick=showCancelOrderDialog;E.cancelOrderForm.onsubmit=approveCancelOrder;E.cancelOrderClose.onclick=()=>{E.cancelOrderForm.reset();E.cancelOrderDialog.close()};E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');if(cart.size)return msg(E.actionMsg,'กรุณาชำระหรือยกเลิกออเดอร์ก่อนปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
 E.branch.onchange=()=>{if(shift?.shift_id)return;cart.clear();E.results.innerHTML='';renderCart();if(hasBranch()){branchReady=true;refreshPosAvailability(`พร้อมใช้งาน: ${E.branch.options[E.branch.selectedIndex]?.text||''}`);setShiftLockVisible(!shift?.shift_id)}};
+document.addEventListener('keydown',(event)=>{
+  if(event.key==='Escape' && !E.shiftLockScreen?.hidden){
+    event.preventDefault();
+    setShiftLockVisible(false);
+    refreshPosAvailability();
+    E.openShift?.focus();
+  }
+});
 installLogoutGuard();
 installShiftRequiredGuard();
 init().catch(err=>{console.error(err);msg(E.actionMsg,err.message||'เริ่มระบบไม่สำเร็จ','error');lockBranchControls(false,'เริ่มระบบไม่สำเร็จ')});
