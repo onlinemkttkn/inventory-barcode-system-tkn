@@ -132,6 +132,19 @@ async function requireSession(){
   return session;
 }
 
+function scheduleAutoPrintIfNeeded(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('from')!=='pos' || !header?.sale_no) return;
+  const settings=window.TKNHardware?.getSettings?.();
+  if(!settings?.auto_print) return;
+  const key=`tkn_auto_printed:${header.sale_no}`;
+  if(sessionStorage.getItem(key)==='1') return;
+  sessionStorage.setItem(key,'1');
+  setTimeout(()=>{
+    if(!E.printBtn.disabled) E.printBtn.click();
+  },350);
+}
+
 async function loadReceipt(){
   const saleNo=E.saleNo.value.trim();
   if(!saleNo)return msg('กรุณากรอกเลขที่บิล','error');
@@ -176,6 +189,7 @@ async function loadReceipt(){
     await renderReceipt();
     E.printBtn.disabled=false;
     msg('โหลดใบเสร็จแล้ว','ok');
+    scheduleAutoPrintIfNeeded();
   }catch(error){
     console.error('Receipt load error:',error);
     msg(error.message||'โหลดใบเสร็จไม่สำเร็จ','error');

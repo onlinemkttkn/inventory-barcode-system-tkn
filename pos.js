@@ -423,14 +423,23 @@ async function requestCashDrawer(reason='SALE',approval=null,context={}){
   }
 
   try{
-    const result=await window.TKNHardware.openDrawer({
+    const drawerFn=window.TKNHardware.openDrawerReliable||window.TKNHardware.openDrawer;
+    const idempotencyKey=reason==='SALE'
+      ? `SALE:${pendingSale?.saleNo||shift?.shift_id}:OPEN_DRAWER`
+      : `MANUAL:${shift?.shift_id||'NO_SHIFT'}:${Date.now()}:OPEN_DRAWER`;
+    const result=await drawerFn({
       reason,
+      source:'POS',
       shift_id:shift?.shift_id||null,
       sale_no:pendingSale?.saleNo||null,
       approval,
       manual_reason:context.manual_reason||null,
-      notes:context.notes||null
+      notes:context.notes||null,
+      idempotency_key:idempotencyKey
     });
+    if(!result?.ok){
+      throw new Error(result?.error||result?.message||'Hardware ไม่ยืนยันการส่งคำสั่งเปิดลิ้นชัก');
+    }
     drawerSoftwareLocked=true;
     localStorage.setItem('tkn_drawer_locked','1');
     msg(E.actionMsg,`เปิดลิ้นชักผ่าน ${result.transport||result.service||'Hardware'}`,'ok');

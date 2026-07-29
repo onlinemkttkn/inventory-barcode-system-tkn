@@ -2,10 +2,12 @@
   'use strict';
 
   const STORAGE_KEY = 'tkn_hardware_settings_v1';
+  const TOKEN_KEY = 'tkn_hardware_token_v1';
   const CIRCUIT_KEY = 'tkn_hardware_circuit_v1';
   const DB_NAME = 'tkn_hardware_jobs_v1';
   const DB_VERSION = 1;
   const STORE_NAME = 'jobs';
+  const CLIENT_VERSION = '5.7.0';
   const DEFAULTS = Object.freeze({
     mode: 'AUTO',
     service_url: 'http://127.0.0.1:17890',
@@ -50,6 +52,20 @@
     return settings;
   }
 
+
+  function getSessionToken() {
+    try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; }
+  }
+
+  function setSessionToken(token) {
+    const normalized = String(token || '').trim();
+    try {
+      if (normalized) sessionStorage.setItem(TOKEN_KEY, normalized);
+      else sessionStorage.removeItem(TOKEN_KEY);
+    } catch {}
+    return normalized;
+  }
+
   async function request(baseUrl, path, options = {}) {
     const controller = new AbortController();
     const timeout = options.timeout || getSettings().request_timeout_ms;
@@ -58,10 +74,15 @@
     try {
       const response = await fetch(`${baseUrl}${path}`, {
         method: options.method || 'GET',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getSessionToken() ? {'X-TKN-Hardware-Token': getSessionToken()} : {})
+        },
         body: options.body ? JSON.stringify(options.body) : undefined,
         signal: controller.signal,
-        cache: 'no-store'
+        cache: 'no-store',
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer'
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -82,6 +103,14 @@
           ok: false,
           base_url: baseUrl,
           error: `Unexpected service: ${service || 'unknown'}`
+        };
+      }
+      if (data?.ok === false) {
+        return {
+          ...data,
+          ok: false,
+          base_url: baseUrl,
+          error: data.error || 'Hardware service reported not ready'
         };
       }
       return {...data, ok: true, base_url: baseUrl};
@@ -188,7 +217,11 @@
 
     const result = await request(endpoint.base_url, '/drawer', {
       method: 'POST',
-      body: meta,
+      body: {
+        ...meta,
+        printer_name: settings.printer_name,
+        paper_width_mm: settings.paper_width_mm
+      },
       timeout: 6000
     });
     return {...result, transport: endpoint.type};
@@ -203,7 +236,7 @@
     return {...result, transport: endpoint.type};
   }
 
-  async function printRaw(base64Data) {
+  async function printRaw(base64Data, options = {}) {
     if (!base64Data) throw new Error('Print data is required');
     const endpoint = await resolveEndpoint('PRINT');
     if (endpoint.type === 'BROWSER') {
@@ -211,9 +244,39 @@
       return {ok: true, transport: 'BROWSER'};
     }
 
+    const settings = getSettings();
     const result = await request(endpoint.base_url, '/print/raw', {
       method: 'POST',
-      body: {data_base64: base64Data},
+      body: {
+        data_base64: base64Data,
+        printer_name: options.printer_name || settings.printer_name,
+        paper_width_mm: options.paper_width_mm || settings.paper_width_mm,
+        job_name: options.job_name || 'TKN RAW PRINT'
+      },
+      timeout: 12000
+    });
+    return {...result, transport: endpoint.type};
+  }
+
+  async function testPrinter(options = {}) {
+    const settings = getSettings();
+    const endpoint = await resolveEndpoint('PRINT');
+    if (endpoint.type === 'BROWSER') {
+      return {
+        ok: true,
+        skipped: true,
+        transport: 'BROWSER',
+        message: 'Browser print test required'
+      };
+    }
+
+    const result = await request(endpoint.base_url, '/print/test', {
+      method: 'POST',
+      body: {
+        printer_name: options.printer_name || settings.printer_name,
+        paper_width_mm: options.paper_width_mm || settings.paper_width_mm,
+        cut: options.cut !== false
+      },
       timeout: 12000
     });
     return {...result, transport: endpoint.type};
@@ -535,9 +598,12 @@
   }
 
   window.TKNHardware = Object.freeze({
+    version: CLIENT_VERSION,
     defaults: DEFAULTS,
     getSettings,
     saveSettings,
+    getSessionToken,
+    setSessionToken,
     status,
     health: status,
     printers,
@@ -549,6 +615,7 @@
     resolveDrawerJob,
     circuitState,
     printRaw,
+    testPrinter,
     printReceipt
   });
 })();
