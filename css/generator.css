@@ -1,10 +1,18 @@
 select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;font:inherit;background:#fff}.generator-layout{display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:16px}.field{display:grid;gap:7px;font-weight:700;margin-bottom:14px}.check-row{display:flex;gap:10px;align-items:center;margin:12px 0;font-weight:700}.check-row input{width:auto}.button-stack{display:grid;gap:10px;margin-top:18px}.search-results{display:grid;gap:10px;margin-top:14px}.result-item{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #e2e8f0;padding:12px;border-radius:12px;background:#f8fafc}.result-item strong{display:block}.result-item small{color:#64748b}.link-button{text-decoration:none;text-align:center}.header-actions{flex-wrap:wrap}.preview-card{min-height:520px}.label-preview{margin:auto;background:#fff;border:1px dashed #94a3b8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:16px;overflow:hidden}.size-screen{width:min(100%,480px);min-height:380px}.size-58mm{width:58mm;min-height:40mm}.size-80mm{width:80mm;min-height:50mm}.size-a4{width:190mm;min-height:260mm}.label-name{font-size:24px;font-weight:900}.label-price{font-size:30px;font-weight:900}.label-code{font-weight:800}.code-block{max-width:100%}#barcodeSvg{max-width:100%;height:auto}#qrCanvas img,#qrCanvas canvas{max-width:100%;height:auto!important;margin:auto}@media(max-width:760px){.generator-layout{grid-template-columns:1fr}.preview-card{min-height:auto}.size-a4{width:100%;min-height:420px}.result-item{align-items:stretch;flex-direction:column}}@media print{body *{visibility:hidden!important}#printArea,#printArea *{visibility:visible!important}#printArea{position:absolute;left:0;top:0;border:0;margin:0;box-shadow:none}.size-58mm{width:58mm;min-height:40mm}.size-80mm{width:80mm;min-height:50mm}.size-a4{width:210mm;min-height:297mm;padding:10mm}@page{margin:0}}
-/* Rongta 80 mm thermal printer QR compatibility — v5.4.6 */
-#qrCanvas .tkn-qr-print-image{
-  display:none;
-  width:auto;
+
+/* Rongta 80 mm thermal printer QR compatibility — v5.4.8 FINAL
+   QR is rendered as true SVG so the printer receives the same vector format as Barcode. */
+#qrCanvas > canvas,
+#qrCanvas > img{
+  display:none!important;
+}
+
+#qrCanvas .tkn-qr-print-svg{
+  display:block;
+  width:min(100%,360px);
   height:auto;
-  max-width:100%;
+  aspect-ratio:1/1;
+  margin:auto;
   background:#fff;
 }
 
@@ -35,15 +43,15 @@ select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:1
   #printArea.size-80mm{
     width:76mm!important;
     min-height:0!important;
-    padding:2.5mm!important;
-    gap:2mm!important;
+    padding:2mm!important;
+    gap:1.5mm!important;
   }
 
   #printArea.size-58mm{
     width:56mm!important;
     min-height:0!important;
-    padding:2mm!important;
-    gap:1.5mm!important;
+    padding:1.5mm!important;
+    gap:1mm!important;
   }
 
   #qrCanvas{
@@ -56,49 +64,83 @@ select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:1
   }
 
   #qrCanvas > canvas,
-  #qrCanvas > img:not(.tkn-qr-print-image){
+  #qrCanvas > img{
     display:none!important;
   }
 
-  #qrCanvas .tkn-qr-print-image{
+  #qrCanvas .tkn-qr-print-svg{
     display:block!important;
-    width:44mm!important;
-    height:44mm!important;
-    max-width:44mm!important;
-    max-height:44mm!important;
-    object-fit:contain!important;
-    image-rendering:pixelated;
-    filter:grayscale(1) contrast(2);
+    width:42mm!important;
+    height:42mm!important;
+    max-width:42mm!important;
+    max-height:42mm!important;
+    background:#fff!important;
+    overflow:visible!important;
   }
 
-  #printArea.size-58mm #qrCanvas .tkn-qr-print-image{
-    width:40mm!important;
-    height:40mm!important;
-    max-width:40mm!important;
-    max-height:40mm!important;
+  #printArea.size-58mm #qrCanvas .tkn-qr-print-svg{
+    width:36mm!important;
+    height:36mm!important;
+    max-width:36mm!important;
+    max-height:36mm!important;
+  }
+
+  /* Keep Barcode and QR on the same physical 80 mm receipt page. */
+  #printArea.size-80mm.code-type-both,
+  #printArea.size-screen.code-type-both{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 30mm!important;
+    grid-template-areas:
+      "name name"
+      "price price"
+      "barcode qr"
+      "product product"!important;
+    align-items:center!important;
+    column-gap:2mm!important;
+    row-gap:1mm!important;
+  }
+
+  #printArea.code-type-both #labelName{grid-area:name!important;}
+  #printArea.code-type-both #labelPrice{grid-area:price!important;}
+  #printArea.code-type-both #barcodeBlock{grid-area:barcode!important;min-width:0!important;}
+  #printArea.code-type-both #qrBlock{grid-area:qr!important;min-width:0!important;}
+  #printArea.code-type-both #labelProductCode{grid-area:product!important;}
+
+  #printArea.size-80mm.code-type-both #qrCanvas .tkn-qr-print-svg,
+  #printArea.size-screen.code-type-both #qrCanvas .tkn-qr-print-svg{
+    width:28mm!important;
+    height:28mm!important;
+    max-width:28mm!important;
+    max-height:28mm!important;
   }
 
   #barcodeSvg{
     display:block!important;
-    max-width:70mm!important;
+    width:100%!important;
+    max-width:42mm!important;
     height:auto!important;
     margin:auto!important;
   }
 
   .label-name{
-    font-size:15px!important;
-    line-height:1.15!important;
+    font-size:14px!important;
+    line-height:1.1!important;
     color:#000!important;
   }
 
   .label-price{
-    font-size:22px!important;
+    font-size:20px!important;
     line-height:1!important;
     color:#000!important;
   }
 
   .label-code{
-    font-size:11px!important;
+    font-size:10px!important;
     color:#000!important;
   }
 }
+
+
+/* FINAL v5.4.8 — Rongta printing uses a single raster label in an isolated iframe.
+   This avoids driver clipping or omitting the QR element while preserving the screen preview. */
+.tkn-thermal-print-frame{position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0}
