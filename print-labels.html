@@ -12,8 +12,9 @@
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
 </head>
-<body class="tkn-print-layout">
+<body class="tkn-print-layout tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์พิมพ์ป้ายสินค้า...">
   <main class="app">
     <header class="topbar no-print">
       <div>
@@ -25,7 +26,7 @@
 
     <section id="configWarning" class="notice warning hidden no-print"></section>
 
-    <section id="loginSection" class="panel no-print">
+    <section id="loginSection" class="panel no-print hidden">
       <h2>เข้าสู่ระบบ</h2>
       <form id="loginForm" class="login-grid">
         <label>อีเมล<input id="email" type="email" required></label>
@@ -138,7 +139,8 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="./js/supabase-config.js?v=3.4.10"></script>
-  <script src="./js/print-labels.js?v=5.3.5"></script>
+  <script src="./js/auth-guard.js?v=3.6.11"></script>
+  <script src="./js/print-labels.js?v=5.4.4"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>

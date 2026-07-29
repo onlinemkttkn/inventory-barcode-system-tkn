@@ -47,42 +47,33 @@ async function init() {
     el.configWarning.textContent =
       "กรุณาใส่ Publishable Key ในไฟล์ js/supabase-config.js";
     el.configWarning.classList.remove("hidden");
-  }
-
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  renderSession(Boolean(session));
-
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    renderSession(Boolean(session));
-  });
-}
-
-function renderSession(loggedIn) {
-  el.loginSection.classList.toggle("hidden", loggedIn);
-  el.workspace.classList.toggle("hidden", !loggedIn);
-  el.logoutBtn?.classList.toggle("hidden", !loggedIn);
-  if (loggedIn) el.searchInput.focus();
-}
-
-el.loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  message(el.loginMessage, "กำลังเข้าสู่ระบบ...");
-
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: el.email.value.trim(),
-    password: el.password.value,
-  });
-
-  if (error) {
-    message(el.loginMessage, error.message, "error");
+    window.TKNAuthGuard?.fail(
+      new Error("ยังไม่ได้ตั้งค่า Supabase"),
+      () => location.reload()
+    );
     return;
   }
 
-  el.password.value = "";
-  message(el.loginMessage, "");
-});
+  try {
+    const access = await window.TKNAuthGuard.requireAccess("inventory.view", {
+      loadingText: "กำลังตรวจสอบสิทธิ์พิมพ์ป้ายสินค้า...",
+    });
+    if (!access) return;
 
-el.logoutBtn?.addEventListener("click", () => supabaseClient.auth.signOut());
+    el.loginSection.classList.add("hidden");
+    el.workspace.classList.remove("hidden");
+    el.searchInput.focus();
+    supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
+      if (nextSession) return;
+      window.TKNAuthGuard.clearAccessCache();
+      location.replace("./dashboard.html");
+    });
+    window.TKNAuthGuard.ready();
+  } catch (error) {
+    if (error?.code === "INVENTORY_PERMISSION_DENIED") return;
+    window.TKNAuthGuard?.fail(error, () => location.reload());
+  }
+}
 
 el.searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();

@@ -12,8 +12,9 @@
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
 </head>
-<body>
+<body class="tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์สแกนสินค้า...">
   <main class="app-shell">
     <header class="page-header">
       <div>
@@ -25,7 +26,7 @@
 
     <section id="configWarning" class="alert warning hidden"></section>
 
-    <section id="loginSection" class="card">
+    <section id="loginSection" class="card hidden">
       <h2>เข้าสู่ระบบ</h2>
       <form id="loginForm" class="form-grid">
         <label>
@@ -98,7 +99,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/supabase-config.js?v=3.4.10"></script>
-  <script src="./js/scanner.js?v=3.4.10"></script>
+  <script src="./js/auth-guard.js?v=3.6.11"></script>
+  <script src="./js/scanner.js?v=5.4.4"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>

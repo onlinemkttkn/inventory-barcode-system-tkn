@@ -37,56 +37,42 @@ function isConfigReady() {
     !SUPABASE_PUBLISHABLE_KEY.includes("ใส่_");
 }
 
-async function handleSession() {
+async function init() {
   if (!isConfigReady()) {
     els.configWarning.textContent =
       "ยังไม่ได้ใส่ Project URL และ Publishable Key ใน js/supabase-config.js";
     els.configWarning.classList.remove("hidden");
+    window.TKNAuthGuard?.fail(
+      new Error("ยังไม่ได้ตั้งค่า Supabase"),
+      () => location.reload()
+    );
     return;
   }
 
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  renderSession(Boolean(session));
+  try {
+    const access = await window.TKNAuthGuard.requireAccess("inventory.view", {
+      loadingText: "กำลังตรวจสอบสิทธิ์สแกนสินค้า...",
+    });
+    if (!access) return;
 
-  supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
-    renderSession(Boolean(nextSession));
-  });
-}
-
-function renderSession(isLoggedIn) {
-  els.loginSection.classList.toggle("hidden", isLoggedIn);
-  els.scannerSection.classList.toggle("hidden", !isLoggedIn);
-  els.logoutBtn?.classList.toggle("hidden", !isLoggedIn);
-
-  if (!isLoggedIn) {
+    els.loginSection.classList.add("hidden");
+    els.scannerSection.classList.remove("hidden");
+    els.barcodeInput.focus();
+    supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
+      if (nextSession) return;
+      stopScanner();
+      clearProduct();
+      window.TKNAuthGuard.clearAccessCache();
+      location.replace("./dashboard.html");
+    });
+    window.TKNAuthGuard.ready();
+  } catch (error) {
     stopScanner();
     clearProduct();
-  } else {
-    els.barcodeInput.focus();
+    if (error?.code === "INVENTORY_PERMISSION_DENIED") return;
+    window.TKNAuthGuard?.fail(error, () => location.reload());
   }
 }
-
-els.loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  setMessage(els.loginMessage, "กำลังเข้าสู่ระบบ...");
-
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: els.email.value.trim(),
-    password: els.password.value,
-  });
-
-  if (error) {
-    setMessage(els.loginMessage, error.message, "error");
-    return;
-  }
-
-  els.password.value = "";
-  setMessage(els.loginMessage, "");
-});
-
-els.logoutBtn?.addEventListener("click", async () => {
-  await supabaseClient.auth.signOut();
-});
 
 els.searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -276,4 +262,4 @@ function formatMoney(value) {
 }
 
 window.addEventListener("beforeunload", stopScanner);
-handleSession();
+init();
