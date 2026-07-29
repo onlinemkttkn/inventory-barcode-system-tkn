@@ -451,18 +451,19 @@ function drawQrModel(context, model, x, y, requestedSize) {
 
 function thermalCanvasConfig() {
   const size = els.labelSize.value;
+  const layout = (els.layoutMode?.value || 'portrait');
   if (size === '58mm') {
     return {
       canvasWidth: 384,
       printableWidthMm: 48,
       pageWidthMm: 58,
-      padding: 18,
-      nameSize: 24,
-      priceSize: 31,
-      codeSize: 18,
-      barcodeHeight: 105,
-      qrSize: 230,
-      gap: 13
+      padding: 14,
+      nameSize: 22,
+      priceSize: 30,
+      codeSize: 15,
+      barcodeHeight: layout === 'portrait' ? 108 : 96,
+      qrSize: layout === 'portrait' ? 240 : 148,
+      gap: 10
     };
   }
   if (size === 'a4') {
@@ -470,26 +471,40 @@ function thermalCanvasConfig() {
       canvasWidth: 1500,
       printableWidthMm: 190,
       pageWidthMm: 210,
-      padding: 70,
+      padding: 60,
       nameSize: 62,
       priceSize: 78,
-      codeSize: 40,
-      barcodeHeight: 300,
-      qrSize: 720,
-      gap: 36
+      codeSize: 38,
+      barcodeHeight: layout === 'portrait' ? 280 : 240,
+      qrSize: layout === 'portrait' ? 700 : 420,
+      gap: 28
+    };
+  }
+  if (size === 'screen') {
+    return {
+      canvasWidth: 576,
+      printableWidthMm: 72,
+      pageWidthMm: 80,
+      padding: 22,
+      nameSize: 30,
+      priceSize: 40,
+      codeSize: 20,
+      barcodeHeight: layout === 'portrait' ? 128 : 120,
+      qrSize: layout === 'portrait' ? 320 : 210,
+      gap: 14
     };
   }
   return {
     canvasWidth: 576,
     printableWidthMm: 72,
     pageWidthMm: 80,
-    padding: 24,
+    padding: 18,
     nameSize: 30,
     priceSize: 40,
-    codeSize: 20,
-    barcodeHeight: 135,
-    qrSize: 325,
-    gap: 16
+    codeSize: 18,
+    barcodeHeight: layout === 'portrait' ? 126 : 112,
+    qrSize: layout === 'portrait' ? 320 : 205,
+    gap: 12
   };
 }
 
@@ -508,25 +523,23 @@ async function buildThermalPrintCanvas() {
   const sideBySide = layout === 'landscape' && includeBarcode && includeQr && type === 'both' && (els.labelSize.value === '80mm' || els.labelSize.value === '58mm' || els.labelSize.value === 'screen');
 
   const measure = document.createElement('canvas').getContext('2d');
-  const nameFontSize = fitTextSize(measure, name, contentWidth, cfg.nameSize, Math.max(16, cfg.nameSize - 10));
+  const nameFontSize = fitTextSize(measure, name, contentWidth, cfg.nameSize, Math.max(14, cfg.nameSize - 10));
   measure.font = canvasFont(nameFontSize, 900);
   const nameLines = includeName ? wrapText(measure, name, contentWidth) : [];
-  const nameLineHeight = Math.round(nameFontSize * 1.2);
+  const nameLineHeight = Math.round(nameFontSize * 1.18);
 
-  const codeRowHeight = sideBySide
-    ? Math.max(cfg.barcodeHeight, cfg.qrSize)
-    : 0;
+  const codeRowHeight = sideBySide ? Math.max(cfg.barcodeHeight, cfg.qrSize) : 0;
 
   let canvasHeight = cfg.padding;
   if (includeName) canvasHeight += (nameLines.length * nameLineHeight) + cfg.gap;
-  if (includePrice) canvasHeight += Math.round(cfg.priceSize * 1.25) + cfg.gap;
+  if (includePrice) canvasHeight += Math.round(cfg.priceSize * 1.18) + cfg.gap;
   if (sideBySide) {
     canvasHeight += codeRowHeight + cfg.gap;
   } else {
     if (includeBarcode) canvasHeight += cfg.barcodeHeight + cfg.gap;
     if (includeQr) canvasHeight += cfg.qrSize + cfg.gap;
   }
-  if (includeProductCode) canvasHeight += Math.round(cfg.codeSize * 1.35) + cfg.gap;
+  if (includeProductCode) canvasHeight += Math.round(cfg.codeSize * 1.25) + cfg.gap;
   canvasHeight += cfg.padding;
 
   const canvas = document.createElement('canvas');
@@ -556,7 +569,7 @@ async function buildThermalPrintCanvas() {
   if (includePrice) {
     context.font = canvasFont(cfg.priceSize, 900);
     context.fillText(money(selectedProduct?.selling_price), canvas.width / 2, y);
-    y += Math.round(cfg.priceSize * 1.25) + cfg.gap;
+    y += Math.round(cfg.priceSize * 1.18) + cfg.gap;
   }
 
   if (sideBySide) {
@@ -564,20 +577,19 @@ async function buildThermalPrintCanvas() {
     const sourceWidth = Math.max(1, barcodeImage.naturalWidth || barcodeImage.width || 1);
     const sourceHeight = Math.max(1, barcodeImage.naturalHeight || barcodeImage.height || 1);
     const rowTop = y;
-    const gapBetween = Math.round(cfg.gap * 0.75);
-    const qrArea = els.labelSize.value === '58mm' ? 150 : 220;
+    const gapBetween = Math.max(8, Math.round(cfg.gap * 0.8));
+    const qrArea = els.labelSize.value === '58mm' ? 148 : 210;
     const leftWidth = contentWidth - qrArea - gapBetween;
-    const drawWidth = Math.max(1, leftWidth);
-    const scale = Math.min(drawWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
-    const barW = Math.max(1, Math.round(sourceWidth * scale));
-    const barH = Math.max(1, Math.round(sourceHeight * scale));
+    const barScale = Math.min(leftWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
+    const barW = Math.max(1, Math.round(sourceWidth * barScale));
+    const barH = Math.max(1, Math.round(sourceHeight * barScale));
     const barX = cfg.padding + Math.round((leftWidth - barW) / 2);
     const barY = rowTop + Math.round((codeRowHeight - barH) / 2);
     context.drawImage(barcodeImage, barX, barY, barW, barH);
 
     const model = qrInstance?._oQRCode;
-    const qrX = cfg.padding + leftWidth + gapBetween + Math.round((qrArea - (els.labelSize.value === '58mm' ? 145 : 205)) / 2);
-    const requestedQr = els.labelSize.value === '58mm' ? 145 : 205;
+    const requestedQr = els.labelSize.value === '58mm' ? 144 : 205;
+    const qrX = cfg.padding + leftWidth + gapBetween + Math.round((qrArea - requestedQr) / 2);
     drawQrModel(context, model, qrX, rowTop + Math.round((codeRowHeight - requestedQr) / 2), requestedQr);
     y += codeRowHeight + cfg.gap;
   } else {
@@ -585,9 +597,10 @@ async function buildThermalPrintCanvas() {
       const barcodeImage = await svgToImage(els.barcodeSvg);
       const sourceWidth = Math.max(1, barcodeImage.naturalWidth || barcodeImage.width || 1);
       const sourceHeight = Math.max(1, barcodeImage.naturalHeight || barcodeImage.height || 1);
-      const scale = Math.min(contentWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
-      const drawWidth = Math.max(1, Math.round(sourceWidth * scale));
-      const drawHeight = Math.max(1, Math.round(sourceHeight * scale));
+      const targetWidth = contentWidth;
+      const barScale = Math.min(targetWidth / sourceWidth, cfg.barcodeHeight / sourceHeight);
+      const drawWidth = Math.max(1, Math.round(sourceWidth * barScale));
+      const drawHeight = Math.max(1, Math.round(sourceHeight * barScale));
       const drawX = Math.round((canvas.width - drawWidth) / 2);
       const drawY = y + Math.round((cfg.barcodeHeight - drawHeight) / 2);
       context.drawImage(barcodeImage, drawX, drawY, drawWidth, drawHeight);
@@ -596,9 +609,10 @@ async function buildThermalPrintCanvas() {
 
     if (includeQr) {
       const model = qrInstance?._oQRCode;
-      const qrX = Math.round((canvas.width - cfg.qrSize) / 2);
-      drawQrModel(context, model, qrX, y, cfg.qrSize);
-      y += cfg.qrSize + cfg.gap;
+      const requestedQr = Math.min(cfg.qrSize, contentWidth);
+      const qrX = Math.round((canvas.width - requestedQr) / 2);
+      drawQrModel(context, model, qrX, y, requestedQr);
+      y += requestedQr + cfg.gap;
     }
   }
 
@@ -624,10 +638,7 @@ function printRasterLabel(canvas, cfg) {
     frame.style.border = '0';
     document.body.appendChild(frame);
 
-    const heightMm = Math.max(
-      30,
-      Math.ceil((canvas.height / canvas.width) * cfg.printableWidthMm) + 3
-    );
+    const heightMm = Math.max(30, Math.ceil((canvas.height / canvas.width) * cfg.printableWidthMm) + 2);
     updateDynamicPageSize(cfg.pageWidthMm, heightMm);
 
     const dataUrl = canvas.toDataURL('image/png');

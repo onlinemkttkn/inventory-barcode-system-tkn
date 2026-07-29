@@ -158,3 +158,13 @@ select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:1
 #printArea.layout-landscape.code-type-both #qrCanvas img{width:min(100%,180px)!important;height:auto!important;}
 #printArea.layout-portrait.code-type-both{display:flex;flex-direction:column;}
 @media(max-width:760px){#printArea.layout-landscape.code-type-both{grid-template-columns:1fr;grid-template-areas:"name" "price" "barcode" "qr" "product";}}
+
+
+/* v5.5.1 full-sheet portrait tuning for Rongta 58/80 */
+#printArea.layout-portrait.code-type-both #qrCanvas .tkn-qr-print-svg,
+#printArea.layout-portrait.code-type-both #qrCanvas canvas,
+#printArea.layout-portrait.code-type-both #qrCanvas img{width:min(100%,220px)!important;height:auto!important;}
+#printArea.layout-portrait.code-type-qr #qrCanvas .tkn-qr-print-svg,
+#printArea.layout-portrait.code-type-qr #qrCanvas canvas,
+#printArea.layout-portrait.code-type-qr #qrCanvas img{width:min(100%,260px)!important;height:auto!important;}
+#printArea.layout-portrait #barcodeSvg{width:100%!important;max-width:100%!important;}
