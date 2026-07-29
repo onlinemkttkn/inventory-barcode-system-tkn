@@ -204,7 +204,13 @@ function render(){
 
     const barcode=document.createElement('a');
     barcode.className='btn table-btn barcode-btn';
-    barcode.href=`./generator.html?product=${x.id}`;
+    const barcodeParams=new URLSearchParams({
+      product:String(x.id||''),
+      name:String(x.name||''),
+      code:String(x.product_code||'')
+    });
+    barcode.href=`./generator.html?${barcodeParams.toString()}`;
+    barcode.setAttribute('aria-label',`สร้าง Barcode สำหรับ ${x.name||'สินค้า'} รหัส ${x.product_code||'-'}`);
     barcode.textContent='Barcode';
 
     td.append(edit,barcode);
