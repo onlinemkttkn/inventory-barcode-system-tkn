@@ -25,6 +25,7 @@ const REQUIRED_HEADERS = [
 let rawRows = [];
 let checkedRows = [];
 let currentFileName = "";
+let pageAccessGranted = false;
 
 function msg(text, cssClass = "") {
   E.message.textContent = text;
@@ -128,36 +129,39 @@ function normalizeNumber(value, fallback = 0) {
   return Number.isFinite(number) ? number : NaN;
 }
 
-async function requireAdmin() {
-  const {
-    data: { session },
-  } = await supabaseClient.auth.getSession();
+function ensurePageAccess() {
+  if (pageAccessGranted) return true;
+  msg("บัญชีนี้ไม่มีสิทธิ์ Import / Export สินค้า", "error");
+  return false;
+}
 
-  if (!session) {
-    location.href = "./dashboard.html";
-    return null;
+async function initializeImportExportPage() {
+  try {
+    const access = await window.TKNAuthGuard.requireAccess(
+      "product.manage",
+      { loadingText: "กำลังตรวจสอบสิทธิ์ Import / Export สินค้า..." }
+    );
+
+    if (!access) return;
+
+    pageAccessGranted = true;
+
+    supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
+      if (nextSession) return;
+      pageAccessGranted = false;
+      window.TKNAuthGuard.clearAccessCache();
+      location.replace("./dashboard.html");
+    });
+
+    window.TKNAuthGuard.ready();
+  } catch (error) {
+    if (error?.code === "INVENTORY_PERMISSION_DENIED") return;
+    window.TKNAuthGuard.fail(error, () => location.reload());
   }
-
-  const { data: profile, error } = await supabaseClient
-    .from("profiles")
-    .select("role,is_active")
-    .eq("id", session.user.id)
-    .maybeSingle();
-
-  if (error || !profile || profile.is_active !== true) {
-    location.href = "./dashboard.html";
-    return null;
-  }
-
-  if (profile.role !== "admin") {
-    msg("เฉพาะ Admin เท่านั้นที่ Import สินค้าได้", "error");
-    E.importBtn.disabled = true;
-  }
-
-  return profile;
 }
 
 async function readFile(file) {
+  if (!ensurePageAccess()) return;
   currentFileName = file.name;
   E.fileName.textContent = `ไฟล์: ${file.name}`;
 
@@ -234,6 +238,7 @@ function renderRawPreview() {
 }
 
 async function validateRows() {
+  if (!ensurePageAccess()) return;
   if (!rawRows.length) {
     msg("กรุณาเลือกไฟล์ CSV ก่อน", "error");
     return;
@@ -463,6 +468,7 @@ function renderCheckedPreview() {
 }
 
 async function importRows() {
+  if (!ensurePageAccess()) return;
   const validRows = checkedRows.filter((row) => row.valid);
 
   if (!validRows.length) {
@@ -535,17 +541,19 @@ async function importRows() {
 }
 
 async function exportProducts() {
+  if (!ensurePageAccess()) return;
   msg("กำลัง Export ข้อมูลสินค้า...");
 
-  const { data, error } = await supabaseClient
-    .from("product_export_list")
-    .select("*")
-    .order("product_code");
+  const { data, error } = await supabaseClient.rpc(
+    "export_products_secure_v5_6_0"
+  );
 
   if (error) {
     msg(error.message, "error");
     return;
   }
+
+  const exportRows = Array.isArray(data) ? data : [];
 
   const headers = [
     "product_code",
@@ -569,7 +577,7 @@ async function exportProducts() {
 
   const csv = [
     headers.join(","),
-    ...(data || []).map((row) =>
+    ...exportRows.map((row) =>
       headers.map((header) => csvEscape(row[header])).join(",")
     ),
   ].join("\r\n");
@@ -577,10 +585,11 @@ async function exportProducts() {
   const date = new Date().toISOString().slice(0, 10);
   downloadText(`products-export-${date}.csv`, csv);
 
-  msg(`Export สำเร็จ ${(data || []).length} รายการ`, "success-text");
+  msg(`Export สำเร็จ ${exportRows.length} รายการ`, "success-text");
 }
 
 function downloadTemplate() {
+  if (!ensurePageAccess()) return;
   const headers = [
     "product_code",
     "product_name",
@@ -648,4 +657,4 @@ E.validateBtn.addEventListener("click", validateRows);
 E.importBtn.addEventListener("click", importRows);
 E.exportBtn.addEventListener("click", exportProducts);
 
-requireAdmin();
+initializeImportExportPage();

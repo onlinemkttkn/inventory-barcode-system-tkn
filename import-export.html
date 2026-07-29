@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Import / Export สินค้า</title>
   <link rel="stylesheet" href="./css/import-export.css?v=1.0.2">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
@@ -12,7 +13,7 @@
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
-<body>
+<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์ Import / Export สินค้า...">
 <main class="shell">
   <header class="top">
     <div>
@@ -80,7 +81,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/import-export.js?v=1.0.2"></script>
+<script src="./js/auth-guard.js?v=5.6.0"></script>
+<script src="./js/import-export.js?v=5.6.0"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>
