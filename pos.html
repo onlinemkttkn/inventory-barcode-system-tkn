@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./pos.css?v=3.4.16">
+  <link rel="stylesheet" href="./pos.css?v=3.4.17">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
@@ -38,13 +38,13 @@
         <span class="pos-ready-chip">พร้อมรับรายการขาย</span>
       </div>
       <label>สาขา<select id="branch" disabled></select><small id="branchStatus" class="field-status">กำลังโหลดสาขา...</small></label>
-      <label>ชื่อลูกค้า<input id="customerName" autocomplete="off"></label>
-      <label>เบอร์โทร<input id="customerPhone" inputmode="tel" autocomplete="off"></label>
+      <label class="shift-guard-target" data-shift-required>ชื่อลูกค้า<input id="customerName" autocomplete="off"></label>
+      <label class="shift-guard-target" data-shift-required>เบอร์โทร<input id="customerPhone" inputmode="tel" autocomplete="off"></label>
     </section>
 
     <section class="pos-layout">
       <div class="work-column">
-        <section class="card search-card">
+        <section class="card search-card" data-shift-required>
           <div class="pos-card-heading compact">
             <div><span class="pos-section-kicker">PRODUCT SEARCH</span><h2>ค้นหาและเพิ่มสินค้า</h2></div>
           </div>
@@ -65,7 +65,7 @@
         </section>
       </div>
 
-      <aside class="card summary">
+      <aside class="card summary" data-shift-required>
         <h2>สรุปการชำระเงิน</h2>
         <div class="summary-line"><span>ยอดสินค้า</span><strong id="subtotal">฿0.00</strong></div>
         <label>ส่วนลดท้ายบิล
@@ -91,7 +91,10 @@
 
   <section id="shiftLockScreen" class="shift-lock-screen" hidden aria-live="polite">
     <form id="shiftLockForm" class="shift-lock-card">
-      <p class="eyebrow">CASHIER SESSION</p>
+      <div class="shift-lock-header">
+        <p class="eyebrow">CASHIER SESSION</p>
+        <button id="shiftLockClose" class="shift-lock-close" type="button" aria-label="ปิดหน้าต่างเปิดกะ">×</button>
+      </div>
       <h2>รอพนักงานเปิดกะใหม่</h2>
       <p>บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย</p>
       <div id="shiftLockBranch" class="shift-lock-branch">กำลังตรวจสอบสาขา...</div>
@@ -103,6 +106,18 @@
       <p id="shiftLockMsg" class="msg"></p>
     </form>
   </section>
+
+  <dialog id="shiftRequiredDialog" class="shift-required-dialog">
+    <div class="dialog-card shift-required-card">
+      <div class="shift-required-icon" aria-hidden="true">!</div>
+      <h2>กรุณาเปิดกะก่อนทำรายการ</h2>
+      <p>ต้องเปิดกะแคชเชียร์ก่อนกรอกชื่อลูกค้า เบอร์โทร ค้นหาและเพิ่มสินค้า หรือรับชำระเงิน</p>
+      <div class="dialog-actions">
+        <button id="shiftRequiredClose" class="btn secondary" type="button">ปิด</button>
+        <button id="shiftRequiredOpen" class="btn success" type="button">เปิดกะตอนนี้</button>
+      </div>
+    </div>
+  </dialog>
 
   <dialog id="paymentDialog" class="payment-dialog">
     <form id="paymentForm" class="dialog-card">
@@ -245,7 +260,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
   <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
-  <script type="module" src="./pos.js?v=3.6.1-final"></script>
+  <script type="module" src="./pos.js?v=3.6.2-shift-guard"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>
