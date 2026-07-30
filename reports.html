@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./css/reports-product-ui.css?v=4.3.0">
   <link rel="stylesheet" href="./css/reports-status-colors.css?v=5.2.3">
   <link rel="stylesheet" href="./css/reports-bill-history-button.css?v=5.2.4">
+  <link rel="stylesheet" href="./css/reports-range-v5.8.5.css?v=5.8.5">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -72,6 +73,14 @@
       </select>
     </label>
     <label>ช่องทางชำระ<select id="paymentFilter"><option value="ALL">ทุกช่องทาง</option><option value="CASH">เงินสด</option><option value="QR">QR</option><option value="TRANSFER">เงินโอน</option><option value="CARD">บัตร</option><option value="VOUCHER">Voucher</option><option value="OTHER">อื่น ๆ</option></select></label>
+    <div class="report-range-actions" aria-label="ตัวเลือกช่วงวันที่">
+      <button id="rangeMode" class="button secondary" type="button">
+        กำหนดช่วงวันที่
+      </button>
+      <button id="firstFiveDays" class="button secondary" type="button" hidden>
+        วันที่ 1–5 เดือนนี้
+      </button>
+    </div>
     <button id="load" class="button" type="button">โหลดรายงาน</button>
     <button id="csv" class="button secondary" type="button">Export CSV</button>
     <button id="print" class="button secondary" type="button">พิมพ์</button>
@@ -109,7 +118,7 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.8.4"></script>
+<script type="module" src="./js/reports.js?v=5.8.5"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>

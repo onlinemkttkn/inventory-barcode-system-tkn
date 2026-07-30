@@ -1,0 +1,42 @@
+/* TKN Reports Range / Branch UI v5.8.5 */
+
+.reports-page .report-range-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+  min-width:0;
+}
+
+.reports-page .report-range-actions .button{
+  margin:0;
+}
+
+.reports-page #rangeMode[aria-pressed="true"]{
+  background:var(--tkn-red,#c8102e)!important;
+  color:#fff!important;
+  border-color:var(--tkn-red,#c8102e)!important;
+}
+
+.reports-page #firstFiveDays{
+  background:#fff8d7!important;
+  color:#20170f!important;
+  border:1px solid #e3c65d!important;
+}
+
+.reports-page #branchFilter:disabled{
+  opacity:1;
+  color:#20170f;
+  background:#f8f4ec;
+}
+
+@media(max-width:1100px){
+  .reports-page .report-range-actions{
+    grid-column:auto;
+  }
+}
+
+@media(max-width:560px){
+  .reports-page .report-range-actions{
+    grid-template-columns:1fr;
+  }
+}
