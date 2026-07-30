@@ -1,0 +1,14 @@
+/* TKN Reports Manual Date Range UI v5.8.6 */
+
+.reports-page #branchFilter:disabled {
+  opacity: 1;
+  color: #20170f;
+  background: #f8f4ec;
+}
+
+/* Start/end date fields are controlled by the RANGE option in the report type dropdown. */
+.reports-page #startField[hidden],
+.reports-page #endField[hidden],
+.reports-page #anchorField[hidden] {
+  display: none !important;
+}

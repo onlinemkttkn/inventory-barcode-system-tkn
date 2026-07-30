@@ -6,8 +6,6 @@ import {
 const E = {
   period: document.getElementById('period'),
   paymentFilter: document.getElementById('paymentFilter'),
-  rangeMode: document.getElementById('rangeMode'),
-  firstFiveDays: document.getElementById('firstFiveDays'),
   branch: document.getElementById('branchFilter'),
   branchField: document.getElementById('branchField'),
   anchor: document.getElementById('anchor'),
@@ -162,54 +160,15 @@ function selectedBranchId() {
 
 function updatePeriodUI() {
   const custom = E.period.value === 'RANGE';
+
   E.anchorField.hidden = custom;
   E.startField.hidden = !custom;
   E.endField.hidden = !custom;
 
-  if (E.firstFiveDays) {
-    E.firstFiveDays.hidden = !custom;
-  }
-
-  if (E.rangeMode) {
-    E.rangeMode.setAttribute(
-      'aria-pressed',
-      String(custom)
-    );
-    E.rangeMode.textContent = custom
-      ? 'ใช้รายวัน/รายเดือน/รายปี'
-      : 'กำหนดช่วงวันที่';
-  }
-}
-
-function activateRangeMode() {
-  if (E.period.value === 'RANGE') {
-    E.period.value = 'DAY';
-  } else {
-    E.period.value = 'RANGE';
+  if (custom) {
     if (!E.startDate.value) E.startDate.value = today();
     if (!E.endDate.value) E.endDate.value = today();
   }
-
-  updatePeriodUI();
-
-  if (E.period.value === 'RANGE') {
-    E.startDate.focus();
-  }
-}
-
-function setFirstFiveDaysOfMonth() {
-  const base = E.anchor.value
-    ? new Date(`${E.anchor.value}T12:00:00`)
-    : new Date();
-
-  const year = base.getFullYear();
-  const month = String(base.getMonth() + 1).padStart(2, '0');
-
-  E.period.value = 'RANGE';
-  E.startDate.value = `${year}-${month}-01`;
-  E.endDate.value = `${year}-${month}-05`;
-  updatePeriodUI();
-  load();
 }
 
 function validateRange() {
@@ -508,13 +467,6 @@ E.period.onchange = () => {
   load();
 };
 
-if (E.rangeMode) {
-  E.rangeMode.onclick = activateRangeMode;
-}
-
-if (E.firstFiveDays) {
-  E.firstFiveDays.onclick = setFirstFiveDaysOfMonth;
-}
 E.anchor.onchange = load;
 E.startDate.onchange = load;
 E.endDate.onchange = load;
