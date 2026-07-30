@@ -66,6 +66,11 @@
     <label id="endField" hidden>วันที่สิ้นสุด
       <input id="endDate" type="date">
     </label>
+    <label id="branchField">สาขา
+      <select id="branchFilter">
+        <option value="">กำลังโหลดสาขา...</option>
+      </select>
+    </label>
     <label>ช่องทางชำระ<select id="paymentFilter"><option value="ALL">ทุกช่องทาง</option><option value="CASH">เงินสด</option><option value="QR">QR</option><option value="TRANSFER">เงินโอน</option><option value="CARD">บัตร</option><option value="VOUCHER">Voucher</option><option value="OTHER">อื่น ๆ</option></select></label>
     <button id="load" class="button" type="button">โหลดรายงาน</button>
     <button id="csv" class="button secondary" type="button">Export CSV</button>
@@ -104,7 +109,7 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.2.4"></script>
+<script type="module" src="./js/reports.js?v=5.8.4"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>
