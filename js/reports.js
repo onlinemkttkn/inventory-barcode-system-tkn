@@ -6,10 +6,9 @@ import {
 const E = {
   period: document.getElementById('period'),
   paymentFilter: document.getElementById('paymentFilter'),
+  statusFilter: document.getElementById('statusFilter'),
   branch: document.getElementById('branchFilter'),
   branchField: document.getElementById('branchField'),
-  anchor: document.getElementById('anchor'),
-  anchorField: document.getElementById('anchorField'),
   startDate: document.getElementById('startDate'),
   endDate: document.getElementById('endDate'),
   startField: document.getElementById('startField'),
@@ -27,7 +26,13 @@ const E = {
   close: document.getElementById('close')
 };
 
-let state = { bills: [], allBills: [], items: [], context: null };
+let state = {
+  bills: [],
+  allBills: [],
+  items: [],
+  context: null,
+  reportData: null
+};
 
 const money = value => new Intl.NumberFormat('th-TH', {
   style: 'currency', currency: 'THB'
@@ -158,16 +163,51 @@ function selectedBranchId() {
   return E.branch?.value || null;
 }
 
-function updatePeriodUI() {
-  const custom = E.period.value === 'RANGE';
+function monthBounds(dateValue) {
+  const base = new Date(`${dateValue || today()}T12:00:00`);
+  const year = base.getFullYear();
+  const month = base.getMonth();
 
-  E.anchorField.hidden = custom;
-  E.startField.hidden = !custom;
-  E.endField.hidden = !custom;
+  return {
+    start: toLocalIsoDate(new Date(year, month, 1)),
+    end: toLocalIsoDate(new Date(year, month + 1, 0))
+  };
+}
 
-  if (custom) {
-    if (!E.startDate.value) E.startDate.value = today();
-    if (!E.endDate.value) E.endDate.value = today();
+function yearBounds(dateValue) {
+  const base = new Date(`${dateValue || today()}T12:00:00`);
+  const year = base.getFullYear();
+
+  return {
+    start: `${year}-01-01`,
+    end: `${year}-12-31`
+  };
+}
+
+function updatePeriodUI({ preserveRange = false } = {}) {
+  if (!E.startDate.value) E.startDate.value = today();
+  if (!E.endDate.value) E.endDate.value = E.startDate.value;
+
+  if (preserveRange || E.period.value === 'RANGE') {
+    return;
+  }
+
+  if (E.period.value === 'DAY') {
+    E.endDate.value = E.startDate.value;
+    return;
+  }
+
+  if (E.period.value === 'MONTH') {
+    const bounds = monthBounds(E.startDate.value);
+    E.startDate.value = bounds.start;
+    E.endDate.value = bounds.end;
+    return;
+  }
+
+  if (E.period.value === 'YEAR') {
+    const bounds = yearBounds(E.startDate.value);
+    E.startDate.value = bounds.start;
+    E.endDate.value = bounds.end;
   }
 }
 
@@ -201,10 +241,10 @@ async function init() {
     E.billSearchButton.setAttribute('aria-hidden', String(!canSearchBills));
     E.billSearchButton.tabIndex = canSearchBills ? 0 : -1;
   }
-  E.anchor.value = today();
+  E.period.value = 'RANGE';
   E.startDate.value = today();
   E.endDate.value = today();
-  updatePeriodUI();
+  updatePeriodUI({ preserveRange: true });
 
   try {
     await setupBranchFilter();
@@ -240,7 +280,7 @@ async function load() {
       }
     : {
         p_period: E.period.value,
-        p_anchor_date: E.anchor.value,
+        p_anchor_date: E.startDate.value,
         p_branch_id: selectedBranchId(),
         p_limit: 500
       };
@@ -339,9 +379,52 @@ function statusBadge(status) {
   const raw = escapeHtml(String(status ?? '').trim() || '-');
   return `<span class="report-status report-status--${tone}" title="สถานะระบบ: ${raw}">${label}</span>`;
 }
-function applyPaymentFilter(){
-  const selected=E.paymentFilter?.value||'ALL';
-  state.bills=selected==='ALL'?state.allBills:[...state.allBills].filter(bill=>paymentGroup(bill.payment_method)===selected);
+function statusGroup(status) {
+  const key = normalizeStatus(status);
+
+  if (['COMPLETED', 'COMPLETE', 'PAID'].includes(key)) {
+    return 'COMPLETED';
+  }
+
+  if (['PARTIALLY_RETURNED', 'PARTIAL_RETURN'].includes(key)) {
+    return 'PARTIALLY_RETURNED';
+  }
+
+  if (key === 'RETURNED') return 'RETURNED';
+  if (key === 'REFUNDED') return 'REFUNDED';
+
+  if (
+    ['VOIDED', 'VOID', 'CANCELLED', 'CANCELED', 'FAILED'].includes(key)
+  ) {
+    return 'VOIDED';
+  }
+
+  if (['PENDING', 'UNPAID', 'OPEN', 'DRAFT'].includes(key)) {
+    return 'PENDING';
+  }
+
+  if (['HELD', 'ON_HOLD'].includes(key)) {
+    return 'HELD';
+  }
+
+  return key || 'OTHER';
+}
+
+function applyReportFilters() {
+  const payment = E.paymentFilter?.value || 'ALL';
+  const status = E.statusFilter?.value || 'ALL';
+
+  state.bills = [...state.allBills].filter(bill => {
+    const paymentPass =
+      payment === 'ALL' ||
+      paymentGroup(bill.payment_method) === payment;
+
+    const statusPass =
+      status === 'ALL' ||
+      statusGroup(bill.status) === status;
+
+    return paymentPass && statusPass;
+  });
 }
 
 function isRevenueBill(bill){
@@ -358,28 +441,36 @@ function paymentBreakdown(bills){
   }, { CASH: 0, QR: 0, TRANSFER: 0, CARD: 0, VOUCHER: 0, OTHER: 0 });
 }
 
-function render(data) {
-  state.allBills = data?.bills || [];
-  applyPaymentFilter();
-  state.items = data?.items || [];
-
-  const s = data?.summary || {};
-  const v = data?.voids || {};
-  const r = data?.returns || {};
-  const payments = paymentBreakdown(state.allBills);
+function renderSummaryCards() {
+  const visibleBills = state.bills || [];
+  const revenueBills = visibleBills.filter(isRevenueBill);
+  const payments = paymentBreakdown(visibleBills);
+  const grossRevenue = revenueBills.reduce(
+    (total, bill) => total + Number(bill.net_total || 0),
+    0
+  );
+  const averageBill = revenueBills.length
+    ? grossRevenue / revenueBills.length
+    : 0;
+  const voidCount = visibleBills.filter(
+    bill => statusGroup(bill.status) === 'VOIDED'
+  ).length;
+  const returnAmount = Number(
+    state.reportData?.returns?.return_amount || 0
+  );
 
   const cards = [
-    ['จำนวนบิล', Number(s.bill_count || 0).toLocaleString('th-TH')],
-    ['รายรับรวม', money(s.gross_revenue)],
+    ['จำนวนบิล', visibleBills.length.toLocaleString('th-TH')],
+    ['รายรับรวม', money(grossRevenue)],
     ['เงินสด', money(payments.CASH)],
     ['QR', money(payments.QR)],
     ['เงินโอน', money(payments.TRANSFER)],
     ['บัตร', money(payments.CARD)],
     ['Voucher', money(payments.VOUCHER)],
     ['อื่น ๆ', money(payments.OTHER)],
-    ['เฉลี่ยต่อบิล', money(s.average_bill)],
-    ['บิลยกเลิก', Number(v.void_count || 0).toLocaleString('th-TH')],
-    ['ยอดคืนสินค้า', money(r.return_amount)]
+    ['เฉลี่ยต่อบิล', money(averageBill)],
+    ['บิลยกเลิก', voidCount.toLocaleString('th-TH')],
+    ['ยอดคืนสินค้า', money(returnAmount)]
   ];
 
   E.stats.innerHTML = cards.map(([label, value]) => `
@@ -387,8 +478,19 @@ function render(data) {
       <span>${label}</span><strong>${value}</strong>
     </article>
   `).join('');
+}
 
+function refreshFilteredReport() {
+  applyReportFilters();
+  renderSummaryCards();
   renderTableOnly();
+}
+
+function render(data) {
+  state.reportData = data || {};
+  state.allBills = data?.bills || [];
+  state.items = data?.items || [];
+  refreshFilteredReport();
 }
 
 function openBill(id) {
@@ -454,7 +556,8 @@ function exportCsv() {
 }
 
 
-E.paymentFilter.onchange=()=>{applyPaymentFilter();renderTableOnly();};
+E.paymentFilter.onchange = refreshFilteredReport;
+E.statusFilter.onchange = refreshFilteredReport;
 
 function renderTableOnly(){
   E.rows.innerHTML = state.bills.map(bill => `
@@ -467,9 +570,22 @@ E.period.onchange = () => {
   load();
 };
 
-E.anchor.onchange = load;
-E.startDate.onchange = load;
-E.endDate.onchange = load;
+E.startDate.onchange = () => {
+  updatePeriodUI();
+  load();
+};
+
+E.endDate.onchange = () => {
+  if (
+    E.period.value !== 'RANGE' &&
+    E.endDate.value !== E.startDate.value
+  ) {
+    E.period.value = 'RANGE';
+  }
+
+  updatePeriodUI({ preserveRange: true });
+  load();
+};
 E.load.onclick = load;
 E.csv.onclick = exportCsv;
 E.print.onclick = () => print();
