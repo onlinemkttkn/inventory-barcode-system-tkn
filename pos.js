@@ -76,6 +76,21 @@ function clearOrder(){
 }
 function validUuid(value){return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value||''))}
 function hasBranch(){return validUuid(E.branch?.value)}
+function normalizePosScan(raw){
+  let value=String(raw||'').trim();
+  if(!value)return '';
+  try{
+    const url=new URL(value);
+    value=url.searchParams.get('id')||url.searchParams.get('code')||url.searchParams.get('scan')||decodeURIComponent(url.pathname.split('/').filter(Boolean).at(-1)||value);
+  }catch(_){ }
+  return String(value||'').trim();
+}
+function parsePosScan(raw){
+  const value=normalizePosScan(raw);
+  if(/^TKN-B-/i.test(value))return{kind:'BOX',raw:value,value};
+  if(/^TKN-P-/i.test(value))return{kind:'PRODUCT_QR',raw:value,value:value.replace(/^TKN-P-/i,'')};
+  return{kind:'SEARCH',raw:value,value};
+}
 function subtotal(){return [...cart.values()].reduce((s,x)=>s+Math.max(x.qty*x.price,0),0)}
 function lineDiscount(item){return Math.max(Math.min(number(item.discountPerUnit,0)*Math.min(number(item.discountQty,0),number(item.qty,0)),number(item.qty,0)*number(item.price,0)),0)}
 function itemDiscountTotal(){return [...cart.values()].reduce((s,x)=>s+lineDiscount(x),0)}
@@ -301,13 +316,26 @@ async function openShiftFromLock(event){
 
 async function searchProducts(event){
   event.preventDefault();
+  const scan=parsePosScan(E.search.value);
+  if(scan.kind==='BOX'){
+    const target=`./box-qr-stock.html?tab=check&scan=${encodeURIComponent(scan.raw)}`;
+    msg(E.searchMsg,'QR กล่องใช้ตรวจสอบสต็อก ไม่ขายทั้งกล่อง ระบบกำลังเปิดรายละเอียดกล่อง','success');
+    const opened=window.open(target,'_blank','noopener');
+    if(!opened)location.href=target;
+    E.search.value='';
+    return;
+  }
   if(!hasBranch())return msg(E.searchMsg,'กรุณาเลือกสาขาก่อนค้นสินค้า','error');
   if(!shift?.shift_id)return msg(E.searchMsg,'กรุณาเปิดกะก่อนค้นสินค้า','error');
-  const q=E.search.value.trim().replace(/[%_,()]/g,'');
-  if(!q)return msg(E.searchMsg,'กรุณากรอกชื่อ รหัส หรือบาร์โค้ด','error');
-  E.searchButton.disabled=true; msg(E.searchMsg,'กำลังค้นหา...');
+  const q=scan.value.replace(/[%_,()]/g,'');
+  if(!q)return msg(E.searchMsg,'กรุณาสแกน QR สินค้า หรือกรอกชื่อ SKU / Barcode','error');
+  E.searchButton.disabled=true;
+  msg(E.searchMsg,scan.kind==='PRODUCT_QR'?'กำลังอ่าน QR สินค้า...':'กำลังค้นหา...');
   try{
-    const inv=await supabaseClient.from('branch_inventory_list').select('*').eq('branch_id',E.branch.value).gt('quantity',0).or(`product_name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.eq.${q}`).limit(20);
+    const productFilter=scan.kind==='PRODUCT_QR'
+      ? `product_code.eq.${q},barcode.eq.${q}`
+      : `product_name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.eq.${q}`;
+    const inv=await supabaseClient.from('branch_inventory_list').select('*').eq('branch_id',E.branch.value).gt('quantity',0).or(productFilter).limit(20);
     if(inv.error)throw inv.error;
     const rows=inv.data||[];
     if(!rows.length){E.results.innerHTML='';return msg(E.searchMsg,'ไม่พบสินค้า หรือสินค้าหมดสต็อก','error')}
@@ -319,7 +347,7 @@ async function searchProducts(event){
     E.results.innerHTML=products.map(p=>`<article class="product-result" data-id="${p.id}"><div><strong>${esc(p.name)}</strong><small>${esc(p.code)} · คงเหลือ ${p.stock.toLocaleString('th-TH')} · ${money(p.price)}</small></div><button class="btn primary add-product" type="button">เพิ่ม</button></article>`).join('');
     E.results.querySelectorAll('.product-result').forEach(row=>{const p=products.find(x=>x.id===row.dataset.id);row.querySelector('button').onclick=()=>addProduct(p)});
     if(products.length===1){addProduct(products[0]);E.search.value='';E.search.focus()}
-    msg(E.searchMsg,`พบ ${products.length} รายการ`);
+    msg(E.searchMsg,scan.kind==='PRODUCT_QR'?`อ่าน QR สำเร็จ: ${products[0]?.name||q}`:`พบ ${products.length} รายการ`,'success');
   }catch(err){msg(E.searchMsg,err.message||'ค้นสินค้าไม่สำเร็จ','error')}
   finally{E.searchButton.disabled=!hasBranch()}
 }

@@ -47,3 +47,10 @@
   .preset-a4-50x30{grid-template-columns:repeat(3,50mm)!important}
   .preset-a4-70x40{grid-template-columns:repeat(2,70mm)!important}
 }
+
+
+/* v5.16.3 — QR-first label workflow */
+#codeMode{border:2px solid #b20f0f;background:#fffaf0;font-weight:800}
+#barcodeSource:disabled{opacity:.55;background:#eef0f3}
+.code-mode-qr .qr-holder{transform:scale(1.04);transform-origin:center}
+.code-mode-qr .codes-row{justify-content:center}

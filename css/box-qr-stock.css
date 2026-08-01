@@ -4,3 +4,18 @@
 .hero a.camera-entry{background:#fff3c4;color:#6b3a00;box-shadow:0 0 0 2px rgba(255,211,42,.35) inset}
 .camera-link{display:inline-flex;align-items:center;justify-content:center;min-height:43px;border-radius:10px;padding:11px 14px;background:#fff3c4;color:#6b3a00;text-decoration:none;font-weight:800;border:1px solid #e8c75a}
 @media(max-width:600px){.camera-entry{order:-1;width:100%}.scan .camera-link{width:100%;min-height:48px}}
+
+
+/* v5.16.3 — QR Code is the primary product/box identifier */
+.qr-primary-note{margin:-4px 0 12px;color:#6b3a00;background:#fff6d8;border:1px solid #efd27b;border-radius:10px;padding:10px 12px;font-weight:700}
+.label{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;min-height:215px}
+.label-kind{display:inline-flex;align-items:center;border-radius:999px;padding:3px 9px;background:#fff1c2;color:#6b3a00;font-size:12px;font-weight:900}
+.label-qr{display:flex;align-items:center;justify-content:center;min-height:120px;width:100%}
+.label-qr canvas{display:block;image-rendering:pixelated}
+.label-barcode{width:100%;max-height:55px}
+.label-mode-qr{border:2px solid #b20f0f;box-shadow:0 5px 15px rgba(178,15,15,.10)}
+.label-mode-qr .label-qr{min-height:174px}
+@media print{
+  .qr-primary-note{display:none!important}
+  .label{break-inside:avoid;page-break-inside:avoid;box-shadow:none}
+}

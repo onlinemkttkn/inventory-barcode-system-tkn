@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <title>พิมพ์ป้ายสินค้า</title>
-  <link rel="stylesheet" href="./css/print-labels.css?v=3.4.10">
+  <link rel="stylesheet" href="./css/print-labels.css?v=5.16.3">
   <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
@@ -19,8 +19,8 @@
     <header class="topbar no-print">
       <div>
         <p class="eyebrow">PHASE 06.4</p>
-        <h1>ระบบพิมพ์ป้ายสินค้าและเครื่องพิมพ์พกพา</h1>
-        <p>สำหรับใช้งานภายในองค์กร เลือกหลายสินค้าและกำหนดจำนวนสำเนาได้</p>
+        <h1>ระบบพิมพ์ QR สินค้าและป้ายสินค้า</h1>
+        <p>QR Code เป็นรหัสหลักสำหรับตรวจสต็อกและขายที่ POS ส่วน Barcode เป็นตัวเลือกสำรอง</p>
       </div>
     </header>
 
@@ -68,14 +68,14 @@
           <label class="field">
             ประเภทโค้ด
             <select id="codeMode">
-              <option value="barcode">Code128</option>
-              <option value="qr">QR Code</option>
-              <option value="both">Barcode + QR</option>
+              <option value="qr" selected>QR Code — ค่าเริ่มต้น</option>
+              <option value="both">QR Code + Barcode</option>
+              <option value="barcode">Barcode เท่านั้น</option>
             </select>
           </label>
 
           <label class="field">
-            ใช้ค่า Barcode จาก
+            ใช้ค่า Barcode จาก (เมื่อเลือก Barcode)
             <select id="barcodeSource">
               <option value="barcode">บาร์โค้ดสินค้า</option>
               <option value="product_code">รหัสสินค้า</option>
@@ -86,6 +86,7 @@
           <label class="check"><input id="showPrice" type="checkbox" checked> ราคาขาย</label>
           <label class="check"><input id="showProductCode" type="checkbox" checked> รหัสสินค้า</label>
           <label class="check"><input id="showBarcodeText" type="checkbox" checked> เลขใต้บาร์โค้ด</label>
+          <p class="message success">QR สินค้าจะเก็บค่า TKN-P-รหัสสินค้า เพื่อใช้ร่วมกันทั้ง Stock Check และ POS</p>
 
           <div class="action-grid">
             <button id="previewBtn" class="btn primary" type="button">สร้างตัวอย่าง</button>
@@ -140,7 +141,7 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="./js/supabase-config.js?v=3.4.10"></script>
   <script src="./js/auth-guard.js?v=3.6.11"></script>
-  <script src="./js/print-labels.js?v=5.4.4"></script>
+  <script src="./js/print-labels.js?v=5.16.3"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>

@@ -133,7 +133,7 @@
       $("cameraPlaceholder").hidden = true;
       $("stopCameraBtn").disabled = false;
       setCameraStatus("กำลังสแกน", true);
-      setMessage("เล็ง QR หรือ Barcode ให้อยู่กลางกรอบ", "success");
+      setMessage("เล็ง QR สินค้า TKN-P หรือ QR กล่อง TKN-B ให้อยู่กลางกรอบ · Barcode ยังใช้ได้", "success");
     } catch (error) {
       console.error("Mobile scanner:", error);
       stopCamera();
@@ -492,7 +492,7 @@
       bindEvents();
       loadRecent();
       window.TKNAuthGuard.ready();
-      setMessage("พร้อมใช้งาน กดเปิดกล้องเพื่อเริ่มตรวจสินค้า", "success");
+      setMessage("พร้อมใช้งาน QR Code เป็นรหัสหลักสำหรับตรวจสินค้าและสต็อก", "success");
       const initial = new URLSearchParams(location.search).get("scan");
       if (initial) { $("manualCode").value = initial; await handleCode(initial); }
     } catch (error) {

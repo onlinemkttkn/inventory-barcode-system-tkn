@@ -326,7 +326,7 @@
       S.lastScan = { type: "PRODUCT", product, ...info };
       $("scanResult").innerHTML = `<h3>${esc(product.name)}</h3><p>รหัส ${esc(product.product_code)} · ราคา ${Number(product.selling_price || 0).toLocaleString("th-TH")} บาท</p><p><b>สต็อกในระบบ ${integer(info.stock)} ชิ้น</b> · อยู่ในกล่อง ${integer(info.inBoxes)} ชิ้น</p><p>${info.branches.map((row) => `${esc(row.branch_name || "สาขา")}: ${integer(row.quantity)}`).join(" · ") || "ไม่พบข้อมูลแยกสาขา"}</p>`;
     }
-    audit("SCAN", raw, "ตรวจสอบ QR/Barcode");
+    audit("SCAN", raw, "ตรวจสอบ QR เป็นหลัก / Barcode สำรอง");
     save();
     msg("ตรวจสอบข้อมูลแล้ว", "success");
   }
@@ -417,17 +417,65 @@
     renderQueue();
   }
 
+  function currentLabelMode() {
+    return $("labelMode")?.value || "QR";
+  }
+
+  function syncPrintModeUi() {
+    const mode = currentLabelMode();
+    const labels = {
+      QR: "พิมพ์ QR ทั้งหมด",
+      BOTH: "พิมพ์ QR + Barcode",
+      BARCODE: "พิมพ์ Barcode ทั้งหมด",
+    };
+    if ($("printAllBtn")) $("printAllBtn").textContent = labels[mode] || labels.QR;
+  }
+
   function renderQueue() {
     const host = $("printQueue");
+    if (!host) return;
     host.innerHTML = "";
+    const mode = currentLabelMode();
+    const showQr = mode === "QR" || mode === "BOTH";
+    const showBarcode = mode === "BARCODE" || mode === "BOTH";
+    syncPrintModeUi();
+
     S.queue.forEach((item, index) => {
       const article = document.createElement("article");
-      article.className = "label";
-      article.innerHTML = `<b>${esc(item.name)}</b><div id="qr${index}"></div><svg id="bar${index}"></svg><small>${esc(item.code)} · ${item.qty} ฉลาก</small>`;
+      article.className = `label label-mode-${mode.toLowerCase()}`;
+      const kind = item.type === "BOX" ? "QR กล่อง" : "QR สินค้า";
+      article.innerHTML = `
+        <span class="label-kind">${kind}</span>
+        <b>${esc(item.name)}</b>
+        ${showQr ? `<div class="label-qr" id="qr${index}"></div>` : ""}
+        ${showBarcode ? `<svg class="label-barcode" id="bar${index}"></svg>` : ""}
+        <small>${esc(item.code)} · ${item.qty} ฉลาก</small>`;
       host.appendChild(article);
+
       setTimeout(() => {
-        if (window.QRCode) QRCode.toCanvas(document.createElement("canvas"), item.code, { width: 110 }, (error, canvas) => { if (!error) $("qr" + index).appendChild(canvas); });
-        if (window.JsBarcode) JsBarcode("#bar" + index, item.code, { height: 35, displayValue: false, margin: 2 });
+        if (showQr && window.QRCode) {
+          const qrHost = $("qr" + index);
+          const canvas = document.createElement("canvas");
+          const size = mode === "QR" ? 170 : 112;
+          Promise.resolve(window.QRCode.toCanvas(canvas, item.code, {
+            width: size,
+            margin: 1,
+            errorCorrectionLevel: "M",
+          })).then(() => qrHost?.appendChild(canvas)).catch((error) => {
+            console.error("QR render failed:", error);
+            if (qrHost) qrHost.textContent = "สร้าง QR ไม่สำเร็จ";
+          });
+        }
+        if (showBarcode && window.JsBarcode) {
+          try {
+            window.JsBarcode("#bar" + index, item.code, {
+              format: "CODE128", height: mode === "BOTH" ? 28 : 42,
+              displayValue: false, margin: 2,
+            });
+          } catch (error) {
+            console.error("Barcode render failed:", error);
+          }
+        }
       }, 0);
     });
   }
@@ -477,6 +525,7 @@
     $("receiveSku").onkeydown = (event) => { if (event.key === "Enter") void receive(); };
     $("boxSku").onkeydown = (event) => { if (event.key === "Enter") void addBox(); };
     $("boxRows").onclick = (event) => { const index = event.target.dataset.remove; if (index !== undefined) void removeItem(Number(index)); };
+    $("labelMode").onchange = renderQueue;
     $("printAllBtn").onclick = () => window.print();
     $("clearPrintBtn").onclick = () => { if (confirm("ล้างคิวพิมพ์ในเครื่อง?")) { S.queue = []; save(); } };
     $("recountBtn").onclick = () => msg("แนะนำเปิดโหมดมือถือเพื่อสแกนและบันทึกร่างการตรวจนับ", "success");
@@ -492,6 +541,7 @@
       const { data: { session } } = await window.supabaseClient.auth.getSession();
       S.user = session?.user?.email || access?.email || "-";
       S.userId = session?.user?.id || null;
+      if ($("labelMode")) $("labelMode").value = "QR";
       load();
       bindEvents();
       await syncCurrentBoxSnapshot();
@@ -503,7 +553,7 @@
         location.replace("./dashboard.html");
       });
       window.TKNAuthGuard.ready();
-      if (!new URLSearchParams(location.search).get("scan")) msg("ระบบ Box QR พร้อมใช้งาน · ข้อมูลใหม่จะซิงก์ส่วนกลางสำหรับตรวจผ่านมือถือ", "success");
+      if (!new URLSearchParams(location.search).get("scan")) msg("ระบบ QR พร้อมใช้งาน · QR สินค้าใช้ตรวจสต็อกและสแกนขายที่ POS ได้", "success");
     } catch (error) {
       console.error("Box QR initialization error:", error);
       if (error?.code === "INVENTORY_PERMISSION_DENIED") return;

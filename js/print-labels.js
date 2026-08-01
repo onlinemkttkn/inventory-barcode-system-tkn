@@ -64,6 +64,8 @@ async function init() {
 
     el.loginSection.classList.add("hidden");
     el.workspace.classList.remove("hidden");
+    el.codeMode.value = "qr";
+    syncCodeModeUi();
     el.searchInput.focus();
     supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
       if (nextSession) return;
@@ -89,7 +91,7 @@ el.searchForm.addEventListener("submit", async (event) => {
   message(el.searchMessage, "กำลังค้นหา...");
   el.searchResults.innerHTML = "";
 
-  const clean = query.replace(/[,%()]/g, "");
+  const clean = query.replace(/^TKN-P-/i, "").replace(/[,%()]/g, "");
   const { data, error } = await supabaseClient
     .from("product_management_list")
     .select("id,product_code,barcode,name,selling_price,total_branch_quantity,category_code,category_name,unit_name,is_active")
@@ -190,6 +192,17 @@ function getBarcodeValue(product) {
     : product.barcode;
 }
 
+function getProductQrValue(product) {
+  const code = String(product?.product_code || "").trim();
+  return code ? `TKN-P-${code}` : "";
+}
+
+function syncCodeModeUi() {
+  const usesBarcode = el.codeMode.value === "barcode" || el.codeMode.value === "both";
+  el.barcodeSource.disabled = !usesBarcode;
+  el.showBarcodeText.disabled = !usesBarcode;
+}
+
 const PRESET_CONFIG = Object.freeze({
   label58: { pageWidth: 58, pageHeight: 38, qrOnly: 68, qrBoth: 56, barcodeHeight: 38, barcodeBothHeight: 30, barcodeWidth: 1.25, fontSize: 9 },
   peripage57: { pageWidth: 57, pageHeight: 35, qrOnly: 58, qrBoth: 52, barcodeHeight: 34, barcodeBothHeight: 27, barcodeWidth: 1.15, fontSize: 9 },
@@ -277,7 +290,7 @@ function validateQueueForCurrentMode() {
 
   queue.forEach(({ product }) => {
     const barcodeValue = getBarcodeValue(product);
-    const qrValue = product.barcode || product.product_code;
+    const qrValue = getProductQrValue(product);
     if ((mode === "barcode" || mode === "both") && !barcodeValue) {
       invalid.push(`${product.name}: ไม่มีค่าที่ใช้สร้าง Barcode`);
     }
@@ -391,7 +404,7 @@ function createLabel(product) {
   }
 
   if (codeMode === "qr" || codeMode === "both") {
-    const value = product.barcode || product.product_code;
+    const value = getProductQrValue(product);
     const holder = document.createElement("div");
     holder.className = "qr-holder";
     codeRow.appendChild(holder);
@@ -469,6 +482,7 @@ el.clearBtn.addEventListener("click", () => {
   el.showProductCode,
   el.showBarcodeText,
 ].forEach((node) => node.addEventListener("change", () => {
+  syncCodeModeUi();
   if (queue.size) renderLabels();
 }));
 

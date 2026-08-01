@@ -1,4 +1,4 @@
-TKN POS ERP FINAL v5.16.2
-Receipt Discount & Unified Reprint Final
+TKN POS ERP FINAL v5.16.3
+QR Primary Stock & POS Final
 Built: 2026-08-01
-Base: v5.16.1 Report Discount Inspection Popup
+Base: v5.16.2 Receipt Discount Final
