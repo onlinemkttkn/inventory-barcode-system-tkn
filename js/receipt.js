@@ -104,8 +104,38 @@ function thaiDateTime(value){
   });
 }
 
+function itemGrossTotal(item){
+  return Math.max(Number(item?.quantity||0)*Number(item?.unit_price||0),0);
+}
+function itemDiscountAmount(item){
+  const stored=Number(item?.discount_amount);
+  if(Number.isFinite(stored)&&stored>=0)return Math.min(stored,itemGrossTotal(item));
+  const lineTotal=Number(item?.line_total);
+  if(Number.isFinite(lineTotal))return Math.max(itemGrossTotal(item)-lineTotal,0);
+  return 0;
+}
+function itemNetTotal(item){
+  const stored=Number(item?.line_total);
+  if(Number.isFinite(stored)&&stored>=0)return stored;
+  return Math.max(itemGrossTotal(item)-itemDiscountAmount(item),0);
+}
+function itemDiscountTotal(){
+  return items.reduce((sum,item)=>sum+itemDiscountAmount(item),0);
+}
+function billDiscountAmount(){
+  return Math.max(Number(header?.discount_amount||0),0);
+}
+function receiptTotalDiscount(){
+  return itemDiscountTotal()+billDiscountAmount();
+}
+function receiptGrossSubtotal(){
+  if(items.length)return items.reduce((sum,item)=>sum+itemGrossTotal(item),0);
+  return Math.max(Number(header?.subtotal||0)+itemDiscountTotal(),0);
+}
 function receiptNetTotal(){
-  return Number(header?.net_total||0);
+  const stored=Number(header?.net_total);
+  if(Number.isFinite(stored)&&stored>=0)return stored;
+  return Math.max(receiptGrossSubtotal()-receiptTotalDiscount(),0);
 }
 function beforeVatAmount(){
   const stored=Number(header?.vat_base_amount);
@@ -265,24 +295,27 @@ async function renderReceipt(){
           </tr>
         </thead>
         <tbody>
-          ${items.map(item=>`
-            <tr>
+          ${items.map(item=>{
+            const lineDiscount=itemDiscountAmount(item);
+            return `
+            <tr class="${lineDiscount>0?'receipt-item-has-discount':''}">
               <td>
                 ${esc(item.product_name)}
                 <br><small>${esc(item.product_code)}</small>
+                ${lineDiscount>0?`<br><small class="receipt-item-discount">ส่วนลด -${money(lineDiscount)}</small>`:''}
               </td>
               <td class="number-cell">${num(item.quantity)}</td>
-              <td class="number-cell">${money(item.line_total)}</td>
-            </tr>
-          `).join('')}
+              <td class="number-cell">${money(itemNetTotal(item))}</td>
+            </tr>`;
+          }).join('')}
         </tbody>
       </table>
 
       <div class="receipt-line"></div>
 
       <section class="receipt-summary">
-        <div><span>ยอดสินค้า</span><strong>${money(header.subtotal)}</strong></div>
-        <div><span>ส่วนลด</span><strong>${money(header.discount_amount)}</strong></div>
+        <div><span>ยอดก่อนส่วนลด</span><strong>${money(receiptGrossSubtotal())}</strong></div>
+        <div class="receipt-discount-total"><span>ส่วนลด</span><strong>-${money(receiptTotalDiscount())}</strong></div>
         <div><span>มูลค่าก่อน VAT</span><strong>${money(beforeVatAmount())}</strong></div>
         <div><span>VAT ${esc(vatRate())}%</span><strong>${money(vatAmount())}</strong></div>
         <div class="receipt-net">

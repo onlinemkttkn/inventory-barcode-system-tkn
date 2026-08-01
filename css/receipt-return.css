@@ -157,3 +157,13 @@
   .receipt-page-break{break-after:page;page-break-after:always}
   .receipt-page-break:last-child{break-after:auto;page-break-after:auto}
 }
+
+
+/* v5.16.2 — customer-facing discount display */
+.receipt-item-has-discount td{padding-bottom:6px}
+.receipt-item-discount{display:inline-block;margin-top:2px;font-weight:800;color:#000}
+.receipt-discount-total{font-weight:900}
+.receipt-discount-total strong{white-space:nowrap}
+@media print{
+  .receipt-item-discount{color:#000!important}
+}

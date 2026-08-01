@@ -190,3 +190,14 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v5.16.2 — discount clarity in historical bill detail */
+.item-list li.bill-item-discounted{background:#fff8e7;border:1px solid #f4d48b;border-radius:12px;padding:11px 12px;margin-bottom:8px}
+.bill-item-discount-label{display:block;margin-top:5px;font-weight:800;color:#a33a00}
+.bill-item-price{display:grid;gap:4px;text-align:right;white-space:nowrap}
+.bill-total-summary{display:grid;gap:7px;border-top:1px solid #ddd4c7;padding-top:12px}
+.bill-total-summary p{display:flex;justify-content:space-between;gap:12px;margin:0}
+.bill-discount-row{font-weight:800;color:#a33a00}
+.bill-net-row{font-size:1.08rem;border-top:1px solid #1f1a17;border-bottom:1px solid #1f1a17;padding:8px 0;font-weight:900;color:#111}
+@media(max-width:560px){.item-list li{align-items:flex-start}.bill-item-price{font-size:.92rem}.bill-total-summary p{font-size:.95rem}}

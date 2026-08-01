@@ -198,6 +198,20 @@ async function openBill(id) {
 
     if (error) throw error;
 
+    const billItems = items || [];
+    const itemDiscount = (item) => {
+      const stored = Number(item.discount_amount || 0);
+      if (Number.isFinite(stored) && stored >= 0) return stored;
+      return Math.max((Number(item.quantity || 0) * Number(item.unit_price || 0)) - Number(item.line_total || 0), 0);
+    };
+    const itemDiscountTotal = billItems.reduce((sum, item) => sum + itemDiscount(item), 0);
+    const billLevelDiscount = Math.max(Number(bill.discount_amount || 0), 0);
+    const totalDiscount = itemDiscountTotal + billLevelDiscount;
+    const grossSubtotal = billItems.reduce(
+      (sum, item) => sum + (Number(item.quantity || 0) * Number(item.unit_price || 0)),
+      0
+    );
+
     els.dialogContent.innerHTML = `
       <div class="bill-meta">
         <p><strong>วันที่:</strong><br>${formatDate(bill.created_at)}</p>
@@ -207,8 +221,10 @@ async function openBill(id) {
       </div>
 
       <ul class="item-list">
-        ${(items || []).map((item) => `
-          <li>
+        ${billItems.map((item) => {
+          const discount = itemDiscount(item);
+          return `
+          <li class="${discount > 0 ? 'bill-item-discounted' : ''}">
             <span>
               ${escapeHtml(item.product_name_snapshot || '-')}
               <br>
@@ -217,18 +233,22 @@ async function openBill(id) {
                 ·
                 ${escapeHtml(item.barcode_snapshot || '-')}
               </small>
+              ${discount > 0 ? `<small class="bill-item-discount-label">ส่วนลด -${formatMoney(discount)}</small>` : ''}
             </span>
 
-            <strong>
-              ${Number(item.quantity || 0)}
-              × ${formatMoney(item.unit_price)}
-              = ${formatMoney(item.line_total)}
+            <strong class="bill-item-price">
+              <span>${Number(item.quantity || 0)} × ${formatMoney(item.unit_price)}</span>
+              <span>สุทธิ ${formatMoney(item.line_total)}</span>
             </strong>
-          </li>
-        `).join('')}
+          </li>`;
+        }).join('')}
       </ul>
 
-      <p><strong>ยอดสุทธิ: ${formatMoney(bill.net_total)}</strong></p>
+      <div class="bill-total-summary">
+        <p><span>ยอดก่อนส่วนลด</span><strong>${formatMoney(grossSubtotal)}</strong></p>
+        <p class="bill-discount-row"><span>ส่วนลด</span><strong>-${formatMoney(totalDiscount)}</strong></p>
+        <p class="bill-net-row"><span>ยอดสุทธิ</span><strong>${formatMoney(bill.net_total)}</strong></p>
+      </div>
     `;
 
     applyPermissionElements(

@@ -1,4 +1,4 @@
-TKN POS ERP FINAL v5.16.1
-Report Discount Inspection Popup
+TKN POS ERP FINAL v5.16.2
+Receipt Discount & Unified Reprint Final
 Built: 2026-08-01
-Base: v5.16.0 Clean Pricing Dropdown Final
+Base: v5.16.1 Report Discount Inspection Popup

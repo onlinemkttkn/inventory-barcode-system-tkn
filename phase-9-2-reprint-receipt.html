@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TKN POS - พิมพ์ใบเสร็จย้อนหลัง</title>
-  <link rel="stylesheet" href="./css/phase-9-2-reprint-receipt.css?v=5.7.2">
+  <link rel="stylesheet" href="./css/receipt-return.css?v=5.16.2">
+  <link rel="stylesheet" href="./css/phase-9-2-reprint-receipt.css?v=5.16.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
-  <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
 <body class="tkn-print-layout">
@@ -25,54 +25,18 @@
             <option value="58">58 mm</option>
           </select>
         </label>
-        <button id="printButton" type="button">พิมพ์</button>
+        <button id="printButton" type="button" disabled>พิมพ์</button>
         <button id="closeButton" type="button">ปิด</button>
       </div>
     </section>
 
-    <article id="receipt" class="receipt receipt-80">
-      <header class="receipt-header">
-        <h1>TKN SHOP</h1>
-        <p>ใบเสร็จรับเงิน (สำเนา)</p>
-        <p class="reprint-label">REPRINT</p>
-      </header>
-
-      <section class="receipt-meta">
-        <div><span>เลขบิล</span><strong id="saleNo">-</strong></div>
-        <div><span>วันที่</span><strong id="saleDate">-</strong></div>
-        <div><span>ลูกค้า</span><strong id="customerName">Walk-in</strong></div>
-        <div><span>ชำระเงิน</span><strong id="paymentMethod">-</strong></div>
-      </section>
-
-      <table>
-        <thead>
-          <tr>
-            <th>รายการ</th>
-            <th class="number">จำนวน</th>
-            <th class="number">รวม</th>
-          </tr>
-        </thead>
-        <tbody id="receiptItems">
-          <tr><td colspan="3">กำลังโหลด...</td></tr>
-        </tbody>
-      </table>
-
-      <section class="totals">
-        <div><span>ยอดก่อนส่วนลด</span><strong id="subtotal">฿0.00</strong></div>
-        <div><span>ส่วนลด</span><strong id="discount">฿0.00</strong></div>
-        <div class="grand-total"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
-        <div><span>รับเงิน</span><strong id="receivedAmount">฿0.00</strong></div>
-        <div><span>เงินทอน</span><strong id="changeAmount">฿0.00</strong></div>
-      </section>
-
-      <footer>
-        <p>ขอบคุณที่ใช้บริการ</p>
-        <p class="small">เอกสารฉบับนี้เป็นการพิมพ์ซ้ำจากข้อมูลเดิม</p>
-        <p class="small" id="reprintTimestamp"></p>
-      </footer>
+    <article id="receipt" class="receipt receipt-80" aria-live="polite">
+      <p class="receipt-loading">กำลังโหลดใบเสร็จ...</p>
     </article>
   </main>
 
-  <script type="module" src="./js/phase-9-2-reprint-receipt.js?v=5.7.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="./js/receipt-qr-safe.js?v=3.4.9"></script>
+  <script type="module" src="./js/phase-9-2-reprint-receipt.js?v=5.16.2"></script>
 </body>
 </html>
