@@ -11,13 +11,14 @@
   <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/lazada-import.css?v=5.11.0">
+  <link rel="stylesheet" href="./css/lazada-import.css?v=5.15.0">
+  <link rel="stylesheet" href="./css/price-bulk-tools-v5-15.css?v=5.15.0">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์จัดการราคา Lazada...">
   <main class="shopee-shell">
     <header class="hero-card">
       <div class="hero-copy">
-        <span class="eyebrow">TKN POS ERP · Lazada Workspace Final v5.11.0</span>
+        <span class="eyebrow">TKN POS ERP · Lazada Workspace Final v5.15.0</span>
         <h1>แยกหมวดและทยอยอัปเดตราคา</h1>
         <p>นำเข้าไฟล์ Lazada แบบ CSV แยกจาก Shopee รองรับรายการปกติและงานคืนสินค้า เลือกหมวด กรอกราคา และทยอยอัปเดตโดยไม่แตะยอดสต็อกเดิม</p>
       </div>
@@ -188,6 +189,30 @@
         <button id="clearPriceFilterBtn" class="btn btn-ghost-dark" type="button">ล้างตัวกรอง</button>
       </div>
 
+
+      <section id="priceBulkTools" class="price-bulk-card" aria-label="คำนวณราคาขายหลายรายการ">
+        <div class="price-bulk-head">
+          <div><span class="section-kicker">เครื่องมือคำนวณราคา Final v5.15.0</span><h3>บวก VAT และกำไรจากต้นทุนครั้งเดียว</h3><p>คำนวณเป็นราคาขายร่างก่อน ตรวจสอบและแก้ตัวเลขในตารางได้ แล้วจึงกดยืนยันอัปเดตเข้าระบบจริง</p></div>
+          <span class="price-bulk-badge">ยังไม่แตะสต็อก</span>
+        </div>
+        <div class="price-preset-row" aria-label="เปอร์เซ็นต์สำเร็จรูป">
+          <button class="price-preset" type="button" data-markup-preset="10">+10%</button><button class="price-preset" type="button" data-markup-preset="20">+20%</button><button class="price-preset" type="button" data-markup-preset="30">+30%</button><button class="price-preset" type="button" data-markup-preset="40">+40%</button><button class="price-preset" type="button" data-markup-preset="50">+50%</button><button class="price-preset" type="button" data-markup-preset="60">+60%</button><button class="price-preset" type="button" data-markup-preset="70">+70%</button><button class="price-preset" type="button" data-markup-preset="80">+80%</button><button class="price-preset" type="button" data-markup-preset="90">+90%</button><button class="price-preset" type="button" data-markup-preset="100">+100%</button><button class="price-preset" type="button" data-markup-preset="120">+120%</button>
+        </div>
+        <div class="price-bulk-grid">
+          <label><span>กำไรจากทุน (%)</span><input id="bulkMarkupPercent" type="number" min="0" max="1000" step="0.01" value="30" inputmode="decimal"></label>
+          <label><span>VAT (%)</span><input id="bulkVatRate" type="number" min="0" max="100" step="0.01" value="7" inputmode="decimal"></label>
+          <label><span>สถานะราคาทุน</span><select id="bulkVatMode"><option value="EXCLUDED">ต้นทุนยังไม่รวม VAT</option><option value="INCLUDED">ต้นทุนรวม VAT แล้ว</option></select></label>
+          <label><span>ใช้กับรายการ</span><select id="bulkPriceScope"><option value="SELECTED">รายการที่ติ๊กเลือก</option><option value="PAGE" selected>หน้าปัจจุบัน</option><option value="FILTERED">ทั้งหมดตามตัวกรอง</option></select></label>
+          <label class="toggle-line"><input id="bulkRoundPrice" type="checkbox" checked><span>ถ้ามีทศนิยม ปัดขึ้นให้ลงท้าย 0</span></label>
+        </div>
+        <div class="price-bulk-actions">
+          <button id="bulkCalculateBtn" class="btn btn-warning" type="button">คำนวณและดูตัวอย่าง</button>
+          <button id="bulkUndoBtn" class="btn btn-ghost-dark" type="button" disabled>ย้อนคืนราคาก่อนคำนวณ</button>
+        </div>
+        <small class="price-bulk-note">สูตร: ต้นทุน + VAT จากต้นทุน (เมื่อยังไม่รวม VAT) + กำไร % จากต้นทุน · การปัดราคาทำเฉพาะผลลัพธ์ที่มีทศนิยม</small>
+        <div id="bulkPriceResult" class="price-bulk-result" role="status"></div>
+      </section>
+
       <div class="category-progress-grid">
         <article><span>SKU ในตัวกรอง</span><strong id="categorySkuCount">0</strong></article>
         <article><span>พร้อมอัปเดต</span><strong id="categoryReadyCount">0</strong></article>
@@ -286,10 +311,20 @@
     </footer>
   </main>
 
+  <dialog id="bulkPricePreviewDialog" class="price-preview-dialog">
+    <div class="price-preview-card">
+      <div class="price-preview-head"><h3>ตรวจราคาขายร่างก่อนนำไปใช้</h3><button id="bulkPricePreviewClose" class="price-preview-close" type="button" aria-label="ปิด">×</button></div>
+      <div id="bulkPricePreviewSummary" class="price-preview-summary"></div>
+      <div class="price-preview-table-wrap"><table class="price-preview-table"><thead><tr><th>SKU</th><th>สินค้า</th><th class="num">ต้นทุน</th><th class="num">ราคาเดิม</th><th class="num">ก่อนปัด</th><th class="num">ราคาใหม่</th></tr></thead><tbody id="bulkPricePreviewBody"></tbody></table></div>
+      <div class="price-preview-foot"><button id="bulkPricePreviewCancel" class="btn btn-ghost-dark" type="button">ยกเลิก</button><button id="bulkPricePreviewAccept" class="btn btn-primary" type="button">ใช้เป็นราคาขายร่าง</button></div>
+    </div>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
-  <script src="./js/lazada-import.js?v=5.11.0"></script>
+  <script src="./js/lazada-import.js?v=5.15.0"></script>
+  <script src="./js/price-bulk-tools-v5-15.js?v=5.15.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>

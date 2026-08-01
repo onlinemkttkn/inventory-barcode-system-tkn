@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "5.11.0";
+  const VERSION = "5.15.0";
   const SOURCE = "SHOPEE";
   const DB_NAME = "tkn_marketplace_import_v1";
   const DB_VERSION = 1;
@@ -1334,6 +1334,121 @@
       event.returnValue = "";
     });
   }
+
+
+  // Final v5.15.0: shared bulk price calculator used by Shopee/Lazada UI.
+  // It only changes the local draft. The existing update buttons remain the only path to the live product table.
+  let lastBulkPriceUndo = null;
+
+  function priceRuleTargets(scope) {
+    if (scope === "SELECTED") {
+      return Array.from(state.selectedSkus).map((skuId) => state.skuById.get(skuId)).filter(Boolean);
+    }
+    if (scope === "PAGE") return currentPricePageRows();
+    if (scope === "FILTERED") return state.filteredSkuRows.slice();
+    return [];
+  }
+
+  function calculateSuggestedPrice(cost, options) {
+    const vat = options.costIncludesVat ? 0 : cost * (options.vatRate / 100);
+    const profit = cost * (options.markupPercent / 100);
+    const raw = cost + vat + profit;
+    const hasDecimal = Math.abs(raw - Math.round(raw)) > 0.000001;
+    const rounded = options.roundToEndingZero && hasDecimal
+      ? Math.ceil((raw - 0.0000001) / 10) * 10
+      : raw;
+    return { raw, rounded: Number(rounded.toFixed(2)), vat, profit };
+  }
+
+  function previewBulkPriceRule(options) {
+    const targets = priceRuleTargets(options.scope);
+    if (!targets.length) {
+      throw new Error(options.scope === "SELECTED" ? "กรุณาติ๊กเลือกรายการก่อนคำนวณราคา" : "ไม่พบรายการตามขอบเขตที่เลือก");
+    }
+    const rows = [];
+    let skippedCount = 0;
+    targets.forEach((item) => {
+      const cost = parseOptionalMoney(item.cost_price);
+      if (!cost.valid || cost.empty || cost.value <= 0) { skippedCount += 1; return; }
+      const selling = parseOptionalMoney(item.selling_price);
+      const result = calculateSuggestedPrice(cost.value, options);
+      rows.push({
+        sku: item.sku_id,
+        name: item.item_name,
+        cost: cost.value,
+        before: selling.valid && !selling.empty ? selling.value : 0,
+        raw: result.raw,
+        after: result.rounded,
+        vatAmount: result.vat,
+        profitAmount: result.profit,
+      });
+    });
+    return {
+      options: { ...options },
+      targetCount: targets.length,
+      changedCount: rows.length,
+      skippedCount,
+      rows,
+    };
+  }
+
+  function applyBulkPriceRule(preview) {
+    if (!preview?.rows?.length) throw new Error("ไม่มีราคาขายร่างให้นำไปใช้");
+    const undoRows = [];
+    const changedSkuIds = [];
+    preview.rows.forEach((row) => {
+      const item = state.skuById.get(row.sku);
+      if (!item) return;
+      undoRows.push({ sku: row.sku, selling_price: item.selling_price, pricing_rule: item.pricing_rule || null });
+      item.selling_price = String(row.after);
+      item.pricing_rule = {
+        version: "5.15.0",
+        markup_percent: preview.options.markupPercent,
+        vat_rate: preview.options.vatRate,
+        cost_includes_vat: preview.options.costIncludesVat,
+        round_to_ending_zero: preview.options.roundToEndingZero,
+        calculated_at: new Date().toISOString(),
+        raw_price: Number(row.raw.toFixed(2)),
+        suggested_price: row.after,
+      };
+      (item.sourceRows || []).forEach((sourceRow) => {
+        sourceRow.selling_price = item.selling_price;
+        sourceRow.pricing_rule = item.pricing_rule;
+      });
+      scheduleDraftSave(item.sku_id);
+      changedSkuIds.push(item.sku_id);
+    });
+    lastBulkPriceUndo = { rows: undoRows, createdAt: new Date().toISOString() };
+    refreshAll();
+    return { changedCount: changedSkuIds.length, skuIds: changedSkuIds };
+  }
+
+  function undoBulkPriceRule() {
+    if (!lastBulkPriceUndo?.rows?.length) return { restoredCount: 0 };
+    let restoredCount = 0;
+    lastBulkPriceUndo.rows.forEach((row) => {
+      const item = state.skuById.get(row.sku);
+      if (!item) return;
+      item.selling_price = row.selling_price;
+      item.pricing_rule = row.pricing_rule;
+      (item.sourceRows || []).forEach((sourceRow) => {
+        sourceRow.selling_price = item.selling_price;
+        sourceRow.pricing_rule = item.pricing_rule;
+      });
+      scheduleDraftSave(item.sku_id);
+      restoredCount += 1;
+    });
+    lastBulkPriceUndo = null;
+    refreshAll();
+    return { restoredCount };
+  }
+
+  window.TKNMarketplacePriceAPI = {
+    version: "5.15.0",
+    preview: previewBulkPriceRule,
+    apply: applyBulkPriceRule,
+    undo: undoBulkPriceRule,
+  };
 
   async function initializePage() {
     try {

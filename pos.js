@@ -2,9 +2,10 @@ import { supabaseClient } from './js/supabase-client.js';
 
 const ids = [
   'branch','payment','customerName','customerPhone','searchForm','search','searchButton',
-  'results','searchMsg','cart','cartCount','subtotal','discount','netTotal','notes',
+  'results','searchMsg','cart','cartCount','subtotal','itemDiscountTotal','discount','netTotal','notes',
   'checkout','manualDrawer','actionMsg','cashierStatus','holdBill','restoreBill','openShift','closeShift',
-  'logoutBtn','branchStatus','closeShiftDialog','closeShiftForm','closingCash','closingNotes',
+  'logoutBtn','branchStatus','cashierUnlockDialog','cashierUnlockForm','employeeCode','cashierPin',
+  'openingFloat','unlockMsg','closeShiftDialog','closeShiftForm','closingCash','closingNotes',
   'cancelCloseShift','closeShiftMsg','paymentDialog','paymentForm','paymentDialogNet',
   'paymentReceivedLabel','paymentDialogReceived','paymentQuickCash','paymentDialogChange',
   'paymentDialogWarning','cancelPayment','confirmPayment','paymentSuccessDialog','successNet',
@@ -12,7 +13,8 @@ const ids = [
   'drawerApproverCode','drawerApproverPin','drawerReason','drawerReasonNotes','confirmDrawerApproval','cancelDrawerApproval','drawerApprovalMsg',
   'cancelOrder','cancelOrderDialog','cancelOrderForm','cancelOrderSummary','cancelOrderReason','cancelOrderNotes',
   'cancelOrderApproverCode','cancelOrderApproverPin','cancelOrderClose','confirmCancelOrder','cancelOrderMsg',
-  'shiftLockScreen','shiftLockForm','shiftLockBranch','shiftLockTitle','shiftLockDescription','shiftLockEmployeeCode','shiftLockPin','shiftLockOpeningFloat','shiftLockSubmit','shiftLockLogout','shiftLockClose','shiftLockMsg','shiftRequiredDialog','shiftRequiredClose','shiftRequiredOpen','logoutGuardDialog','logoutGuardBack'
+  'shiftLockScreen','shiftLockForm','shiftLockBranch','shiftLockEmployeeCode','shiftLockPin','shiftLockOpeningFloat','shiftLockSubmit','shiftLockLogout','shiftLockClose','shiftLockMsg','shiftRequiredDialog','shiftRequiredClose','shiftRequiredOpen','logoutGuardDialog','logoutGuardBack',
+  'itemDiscountDialog','itemDiscountForm','discountProductSummary','discountCondition','discountReason','discountType','discountValue','discountQuantity','discountNotes','discountApproval','discountApproverCode','discountApproverPin','discountWarning','discountRemove','discountCancel','discountApply'
 ];
 const E = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
 const cart = new Map();
@@ -23,6 +25,8 @@ const DEVICE_ID_KEY='tkn_pos_device_id';
 function deviceId(){let id=localStorage.getItem(DEVICE_ID_KEY);if(!id){id=(crypto.randomUUID?.()||`dev-${Date.now()}-${Math.random().toString(16).slice(2)}`);localStorage.setItem(DEVICE_ID_KEY,id)}return id}
 let orderCancelSubmitting=false;
 let drawerApprovalSubmitting=false;
+let discountTargetId=null;
+let itemDiscountSubmitting=false;
 let branchReady=false;
 let cashierProfilesConfigured=false;
 let drawerSoftwareLocked = localStorage.getItem('tkn_drawer_locked') === '1';
@@ -47,30 +51,18 @@ async function writeAudit(actionType,entityType,entityId,label,details={}){
     console.warn('Audit log unavailable:',error);
   }
 }
-function setShiftLockVisible(visible,message='',mode='required'){
+function setShiftLockVisible(visible,message=''){
   if(!E.shiftLockScreen)return;
   E.shiftLockScreen.hidden=!visible;
   document.body.classList.toggle('shift-locked',visible);
   if(E.openShift)E.openShift.hidden=visible||Boolean(shift?.shift_id);
-
-  const content={
-    manual:{title:'เปิดกะแคชเชียร์',description:'กรอกรหัสพนักงานและ PIN เพื่อเปิดกะและเริ่มขาย'},
-    required:{title:'รอพนักงานเปิดกะใหม่',description:'บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย'},
-    blocked:{title:'กรุณาเปิดกะก่อนทำรายการ',description:'ต้องเปิดกะแคชเชียร์ก่อนใช้งานส่วนขายสินค้า'}
-  }[mode]||{};
-
-  if(E.shiftLockTitle)E.shiftLockTitle.textContent=content.title||'เปิดกะแคชเชียร์';
-  if(E.shiftLockDescription)E.shiftLockDescription.textContent=content.description||'';
   if(E.shiftLockBranch){
     E.shiftLockBranch.textContent=hasBranch()
       ? `สาขา: ${E.branch.options[E.branch.selectedIndex]?.text||'-'}`
       : 'ยังไม่พบสาขาที่ใช้งานได้';
   }
-  msg(E.shiftLockMsg,message||'');
-  if(visible){
-    E.shiftLockPin.value='';
-    setTimeout(()=>E.shiftLockEmployeeCode?.focus(),0);
-  }
+  if(message)msg(E.shiftLockMsg,message);
+  if(visible)setTimeout(()=>E.shiftLockEmployeeCode?.focus(),0);
 }
 function clearOrder(){
   cart.clear();
@@ -85,8 +77,10 @@ function clearOrder(){
 function validUuid(value){return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value||''))}
 function hasBranch(){return validUuid(E.branch?.value)}
 function subtotal(){return [...cart.values()].reduce((s,x)=>s+Math.max(x.qty*x.price,0),0)}
+function lineDiscount(item){return Math.max(Math.min(number(item.discountPerUnit,0)*Math.min(number(item.discountQty,0),number(item.qty,0)),number(item.qty,0)*number(item.price,0)),0)}
+function itemDiscountTotal(){return [...cart.values()].reduce((s,x)=>s+lineDiscount(x),0)}
 function discount(){return Math.max(number(E.discount.value),0)}
-function net(){return Math.max(subtotal()-discount(),0)}
+function net(){return Math.max(subtotal()-itemDiscountTotal()-discount(),0)}
 function refreshPosAvailability(status=''){
   const hasOpenShift = Boolean(shift?.shift_id);
   const canWork = branchReady && hasBranch() && hasOpenShift;
@@ -243,7 +237,7 @@ async function init(){
       ? 'ยังไม่ได้เปิดกะ · รอพนักงานเปิดกะใหม่'
       : 'ยังไม่ได้ตั้งค่ารหัสพนักงาน/PIN · กรุณาตั้งค่าในหน้าผู้ใช้และสิทธิ์';
     refreshPosAvailability();
-    setShiftLockVisible(true,'','required');
+    setShiftLockVisible(true);
   }else{
     setShiftLockVisible(false);
   }
@@ -278,6 +272,18 @@ async function openShiftWithCredentials(employeeCode,pin,openingFloat,messageEle
   });
   return true;
 }
+async function openShift(event){
+  event.preventDefault();
+  const ok=await openShiftWithCredentials(
+    E.employeeCode.value,
+    E.cashierPin.value,
+    E.openingFloat.value,
+    E.unlockMsg
+  );
+  if(!ok)return;
+  E.cashierPin.value='';
+  E.cashierUnlockDialog.close();
+}
 async function openShiftFromLock(event){
   event.preventDefault();
   E.shiftLockSubmit.disabled=true;
@@ -309,7 +315,7 @@ async function searchProducts(event){
     const pr=await supabaseClient.from('products').select('id,selling_price,cost_price,is_active').in('id',ids);
     if(pr.error)throw pr.error;
     const map=new Map((pr.data||[]).map(p=>[p.id,p]));
-    const products=rows.map(r=>{const p=map.get(r.product_id)||{};return{id:r.product_id,code:r.product_code,name:r.product_name,barcode:r.barcode,stock:number(r.quantity),price:number(r.selling_price,number(p.selling_price)),active:p.is_active!==false}}).filter(p=>p.active);
+    const products=rows.map(r=>{const p=map.get(r.product_id)||{};return{id:r.product_id,code:r.product_code,name:r.product_name,barcode:r.barcode,stock:number(r.quantity),price:number(r.selling_price,number(p.selling_price)),cost:number(p.cost_price),active:p.is_active!==false}}).filter(p=>p.active);
     E.results.innerHTML=products.map(p=>`<article class="product-result" data-id="${p.id}"><div><strong>${esc(p.name)}</strong><small>${esc(p.code)} · คงเหลือ ${p.stock.toLocaleString('th-TH')} · ${money(p.price)}</small></div><button class="btn primary add-product" type="button">เพิ่ม</button></article>`).join('');
     E.results.querySelectorAll('.product-result').forEach(row=>{const p=products.find(x=>x.id===row.dataset.id);row.querySelector('button').onclick=()=>addProduct(p)});
     if(products.length===1){addProduct(products[0]);E.search.value='';E.search.focus()}
@@ -322,24 +328,83 @@ function addProduct(p){
   if(p.price<=0)return msg(E.actionMsg,`สินค้า ${p.name} ยังไม่มีราคาขาย`,'error');
   const old=cart.get(p.id); const qty=(old?.qty||0)+1;
   if(qty>p.stock)return msg(E.actionMsg,'จำนวนในตะกร้าเกินสต็อก','error');
-  cart.set(p.id,{...p,qty,price:p.price}); renderCart();
+  cart.set(p.id,{...p,qty,price:p.price,cost:number(p.cost),discountPerUnit:old?.discountPerUnit||0,discountQty:old?.discountQty||0,discountReason:old?.discountReason||'',condition:old?.condition||'',discountNotes:old?.discountNotes||'',discountApprover:old?.discountApprover||null}); renderCart();
 }
 function renderCart(){
   E.cart.innerHTML='';
   if(!cart.size)E.cart.innerHTML='<div class="empty-cart">ยังไม่มีสินค้าในตะกร้า</div>';
   for(const item of cart.values()){
+    if(number(item.discountQty,0)>number(item.qty,0))item.discountQty=item.qty;
     const row=document.createElement('article'); row.className='cart-item';
-    row.innerHTML=`<div class="cart-info"><strong>${esc(item.name)}</strong><small>${esc(item.code)} · คงเหลือ ${item.stock.toLocaleString('th-TH')} · ${money(item.price)}/หน่วย</small></div><div class="cart-controls"></div>`;
+    const discountAmount=lineDiscount(item);
+    const effectiveUnit=item.price-number(item.discountPerUnit,0);
+    row.innerHTML=`<div class="cart-info"><strong>${esc(item.name)}</strong><small>${esc(item.code)} · คงเหลือ ${item.stock.toLocaleString('th-TH')} · ราคาปกติ ${money(item.price)}/หน่วย</small>${discountAmount>0?`<div class="item-discount-line"><span>${esc(item.condition||'สินค้ามีตำหนิ')} · ลด ${item.discountQty} ชิ้น</span><strong>- ${money(discountAmount)}</strong></div><small>ราคาหลังลดต่อชิ้น ${money(effectiveUnit)} · ${esc(item.discountReason||'')}</small>`:''}</div><div class="cart-controls"></div>`;
     const controls=row.querySelector('.cart-controls');
     const qty=document.createElement('input'); qty.type='number';qty.min='1';qty.max=String(item.stock);qty.step='1';qty.value=String(item.qty);
-    qty.onchange=()=>{const v=Math.floor(number(qty.value,1));if(v<1){cart.delete(item.id)}else if(v<=item.stock){item.qty=v}else{qty.value=item.qty;msg(E.actionMsg,'จำนวนเกินสต็อก','error')}renderCart()};
-    const price=document.createElement('input');price.type='number';price.min='0';price.step='.01';price.value=String(item.price);price.onchange=()=>{item.price=Math.max(number(price.value),0);updateTotals()};
+    qty.onchange=()=>{const v=Math.floor(number(qty.value,1));if(v<1){cart.delete(item.id)}else if(v<=item.stock){item.qty=v;if(item.discountQty>v)item.discountQty=v}else{qty.value=item.qty;msg(E.actionMsg,'จำนวนเกินสต็อก','error')}renderCart()};
+    const priceBlock=document.createElement('div');priceBlock.className='cart-price-block';priceBlock.innerHTML=`<span>${money(item.price)}</span><small>ทุน ${money(item.cost)}</small>`;
+    const discountBtn=document.createElement('button');discountBtn.type='button';discountBtn.className=`btn discount-item-btn ${discountAmount>0?'has-discount':''}`;discountBtn.textContent=discountAmount>0?'แก้ส่วนลด/ตำหนิ':'ส่วนลด/ตำหนิ';discountBtn.onclick=()=>openItemDiscount(item.id);
     const remove=document.createElement('button');remove.type='button';remove.className='btn danger';remove.textContent='ลบ';remove.onclick=()=>{cart.delete(item.id);renderCart()};
-    controls.append(qty,price,remove);E.cart.appendChild(row);
+    controls.append(qty,priceBlock,discountBtn,remove);E.cart.appendChild(row);
   }
   E.cartCount.textContent=`${cart.size} รายการ`;updateTotals();
 }
-function updateTotals(){E.subtotal.textContent=money(subtotal());E.netTotal.textContent=money(net());refreshPosAvailability()}
+function updateTotals(){E.subtotal.textContent=money(subtotal());if(E.itemDiscountTotal)E.itemDiscountTotal.textContent=money(itemDiscountTotal());E.netTotal.textContent=money(net());refreshPosAvailability()}
+
+
+function discountConditionLabel(value){return({OPENED:'แกะซีล',DENTED_BOX:'กล่องบุบ',DEFECT:'มีตำหนิ',DAMAGED:'ชำรุด',INCOMPLETE:'อุปกรณ์ไม่ครบ',CLEARANCE:'เคลียร์สต็อก',OTHER:'อื่น ๆ'})[value]||value||'สินค้ามีตำหนิ'}
+function computedDiscountPerUnit(item){
+  const value=Math.max(number(E.discountValue.value),0);
+  return E.discountType.value==='PERCENT'?Math.min(item.price*(value/100),item.price):Math.min(value,item.price);
+}
+function updateItemDiscountPreview(){
+  const item=cart.get(discountTargetId);if(!item)return;
+  const perUnit=computedDiscountPerUnit(item),qty=Math.max(1,Math.min(Math.floor(number(E.discountQuantity.value,1)),item.qty));
+  const effective=Math.max(item.price-perUnit,0),total=perUnit*qty,belowCost=effective+0.0001<item.cost;
+  E.discountApproval.hidden=!belowCost;
+  E.discountApproverCode.required=belowCost;E.discountApproverPin.required=belowCost;
+  E.discountWarning.className=`discount-warning ${belowCost?'warn':'safe'}`;
+  E.discountWarning.textContent=belowCost
+    ? `หลังลด ${money(effective)}/ชิ้น ต่ำกว่าทุน ${money(item.cost)} · ต้องใช้รหัสผู้จัดการอนุมัติ`
+    : `หลังลด ${money(effective)}/ชิ้น · ส่วนลดรวม ${money(total)} · ยังไม่เปลี่ยนราคามาตรฐานของสินค้า`;
+}
+function openItemDiscount(productId){
+  const item=cart.get(productId);if(!item)return;
+  discountTargetId=productId;
+  E.discountProductSummary.innerHTML=`<strong>${esc(item.name)}</strong><small>${esc(item.code)} · ราคาปกติ ${money(item.price)} · ทุน ${money(item.cost)} · ในตะกร้า ${item.qty} ชิ้น</small>`;
+  E.discountCondition.value=item.conditionCode||'DEFECT';E.discountReason.value=item.discountReason||'';E.discountType.value=item.discountType||'AMOUNT';E.discountValue.value=String(item.discountInputValue??item.discountPerUnit??0);E.discountQuantity.max=String(item.qty);E.discountQuantity.value=String(item.discountQty||1);E.discountNotes.value=item.discountNotes||'';E.discountApproverCode.value='';E.discountApproverPin.value='';
+  updateItemDiscountPreview();E.itemDiscountDialog.showModal();setTimeout(()=>E.discountReason.focus(),0);
+}
+async function applyItemDiscount(event){
+  event.preventDefault();if(itemDiscountSubmitting)return;
+  const item=cart.get(discountTargetId);if(!item)return E.itemDiscountDialog.close();
+  const reason=E.discountReason.value,condition=E.discountCondition.value,qty=Math.max(1,Math.min(Math.floor(number(E.discountQuantity.value,1)),item.qty));
+  const inputValue=Math.max(number(E.discountValue.value),0),perUnit=computedDiscountPerUnit(item),effective=Math.max(item.price-perUnit,0),belowCost=effective+0.0001<item.cost;
+  if(perUnit<=0)return msg(E.discountWarning,'กรุณาระบุส่วนลดมากกว่า 0','warn');
+  if(!reason)return msg(E.discountWarning,'กรุณาเลือกเหตุผลส่วนลด','warn');
+  itemDiscountSubmitting=true;E.discountApply.disabled=true;
+  try{
+    let approver=null;
+    if(belowCost){
+      if(!E.discountApproverCode.value.trim()||!E.discountApproverPin.value)return msg(E.discountWarning,'กรุณากรอกรหัสผู้อนุมัติและ PIN','warn');
+      const verify=await supabaseClient.rpc('verify_cashier_pin',{p_employee_code:E.discountApproverCode.value.trim(),p_pin:E.discountApproverPin.value});
+      if(verify.error||verify.data?.success===false||verify.data?.can_open_drawer!==true){
+        const text=verify.error?.message||verify.data?.error||'ผู้อนุมัติไม่มีสิทธิ์อนุมัติราคาต่ำกว่าทุน';
+        await writeAudit('POS_ITEM_DISCOUNT_DENIED','PRODUCT',item.id,'ปฏิเสธส่วนลดสินค้าต่ำกว่าทุน',{product_code:item.code,reason,condition,requested_price:effective,cost_price:item.cost,requested_approver:E.discountApproverCode.value.trim(),error:text});
+        return msg(E.discountWarning,text,'warn');
+      }
+      approver={employee_code:verify.data.employee_code,display_name:verify.data.display_name||verify.data.employee_code};
+    }
+    item.discountType=E.discountType.value;item.discountInputValue=inputValue;item.discountPerUnit=perUnit;item.discountQty=qty;item.discountReason=reason;item.condition=discountConditionLabel(condition);item.conditionCode=condition;item.discountNotes=E.discountNotes.value.trim();item.discountApprover=approver;
+    await writeAudit('POS_ITEM_DISCOUNT_DRAFT','PRODUCT',item.id,'กำหนดส่วนลดสินค้ามีตำหนิในตะกร้า',{product_code:item.code,condition,reason,discount_quantity:qty,discount_per_unit:perUnit,total_discount:perUnit*qty,effective_unit_price:effective,cost_price:item.cost,below_cost:belowCost,approver});
+    E.itemDiscountDialog.close();renderCart();msg(E.actionMsg,`กำหนดส่วนลด ${item.name} รวม ${money(perUnit*qty)} แล้ว`,'ok');
+  }finally{itemDiscountSubmitting=false;E.discountApply.disabled=false;}
+}
+function removeItemDiscount(){
+  const item=cart.get(discountTargetId);if(!item)return E.itemDiscountDialog.close();
+  item.discountPerUnit=0;item.discountQty=0;item.discountReason='';item.condition='';item.conditionCode='';item.discountNotes='';item.discountApprover=null;item.discountInputValue=0;
+  E.itemDiscountDialog.close();renderCart();msg(E.actionMsg,`ยกเลิกส่วนลด ${item.name} แล้ว`,'ok');
+}
 
 function configurePaymentFields(){
   const cash=E.payment.value==='CASH';
@@ -384,15 +449,20 @@ async function checkout(event){
   checkoutSubmitting=true;if(E.confirmPayment.disabled)return;
   if(!shift?.shift_id)return msg(E.actionMsg,'ไม่พบกะที่เปิดอยู่ กรุณาเปิดกะใหม่','error');
   const total=net(),cash=E.payment.value==='CASH',received=cash?number(E.paymentDialogReceived.value):total;
-  const items=[...cart.values()].map(x=>({product_id:x.id,quantity:x.qty,unit_price:x.price,discount_amount:0}));
+  const items=[...cart.values()].map(x=>({product_id:x.id,quantity:x.qty,unit_price:x.price,discount_amount:lineDiscount(x)}));
+  const itemDiscountNotes=[...cart.values()].filter(x=>lineDiscount(x)>0).map(x=>`${x.code}: ${x.condition||'-'} / ${x.discountReason||'-'} / ลด ${money(lineDiscount(x))}${x.discountNotes?` / ${x.discountNotes}`:''}`).join(' | ');
+  const saleNotes=[E.notes.value.trim(),itemDiscountNotes?`ส่วนลดสินค้า: ${itemDiscountNotes}`:''].filter(Boolean).join('\n')||null;
   E.confirmPayment.disabled=true;msg(E.actionMsg,'กำลังบันทึกการขาย...');
-  let result=await supabaseClient.rpc('create_pos_sale_safety_v3_5',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:E.notes.value.trim()||null,p_cashier_shift_id:shift.shift_id,p_vat_rate:7});
+  let result=await supabaseClient.rpc('create_pos_sale_safety_v3_5',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:saleNotes,p_cashier_shift_id:shift.shift_id,p_vat_rate:7});
   if(result.error&&/create_pos_sale_safety_v3_5|schema cache|function/i.test(result.error.message||'')){
     console.warn('POS Safety RPC unavailable; using temporary legacy fallback.',result.error);
-    result=await supabaseClient.rpc('create_pos_sale',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:E.notes.value.trim()||null});
+    result=await supabaseClient.rpc('create_pos_sale',{p_branch_id:E.branch.value,p_items:items,p_discount_amount:discount(),p_payment_method:E.payment.value,p_received_amount:received,p_customer_name:E.customerName.value.trim()||null,p_customer_phone:E.customerPhone.value.trim()||null,p_notes:saleNotes});
   }
   if(result.error){checkoutSubmitting=false;E.confirmPayment.disabled=false;return msg(E.actionMsg,result.error.message,'error')}
-  const change=number(result.data?.change_amount,received-total);pendingSale={saleNo:result.data.sale_no,total,received,change};
+  const change=number(result.data?.change_amount,received-total);
+  const discountedItems=[...cart.values()].filter(x=>lineDiscount(x)>0).map(x=>({product_id:x.id,product_code:x.code,condition:x.condition,reason:x.discountReason,discount_quantity:x.discountQty,discount_per_unit:x.discountPerUnit,total_discount:lineDiscount(x),cost_price:x.cost,unit_price:x.price,approver:x.discountApprover||null,notes:x.discountNotes||null}));
+  if(discountedItems.length)await writeAudit('POS_DAMAGED_ITEM_DISCOUNT','SALE',result.data.sale_no,'ขายสินค้ามีตำหนิ/ชำรุดพร้อมส่วนลด',{sale_no:result.data.sale_no,items:discountedItems,total_item_discount:itemDiscountTotal()});
+  pendingSale={saleNo:result.data.sale_no,total,received,change};
   if(cash)await requestCashDrawer('SALE');
   checkoutSubmitting=false;E.confirmPayment.disabled=false;E.paymentDialog.close();E.successNet.textContent=money(total);E.successReceived.textContent=money(received);E.successChange.textContent=money(change);E.changeGivenButton.textContent=change>0?'จ่ายเงินทอนแล้ว / ไปพิมพ์ใบเสร็จ':'ไปพิมพ์ใบเสร็จ';E.paymentSuccessDialog.showModal();
 }
@@ -422,23 +492,14 @@ async function requestCashDrawer(reason='SALE',approval=null,context={}){
   }
 
   try{
-    const drawerFn=window.TKNHardware.openDrawerReliable||window.TKNHardware.openDrawer;
-    const idempotencyKey=reason==='SALE'
-      ? `SALE:${pendingSale?.saleNo||shift?.shift_id}:OPEN_DRAWER`
-      : `MANUAL:${shift?.shift_id||'NO_SHIFT'}:${Date.now()}:OPEN_DRAWER`;
-    const result=await drawerFn({
+    const result=await window.TKNHardware.openDrawer({
       reason,
-      source:'POS',
       shift_id:shift?.shift_id||null,
       sale_no:pendingSale?.saleNo||null,
       approval,
       manual_reason:context.manual_reason||null,
-      notes:context.notes||null,
-      idempotency_key:idempotencyKey
+      notes:context.notes||null
     });
-    if(!result?.ok){
-      throw new Error(result?.error||result?.message||'Hardware ไม่ยืนยันการส่งคำสั่งเปิดลิ้นชัก');
-    }
     drawerSoftwareLocked=true;
     localStorage.setItem('tkn_drawer_locked','1');
     msg(E.actionMsg,`เปิดลิ้นชักผ่าน ${result.transport||result.service||'Hardware'}`,'ok');
@@ -605,7 +666,7 @@ async function closeShift(event){
   E.closingNotes.value='';
   E.cashierStatus.textContent='ปิดกะแล้ว · รอพนักงานเปิดกะใหม่';
   refreshPosAvailability();
-  setShiftLockVisible(true,'ปิดกะเรียบร้อย กรุณาระบุพนักงานกะถัดไป','required');
+  setShiftLockVisible(true,'ปิดกะเรียบร้อย กรุณาระบุพนักงานกะถัดไป');
   await writeAudit('SHIFT_CLOSE','CASHIER_SHIFT',closedShift.shift_id,'ปิดกะแคชเชียร์',{
     employee_code:closedShift.employee_code,
     expected_cash:r.data.expected_cash,
@@ -614,16 +675,9 @@ async function closeShift(event){
   alert(`ปิดกะเรียบร้อย\nเงินสดที่ควรมี ${money(r.data.expected_cash)}\nผลต่าง ${money(r.data.difference)}`);
 }
 
-E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');setShiftLockVisible(true,'','manual')};E.shiftLockForm.onsubmit=openShiftFromLock;E.shiftLockLogout.onclick=logout;E.shiftLockClose.onclick=()=>{setShiftLockVisible(false);refreshPosAvailability()};E.shiftRequiredClose.onclick=()=>E.shiftRequiredDialog.close();E.shiftRequiredOpen.onclick=()=>{E.shiftRequiredDialog.close();setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะก่อนทำรายการ','blocked')};E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.payment.onchange=configurePaymentFields;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>{E.drawerApprovalForm.reset();E.drawerApprovalDialog.close()};E.cancelOrder.onclick=showCancelOrderDialog;E.cancelOrderForm.onsubmit=approveCancelOrder;E.cancelOrderClose.onclick=()=>{E.cancelOrderForm.reset();E.cancelOrderDialog.close()};E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');if(cart.size)return msg(E.actionMsg,'กรุณาชำระหรือยกเลิกออเดอร์ก่อนปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
+E.itemDiscountForm.onsubmit=applyItemDiscount;E.discountCancel.onclick=()=>E.itemDiscountDialog.close();E.discountRemove.onclick=removeItemDiscount;[E.discountType,E.discountValue,E.discountQuantity].forEach(el=>el?.addEventListener('input',updateItemDiscountPreview));
+E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');E.cashierUnlockDialog.showModal()};E.cashierUnlockForm.onsubmit=openShift;E.shiftLockForm.onsubmit=openShiftFromLock;E.shiftLockLogout.onclick=logout;E.shiftLockClose.onclick=()=>{setShiftLockVisible(false);refreshPosAvailability()};E.shiftRequiredClose.onclick=()=>E.shiftRequiredDialog.close();E.shiftRequiredOpen.onclick=()=>{E.shiftRequiredDialog.close();setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะก่อนทำรายการ')};E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.payment.onchange=configurePaymentFields;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>{E.drawerApprovalForm.reset();E.drawerApprovalDialog.close()};E.cancelOrder.onclick=showCancelOrderDialog;E.cancelOrderForm.onsubmit=approveCancelOrder;E.cancelOrderClose.onclick=()=>{E.cancelOrderForm.reset();E.cancelOrderDialog.close()};E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');if(cart.size)return msg(E.actionMsg,'กรุณาชำระหรือยกเลิกออเดอร์ก่อนปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
 E.branch.onchange=()=>{if(shift?.shift_id)return;cart.clear();E.results.innerHTML='';renderCart();if(hasBranch()){branchReady=true;refreshPosAvailability(`พร้อมใช้งาน: ${E.branch.options[E.branch.selectedIndex]?.text||''}`);setShiftLockVisible(!shift?.shift_id)}};
-document.addEventListener('keydown',(event)=>{
-  if(event.key==='Escape' && !E.shiftLockScreen?.hidden){
-    event.preventDefault();
-    setShiftLockVisible(false);
-    refreshPosAvailability();
-    E.openShift?.focus();
-  }
-});
 installLogoutGuard();
 installShiftRequiredGuard();
 init().catch(err=>{console.error(err);msg(E.actionMsg,err.message||'เริ่มระบบไม่สำเร็จ','error');lockBranchControls(false,'เริ่มระบบไม่สำเร็จ')});

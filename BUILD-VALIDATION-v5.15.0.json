@@ -1,0 +1,111 @@
+{
+  "version": "5.15.0",
+  "html": {
+    "manual-product-import.html": {
+      "duplicate_ids": [],
+      "missing_local_assets": [],
+      "id_count": 30
+    },
+    "shopee-import.html": {
+      "duplicate_ids": [],
+      "missing_local_assets": [],
+      "id_count": 90
+    },
+    "lazada-import.html": {
+      "duplicate_ids": [],
+      "missing_local_assets": [],
+      "id_count": 93
+    },
+    "import-export.html": {
+      "duplicate_ids": [],
+      "missing_local_assets": [],
+      "id_count": 14
+    },
+    "pos.html": {
+      "duplicate_ids": [],
+      "missing_local_assets": [],
+      "id_count": 104
+    }
+  },
+  "js": {
+    "js/manual-product-import-v5-15.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "js/price-bulk-tools-v5-15.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "js/shopee-import.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "js/lazada-import.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "pos.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  },
+  "assets": {
+    "manual_required_ids_missing": []
+  },
+  "formulas": {
+    "cases": [
+      {
+        "cost": 100,
+        "markup": 10,
+        "cost_includes_vat": false,
+        "raw": 117.0,
+        "final": 117.0
+      },
+      {
+        "cost": 150,
+        "markup": 10,
+        "cost_includes_vat": false,
+        "raw": 175.5,
+        "final": 180
+      },
+      {
+        "cost": 200,
+        "markup": 10,
+        "cost_includes_vat": false,
+        "raw": 234.0,
+        "final": 234.0
+      },
+      {
+        "cost": 150,
+        "markup": 20,
+        "cost_includes_vat": false,
+        "raw": 190.5,
+        "final": 200
+      },
+      {
+        "cost": 100,
+        "markup": 35,
+        "cost_includes_vat": false,
+        "raw": 142.0,
+        "final": 142.0
+      },
+      {
+        "cost": 100,
+        "markup": 35,
+        "cost_includes_vat": true,
+        "raw": 135.0,
+        "final": 135.0
+      }
+    ],
+    "rounding_examples": {
+      "117": 117.0,
+      "175.5": 180,
+      "190.5": 200,
+      "234.01": 240,
+      "235.5": 240,
+      "310.5": 320,
+      "340.5": 350
+    }
+  },
+  "errors": []
+}

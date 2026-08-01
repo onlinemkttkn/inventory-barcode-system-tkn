@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#8f1010">
+  <title>นำเข้าสินค้าด้วยตนเอง — TKN POS ERP</title>
+  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=5.15.0">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/manual-product-import-v5-15.css?v=5.15.0">
+</head>
+<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์นำเข้าสินค้าด้วยตนเอง...">
+<main class="manual-shell">
+  <header class="manual-hero">
+    <div><span class="eyebrow">TKN POS ERP · FINAL v5.15.0</span><h1>นำเข้าสินค้าด้วยตนเอง</h1><p>เพิ่มสินค้าใหม่หรือรับ SKU เดิมเพิ่ม เก็บต้นทุนแยกรอบ คำนวณ VAT + กำไรเป็นราคาขายร่าง และตรวจแก้ก่อนบันทึกสต็อกจริง</p></div>
+    <div class="hero-actions"><a class="btn ghost" href="./import-export.html">← Import / Export</a><a class="btn ghost" href="./products-admin.html">จัดการสินค้า</a><a class="btn primary" href="./box-qr-stock.html">Box QR</a></div>
+  </header>
+
+  <section class="manual-card settings-card">
+    <div class="section-head"><div><span class="kicker">ตั้งค่ารอบนำเข้า</span><h2>ราคา สาขา และแหล่งที่มา</h2></div><span class="safe-chip">คำนวณเป็นร่างก่อน</span></div>
+    <div class="settings-grid">
+      <label>สาขารับเข้า<select id="defaultBranch"></select></label>
+      <label>ผู้ขาย/แหล่งที่มา<input id="defaultSupplier" autocomplete="off" placeholder="ชื่อร้านหรือผู้ขาย"></label>
+      <label>เลขอ้างอิง<input id="defaultReference" autocomplete="off" placeholder="ใบซื้อ/Tracking/เลขรอบ"></label>
+      <label>กำไรจากทุน (%)<input id="markupPercent" type="number" min="0" max="1000" step="0.01" value="30" inputmode="decimal"></label>
+      <label>VAT (%)<input id="vatRate" type="number" min="0" max="100" step="0.01" value="7" inputmode="decimal"></label>
+      <label>สถานะราคาทุน<select id="vatMode"><option value="EXCLUDED">ต้นทุนยังไม่รวม VAT</option><option value="INCLUDED">ต้นทุนรวม VAT แล้ว</option></select></label>
+      <label class="check-label"><input id="roundPrice" type="checkbox" checked><span>ถ้ามีทศนิยม ปัดขึ้นให้ราคาลงท้าย 0</span></label>
+      <label class="check-label"><input id="updateExistingPrice" type="checkbox" checked><span>SKU เดิมให้อัปเดตราคาขายหลังตรวจสอบ</span></label>
+    </div>
+    <div class="preset-row"><button type="button" data-preset="10">+10%</button><button type="button" data-preset="20">+20%</button><button type="button" data-preset="30">+30%</button><button type="button" data-preset="40">+40%</button><button type="button" data-preset="50">+50%</button><button type="button" data-preset="60">+60%</button><button type="button" data-preset="70">+70%</button><button type="button" data-preset="80">+80%</button><button type="button" data-preset="90">+90%</button><button type="button" data-preset="100">+100%</button><button type="button" data-preset="120">+120%</button></div>
+  </section>
+
+  <section class="manual-card paste-card">
+    <div class="section-head"><div><span class="kicker">เพิ่มข้อมูล</span><h2>กรอกทีละรายการหรือวางจาก Excel</h2></div><div class="toolbar"><button id="addRowBtn" class="btn secondary" type="button">+ เพิ่มแถว</button><button id="clearRowsBtn" class="btn danger-soft" type="button">ล้างรายการ</button></div></div>
+    <details><summary>วางหลายรายการจาก Excel</summary><p>เรียงคอลัมน์: SKU, Barcode, ชื่อสินค้า, หมวด, หน่วย, ยี่ห้อ, ต้นทุน, จำนวน, สภาพ, หมายเหตุ</p><textarea id="pasteArea" rows="5" placeholder="SKU001&#9;885...&#9;ชื่อสินค้า&#9;TOY&#9;ชิ้น&#9;&#9;100&#9;2&#9;NORMAL&#9;"></textarea><button id="pasteRowsBtn" class="btn secondary" type="button">เพิ่มข้อมูลที่วาง</button></details>
+  </section>
+
+  <section class="stats-grid"><article><span>รายการทั้งหมด</span><strong id="totalCount">0</strong></article><article><span>สินค้าใหม่</span><strong id="newCount">0</strong></article><article><span>SKU เดิม/รับเพิ่ม</span><strong id="existingCount">0</strong></article><article><span>พร้อมบันทึก</span><strong id="readyCount">0</strong></article><article><span>ผิดพลาด</span><strong id="invalidCount">0</strong></article></section>
+
+  <section class="manual-card table-card">
+    <div class="section-head"><div><span class="kicker">ราคาขายร่าง</span><h2>ตรวจและแก้ไขก่อนเข้าสต็อกจริง</h2></div><div class="toolbar"><button id="calculateBtn" class="btn warning" type="button">คำนวณราคาที่เลือก</button><button id="validateBtn" class="btn secondary" type="button">ตรวจสอบทั้งหมด</button><button id="saveDraftBtn" class="btn ghost" type="button">บันทึกร่าง</button></div></div>
+    <div class="table-wrap"><table><thead><tr><th><input id="selectAll" type="checkbox" checked></th><th>#</th><th>SKU / Barcode</th><th>ชื่อและหมวด</th><th>ต้นทุน / จำนวน</th><th>ราคาขายร่าง</th><th>สภาพ / หมายเหตุ</th><th>สถานะ</th><th></th></tr></thead><tbody id="rowsBody"></tbody></table></div>
+    <p id="message" class="message" role="status"></p>
+  </section>
+
+  <section class="manual-card confirm-card">
+    <div><h2>ยืนยันนำเข้าและรับสต็อก</h2><p>ระบบจะแสดงตัวอย่างอีกครั้ง สินค้าใหม่จะถูกสร้าง ส่วน SKU เดิมจะเพิ่มจำนวนและเก็บต้นทุนรอบใหม่โดยไม่ลบประวัติเดิม</p></div>
+    <button id="importBtn" class="btn success large" type="button" disabled>ตรวจตัวอย่างและยืนยันบันทึกจริง</button>
+  </section>
+</main>
+
+<dialog id="previewDialog" class="preview-dialog"><div class="preview-card"><div class="preview-head"><h2>ตรวจรายการก่อนบันทึกจริง</h2><button id="previewClose" type="button">×</button></div><div id="previewSummary" class="preview-summary"></div><div class="preview-table-wrap"><table><thead><tr><th>SKU</th><th>ประเภท</th><th>จำนวน</th><th>ต้นทุนรอบนี้</th><th>ราคาขาย</th><th>สภาพ</th></tr></thead><tbody id="previewBody"></tbody></table></div><div class="preview-actions"><button id="previewCancel" class="btn ghost" type="button">กลับไปแก้ไข</button><button id="previewConfirm" class="btn success" type="button">ยืนยันนำเข้าและรับสต็อก</button></div></div></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.2"></script>
+<script src="./js/auth-guard.js?v=5.6.0"></script>
+<script src="./js/manual-product-import-v5-15.js?v=5.15.0"></script>
+<script src="./js/tkn-safe-back.js?v=5.14.2"></script>
+<script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
+</body>
+</html>

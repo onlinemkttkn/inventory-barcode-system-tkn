@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/pos-product-ui.css?v=4.5.0">
+  <link rel="stylesheet" href="./css/pos-damaged-discount-v5-15.css?v=5.15.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -68,6 +69,7 @@
       <aside class="card summary" data-shift-required>
         <h2>สรุปการชำระเงิน</h2>
         <div class="summary-line"><span>ยอดสินค้า</span><strong id="subtotal">฿0.00</strong></div>
+        <div class="summary-line item-discount"><span>ส่วนลดสินค้า/ตำหนิ</span><strong id="itemDiscountTotal">฿0.00</strong></div>
         <label>ส่วนลดท้ายบิล
           <input id="discount" type="number" min="0" step="0.01" value="0">
         </label>
@@ -216,6 +218,27 @@
     </form>
   </dialog>
 
+  <dialog id="itemDiscountDialog" class="discount-dialog">
+    <form id="itemDiscountForm" class="dialog-card">
+      <h2>ส่วนลดสินค้ามีตำหนิ/ชำรุด</h2>
+      <div id="discountProductSummary" class="discount-product-summary"></div>
+      <div class="discount-grid">
+        <label>สภาพสินค้า<select id="discountCondition" required><option value="OPENED">แกะซีล</option><option value="DENTED_BOX">กล่องบุบ</option><option value="DEFECT">มีตำหนิ</option><option value="DAMAGED">ชำรุด</option><option value="INCOMPLETE">อุปกรณ์ไม่ครบ</option><option value="CLEARANCE">เคลียร์สต็อก</option><option value="OTHER">อื่น ๆ</option></select></label>
+        <label>เหตุผล<select id="discountReason" required><option value="">เลือกเหตุผล</option><option value="OPENED">สินค้าแกะซีล</option><option value="DENTED_BOX">กล่องบุบ</option><option value="SCRATCH">มีรอย/ตำหนิเล็กน้อย</option><option value="DAMAGED">สินค้าชำรุด</option><option value="INCOMPLETE">อุปกรณ์ไม่ครบ</option><option value="CLEARANCE">เคลียร์สต็อก</option><option value="OTHER">เหตุผลอื่น</option></select></label>
+        <label>รูปแบบส่วนลด<select id="discountType"><option value="PERCENT">เปอร์เซ็นต์ต่อชิ้น</option><option value="AMOUNT">จำนวนเงินต่อชิ้น</option></select></label>
+        <label>ส่วนลด<input id="discountValue" type="number" min="0" step="0.01" value="0" inputmode="decimal" required></label>
+        <label>จำนวนชิ้นที่ลด<input id="discountQuantity" type="number" min="1" step="1" value="1" required></label>
+        <label>หมายเหตุ<textarea id="discountNotes" rows="2" maxlength="300" placeholder="รายละเอียดตำหนิ"></textarea></label>
+      </div>
+      <div id="discountApproval" class="discount-approval" hidden>
+        <h3>ราคาหลังลดต่ำกว่าทุน ต้องมีผู้จัดการอนุมัติ</h3>
+        <div class="discount-grid"><label>รหัสผู้อนุมัติ<input id="discountApproverCode" autocomplete="off"></label><label>PIN<input id="discountApproverPin" type="password" inputmode="numeric" autocomplete="off"></label></div>
+      </div>
+      <p id="discountWarning" class="discount-warning"></p>
+      <div class="dialog-actions"><button id="discountRemove" class="btn danger" type="button">ยกเลิกส่วนลดรายการนี้</button><button id="discountCancel" class="btn secondary" type="button">กลับ</button><button id="discountApply" class="btn success" type="submit">ใช้ส่วนลด</button></div>
+    </form>
+  </dialog>
+
   <dialog id="cashierUnlockDialog">
     <form id="cashierUnlockForm" class="dialog-card">
       <h2>เข้าใช้งานแคชเชียร์</h2>
@@ -260,7 +283,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
   <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
-  <script type="module" src="./pos.js?v=3.6.2-shift-guard"></script>
+  <script type="module" src="./pos.js?v=5.15.0-damaged-discount"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>
