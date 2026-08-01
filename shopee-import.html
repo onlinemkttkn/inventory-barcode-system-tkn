@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#8f1010">
-  <title>Shopee Import Workspace — TKN POS ERP</title>
+  <title>Shopee Category Price Manager — TKN POS ERP</title>
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/shopee-import.css?v=5.9.0">
+  <link rel="stylesheet" href="./css/shopee-import.css?v=5.10.0">
 </head>
-<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์นำเข้า Shopee...">
+<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์จัดการราคา Shopee...">
   <main class="shopee-shell">
     <header class="hero-card">
       <div class="hero-copy">
-        <span class="eyebrow">TKN POS ERP · Marketplace Import</span>
-        <h1>นำเข้าข้อมูล Shopee</h1>
-        <p>ตรวจไฟล์ก่อนบันทึก รวมรายการซ้ำ ค้นหาด้วย Tracking และอัปเดตราคาสินค้าโดยไม่แตะยอดสต็อกเดิม</p>
+        <span class="eyebrow">TKN POS ERP · Shopee Workspace Final</span>
+        <h1>แยกหมวดและทยอยอัปเดตราคา</h1>
+        <p>อัปโหลด Shopee ครั้งเดียว เลือกหมวด กรอกราคาในหน้าเว็บ และอัปเดตเฉพาะรายการที่ต้องการโดยไม่แตะยอดสต็อกเดิม</p>
       </div>
       <div class="hero-actions">
         <a class="btn btn-ghost" href="./dashboard.html">Dashboard</a>
@@ -29,10 +29,10 @@
     </header>
 
     <nav class="stepper" aria-label="ขั้นตอนการทำงาน">
-      <button class="step is-active" data-step-target="upload"><span>1</span><b>อัปโหลด</b><small>อ่านไฟล์ Shopee</small></button>
-      <button class="step" data-step-target="review"><span>2</span><b>ตรวจสอบ</b><small>รวม Tracking + SKU</small></button>
-      <button class="step" data-step-target="price"><span>3</span><b>กรอกราคา</b><small>ต้นทุนและราคาขาย</small></button>
-      <button class="step" data-step-target="sync"><span>4</span><b>อัปเดตระบบ</b><small>ยืนยันก่อนบันทึก</small></button>
+      <button class="step is-active" data-step-target="upload"><span>1</span><b>อัปโหลดครั้งเดียว</b><small>อ่านและรวม Shopee</small></button>
+      <button class="step" data-step-target="review"><span>2</span><b>ตรวจ Tracking</b><small>ดูพัสดุและสินค้า</small></button>
+      <button class="step" data-step-target="price"><span>3</span><b>เลือกหมวดกรอกราคา</b><small>บันทึกร่างอัตโนมัติ</small></button>
+      <button class="step" data-step-target="sync"><span>4</span><b>ทยอยอัปเดต</b><small>เลือกบางรายการหรือทั้งหมวด</small></button>
     </nav>
 
     <section id="uploadPanel" class="panel" data-panel="upload">
@@ -40,15 +40,15 @@
         <div>
           <span class="section-kicker">ขั้นตอนที่ 1</span>
           <h2>เลือกไฟล์ CSV จาก Shopee</h2>
-          <p>รองรับไฟล์ขนาดใหญ่และภาษาไทย UTF-8 โดยอ่านเฉพาะคอลัมน์ที่ระบบต้องใช้</p>
+          <p>ต้องมี tracking_number, sku_id, item_quantity, item_name, main_category และ sub_category</p>
         </div>
-        <button id="clearWorkspaceBtn" class="btn btn-danger-soft" type="button">ล้างข้อมูลชุดนี้</button>
+        <button id="clearWorkspaceBtn" class="btn btn-danger-soft" type="button">ล้างพื้นที่ทำงาน</button>
       </div>
 
       <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="เลือกไฟล์ CSV">
         <div class="drop-icon" aria-hidden="true">⇧</div>
         <strong>ลากไฟล์ CSV มาวาง หรือแตะเพื่อเลือกไฟล์</strong>
-        <span>ต้องมี tracking_number, sku_id, item_quantity, item_name, main_category และ sub_category</span>
+        <span>อัปโหลดครั้งเดียว ระบบจะเก็บข้อมูลและราคาที่ทยอยกรอกไว้ในเครื่องนี้</span>
         <input id="sourceFileInput" type="file" accept=".csv,text/csv" hidden>
       </div>
 
@@ -56,6 +56,7 @@
         <div><span>ไฟล์ล่าสุด</span><strong id="sourceFileName">ยังไม่ได้เลือกไฟล์</strong></div>
         <div><span>แหล่งข้อมูล</span><strong>Shopee</strong></div>
         <div><span>สถานะ</span><strong id="workspaceStatus">พร้อมเริ่มงาน</strong></div>
+        <div><span>บันทึกร่างล่าสุด</span><strong id="draftSavedAt">ยังไม่มี</strong></div>
       </div>
 
       <div id="parseProgressWrap" class="progress-wrap" hidden>
@@ -68,47 +69,48 @@
       <article class="stat-card"><span>แถวต้นฉบับ</span><strong id="rawCount">0</strong><small>จากไฟล์ที่เลือก</small></article>
       <article class="stat-card"><span>รายการหลังรวมซ้ำ</span><strong id="cleanCount">0</strong><small>Tracking + SKU</small></article>
       <article class="stat-card"><span>Tracking</span><strong id="trackingCount">0</strong><small>พัสดุไม่ซ้ำ</small></article>
-      <article class="stat-card"><span>SKU</span><strong id="skuCount">0</strong><small>สินค้าไม่ซ้ำ</small></article>
-      <article class="stat-card stat-warn"><span>แถวถูกตัดออก</span><strong id="removedCount">0</strong><small>ไม่มี Tracking หรือ SKU</small></article>
-      <article class="stat-card stat-success"><span>ราคาพร้อมอัปเดต</span><strong id="readyPriceCount">0</strong><small>ผ่านกติกาต้นทุน</small></article>
+      <article class="stat-card"><span>SKU</span><strong id="skuCount">0</strong><small>กรอกราคาเพียงครั้งเดียว</small></article>
+      <article class="stat-card stat-warn"><span>ยังไม่กรอกราคา</span><strong id="missingPriceCount">0</strong><small>ทยอยทำภายหลังได้</small></article>
+      <article class="stat-card stat-success"><span>อัปเดตแล้ว</span><strong id="syncedPriceCount">0</strong><small>ตรงกับราคาล่าสุด</small></article>
     </section>
 
     <section id="reviewPanel" class="panel" data-panel="review">
       <div class="panel-heading split-heading">
         <div>
           <span class="section-kicker">ขั้นตอนที่ 2</span>
-          <h2>ตรวจสอบรายการก่อนบันทึก</h2>
+          <h2>ตรวจสอบ Tracking และรายการสินค้า</h2>
           <p>แถวที่มี Tracking และ SKU เหมือนกันจะถูกรวมจำนวนให้อัตโนมัติ</p>
         </div>
         <div class="button-row">
           <button id="exportCleanBtn" class="btn btn-secondary" type="button" disabled>ดาวน์โหลดไฟล์สะอาด</button>
-          <button id="exportPriceBtn" class="btn btn-warning" type="button" disabled>ดาวน์โหลดไฟล์กรอกราคา</button>
         </div>
       </div>
 
-      <div class="filter-bar">
+      <div class="filter-bar review-filter-bar">
         <label class="search-box">
-          <span>ค้นหา / สแกน Tracking</span>
-          <input id="trackingSearch" type="search" inputmode="search" autocomplete="off" placeholder="เช่น SPXTH061094204825">
+          <span>ค้นหา / สแกน Tracking, SKU หรือชื่อสินค้า</span>
+          <input id="trackingSearch" type="search" autocomplete="off" placeholder="เช่น SPXTH061094204825">
         </label>
         <label>
           <span>สถานะราคา</span>
-          <select id="priceStatusFilter">
+          <select id="reviewStatusFilter">
             <option value="all">ทั้งหมด</option>
+            <option value="missing">ยังไม่กรอก</option>
             <option value="ready">พร้อมอัปเดต</option>
-            <option value="missing">ยังกรอกไม่ครบ</option>
-            <option value="invalid">ราคาขายต่ำกว่าต้นทุน</option>
+            <option value="changed">แก้หลังอัปเดต</option>
+            <option value="synced">อัปเดตแล้ว</option>
+            <option value="invalid">ราคาไม่ถูกต้อง</option>
           </select>
         </label>
         <label>
           <span>แสดงต่อหน้า</span>
-          <select id="pageSizeSelect">
+          <select id="reviewPageSizeSelect">
             <option value="25">25 รายการ</option>
             <option value="50" selected>50 รายการ</option>
             <option value="100">100 รายการ</option>
           </select>
         </label>
-        <button id="clearFilterBtn" class="btn btn-ghost-dark" type="button">ล้างตัวกรอง</button>
+        <button id="clearReviewFilterBtn" class="btn btn-ghost-dark" type="button">ล้างตัวกรอง</button>
       </div>
 
       <div id="trackingResult" class="tracking-result" hidden>
@@ -121,31 +123,20 @@
       </div>
 
       <div class="table-wrap">
-        <table class="data-table">
+        <table class="data-table review-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Tracking</th>
-              <th>SKU</th>
-              <th>ชื่อสินค้า</th>
-              <th>หมวดหมู่</th>
-              <th class="num">จำนวน</th>
-              <th class="num">ต้นทุน</th>
-              <th class="num">ราคาขาย</th>
-              <th>รหัสสินค้าในระบบ</th>
-              <th>สถานะ</th>
+              <th>#</th><th>Tracking</th><th>SKU</th><th>ชื่อสินค้า</th><th>หมวดหมู่</th>
+              <th class="num">จำนวน</th><th class="num">ต้นทุน</th><th class="num">ราคาขาย</th><th>สถานะ</th>
             </tr>
           </thead>
-          <tbody id="previewBody">
-            <tr><td colspan="10" class="empty-cell">เลือกไฟล์ Shopee เพื่อเริ่มตรวจสอบ</td></tr>
-          </tbody>
+          <tbody id="previewBody"><tr><td colspan="9" class="empty-cell">เลือกไฟล์ Shopee เพื่อเริ่มตรวจสอบ</td></tr></tbody>
         </table>
       </div>
-
       <div class="pager">
-        <button id="prevPageBtn" class="btn btn-ghost-dark" type="button" disabled>ก่อนหน้า</button>
-        <span id="pageInfo">หน้า 0 / 0</span>
-        <button id="nextPageBtn" class="btn btn-ghost-dark" type="button" disabled>ถัดไป</button>
+        <button id="reviewPrevPageBtn" class="btn btn-ghost-dark" type="button" disabled>ก่อนหน้า</button>
+        <span id="reviewPageInfo">หน้า 0 / 0</span>
+        <button id="reviewNextPageBtn" class="btn btn-ghost-dark" type="button" disabled>ถัดไป</button>
       </div>
     </section>
 
@@ -153,40 +144,104 @@
       <div class="panel-heading split-heading">
         <div>
           <span class="section-kicker">ขั้นตอนที่ 3</span>
-          <h2>นำไฟล์ราคาที่กรอกแล้วกลับเข้าระบบ</h2>
-          <p>ระบบจะกระจายราคาเดียวกันให้ทุก Tracking ที่เป็น SKU เดียวกัน และไม่ยอมรับราคาขายต่ำกว่าต้นทุน</p>
+          <h2>เลือกประเภทแล้วกรอกราคาในหน้าเว็บ</h2>
+          <p>หนึ่ง SKU กรอกครั้งเดียว ระบบจะใช้ราคานี้กับทุก Tracking ที่มี SKU เดียวกัน</p>
         </div>
-        <div class="button-row">
-          <button id="choosePriceFileBtn" class="btn btn-warning" type="button" disabled>เลือกไฟล์ราคาที่กรอกแล้ว</button>
-          <input id="priceFileInput" type="file" accept=".csv,text/csv" hidden>
-        </div>
+        <div class="draft-state"><span class="status-dot"></span><strong id="draftStateText">บันทึกร่างอัตโนมัติ</strong></div>
       </div>
 
-      <div class="price-rules">
-        <article><span class="rule-icon">✓</span><div><strong>กรอกภายหลังได้</strong><p>ช่องที่ยังว่างจะอยู่สถานะรอกรอกและยังไม่อัปเดตสินค้า</p></div></article>
-        <article><span class="rule-icon">฿</span><div><strong>ตรวจราคาทุก SKU</strong><p>ต้นทุนและราคาขายต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป</p></div></article>
-        <article><span class="rule-icon">!</span><div><strong>ห้ามต่ำกว่าต้นทุน</strong><p>ราคาขายที่ต่ำกว่าต้นทุนจะถูกบล็อกก่อนบันทึก</p></div></article>
+      <div class="category-toolbar">
+        <label>
+          <span>หมวดหลัก</span>
+          <select id="mainCategoryFilter"><option value="__ALL__">ทุกหมวดหลัก</option></select>
+        </label>
+        <label>
+          <span>หมวดย่อย</span>
+          <select id="subCategoryFilter"><option value="__ALL__">ทุกหมวดย่อย</option></select>
+        </label>
+        <label class="search-box">
+          <span>ค้นหา SKU, ชื่อสินค้า หรือรหัสสินค้า</span>
+          <input id="skuSearch" type="search" autocomplete="off" placeholder="ค้นหารายการในหมวดนี้">
+        </label>
+        <label>
+          <span>สถานะงาน</span>
+          <select id="skuStatusFilter">
+            <option value="all">ทั้งหมด</option>
+            <option value="missing">ยังไม่กรอก</option>
+            <option value="ready">พร้อมอัปเดต</option>
+            <option value="changed">แก้หลังอัปเดต</option>
+            <option value="synced">อัปเดตแล้ว</option>
+            <option value="invalid">ราคาไม่ถูกต้อง</option>
+          </select>
+        </label>
+        <button id="clearPriceFilterBtn" class="btn btn-ghost-dark" type="button">ล้างตัวกรอง</button>
       </div>
 
-      <div id="priceImportSummary" class="notice" hidden></div>
+      <div class="category-progress-grid">
+        <article><span>SKU ในตัวกรอง</span><strong id="categorySkuCount">0</strong></article>
+        <article><span>พร้อมอัปเดต</span><strong id="categoryReadyCount">0</strong></article>
+        <article><span>ยังไม่กรอก</span><strong id="categoryMissingCount">0</strong></article>
+        <article><span>อัปเดตแล้ว</span><strong id="categorySyncedCount">0</strong></article>
+        <article><span>เลือกไว้</span><strong id="selectedCount">0</strong></article>
+      </div>
+
+      <div class="editor-actions top-editor-actions">
+        <label class="select-all-control"><input id="selectVisibleCheckbox" type="checkbox"><span>เลือกหน้าปัจจุบัน</span></label>
+        <button id="clearSelectionBtn" class="btn btn-ghost-dark" type="button">ยกเลิกที่เลือก</button>
+        <button id="saveDraftBtn" class="btn btn-secondary" type="button" disabled>บันทึกร่าง</button>
+        <button id="exportCategoryBtn" class="btn btn-warning" type="button" disabled>ส่งออกเฉพาะหมวดนี้</button>
+      </div>
+
+      <div class="table-wrap price-editor-wrap">
+        <table class="data-table price-editor-table">
+          <thead>
+            <tr>
+              <th class="check-col">เลือก</th><th>#</th><th>SKU / รายการสินค้า</th><th>หมวดหมู่</th>
+              <th class="num">Tracking / ชิ้น</th><th>รหัสสินค้าในระบบ</th><th class="num">ต้นทุน</th>
+              <th class="num">ราคาขาย</th><th class="num">กำไร</th><th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="priceEditorBody"><tr><td colspan="10" class="empty-cell">อัปโหลดไฟล์ Shopee ก่อนเริ่มกรอกราคา</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <label class="inline-page-size">แสดง <select id="pricePageSizeSelect"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select> รายการ</label>
+        <button id="pricePrevPageBtn" class="btn btn-ghost-dark" type="button" disabled>ก่อนหน้า</button>
+        <span id="pricePageInfo">หน้า 0 / 0</span>
+        <button id="priceNextPageBtn" class="btn btn-ghost-dark" type="button" disabled>ถัดไป</button>
+      </div>
+
+      <details class="csv-fallback">
+        <summary>ตัวเลือกเสริม: กรอกราคาผ่าน CSV</summary>
+        <div class="csv-fallback-body">
+          <p>ใช้เมื่ออยากกรอกจำนวนมากใน Excel โดยสามารถส่งออกเฉพาะหมวดที่เลือก แล้วนำกลับมาอัปเดตทีละไฟล์ได้</p>
+          <div class="button-row">
+            <button id="exportAllPriceBtn" class="btn btn-ghost-dark" type="button" disabled>ส่งออกทุก SKU</button>
+            <button id="choosePriceFileBtn" class="btn btn-warning" type="button" disabled>นำเข้าราคา CSV</button>
+            <input id="priceFileInput" type="file" accept=".csv,text/csv" hidden>
+          </div>
+          <div id="priceImportSummary" class="notice" hidden></div>
+        </div>
+      </details>
     </section>
 
     <section id="syncPanel" class="panel" data-panel="sync">
-      <div class="panel-heading">
+      <div class="panel-heading split-heading">
         <div>
           <span class="section-kicker">ขั้นตอนที่ 4</span>
-          <h2>อัปเดตราคาสินค้าในระบบเดิม</h2>
-          <p>จับคู่ด้วย product_code หรือ barcode ก่อน หากยังไม่พบสามารถสร้างสินค้าใหม่โดยใช้ SKU เป็นรหัสสินค้าได้</p>
+          <h2>ทยอยอัปเดตราคาเข้าระบบหลัก</h2>
+          <p>เลือกเฉพาะรายการที่ต้องการ หรืออัปเดตทุก SKU ที่กรอกราคาครบในหมวดที่กำลังเลือก</p>
         </div>
+        <div class="sync-badge"><span>โหมดปลอดภัย</span><strong>ไม่ปรับสต็อก</strong></div>
       </div>
 
       <div class="sync-options">
         <label class="toggle-card">
           <input id="createMissingToggle" type="checkbox">
           <span class="toggle-ui"></span>
-          <div><strong>สร้างสินค้าที่ไม่พบในระบบ</strong><small>สร้างข้อมูลสินค้าใหม่โดยสต็อกเริ่มต้นเป็น 0 เท่านั้น</small></div>
+          <div><strong>สร้างสินค้าที่ไม่พบในระบบ</strong><small>ปิดไว้ = ข้าม SKU ที่ยังไม่มีสินค้าเดิม / เปิดไว้ = สร้างใหม่โดยสต็อกเริ่มต้น 0</small></div>
         </label>
-
         <div id="createDefaults" class="create-defaults" hidden>
           <label><span>หมวดหมู่เริ่มต้น</span><select id="defaultCategory"></select></label>
           <label><span>หน่วยนับเริ่มต้น</span><select id="defaultUnit"></select></label>
@@ -195,33 +250,35 @@
       </div>
 
       <div class="sync-summary">
-        <article><span>SKU พร้อมตรวจจับคู่</span><strong id="syncReadySku">0</strong></article>
-        <article><span>พบสินค้าเดิม</span><strong id="matchedProductCount">0</strong></article>
-        <article><span>ยังไม่พบสินค้า</span><strong id="unmatchedProductCount">0</strong></article>
-        <article><span>อัปเดตสำเร็จ</span><strong id="syncSuccessCount">0</strong></article>
+        <article><span>เลือกพร้อมอัปเดต</span><strong id="syncSelectedReady">0</strong></article>
+        <article><span>พบสินค้าเดิมล่าสุด</span><strong id="matchedProductCount">0</strong></article>
+        <article><span>ไม่พบสินค้าล่าสุด</span><strong id="unmatchedProductCount">0</strong></article>
+        <article><span>อัปเดตสำเร็จรอบล่าสุด</span><strong id="syncSuccessCount">0</strong></article>
       </div>
 
       <div class="button-row sync-actions">
-        <button id="matchProductsBtn" class="btn btn-secondary" type="button" disabled>ตรวจจับคู่สินค้า</button>
-        <button id="syncProductsBtn" class="btn btn-primary btn-large" type="button" disabled>ยืนยันอัปเดตราคา</button>
+        <button id="updateSelectedBtn" class="btn btn-primary btn-large" type="button" disabled>อัปเดตรายการที่เลือก</button>
+        <button id="updateCategoryBtn" class="btn btn-warning btn-large" type="button" disabled>อัปเดตทั้งหมวดที่กรอกครบ</button>
       </div>
+      <small class="action-help">ปุ่มอัปเดตทั้งหมวดจะเปิดใช้เมื่อเลือกหมวดหลักหรือหมวดย่อยแล้วเท่านั้น เพื่อป้องกันอัปเดตทั้งไฟล์โดยไม่ตั้งใจ</small>
 
       <div id="syncProgressWrap" class="progress-wrap" hidden>
         <div class="progress-meta"><span id="syncProgressText">กำลังอัปเดต...</span><strong id="syncProgressPercent">0%</strong></div>
         <div class="progress-track"><div id="syncProgressBar" class="progress-bar"></div></div>
       </div>
+      <div id="syncResultNotice" class="notice" hidden></div>
       <p id="message" class="message" role="status" aria-live="polite"></p>
     </section>
 
     <footer class="safety-note">
-      <strong>โหมดปลอดภัย:</strong> หน้านี้ไม่ปรับยอดสต็อกเดิม ไม่ลบสินค้า และไม่บันทึกข้อมูลใดจนกว่าจะกดยืนยันอัปเดต
+      <strong>Final Safe Workflow:</strong> ข้อมูลและร่างราคาจะอยู่ในเครื่องนี้จนกว่าจะกดอัปเดต ระบบไม่ลบสินค้าและไม่เพิ่มหรือลดยอดสต็อกเดิม
     </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
-  <script src="./js/shopee-import.js?v=5.9.0"></script>
+  <script src="./js/shopee-import.js?v=5.10.0"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>
