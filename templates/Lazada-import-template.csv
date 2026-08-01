@@ -1,0 +1,2 @@
+﻿tracking_number,order_number,seller_sku,item_quantity,product_name,main_category,sub_category,return_status,order_status,product_code,cost_price,selling_price
+LEXTH0000000001,123456789012345,LZD-SKU-001,1,ตัวอย่างสินค้า Lazada,ตัวอย่างหมวดหลัก,ตัวอย่างหมวดย่อย,,,,,

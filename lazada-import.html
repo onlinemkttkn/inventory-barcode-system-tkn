@@ -4,33 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#8f1010">
-  <title>Shopee Category Price Manager — TKN POS ERP</title>
+  <title>Lazada Category Price Manager — TKN POS ERP</title>
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/shopee-import.css?v=5.11.0">
+  <link rel="stylesheet" href="./css/lazada-import.css?v=5.11.0">
 </head>
-<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์จัดการราคา Shopee...">
+<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์จัดการราคา Lazada...">
   <main class="shopee-shell">
     <header class="hero-card">
       <div class="hero-copy">
-        <span class="eyebrow">TKN POS ERP · Shopee Workspace Final v5.11.0</span>
+        <span class="eyebrow">TKN POS ERP · Lazada Workspace Final v5.11.0</span>
         <h1>แยกหมวดและทยอยอัปเดตราคา</h1>
-        <p>อัปโหลด Shopee ครั้งเดียว เลือกหมวด กรอกราคาในหน้าเว็บ และอัปเดตเฉพาะรายการที่ต้องการโดยไม่แตะยอดสต็อกเดิม</p>
+        <p>นำเข้าไฟล์ Lazada แบบ CSV แยกจาก Shopee รองรับรายการปกติและงานคืนสินค้า เลือกหมวด กรอกราคา และทยอยอัปเดตโดยไม่แตะยอดสต็อกเดิม</p>
       </div>
       <div class="hero-actions">
         <a class="btn btn-ghost" href="./dashboard.html">Dashboard</a>
         <a class="btn btn-ghost" href="./import-export.html">Import / Export</a>
-        <a class="btn btn-ghost" href="./lazada-import.html">Lazada / จัดการราคา</a>
+        <a class="btn btn-ghost" href="./shopee-import.html">Shopee / จัดการราคา</a>
         <a class="btn btn-primary" href="./products-admin.html">จัดการสินค้า</a>
       </div>
     </header>
 
     <nav class="stepper" aria-label="ขั้นตอนการทำงาน">
-      <button class="step is-active" data-step-target="upload"><span>1</span><b>อัปโหลดครั้งเดียว</b><small>อ่านและรวม Shopee</small></button>
+      <button class="step is-active" data-step-target="upload"><span>1</span><b>อัปโหลดครั้งเดียว</b><small>อ่าน CSV Lazada</small></button>
       <button class="step" data-step-target="review"><span>2</span><b>ตรวจ Tracking</b><small>ดูพัสดุและสินค้า</small></button>
       <button class="step" data-step-target="price"><span>3</span><b>เลือกหมวดกรอกราคา</b><small>บันทึกร่างอัตโนมัติ</small></button>
       <button class="step" data-step-target="sync"><span>4</span><b>ทยอยอัปเดต</b><small>เลือกบางรายการหรือทั้งหมวด</small></button>
@@ -40,10 +40,13 @@
       <div class="panel-heading">
         <div>
           <span class="section-kicker">ขั้นตอนที่ 1</span>
-          <h2>เลือกไฟล์ CSV จาก Shopee</h2>
-          <p>ต้องมี tracking_number, sku_id, item_quantity, item_name, main_category และ sub_category</p>
+          <h2>เลือกไฟล์ CSV จาก Lazada</h2>
+          <p>ต้องมี Tracking หรือ Order Number, Seller SKU/SKU และชื่อสินค้า ส่วนจำนวนจะใช้ 1 เมื่อเว้นว่าง และหมวดหลัก/หมวดย่อยใส่ภายหลังได้</p>
         </div>
-        <button id="clearWorkspaceBtn" class="btn btn-danger-soft" type="button">ล้างพื้นที่ทำงาน</button>
+        <div class="button-row">
+          <button id="downloadTemplateBtn" class="btn btn-secondary" type="button">ดาวน์โหลด Template Lazada</button>
+          <button id="clearWorkspaceBtn" class="btn btn-danger-soft" type="button">ล้างพื้นที่ทำงาน</button>
+        </div>
       </div>
 
       <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="เลือกไฟล์ CSV">
@@ -55,7 +58,7 @@
 
       <div class="file-strip">
         <div><span>ไฟล์ล่าสุด</span><strong id="sourceFileName">ยังไม่ได้เลือกไฟล์</strong></div>
-        <div><span>แหล่งข้อมูล</span><strong>Shopee</strong></div>
+        <div><span>แหล่งข้อมูล</span><strong>Lazada CSV (ไม่ใช้ API)</strong></div>
         <div><span>สถานะ</span><strong id="workspaceStatus">พร้อมเริ่มงาน</strong></div>
         <div><span>บันทึกร่างล่าสุด</span><strong id="draftSavedAt">ยังไม่มี</strong></div>
       </div>
@@ -69,7 +72,8 @@
     <section class="stats-grid" aria-label="สรุปข้อมูล">
       <article class="stat-card"><span>แถวต้นฉบับ</span><strong id="rawCount">0</strong><small>จากไฟล์ที่เลือก</small></article>
       <article class="stat-card"><span>รายการหลังรวมซ้ำ</span><strong id="cleanCount">0</strong><small>Tracking + SKU</small></article>
-      <article class="stat-card"><span>Tracking</span><strong id="trackingCount">0</strong><small>พัสดุไม่ซ้ำ</small></article>
+      <article class="stat-card"><span>Tracking / Order</span><strong id="trackingCount">0</strong><small>รายการอ้างอิงไม่ซ้ำ</small></article>
+      <article class="stat-card stat-warn"><span>งานคืนสินค้า</span><strong id="returnItemCount">0</strong><small>มี Return Status</small></article>
       <article class="stat-card"><span>SKU</span><strong id="skuCount">0</strong><small>กรอกราคาเพียงครั้งเดียว</small></article>
       <article class="stat-card stat-warn"><span>ยังไม่กรอกราคา</span><strong id="missingPriceCount">0</strong><small>ทยอยทำภายหลังได้</small></article>
       <article class="stat-card stat-success"><span>อัปเดตแล้ว</span><strong id="syncedPriceCount">0</strong><small>ตรงกับราคาล่าสุด</small></article>
@@ -80,7 +84,7 @@
         <div>
           <span class="section-kicker">ขั้นตอนที่ 2</span>
           <h2>ตรวจสอบ Tracking และรายการสินค้า</h2>
-          <p>แถวที่มี Tracking และ SKU เหมือนกันจะถูกรวมจำนวนให้อัตโนมัติ</p>
+          <p>แถวที่มี Tracking/Order และ SKU เหมือนกันจะรวมจำนวนให้อัตโนมัติ พร้อมเก็บเลขคำสั่งซื้อและสถานะคืนสินค้า</p>
         </div>
         <div class="button-row">
           <button id="exportCleanBtn" class="btn btn-secondary" type="button" disabled>ดาวน์โหลดไฟล์สะอาด</button>
@@ -89,8 +93,8 @@
 
       <div class="filter-bar review-filter-bar">
         <label class="search-box">
-          <span>ค้นหา / สแกน Tracking, SKU หรือชื่อสินค้า</span>
-          <input id="trackingSearch" type="search" autocomplete="off" placeholder="เช่น SPXTH061094204825">
+          <span>ค้นหา Tracking, Order Number, SKU, ชื่อสินค้า หรือสถานะคืน</span>
+          <input id="trackingSearch" type="search" autocomplete="off" placeholder="เช่น LEXTH..., Order No. หรือ Seller SKU">
         </label>
         <label>
           <span>สถานะราคา</span>
@@ -101,6 +105,12 @@
             <option value="changed">แก้หลังอัปเดต</option>
             <option value="synced">อัปเดตแล้ว</option>
             <option value="invalid">ราคาไม่ถูกต้อง</option>
+          </select>
+        </label>
+        <label>
+          <span>สถานะ Lazada / คืนสินค้า</span>
+          <select id="sourceStatusFilter">
+            <option value="__ALL__">ทุกสถานะ</option>
           </select>
         </label>
         <label>
@@ -127,11 +137,11 @@
         <table class="data-table review-table">
           <thead>
             <tr>
-              <th>#</th><th>Tracking</th><th>SKU</th><th>ชื่อสินค้า</th><th>หมวดหมู่</th>
+              <th>#</th><th>Tracking / Order</th><th>SKU</th><th>ชื่อสินค้า</th><th>หมวดหมู่</th>
               <th class="num">จำนวน</th><th class="num">ต้นทุน</th><th class="num">ราคาขาย</th><th>สถานะ</th>
             </tr>
           </thead>
-          <tbody id="previewBody"><tr><td colspan="9" class="empty-cell">เลือกไฟล์ Shopee เพื่อเริ่มตรวจสอบ</td></tr></tbody>
+          <tbody id="previewBody"><tr><td colspan="9" class="empty-cell">เลือกไฟล์ Lazada เพื่อเริ่มตรวจสอบ</td></tr></tbody>
         </table>
       </div>
       <div class="pager">
@@ -202,7 +212,7 @@
               <th class="num">ราคาขาย</th><th class="num">กำไร</th><th>สถานะ</th>
             </tr>
           </thead>
-          <tbody id="priceEditorBody"><tr><td colspan="10" class="empty-cell">อัปโหลดไฟล์ Shopee ก่อนเริ่มกรอกราคา</td></tr></tbody>
+          <tbody id="priceEditorBody"><tr><td colspan="10" class="empty-cell">อัปโหลดไฟล์ Lazada ก่อนเริ่มกรอกราคา</td></tr></tbody>
         </table>
       </div>
 
@@ -272,14 +282,14 @@
     </section>
 
     <footer class="safety-note">
-      <strong>Final Safe Workflow:</strong> ข้อมูลและร่างราคาจะอยู่ในเครื่องนี้จนกว่าจะกดอัปเดต ระบบไม่ลบสินค้าและไม่เพิ่มหรือลดยอดสต็อกเดิม
+      <strong>Final Safe Workflow:</strong> Lazada แยกพื้นที่ทำงานจาก Shopee ใช้ CSV โดยไม่เชื่อม API เก็บงานคืนสินค้าไว้ตรวจสอบ และไม่เพิ่มหรือลดยอดสต็อกเดิม
     </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
-  <script src="./js/shopee-import.js?v=5.11.0"></script>
+  <script src="./js/lazada-import.js?v=5.11.0"></script>
   <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
 </body>
 </html>

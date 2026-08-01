@@ -2,21 +2,40 @@
   "use strict";
 
   const VERSION = "5.11.0";
-  const SOURCE = "SHOPEE";
-  const DB_NAME = "tkn_marketplace_import_v1";
+  const SOURCE = "LAZADA";
+  const DB_NAME = "tkn_marketplace_import_lazada_v1";
   const DB_VERSION = 1;
   const RECORD_STORE = "records";
   const META_STORE = "meta";
   const ALL_VALUE = "__ALL__";
   const EMPTY_VALUE = "__EMPTY__";
-  const REQUIRED_SOURCE_HEADERS = [
-    "tracking_number",
-    "sku_id",
-    "item_quantity",
-    "item_name",
-    "main_category",
-    "sub_category",
+  const REQUIRED_SOURCE_GROUPS = [
+    { label: "tracking_number หรือ order_number", anyOf: ["tracking_number", "order_number"] },
+    { label: "sku_id / seller_sku", anyOf: ["sku_id"] },
+    { label: "item_name / product_name", anyOf: ["item_name"] },
   ];
+  const SOURCE_HEADER_ALIASES = {
+    tracking_number: ["tracking_number", "tracking number", "tracking no", "tracking no.", "tracking code", "package_number", "package number", "package no", "package no.", "shipping tracking number", "airway bill", "awb", "เลขพัสดุ", "หมายเลขพัสดุ"],
+    order_number: ["order_number", "order number", "order no", "order no.", "order id", "order_id", "เลขคำสั่งซื้อ", "หมายเลขคำสั่งซื้อ"],
+    sku_id: ["sku_id", "sku id", "seller_sku", "seller sku", "sku", "shop sku", "merchant sku", "รหัส sku", "รหัสสินค้า"],
+    item_quantity: ["item_quantity", "item quantity", "quantity", "qty", "จำนวน", "จำนวนสินค้า"],
+    item_name: ["item_name", "item name", "product_name", "product name", "product", "ชื่อสินค้า", "ชื่อผลิตภัณฑ์"],
+    main_category: ["main_category", "main category", "category", "category name", "หมวดหลัก", "หมวดหมู่หลัก", "หมวดหมู่"],
+    sub_category: ["sub_category", "sub category", "subcategory", "sub-category", "หมวดย่อย", "หมวดหมู่ย่อย"],
+    return_status: ["return_status", "return status", "reverse status", "refund status", "สถานะคืนสินค้า", "สถานะการคืน"],
+    order_status: ["order_status", "order status", "status", "สถานะคำสั่งซื้อ", "สถานะ"],
+    item_price_pp: ["item_price_pp", "item price", "paid price", "unit price", "ราคา", "ราคาสินค้า"],
+    product_code: ["product_code", "product code", "รหัสสินค้าในระบบ"],
+    cost_price: ["cost_price", "cost price", "ต้นทุน", "ราคาต้นทุน"],
+    selling_price: ["selling_price", "selling price", "sale price", "ราคาขาย"],
+  };
+  const HEADER_ALIAS_LOOKUP = (() => {
+    const map = new Map();
+    Object.entries(SOURCE_HEADER_ALIASES).forEach(([canonical, aliases]) => {
+      aliases.forEach((alias) => map.set(normalizeAliasHeader(alias), canonical));
+    });
+    return map;
+  })();
 
   const E = {
     dropZone: document.getElementById("dropZone"),
@@ -26,6 +45,7 @@
     draftSavedAt: document.getElementById("draftSavedAt"),
     draftStateText: document.getElementById("draftStateText"),
     clearWorkspaceBtn: document.getElementById("clearWorkspaceBtn"),
+    downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
     parseProgressWrap: document.getElementById("parseProgressWrap"),
     parseProgressText: document.getElementById("parseProgressText"),
     parseProgressPercent: document.getElementById("parseProgressPercent"),
@@ -33,12 +53,14 @@
     rawCount: document.getElementById("rawCount"),
     cleanCount: document.getElementById("cleanCount"),
     trackingCount: document.getElementById("trackingCount"),
+    returnItemCount: document.getElementById("returnItemCount"),
     skuCount: document.getElementById("skuCount"),
     missingPriceCount: document.getElementById("missingPriceCount"),
     syncedPriceCount: document.getElementById("syncedPriceCount"),
     exportCleanBtn: document.getElementById("exportCleanBtn"),
     trackingSearch: document.getElementById("trackingSearch"),
     reviewStatusFilter: document.getElementById("reviewStatusFilter"),
+    sourceStatusFilter: document.getElementById("sourceStatusFilter"),
     reviewPageSizeSelect: document.getElementById("reviewPageSizeSelect"),
     clearReviewFilterBtn: document.getElementById("clearReviewFilterBtn"),
     trackingResult: document.getElementById("trackingResult"),
@@ -128,6 +150,22 @@
 
   function normalizeHeader(value) {
     return String(value ?? "").replace(/^\uFEFF/, "").trim().toLowerCase();
+  }
+
+  function normalizeAliasHeader(value) {
+    return normalizeHeader(value)
+      .replace(/[._\-\/]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function canonicalSourceHeader(value) {
+    const normalized = normalizeAliasHeader(value);
+    return HEADER_ALIAS_LOOKUP.get(normalized) || normalizeHeader(value).replace(/[\s.\-\/]+/g, "_");
+  }
+
+  function sourceStatusText(row) {
+    return normalizeText(row?.return_status || row?.order_status);
   }
 
   function normalizeText(value) {
@@ -370,6 +408,7 @@
       E.workspaceStatus.textContent = "กู้คืนข้อมูลล่าสุดแล้ว";
       E.draftSavedAt.textContent = formatDateTime(meta.draftSavedAt || meta.savedAt);
     }
+    populateSourceStatusFilter(false);
     refreshAll();
   }
 
@@ -402,13 +441,15 @@
     E.trackingSearch.value = "";
     E.skuSearch.value = "";
     E.reviewStatusFilter.value = "all";
+    if (E.sourceStatusFilter) E.sourceStatusFilter.value = ALL_VALUE;
     E.skuStatusFilter.value = "all";
     E.priceImportSummary.hidden = true;
     E.syncResultNotice.hidden = true;
     E.trackingResult.hidden = true;
     populateCategoryFilters(true);
+    populateSourceStatusFilter(true);
     refreshAll();
-    setMessage("ล้างข้อมูล Shopee และร่างราคาในเครื่องแล้ว", "success");
+    setMessage("ล้างข้อมูล Lazada และร่างราคาในเครื่องแล้ว", "success");
   }
 
   function rebuildSkuIndex() {
@@ -463,7 +504,7 @@
       setMessage("รองรับเฉพาะไฟล์ CSV เท่านั้น", "error");
       return;
     }
-    if (state.rows.length && !window.confirm("การอัปโหลดไฟล์ Shopee ใหม่จะแทนที่พื้นที่ทำงานและร่างราคาชุดเดิมในเครื่องนี้ ยืนยันหรือไม่?")) {
+    if (state.rows.length && !window.confirm("การอัปโหลดไฟล์ Lazada ใหม่จะแทนที่พื้นที่ทำงานและร่างราคาชุดเดิมในเครื่องนี้ ยืนยันหรือไม่?")) {
       E.sourceFileInput.value = "";
       return;
     }
@@ -481,9 +522,9 @@
       await nextFrame();
       const matrix = parseCsv(text);
       if (matrix.length < 2) throw new Error("ไฟล์ไม่มีรายการข้อมูล");
-      const headers = matrix[0].map(normalizeHeader);
-      const missing = REQUIRED_SOURCE_HEADERS.filter((header) => !headers.includes(header));
-      if (missing.length) throw new Error(`ไฟล์ขาดคอลัมน์: ${missing.join(", ")}`);
+      const headers = matrix[0].map(canonicalSourceHeader);
+      const missing = REQUIRED_SOURCE_GROUPS.filter((group) => !group.anyOf.some((header) => headers.includes(header)));
+      if (missing.length) throw new Error(`ไฟล์ขาดคอลัมน์ที่จำเป็น: ${missing.map((group) => group.label).join(", ")}`);
       const positions = Object.fromEntries(headers.map((header, index) => [header, index]));
       const aggregated = new Map();
       let removed = 0;
@@ -491,11 +532,13 @@
 
       for (let index = 1; index < matrix.length; index += 1) {
         const values = matrix[index];
-        const trackingNumber = normalizeText(values[positions.tracking_number]);
+        const orderNumber = positions.order_number !== undefined ? normalizeText(values[positions.order_number]) : "";
+        const trackingNumber = (positions.tracking_number !== undefined ? normalizeText(values[positions.tracking_number]) : "") || orderNumber;
         const skuId = normalizeText(values[positions.sku_id]);
-        if (!trackingNumber || !skuId) { removed += 1; continue; }
+        const itemName = normalizeText(values[positions.item_name]);
+        if (!trackingNumber || !skuId || !itemName) { removed += 1; continue; }
         const key = recordKey(trackingNumber, skuId);
-        const quantity = normalizeQuantity(values[positions.item_quantity]);
+        const quantity = (positions.item_quantity !== undefined ? normalizeQuantity(values[positions.item_quantity]) : 0) || 1;
         const existing = aggregated.get(key);
         if (existing) {
           existing.item_quantity += quantity;
@@ -508,9 +551,12 @@
           tracking_number: trackingNumber,
           sku_id: skuId,
           item_quantity: quantity,
-          item_name: normalizeText(values[positions.item_name]),
-          main_category: normalizeText(values[positions.main_category]),
-          sub_category: normalizeText(values[positions.sub_category]),
+          order_number: orderNumber,
+          item_name: itemName,
+          main_category: positions.main_category !== undefined ? (normalizeText(values[positions.main_category]) || "Lazada") : "Lazada",
+          sub_category: positions.sub_category !== undefined ? (normalizeText(values[positions.sub_category]) || "ยังไม่จัดหมวด") : "ยังไม่จัดหมวด",
+          return_status: positions.return_status !== undefined ? normalizeText(values[positions.return_status]) : "",
+          order_status: positions.order_status !== undefined ? normalizeText(values[positions.order_status]) : "",
           source_item_price: positions.item_price_pp !== undefined ? normalizeText(values[positions.item_price_pp]) : "",
           product_code: positions.product_code !== undefined ? normalizeText(values[positions.product_code]) : "",
           cost_price: positions.cost_price !== undefined ? normalizeText(values[positions.cost_price]) : "",
@@ -548,6 +594,7 @@
       state.pricePage = 1;
       rebuildSkuIndex();
       populateCategoryFilters(true);
+      populateSourceStatusFilter(true);
       E.workspaceStatus.textContent = "พร้อมแยกหมวดและกรอกราคา";
       E.draftSavedAt.textContent = formatDateTime(now);
       setParseProgress(100, "นำเข้าข้อมูลเรียบร้อย");
@@ -557,7 +604,7 @@
     } catch (error) {
       console.error(error);
       E.workspaceStatus.textContent = "อ่านไฟล์ไม่สำเร็จ";
-      setMessage(error?.message || "อ่านไฟล์ Shopee ไม่สำเร็จ", "error");
+      setMessage(error?.message || "อ่านไฟล์ Lazada ไม่สำเร็จ", "error");
       setParseProgress(0, "เกิดข้อผิดพลาด");
     } finally {
       state.busy = false;
@@ -596,16 +643,26 @@
     updateActionState();
   }
 
+  function populateSourceStatusFilter(reset = false) {
+    if (!E.sourceStatusFilter) return;
+    const current = reset ? ALL_VALUE : (E.sourceStatusFilter.value || ALL_VALUE);
+    const statuses = Array.from(new Set(state.rows.map(sourceStatusText).filter(Boolean))).sort((a, b) => a.localeCompare(b, "th"));
+    E.sourceStatusFilter.innerHTML = `<option value="${ALL_VALUE}">ทุกสถานะ</option>` + statuses.map((status) => `<option value="${esc(status)}">${esc(status)}</option>`).join("");
+    E.sourceStatusFilter.value = statuses.includes(current) ? current : ALL_VALUE;
+  }
+
   function applyReviewFilters() {
     const query = normalizeText(E.trackingSearch.value).toLowerCase();
     const status = E.reviewStatusFilter.value;
+    const sourceStatus = E.sourceStatusFilter?.value || ALL_VALUE;
     state.reviewPageSize = Number(E.reviewPageSizeSelect.value || 50);
     state.filteredReviewRows = state.rows.filter((row) => {
       const sku = state.skuById.get(row.sku_id) || row;
-      const matchesQuery = !query || [row.tracking_number, row.sku_id, row.item_name, row.main_category, row.sub_category, row.product_code]
+      const matchesQuery = !query || [row.tracking_number, row.order_number, row.sku_id, row.item_name, row.main_category, row.sub_category, row.product_code, row.return_status, row.order_status]
         .some((value) => String(value || "").toLowerCase().includes(query));
       const matchesStatus = status === "all" || workflowStatus(sku) === status;
-      return matchesQuery && matchesStatus;
+      const matchesSourceStatus = sourceStatus === ALL_VALUE || sourceStatusText(row) === sourceStatus;
+      return matchesQuery && matchesStatus && matchesSourceStatus;
     });
     const pages = Math.max(1, Math.ceil(state.filteredReviewRows.length / state.reviewPageSize));
     state.reviewPage = Math.min(Math.max(1, state.reviewPage), pages);
@@ -615,7 +672,7 @@
 
   function renderReviewTable() {
     if (!state.rows.length) {
-      E.previewBody.innerHTML = '<tr><td colspan="9" class="empty-cell">เลือกไฟล์ Shopee เพื่อเริ่มตรวจสอบ</td></tr>';
+      E.previewBody.innerHTML = '<tr><td colspan="9" class="empty-cell">เลือกไฟล์ Lazada เพื่อเริ่มตรวจสอบ</td></tr>';
       E.reviewPageInfo.textContent = "หน้า 0 / 0";
       E.reviewPrevPageBtn.disabled = true;
       E.reviewNextPageBtn.disabled = true;
@@ -635,9 +692,9 @@
       const sku = state.skuById.get(row.sku_id) || row;
       return `<tr>
         <td>${start + offset + 1}</td>
-        <td class="code">${esc(row.tracking_number)}</td>
+        <td class="code">${esc(row.tracking_number)}${row.order_number && row.order_number !== row.tracking_number ? `<small>Order: ${esc(row.order_number)}</small>` : ""}</td>
         <td class="code">${esc(row.sku_id)}</td>
-        <td class="main-cell"><strong>${esc(row.item_name || "-")}</strong><small>รวมจาก ${integer(row.merged_rows || 1)} แถว</small></td>
+        <td class="main-cell"><strong>${esc(row.item_name || "-")}</strong><small>รวมจาก ${integer(row.merged_rows || 1)} แถว${sourceStatusText(row) ? ` · ${esc(sourceStatusText(row))}` : ""}</small></td>
         <td><strong>${esc(row.main_category || "-")}</strong><br><small>${esc(row.sub_category || "-")}</small></td>
         <td class="num"><strong>${integer(row.item_quantity)}</strong></td>
         <td class="num money">${money(sku.cost_price)}</td>
@@ -660,7 +717,7 @@
     E.trackingResultSkuCount.textContent = integer(items.length);
     E.trackingResultQty.textContent = integer(items.reduce((sum, row) => sum + Number(row.item_quantity || 0), 0));
     E.trackingResultItems.innerHTML = items.map((row) => `<article class="tracking-item">
-      <div><strong>${esc(row.item_name || row.sku_id)}</strong><small>${esc(row.sku_id)} · ${esc(row.sub_category || row.main_category || "ไม่ระบุหมวดหมู่")}</small></div>
+      <div><strong>${esc(row.item_name || row.sku_id)}</strong><small>${esc(row.sku_id)} · ${esc(row.sub_category || row.main_category || "ไม่ระบุหมวดหมู่")}${sourceStatusText(row) ? ` · ${esc(sourceStatusText(row))}` : ""}</small></div>
       <span class="qty">${integer(row.item_quantity)} ชิ้น</span>
     </article>`).join("");
     E.trackingResult.hidden = false;
@@ -707,7 +764,7 @@
 
   function renderPriceEditor() {
     if (!state.skuRows.length) {
-      E.priceEditorBody.innerHTML = '<tr><td colspan="10" class="empty-cell">อัปโหลดไฟล์ Shopee ก่อนเริ่มกรอกราคา</td></tr>';
+      E.priceEditorBody.innerHTML = '<tr><td colspan="10" class="empty-cell">อัปโหลดไฟล์ Lazada ก่อนเริ่มกรอกราคา</td></tr>';
       E.pricePageInfo.textContent = "หน้า 0 / 0";
       E.pricePrevPageBtn.disabled = true;
       E.priceNextPageBtn.disabled = true;
@@ -774,6 +831,7 @@
     E.rawCount.textContent = integer(state.rawCount);
     E.cleanCount.textContent = integer(state.rows.length);
     E.trackingCount.textContent = integer(trackingSet.size);
+    if (E.returnItemCount) E.returnItemCount.textContent = integer(state.rows.filter((row) => normalizeText(row.return_status)).length);
     E.skuCount.textContent = integer(state.skuRows.length);
     E.missingPriceCount.textContent = integer(state.skuRows.filter((item) => workflowStatus(item) === "missing").length);
     E.syncedPriceCount.textContent = integer(state.skuRows.filter((item) => workflowStatus(item) === "synced").length);
@@ -860,12 +918,32 @@
     return state.savePromise;
   }
 
+  function downloadSourceTemplate() {
+    const headers = ["tracking_number", "order_number", "seller_sku", "item_quantity", "product_name", "main_category", "sub_category", "return_status", "order_status", "product_code", "cost_price", "selling_price"];
+    const rows = [{
+      tracking_number: "LEXTH0000000001",
+      order_number: "123456789012345",
+      seller_sku: "LZD-SKU-001",
+      item_quantity: 1,
+      product_name: "ตัวอย่างสินค้า Lazada",
+      main_category: "ตัวอย่างหมวดหลัก",
+      sub_category: "ตัวอย่างหมวดย่อย",
+      return_status: "",
+      order_status: "",
+      product_code: "",
+      cost_price: "",
+      selling_price: "",
+    }];
+    downloadCsv("lazada-import-template.csv", headers, rows);
+    setMessage("ดาวน์โหลด Template Lazada แล้ว สามารถเปลี่ยนชื่อคอลัมน์ตามไฟล์ส่งออกที่ระบบรองรับได้", "success");
+  }
+
   function exportCleanFile() {
     if (!state.rows.length) return;
-    const headers = ["source", "tracking_number", "sku_id", "item_quantity", "item_name", "main_category", "sub_category", "merged_rows", "product_code", "cost_price", "selling_price"];
+    const headers = ["source", "tracking_number", "order_number", "sku_id", "item_quantity", "item_name", "main_category", "sub_category", "return_status", "order_status", "merged_rows", "product_code", "cost_price", "selling_price"];
     const date = new Date().toISOString().slice(0, 10);
-    downloadCsv(`shopee-clean-${date}.csv`, headers, state.rows);
-    setMessage("ดาวน์โหลดไฟล์ Shopee ที่รวม Tracking + SKU แล้ว", "success");
+    downloadCsv(`lazada-clean-${date}.csv`, headers, state.rows);
+    setMessage("ดาวน์โหลดไฟล์ Lazada ที่รวม Tracking + SKU แล้ว", "success");
   }
 
   function priceExportRows(rows) {
@@ -949,7 +1027,7 @@
       refreshAll();
       const ready = Array.from(changed).filter((skuId) => isReadyForUpdate(state.skuById.get(skuId) || {})).length;
       setNotice(E.priceImportSummary,
-        `รับไฟล์ <strong>${esc(file.name)}</strong> แล้ว · อัปเดตร่าง ${integer(changed.size)} SKU · พร้อมอัปเดต ${integer(ready)} SKU${unknown ? ` · ไม่พบในชุด Shopee ${integer(unknown)} SKU` : ""}${blank ? ` · ข้าม ${integer(blank)} แถว` : ""}`,
+        `รับไฟล์ <strong>${esc(file.name)}</strong> แล้ว · อัปเดตร่าง ${integer(changed.size)} SKU · พร้อมอัปเดต ${integer(ready)} SKU${unknown ? ` · ไม่พบในชุด Lazada ${integer(unknown)} SKU` : ""}${blank ? ` · ข้าม ${integer(blank)} แถว` : ""}`,
         "success"
       );
       setMessage(`นำเข้าราคา CSV แบบทยอยสำเร็จ ${integer(changed.size)} SKU`, "success");
@@ -1084,7 +1162,7 @@
           } else {
             result = await supabaseClient.rpc("import_product_row", {
               p_product_code: normalizeText(item.product_code || skuId),
-              p_name: item.item_name || `Shopee SKU ${skuId}`,
+              p_name: item.item_name || `Lazada SKU ${skuId}`,
               p_barcode: null,
               p_category_code: E.defaultCategory.value,
               p_unit_name: E.defaultUnit.value,
@@ -1095,7 +1173,7 @@
               p_vat_rate: 0,
               p_initial_branch_code: null,
               p_initial_quantity: 0,
-              p_description: `SHOPEE_SKU:${skuId}`,
+              p_description: `LAZADA_SKU:${skuId}`,
             });
           }
           if (result.error) throw result.error;
@@ -1203,9 +1281,10 @@
       if (file) processSourceFile(file);
     });
     E.clearWorkspaceBtn.addEventListener("click", async () => {
-      if (!state.rows.length || window.confirm("ยืนยันล้างข้อมูล Shopee และร่างราคาทั้งหมดที่บันทึกไว้ในเครื่องนี้?")) await clearWorkspace();
+      if (!state.rows.length || window.confirm("ยืนยันล้างข้อมูล Lazada และร่างราคาทั้งหมดที่บันทึกไว้ในเครื่องนี้?")) await clearWorkspace();
     });
 
+    E.downloadTemplateBtn?.addEventListener("click", downloadSourceTemplate);
     E.exportCleanBtn.addEventListener("click", exportCleanFile);
     let reviewTimer = null;
     E.trackingSearch.addEventListener("input", () => {
@@ -1213,10 +1292,12 @@
       reviewTimer = setTimeout(() => { state.reviewPage = 1; applyReviewFilters(); }, 140);
     });
     E.reviewStatusFilter.addEventListener("change", () => { state.reviewPage = 1; applyReviewFilters(); });
+    E.sourceStatusFilter?.addEventListener("change", () => { state.reviewPage = 1; applyReviewFilters(); });
     E.reviewPageSizeSelect.addEventListener("change", () => { state.reviewPage = 1; applyReviewFilters(); });
     E.clearReviewFilterBtn.addEventListener("click", () => {
       E.trackingSearch.value = "";
       E.reviewStatusFilter.value = "all";
+      if (E.sourceStatusFilter) E.sourceStatusFilter.value = ALL_VALUE;
       state.reviewPage = 1;
       applyReviewFilters();
     });
@@ -1297,8 +1378,8 @@
       await flushDraftSave();
       setMessage("บันทึกร่างราคาแล้ว สามารถปิดหน้าและกลับมาทำต่อได้", "success");
     });
-    E.exportCategoryBtn.addEventListener("click", () => exportPriceRows(state.filteredSkuRows, "shopee-category-price"));
-    E.exportAllPriceBtn.addEventListener("click", () => exportPriceRows(state.skuRows, "shopee-all-price"));
+    E.exportCategoryBtn.addEventListener("click", () => exportPriceRows(state.filteredSkuRows, "lazada-category-price"));
+    E.exportAllPriceBtn.addEventListener("click", () => exportPriceRows(state.skuRows, "lazada-all-price"));
     E.choosePriceFileBtn.addEventListener("click", () => E.priceFileInput.click());
     E.priceFileInput.addEventListener("change", () => {
       const file = E.priceFileInput.files?.[0];
@@ -1337,7 +1418,7 @@
 
   async function initializePage() {
     try {
-      const access = await window.TKNAuthGuard.requireAccess("product.manage", { loadingText: "กำลังตรวจสอบสิทธิ์จัดการราคา Shopee..." });
+      const access = await window.TKNAuthGuard.requireAccess("product.manage", { loadingText: "กำลังตรวจสอบสิทธิ์จัดการราคา Lazada..." });
       if (!access) return;
       state.db = await openDatabase();
       bindEvents();
@@ -1350,7 +1431,7 @@
         location.replace("./dashboard.html");
       });
       window.TKNAuthGuard.ready();
-      if (state.rows.length) setMessage("กู้คืนข้อมูล Shopee และร่างราคาล่าสุดจากเครื่องนี้แล้ว สามารถเลือกหมวดและทำต่อได้", "info");
+      if (state.rows.length) setMessage("กู้คืนข้อมูล Lazada และร่างราคาล่าสุดจากเครื่องนี้แล้ว สามารถเลือกหมวดและทำต่อได้", "info");
     } catch (error) {
       console.error(error);
       if (error?.code === "INVENTORY_PERMISSION_DENIED") return;
