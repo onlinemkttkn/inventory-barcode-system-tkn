@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#a90f16">
+  <title>สแกนตรวจสต็อกผ่านมือถือ — TKN</title>
+  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
+  <link rel="stylesheet" href="./css/mobile-stock-check.css?v=5.14.1">
+</head>
+<body class="tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังเปิดกล้องตรวจสต็อก...">
+  <main class="mobile-shell">
+    <header class="mobile-header">
+      <div>
+        <span class="eyebrow">TKN POS ERP · Mobile Stock</span>
+        <h1>สแกนตรวจสินค้า</h1>
+        <p>ใช้กล้องมือถือเช็กสินค้า กล่อง และจำนวนสต็อกจริง</p>
+      </div>
+      <div class="mobile-header-actions">
+        <button id="backBtn" class="header-action back-action" type="button" aria-label="ย้อนกลับหน้าก่อนหน้า">← ย้อนกลับ</button>
+        <a class="header-action desktop-link" href="./box-qr-stock.html">หน้าจัดกล่อง</a>
+      </div>
+    </header>
+
+    <section class="quick-modes" aria-label="โหมดการทำงาน">
+      <button class="mode-btn active" type="button" data-mode="LOOKUP">
+        <span>🔎</span><b>ดูสต็อก</b><small>สแกนแล้วดูข้อมูล</small>
+      </button>
+      <button class="mode-btn" type="button" data-mode="RECEIVE">
+        <span>📥</span><b>ตรวจรับ</b><small>ส่งรหัสไปหน้าตรวจรับ</small>
+      </button>
+      <button class="mode-btn" type="button" data-mode="BOX">
+        <span>📦</span><b>จัดกล่อง</b><small>ส่งรหัสไปหน้าจัดกล่อง</small>
+      </button>
+    </section>
+
+    <section class="camera-card">
+      <div class="camera-heading">
+        <div>
+          <b>กล้องสแกน QR / Barcode</b>
+          <small id="cameraHelp">กดเปิดกล้อง แล้วเล็งรหัสให้อยู่กลางกรอบ</small>
+        </div>
+        <span id="cameraStatus" class="status-pill">ยังไม่เปิด</span>
+      </div>
+
+      <div id="cameraFrame" class="camera-frame">
+        <video id="cameraVideo" playsinline muted></video>
+        <div class="scan-guide"><span></span></div>
+        <div id="cameraPlaceholder" class="camera-placeholder">
+          <div class="camera-icon">▣</div>
+          <p>พร้อมใช้กล้องหลังของโทรศัพท์</p>
+        </div>
+      </div>
+
+      <div class="camera-actions">
+        <button id="startCameraBtn" class="btn primary" type="button">เปิดกล้องสแกน</button>
+        <button id="torchBtn" class="btn ghost" type="button" hidden>เปิดไฟฉาย</button>
+        <button id="stopCameraBtn" class="btn danger" type="button" disabled>หยุดกล้อง</button>
+      </div>
+      <p class="secure-note">กล้องใช้งานได้เมื่อเว็บไซต์เปิดผ่าน HTTPS และอนุญาตสิทธิ์กล้อง</p>
+    </section>
+
+    <section class="manual-card">
+      <form id="manualSearchForm" class="manual-search">
+        <label for="manualCode">กรอกรหัสหรือค้นหาชื่อสินค้า</label>
+        <div class="search-row">
+          <input id="manualCode" autocomplete="off" autocapitalize="off" enterkeyhint="search"
+                 placeholder="SKU, Barcode, TKN-P-... หรือ TKN-B-...">
+          <button class="btn primary" type="submit">ค้นหา</button>
+        </div>
+      </form>
+      <div id="searchSuggestions" class="suggestions" hidden></div>
+    </section>
+
+    <div id="mobileMessage" class="message" role="status" aria-live="polite"></div>
+
+    <section id="resultPanel" class="result-panel empty" aria-live="polite">
+      <div class="empty-result">
+        <span>⌁</span>
+        <h2>ยังไม่ได้สแกน</h2>
+        <p>สแกน QR สินค้า, Barcode หรือ QR กล่อง เพื่อดูข้อมูล</p>
+      </div>
+    </section>
+
+    <section id="countPanel" class="count-panel" hidden>
+      <h2>บันทึกจำนวนที่ตรวจจริง</h2>
+      <p>รายการนี้เป็นร่างการตรวจนับ ยังไม่ปรับยอดสต็อกอัตโนมัติ</p>
+      <div class="count-grid">
+        <label>จำนวนในระบบ<input id="systemQty" type="number" readonly></label>
+        <label>จำนวนตรวจจริง<input id="countedQty" type="number" min="0" step="1" inputmode="numeric"></label>
+      </div>
+      <label>หมายเหตุ<input id="countNote" placeholder="เช่น ขาด 1 ชิ้น / พบสินค้าเกิน"></label>
+      <div class="count-actions">
+        <button id="saveCountDraftBtn" class="btn primary" type="button">บันทึกร่างการตรวจ</button>
+        <button id="cancelCountBtn" class="btn ghost" type="button">ยกเลิก</button>
+      </div>
+    </section>
+
+    <section class="recent-card">
+      <div class="section-title">
+        <h2>สแกนล่าสุด</h2>
+        <button id="clearRecentBtn" class="text-btn" type="button">ล้างรายการ</button>
+      </div>
+      <div id="recentList" class="recent-list"><p class="muted">ยังไม่มีรายการ</p></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="เมนูมือถือ">
+    <button id="bottomScanBtn" class="active" type="button"><span>▣</span>สแกน</button>
+    <a href="./box-qr-stock.html?tab=receive"><span>📥</span>ตรวจรับ</a>
+    <a href="./box-qr-stock.html?tab=box"><span>📦</span>จัดกล่อง</a>
+    <a href="./dashboard.html"><span>▦</span>Dashboard</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+  <script src="./js/supabase-config.js?v=1.0.2"></script>
+  <script src="./js/auth-guard.js?v=5.6.0"></script>
+  <script src="./js/mobile-stock-check.js?v=5.14.1"></script>
+</body>
+</html>
