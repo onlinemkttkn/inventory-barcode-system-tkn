@@ -440,13 +440,10 @@
 
   function goBack() {
     stopCamera();
-    try {
-      const referrer = document.referrer ? new URL(document.referrer) : null;
-      if (referrer && referrer.origin === location.origin && history.length > 1) {
-        history.back();
-        return;
-      }
-    } catch (_) {}
+    if (window.TKNSafeBack?.go) {
+      window.TKNSafeBack.go({ fallback: "./box-qr-stock.html" });
+      return;
+    }
     location.href = "./box-qr-stock.html";
   }
 

@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ตั้งค่าฮาร์ดแวร์ POS</title>
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/hardware-settings.css?v=5.7.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
+  <link rel="stylesheet" href="./css/hardware-settings.css?v=3.4.9">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
@@ -15,7 +15,7 @@
   <main class="hardware-shell">
     <header class="hardware-head">
       <div>
-        <p class="eyebrow">MASTER 3.4 LTS · HARDWARE v5.7.0</p>
+        <p class="eyebrow">MASTER 3.4.9 · HARDWARE</p>
         <h1>ตั้งค่าฮาร์ดแวร์ POS</h1>
         <p>ตั้งค่าต่อเครื่องแคชเชียร์ ข้อมูลจะเก็บใน Browser ของเครื่องนี้</p>
       </div>
@@ -115,24 +115,13 @@
           ทดสอบเปิดลิ้นชัก
         </button>
         <button id="testPrint" class="button secondary" type="button">
-          ทดสอบ Driver / พิมพ์
+          ทดสอบ Browser Print
         </button>
       </div>
 
       <p id="message" class="hardware-message"></p>
       <pre id="printerList" class="printer-list" hidden></pre>
     </form>
-
-    <section class="hardware-card">
-      <h2>ตรวจ Driver Rongta ก่อนใช้งาน</h2>
-      <ol class="flow-list">
-        <li>ชื่อเครื่องพิมพ์ใน Windows ต้องตรงกับช่อง “ชื่อเครื่องพิมพ์” ทุกตัวอักษร</li>
-        <li>Printer Status ต้องเป็น Ready และไม่เปิด Use Printer Offline</li>
-        <li>Port ต้องตรงกับการเชื่อมต่อจริง เช่น USB001 หรือ Standard TCP/IP Port</li>
-        <li>ทดสอบ “Driver / พิมพ์” ให้กระดาษออกก่อนทดสอบลิ้นชัก</li>
-        <li>ลิ้นชักต้องต่อช่อง DK/Cash Drawer ที่ด้านหลังเครื่องพิมพ์</li>
-      </ol>
-    </section>
 
     <section class="hardware-card">
       <h2>หลักการทำงาน</h2>
@@ -147,9 +136,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=5.2.0"></script>
-  <script src="./js/tkn-hardware-client.js?v=5.7.0"></script>
-  <script src="./js/go-live-security.js?v=5.7.0"></script>
-  <script src="./js/hardware-settings.js?v=5.7.0"></script>
-  <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
+  <script src="./js/tkn-hardware-client.js?v=5.2.0"></script>
+  <script src="./js/go-live-security.js?v=5.2.0"></script>
+  <script src="./js/hardware-settings.js?v=5.2.0"></script>
+  <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
+<script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>
 </html>

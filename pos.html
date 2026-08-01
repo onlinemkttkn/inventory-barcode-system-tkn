@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./pos.css?v=5.7.5">
+  <link rel="stylesheet" href="./pos.css?v=3.4.17">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/pos-product-ui.css?v=4.5.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
@@ -95,8 +95,8 @@
         <p class="eyebrow">CASHIER SESSION</p>
         <button id="shiftLockClose" class="shift-lock-close" type="button" aria-label="ปิดหน้าต่างเปิดกะ">×</button>
       </div>
-      <h2 id="shiftLockTitle">รอพนักงานเปิดกะใหม่</h2>
-      <p id="shiftLockDescription">บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย</p>
+      <h2>รอพนักงานเปิดกะใหม่</h2>
+      <p>บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย</p>
       <div id="shiftLockBranch" class="shift-lock-branch">กำลังตรวจสอบสาขา...</div>
       <label>รหัสพนักงาน<input id="shiftLockEmployeeCode" required autocomplete="username"></label>
       <label>PIN<input id="shiftLockPin" type="password" inputmode="numeric" minlength="4" required autocomplete="current-password"></label>
@@ -216,6 +216,20 @@
     </form>
   </dialog>
 
+  <dialog id="cashierUnlockDialog">
+    <form id="cashierUnlockForm" class="dialog-card">
+      <h2>เข้าใช้งานแคชเชียร์</h2>
+      <p>กรอกรหัสพนักงานและ PIN เพื่อเปิดกะ</p>
+      <label>รหัสพนักงาน<input id="employeeCode" required autocomplete="username"></label>
+      <label>PIN<input id="cashierPin" type="password" inputmode="numeric"
+        minlength="4" required autocomplete="current-password"></label>
+      <label>เงินทอนตั้งต้น<input id="openingFloat" type="number" min="0"
+        step="0.01" value="0"></label>
+      <button class="btn success" type="submit">เปิดกะและเริ่มขาย</button>
+      <p id="unlockMsg" class="msg"></p>
+    </form>
+  </dialog>
+
   <dialog id="closeShiftDialog">
     <form id="closeShiftForm" class="dialog-card">
       <h2>ปิดกะแคชเชียร์</h2>
@@ -245,8 +259,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script src="./js/tkn-hardware-client.js?v=5.7.0"></script>
-  <script type="module" src="./pos.js?v=5.7.0-hardware-final"></script>
-  <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
+  <script src="./js/tkn-hardware-client.js?v=3.4.9"></script>
+  <script type="module" src="./pos.js?v=3.6.2-shift-guard"></script>
+  <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
+<script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>
 </html>

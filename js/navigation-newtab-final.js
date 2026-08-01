@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const NAV_VERSION = '5.4.2';
+  const NAV_VERSION = '5.14.2';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
   const SHARED_CACHE_TTL = 5 * 60_000;
@@ -264,6 +264,10 @@
           <strong>POS / ERP</strong>
           <small>Master 3.4 LTS</small>
         </div>
+        ${current !== 'dashboard.html' ? `
+          <button class="tkn-nav-quick-back" type="button" aria-label="ย้อนกลับหน้าก่อนหน้า" title="ย้อนกลับ">
+            <span aria-hidden="true">←</span>
+          </button>` : ''}
         <button class="tkn-nav-toggle" type="button" aria-expanded="false"
           aria-controls="tknPrimaryNavigation" aria-label="เปิดเมนู">
           <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
@@ -285,6 +289,25 @@
       </div>`;
 
     const menu = nav.querySelector('.tkn-nav-menu');
+
+    if (current !== 'dashboard.html') {
+      const backButton = document.createElement('button');
+      backButton.type = 'button';
+      backButton.className = 'tkn-nav-btn tkn-back-entry';
+      backButton.innerHTML = '<span aria-hidden="true">←</span> ย้อนกลับ';
+      backButton.setAttribute('aria-label', 'ย้อนกลับหน้าก่อนหน้า');
+      backButton.addEventListener('click', () => {
+        if (window.TKNSafeBack?.go) window.TKNSafeBack.go();
+        else location.href = './dashboard.html';
+      });
+      menu.appendChild(backButton);
+    }
+
+    nav.querySelector('.tkn-nav-quick-back')?.addEventListener('click', () => {
+      if (window.TKNSafeBack?.go) window.TKNSafeBack.go();
+      else location.href = './dashboard.html';
+    });
+
     const inventoryPages = new Set([
       'inventory-operations.html', 'receive.html', 'issue.html',
       'transfer-create.html', 'transfer-receive.html', 'transactions.html',

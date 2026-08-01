@@ -7,13 +7,12 @@
   <link rel="stylesheet" href="./css/governance.css?v=3.4.10">
   <link rel="stylesheet" href="./css/reports-3-4.css?v=3.4.10">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
   <link rel="stylesheet" href="./css/reports-product-ui.css?v=4.3.0">
   <link rel="stylesheet" href="./css/reports-status-colors.css?v=5.2.3">
   <link rel="stylesheet" href="./css/reports-bill-history-button.css?v=5.2.4">
-  <link rel="stylesheet" href="./css/reports-filters-v5.8.7.css?v=5.8.7">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -58,40 +57,16 @@
         <option value="RANGE">กำหนดช่วงวัน</option>
       </select>
     </label>
-    <label id="startField">วันที่เริ่มต้น
+    <label id="anchorField">วันที่อ้างอิง
+      <input id="anchor" type="date">
+    </label>
+    <label id="startField" hidden>วันที่เริ่มต้น
       <input id="startDate" type="date">
     </label>
-    <label id="endField">วันที่สิ้นสุด
+    <label id="endField" hidden>วันที่สิ้นสุด
       <input id="endDate" type="date">
     </label>
-    <label id="branchField">สาขา
-      <select id="branchFilter">
-        <option value="">กำลังโหลดสาขา...</option>
-      </select>
-    </label>
-    <label>ช่องทางชำระ
-      <select id="paymentFilter">
-        <option value="ALL">ทุกช่องทาง</option>
-        <option value="CASH">เงินสด</option>
-        <option value="QR">QR</option>
-        <option value="TRANSFER">เงินโอน</option>
-        <option value="CARD">บัตร</option>
-        <option value="VOUCHER">Voucher</option>
-        <option value="OTHER">อื่น ๆ</option>
-      </select>
-    </label>
-    <label>สถานะ
-      <select id="statusFilter">
-        <option value="ALL">ทุกสถานะ</option>
-        <option value="COMPLETED">สำเร็จ / ชำระเงินแล้ว</option>
-        <option value="PARTIALLY_RETURNED">คืนสินค้าบางส่วน</option>
-        <option value="RETURNED">คืนสินค้าแล้ว</option>
-        <option value="REFUNDED">คืนเงินแล้ว</option>
-        <option value="VOIDED">ยกเลิก</option>
-        <option value="PENDING">รอดำเนินการ</option>
-        <option value="HELD">พักบิล</option>
-      </select>
-    </label>
+    <label>ช่องทางชำระ<select id="paymentFilter"><option value="ALL">ทุกช่องทาง</option><option value="CASH">เงินสด</option><option value="QR">QR</option><option value="TRANSFER">เงินโอน</option><option value="CARD">บัตร</option><option value="VOUCHER">Voucher</option><option value="OTHER">อื่น ๆ</option></select></label>
     <button id="load" class="button" type="button">โหลดรายงาน</button>
     <button id="csv" class="button secondary" type="button">Export CSV</button>
     <button id="print" class="button secondary" type="button">พิมพ์</button>
@@ -129,7 +104,8 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.8.7"></script>
-  <script src="./js/navigation-newtab-final.js?v=4.9.1-final"></script>
+<script type="module" src="./js/reports.js?v=5.2.4"></script>
+  <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
+<script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>
 </html>

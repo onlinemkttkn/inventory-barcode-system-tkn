@@ -28,20 +28,19 @@
   };
 
   const goBackSafely = () => {
-    const referrer = document.referrer;
+    if (window.TKNSafeBack?.go) {
+      window.TKNSafeBack.go({ fallback: "./dashboard.html" });
+      return;
+    }
 
-    if (referrer && isSafeInternalUrl(referrer)) {
+    const referrer = document.referrer;
+    if (referrer && isSafeInternalUrl(referrer) && history.length > 1) {
       history.back();
       return;
     }
 
     const lastPage = sessionStorage.getItem("tkn-last-page");
-
-    if (
-      lastPage &&
-      lastPage !== location.href &&
-      isSafeInternalUrl(lastPage)
-    ) {
+    if (lastPage && lastPage !== location.href && isSafeInternalUrl(lastPage)) {
       location.href = lastPage;
       return;
     }

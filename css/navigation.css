@@ -381,3 +381,48 @@
   background:var(--nav-red);
   color:#fff;
 }
+
+/* Safe back navigation v5.14.2 */
+.tkn-back-entry{
+  cursor:pointer;
+  border-color:rgba(255,199,44,.38);
+  background:rgba(255,199,44,.10);
+}
+
+.tkn-back-entry:hover{
+  background:rgba(255,199,44,.18);
+  border-color:var(--nav-yellow);
+}
+
+.tkn-nav-quick-back{
+  display:none;
+  flex:0 0 auto;
+  width:44px;
+  height:44px;
+  margin-left:auto;
+  border:1px solid rgba(255,199,44,.50);
+  border-radius:12px;
+  background:rgba(255,199,44,.12);
+  color:#fff;
+  font-size:1.35rem;
+  font-weight:1000;
+  cursor:pointer;
+}
+
+.tkn-nav-quick-back:hover,
+.tkn-nav-quick-back:focus-visible{
+  background:var(--nav-yellow);
+  color:#111;
+  outline:none;
+}
+
+@media(max-width:780px){
+  .tkn-nav-quick-back{
+    display:grid;
+    place-items:center;
+  }
+
+  .tkn-nav-brand .tkn-nav-toggle{
+    margin-left:0;
+  }
+}

@@ -767,12 +767,12 @@ els.cancelRefundApproval?.addEventListener('click', () => {
 });
 
 function goBack() {
-  if (history.length > 1) {
-    history.back();
-  } else {
-    window.location.href =
-      './phase-9-2-bill-search-v2-2.html';
+  const fallback = './phase-9-2-bill-search.html';
+  if (window.TKNSafeBack?.go) {
+    window.TKNSafeBack.go({ fallback });
+    return;
   }
+  window.location.href = fallback;
 }
 
 els.cancelButton.addEventListener('click', goBack);
