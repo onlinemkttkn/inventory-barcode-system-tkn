@@ -1,0 +1,23 @@
+{
+  "version": "5.12.0",
+  "files": [
+    "box-qr-stock.html",
+    "css/box-qr-stock.css",
+    "js/box-qr-stock.js",
+    "import-export.html",
+    "pos-fixed.js",
+    "sql/2026-08-01-box-qr-container-stock-v5.12.0.sql",
+    "README-BOX-QR-v5.12.0-FINAL.txt"
+  ],
+  "checks": {
+    "box_qr_js_syntax": "passed",
+    "pos_js_syntax": "passed",
+    "patch_zip_integrity": "passed",
+    "full_zip_integrity": "passed",
+    "required_sql_included": "passed",
+    "import_export_link": "passed",
+    "pos_tkn_product_prefix": "passed",
+    "pos_box_redirect": "passed",
+    "production_stock_write": "requires_uat"
+  }
+}

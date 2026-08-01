@@ -111,7 +111,9 @@ E.branch.addEventListener("change", () => {
 E.searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const keyword = E.search.value.trim().replace(/[%_,()]/g, "");
+  let keyword = E.search.value.trim().replace(/[%_,()]/g, "");
+  if (/^TKN-B-/i.test(keyword)) { location.href = `./box-qr-stock.html?scan=${encodeURIComponent(keyword)}`; return; }
+  keyword = keyword.replace(/^TKN-P-/i, "");
 
   if (!keyword) {
     msg(E.searchMsg, "กรุณากรอกชื่อ รหัสสินค้า หรือบาร์โค้ด", "error");
