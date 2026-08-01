@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./css/reports-product-ui.css?v=4.3.0">
   <link rel="stylesheet" href="./css/reports-status-colors.css?v=5.2.3">
   <link rel="stylesheet" href="./css/reports-bill-history-button.css?v=5.2.4">
+  <link rel="stylesheet" href="./css/reports-loader-v5-15-1.css?v=5.15.1">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -70,6 +71,7 @@
     <button id="load" class="button" type="button">โหลดรายงาน</button>
     <button id="csv" class="button secondary" type="button">Export CSV</button>
     <button id="print" class="button secondary" type="button">พิมพ์</button>
+    <p id="reportDataSource" class="report-data-source" aria-live="polite">กำลังเตรียมข้อมูล...</p>
   </section>
 
   <section class="stats" id="stats"></section>
@@ -91,7 +93,11 @@
         <tbody id="rows"><tr><td colspan="6">กำลังโหลด...</td></tr></tbody>
       </table>
     </div>
-    <p id="message" class="message"></p>
+    <p id="message" class="message" aria-live="polite"></p>
+    <details id="reportDiagnostics" class="report-diagnostics" hidden>
+      <summary>รายละเอียดสำหรับตรวจสอบระบบ</summary>
+      <pre id="reportDiagnosticsText"></pre>
+    </details>
   </section>
 </main>
 
@@ -104,7 +110,7 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.2.4"></script>
+<script type="module" src="./js/reports.js?v=5.15.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>

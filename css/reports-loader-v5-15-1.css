@@ -1,0 +1,44 @@
+/* TKN Reports loader/recovery v5.15.1 */
+.report-data-source {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #64748b;
+  font-size: .86rem;
+}
+
+#message[data-type="loading"] { color: #9a6700; }
+#message[data-type="success"] { color: #067647; }
+#message[data-type="empty"] { color: #475569; }
+#message[data-type="error"] { color: #b42318; font-weight: 700; }
+
+.report-loading-cell,
+.report-error-cell {
+  text-align: center;
+  padding: 28px 16px !important;
+}
+.report-error-cell { color: #b42318; font-weight: 700; }
+
+.report-diagnostics {
+  margin-top: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff7f7;
+  padding: 10px 12px;
+}
+.report-diagnostics summary {
+  cursor: pointer;
+  color: #991b1b;
+  font-weight: 700;
+}
+.report-diagnostics pre {
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .78rem;
+  color: #7f1d1d;
+}
+
+@media (max-width: 560px) {
+  .report-data-source { text-align: center; }
+}
