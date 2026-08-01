@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="./css/reports-product-ui.css?v=4.3.0">
   <link rel="stylesheet" href="./css/reports-status-colors.css?v=5.2.3">
   <link rel="stylesheet" href="./css/reports-bill-history-button.css?v=5.2.4">
-  <link rel="stylesheet" href="./css/reports-loader-v5-15-1.css?v=5.15.1">
+  <link rel="stylesheet" href="./css/reports-loader-v5-15-2.css?v=5.15.2">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -50,27 +50,29 @@
         <p>เลือกรูปแบบ ช่วงเวลา และช่องทางชำระ ก่อนโหลดข้อมูล</p>
       </div>
     </div>
-    <label>รูปแบบรายงาน
+    <label>ช่วงเวลาข้อมูล
       <select id="period">
-        <option value="DAY">รายวัน</option>
-        <option value="MONTH">รายเดือน</option>
-        <option value="YEAR">รายปี</option>
-        <option value="RANGE">กำหนดช่วงวัน</option>
+        <option value="TODAY">วันนี้</option>
+        <option value="YESTERDAY">เมื่อวาน</option>
+        <option value="LAST_7_DAYS">7 วันล่าสุด</option>
+        <option value="LAST_30_DAYS">30 วันล่าสุด</option>
+        <option value="THIS_MONTH">เดือนนี้</option>
+        <option value="LAST_MONTH">เดือนที่แล้ว</option>
+        <option value="THIS_YEAR">ปีนี้</option>
+        <option value="CUSTOM">กำหนดเอง</option>
       </select>
     </label>
-    <label id="anchorField">วันที่อ้างอิง
-      <input id="anchor" type="date">
+    <label id="startField">วันที่เริ่มต้น
+      <input id="startDate" type="date" required>
     </label>
-    <label id="startField" hidden>วันที่เริ่มต้น
-      <input id="startDate" type="date">
-    </label>
-    <label id="endField" hidden>วันที่สิ้นสุด
-      <input id="endDate" type="date">
+    <label id="endField">วันที่สิ้นสุด
+      <input id="endDate" type="date" required>
     </label>
     <label>ช่องทางชำระ<select id="paymentFilter"><option value="ALL">ทุกช่องทาง</option><option value="CASH">เงินสด</option><option value="QR">QR</option><option value="TRANSFER">เงินโอน</option><option value="CARD">บัตร</option><option value="VOUCHER">Voucher</option><option value="OTHER">อื่น ๆ</option></select></label>
     <button id="load" class="button" type="button">โหลดรายงาน</button>
     <button id="csv" class="button secondary" type="button">Export CSV</button>
     <button id="print" class="button secondary" type="button">พิมพ์</button>
+    <p id="reportSelectedRange" class="report-selected-range" aria-live="polite">ช่วงข้อมูล: -</p>
     <p id="reportDataSource" class="report-data-source" aria-live="polite">กำลังเตรียมข้อมูล...</p>
   </section>
 
@@ -110,7 +112,7 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.15.1"></script>
+<script type="module" src="./js/reports.js?v=5.15.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>

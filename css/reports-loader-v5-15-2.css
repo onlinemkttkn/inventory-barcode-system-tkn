@@ -1,0 +1,86 @@
+/* TKN Reports date-range + loader recovery v5.15.2 */
+.report-data-source,
+.report-selected-range {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: .86rem;
+}
+
+.report-selected-range {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #f5c2c7;
+  border-radius: 10px;
+  background: #fff8e8;
+  color: #7a2e0b;
+  font-weight: 700;
+}
+
+.report-selected-range[data-applied="true"] {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.report-data-source { color: #64748b; }
+
+.reports-page .report-toolbar #startField,
+.reports-page .report-toolbar #endField {
+  display: grid !important;
+}
+
+#message[data-type="loading"] { color: #9a6700; }
+#message[data-type="success"] { color: #067647; }
+#message[data-type="empty"] { color: #475569; }
+#message[data-type="error"] { color: #b42318; font-weight: 700; }
+
+.report-loading-cell,
+.report-error-cell {
+  text-align: center;
+  padding: 28px 16px !important;
+}
+.report-error-cell { color: #b42318; font-weight: 700; }
+
+.report-diagnostics {
+  margin-top: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff7f7;
+  padding: 10px 12px;
+}
+.report-diagnostics summary {
+  cursor: pointer;
+  color: #991b1b;
+  font-weight: 700;
+}
+.report-diagnostics pre {
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .78rem;
+  color: #7f1d1d;
+}
+
+@media (min-width: 1201px) {
+  .reports-page .report-toolbar {
+    grid-template-columns: repeat(4, minmax(170px, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .report-data-source,
+  .report-selected-range { text-align: center; }
+  .report-selected-range { justify-content: center; }
+}
+
+@media print {
+  .report-selected-range {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #000;
+  }
+}

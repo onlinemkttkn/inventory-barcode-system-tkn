@@ -4,12 +4,11 @@ import { loadAccessContext, hasPermission } from './access-control.js';
 const E = {
   period: document.getElementById('period'),
   paymentFilter: document.getElementById('paymentFilter'),
-  anchor: document.getElementById('anchor'),
-  anchorField: document.getElementById('anchorField'),
   startDate: document.getElementById('startDate'),
   endDate: document.getElementById('endDate'),
   startField: document.getElementById('startField'),
   endField: document.getElementById('endField'),
+  selectedRange: document.getElementById('reportSelectedRange'),
   load: document.getElementById('load'),
   csv: document.getElementById('csv'),
   print: document.getElementById('print'),
@@ -34,6 +33,7 @@ const state = {
   payload: null,
   source: '',
   requestId: 0,
+  appliedRange: null,
 };
 
 const money = (value) => new Intl.NumberFormat('th-TH', {
@@ -81,33 +81,69 @@ function dateValue(date) {
   ].join('-');
 }
 
+function addDays(date, amount) {
+  const copy = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
+  copy.setDate(copy.getDate() + amount);
+  return copy;
+}
+
+function startOfMonth(date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1, 12, 0, 0, 0);
+}
+
 function endOfMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0, 12, 0, 0, 0);
 }
 
+function presetRange(preset = E.period?.value) {
+  const today = parseDate(localDateValue()) || new Date();
+
+  switch (preset) {
+    case 'YESTERDAY': {
+      const yesterday = addDays(today, -1);
+      return { startDate: dateValue(yesterday), endDate: dateValue(yesterday) };
+    }
+    case 'LAST_7_DAYS':
+      return { startDate: dateValue(addDays(today, -6)), endDate: dateValue(today) };
+    case 'LAST_30_DAYS':
+      return { startDate: dateValue(addDays(today, -29)), endDate: dateValue(today) };
+    case 'THIS_MONTH':
+      return { startDate: dateValue(startOfMonth(today)), endDate: dateValue(today) };
+    case 'LAST_MONTH': {
+      const previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1, 12, 0, 0, 0);
+      return {
+        startDate: dateValue(startOfMonth(previousMonth)),
+        endDate: dateValue(endOfMonth(previousMonth)),
+      };
+    }
+    case 'THIS_YEAR':
+      return { startDate: `${today.getFullYear()}-01-01`, endDate: dateValue(today) };
+    case 'CUSTOM':
+      return {
+        startDate: E.startDate?.value || localDateValue(),
+        endDate: E.endDate?.value || localDateValue(),
+      };
+    case 'TODAY':
+    default: {
+      const value = dateValue(today);
+      return { startDate: value, endDate: value };
+    }
+  }
+}
+
+function applyPresetRange({ loadAfter = false } = {}) {
+  const range = presetRange();
+  E.startDate.value = range.startDate;
+  E.endDate.value = range.endDate;
+  updateRangeText(range.startDate, range.endDate, false);
+  if (loadAfter) load();
+}
+
 function selectedRange() {
-  if (E.period.value === 'RANGE') {
-    return { startDate: E.startDate.value, endDate: E.endDate.value };
-  }
-
-  const anchor = parseDate(E.anchor.value);
-  if (!anchor) return { startDate: '', endDate: '' };
-
-  if (E.period.value === 'YEAR') {
-    return {
-      startDate: `${anchor.getFullYear()}-01-01`,
-      endDate: `${anchor.getFullYear()}-12-31`,
-    };
-  }
-
-  if (E.period.value === 'MONTH') {
-    return {
-      startDate: dateValue(new Date(anchor.getFullYear(), anchor.getMonth(), 1, 12)),
-      endDate: dateValue(endOfMonth(anchor)),
-    };
-  }
-
-  return { startDate: E.anchor.value, endDate: E.anchor.value };
+  return {
+    startDate: E.startDate.value,
+    endDate: E.endDate.value,
+  };
 }
 
 function validateRange(startDate, endDate) {
@@ -120,6 +156,25 @@ function validateRange(startDate, endDate) {
   if (days > 366) throw new Error('ช่วงรายงานต้องไม่เกิน 366 วัน');
 }
 
+function formatThaiDate(value) {
+  const date = parseDate(value);
+  if (!date) return '-';
+  return date.toLocaleDateString('th-TH', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function updateRangeText(startDate, endDate, applied = false) {
+  if (!E.selectedRange) return;
+  const prefix = applied ? 'ช่วงข้อมูลที่แสดง' : 'ช่วงข้อมูลที่เลือก';
+  E.selectedRange.textContent = startDate === endDate
+    ? `${prefix}: ${formatThaiDate(startDate)}`
+    : `${prefix}: ${formatThaiDate(startDate)} – ${formatThaiDate(endDate)}`;
+  E.selectedRange.dataset.applied = String(applied);
+}
+
 function canViewReports(context) {
   return ['report.view', 'reports.view', 'dashboard.view', 'dashboard.branch_view']
     .some((permission) => hasPermission(context, permission));
@@ -128,13 +183,6 @@ function canViewReports(context) {
 function canExportReports(context) {
   return ['report.export', 'reports.export']
     .some((permission) => hasPermission(context, permission));
-}
-
-function updatePeriodUI() {
-  const custom = E.period.value === 'RANGE';
-  E.anchorField.hidden = custom;
-  E.startField.hidden = !custom;
-  E.endField.hidden = !custom;
 }
 
 function setMessage(text, type = '') {
@@ -198,6 +246,32 @@ async function callRpc(source, rpc, args, transform = normalizePayload) {
   return { payload, source };
 }
 
+function legacyCandidateForRange(startDate, endDate) {
+  const start = parseDate(startDate);
+  const end = parseDate(endDate);
+  if (!start || !end) return null;
+
+  if (startDate === endDate) {
+    return { period: 'DAY', anchorDate: startDate };
+  }
+
+  const sameMonth = start.getFullYear() === end.getFullYear()
+    && start.getMonth() === end.getMonth();
+  if (sameMonth
+    && start.getDate() === 1
+    && end.getDate() === endOfMonth(end).getDate()) {
+    return { period: 'MONTH', anchorDate: startDate };
+  }
+
+  if (start.getMonth() === 0 && start.getDate() === 1
+    && end.getMonth() === 11 && end.getDate() === 31
+    && start.getFullYear() === end.getFullYear()) {
+    return { period: 'YEAR', anchorDate: startDate };
+  }
+
+  return null;
+}
+
 async function fetchReport(startDate, endDate) {
   const branchId = state.context?.branch_id || null;
   const errors = [];
@@ -235,13 +309,14 @@ async function fetchReport(startDate, endDate) {
     },
   ];
 
-  if (E.period.value !== 'RANGE') {
+  const legacy = legacyCandidateForRange(startDate, endDate);
+  if (legacy) {
     candidates.push({
       source: 'Reports Legacy RPC v2.1',
       rpc: 'get_sales_control_dashboard_v2_1',
       args: {
-        p_period: E.period.value,
-        p_anchor_date: E.anchor.value,
+        p_period: legacy.period,
+        p_anchor_date: legacy.anchorDate,
         p_branch_id: branchId,
         p_limit: 500,
       },
@@ -296,11 +371,8 @@ async function init() {
     E.billSearchButton.tabIndex = canSearchBills ? 0 : -1;
   }
 
-  const today = localDateValue();
-  E.anchor.value = today;
-  E.startDate.value = today;
-  E.endDate.value = today;
-  updatePeriodUI();
+  E.period.value = 'TODAY';
+  applyPresetRange();
   await load();
 }
 
@@ -315,6 +387,7 @@ async function load() {
     E.rows.innerHTML = '<tr><td colspan="6" class="report-loading-cell">กำลังโหลดข้อมูลจากฐานข้อมูล...</td></tr>';
     setMessage('กำลังโหลดรายงาน...', 'loading');
     setDiagnostics();
+    updateRangeText(startDate, endDate, false);
     if (E.source) E.source.textContent = 'กำลังเชื่อมต่อ...';
 
     const result = await fetchReport(startDate, endDate);
@@ -322,7 +395,9 @@ async function load() {
 
     state.payload = result.payload;
     state.source = result.source;
+    state.appliedRange = { startDate, endDate };
     render(result.payload);
+    updateRangeText(startDate, endDate, true);
 
     const billCount = state.allBills.length;
     const rangeText = startDate === endDate ? startDate : `${startDate} ถึง ${endDate}`;
@@ -344,7 +419,7 @@ async function load() {
     setMessage(error.message || 'โหลดรายงานไม่สำเร็จ', 'error');
     setDiagnostics(error.reportErrors || [{ source: 'Reports', message: error.message }]);
     if (E.source) E.source.textContent = 'ไม่สามารถเชื่อมต่อข้อมูลรายงาน';
-    console.error('[TKN Reports v5.15.1]', error);
+    console.error('[TKN Reports v5.15.2]', error);
   } finally {
     if (requestId === state.requestId) {
       E.load.disabled = false;
@@ -544,8 +619,9 @@ function exportCsv() {
 
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   const link = document.createElement('a');
+  const range = state.appliedRange || selectedRange();
   link.href = url;
-  link.download = `sales-report-${localDateValue()}.csv`;
+  link.download = `sales-report-${range.startDate}-to-${range.endDate}.csv`;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -569,6 +645,11 @@ function renderTableOnly() {
   });
 }
 
+function markCustomRange() {
+  if (E.period.value !== 'CUSTOM') E.period.value = 'CUSTOM';
+  updateRangeText(E.startDate.value, E.endDate.value, false);
+}
+
 E.paymentFilter?.addEventListener('change', () => {
   applyPaymentFilter();
   renderStats();
@@ -576,15 +657,17 @@ E.paymentFilter?.addEventListener('change', () => {
 });
 
 E.period?.addEventListener('change', () => {
-  updatePeriodUI();
-  load();
+  applyPresetRange({ loadAfter: true });
 });
-E.anchor?.addEventListener('change', load);
 E.startDate?.addEventListener('change', () => {
+  markCustomRange();
   if (E.endDate.value && E.startDate.value > E.endDate.value) E.endDate.value = E.startDate.value;
+  updateRangeText(E.startDate.value, E.endDate.value, false);
 });
 E.endDate?.addEventListener('change', () => {
+  markCustomRange();
   if (E.startDate.value && E.endDate.value < E.startDate.value) E.startDate.value = E.endDate.value;
+  updateRangeText(E.startDate.value, E.endDate.value, false);
 });
 E.load?.addEventListener('click', load);
 E.csv?.addEventListener('click', exportCsv);
@@ -598,5 +681,5 @@ init().catch((error) => {
   E.rows.innerHTML = '<tr><td colspan="6" class="report-error-cell">เปิดหน้ารายงานไม่สำเร็จ</td></tr>';
   setMessage(error.message || 'เปิดหน้ารายงานไม่สำเร็จ', 'error');
   setDiagnostics([{ source: 'เริ่มต้นระบบ', message: error.message || 'Unknown error' }]);
-  console.error('[TKN Reports init v5.15.1]', error);
+  console.error('[TKN Reports init v5.15.2]', error);
 });
