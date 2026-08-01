@@ -8,14 +8,14 @@
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
-  <link rel="stylesheet" href="./css/navigation.css?v=5.15.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=5.16.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
-  <link rel="stylesheet" href="./css/manual-product-import-v5-15.css?v=5.15.0">
+  <link rel="stylesheet" href="./css/manual-product-import-v5-16.css?v=5.16.0">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์นำเข้าสินค้าด้วยตนเอง...">
 <main class="manual-shell">
   <header class="manual-hero">
-    <div><span class="eyebrow">TKN POS ERP · FINAL v5.15.0</span><h1>นำเข้าสินค้าด้วยตนเอง</h1><p>เพิ่มสินค้าใหม่หรือรับ SKU เดิมเพิ่ม เก็บต้นทุนแยกรอบ คำนวณ VAT + กำไรเป็นราคาขายร่าง และตรวจแก้ก่อนบันทึกสต็อกจริง</p></div>
+    <div><span class="eyebrow">TKN POS ERP · FINAL v5.16.0</span><h1>นำเข้าสินค้าด้วยตนเอง</h1><p>เพิ่มสินค้าใหม่หรือรับ SKU เดิมเพิ่ม เก็บต้นทุนแยกรอบ คำนวณ VAT + กำไรเป็นราคาขายร่าง และตรวจแก้ก่อนบันทึกสต็อกจริง</p></div>
     <div class="hero-actions"><a class="btn ghost" href="./import-export.html">← Import / Export</a><a class="btn ghost" href="./products-admin.html">จัดการสินค้า</a><a class="btn primary" href="./box-qr-stock.html">Box QR</a></div>
   </header>
 
@@ -25,14 +25,27 @@
       <label>สาขารับเข้า<select id="defaultBranch"></select></label>
       <label>ผู้ขาย/แหล่งที่มา<input id="defaultSupplier" autocomplete="off" placeholder="ชื่อร้านหรือผู้ขาย"></label>
       <label>เลขอ้างอิง<input id="defaultReference" autocomplete="off" placeholder="ใบซื้อ/Tracking/เลขรอบ"></label>
-      <label>กำไรจากทุน (%)<input id="markupPercent" type="number" min="0" max="1000" step="0.01" value="30" inputmode="decimal"></label>
+      <label>กำไรจากทุน (%)<select id="markupPercentSelect" aria-label="เลือกเปอร์เซ็นต์กำไร">
+          <option value="10">+10%</option>
+              <option value="20">+20%</option>
+              <option value="30" selected>+30%</option>
+              <option value="40">+40%</option>
+              <option value="50">+50%</option>
+              <option value="60">+60%</option>
+              <option value="70">+70%</option>
+              <option value="80">+80%</option>
+              <option value="90">+90%</option>
+              <option value="100">+100%</option>
+              <option value="120">+120%</option>
+              <option value="CUSTOM">กำหนดเอง...</option>
+        </select></label>
+      <label id="markupPercentCustomLabel" class="custom-markup-label" hidden>กำไรกำหนดเอง (%)<input id="markupPercentCustom" type="number" min="0" max="1000" step="0.01" value="30" inputmode="decimal"></label>
       <label>VAT (%)<input id="vatRate" type="number" min="0" max="100" step="0.01" value="7" inputmode="decimal"></label>
       <label>สถานะราคาทุน<select id="vatMode"><option value="EXCLUDED">ต้นทุนยังไม่รวม VAT</option><option value="INCLUDED">ต้นทุนรวม VAT แล้ว</option></select></label>
       <label class="check-label"><input id="roundPrice" type="checkbox" checked><span>ถ้ามีทศนิยม ปัดขึ้นให้ราคาลงท้าย 0</span></label>
       <label class="check-label"><input id="updateExistingPrice" type="checkbox" checked><span>SKU เดิมให้อัปเดตราคาขายหลังตรวจสอบ</span></label>
     </div>
-    <div class="preset-row"><button type="button" data-preset="10">+10%</button><button type="button" data-preset="20">+20%</button><button type="button" data-preset="30">+30%</button><button type="button" data-preset="40">+40%</button><button type="button" data-preset="50">+50%</button><button type="button" data-preset="60">+60%</button><button type="button" data-preset="70">+70%</button><button type="button" data-preset="80">+80%</button><button type="button" data-preset="90">+90%</button><button type="button" data-preset="100">+100%</button><button type="button" data-preset="120">+120%</button></div>
-  </section>
+</section>
 
   <section class="manual-card paste-card">
     <div class="section-head"><div><span class="kicker">เพิ่มข้อมูล</span><h2>กรอกทีละรายการหรือวางจาก Excel</h2></div><div class="toolbar"><button id="addRowBtn" class="btn secondary" type="button">+ เพิ่มแถว</button><button id="clearRowsBtn" class="btn danger-soft" type="button">ล้างรายการ</button></div></div>
@@ -58,7 +71,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
 <script src="./js/auth-guard.js?v=5.6.0"></script>
-<script src="./js/manual-product-import-v5-15.js?v=5.15.0"></script>
+<script src="./js/manual-product-import-v5-16.js?v=5.16.0"></script>
 <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>
