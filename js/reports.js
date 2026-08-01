@@ -23,6 +23,10 @@ const E = {
   title: document.getElementById('dialogTitle'),
   content: document.getElementById('dialogContent'),
   close: document.getElementById('close'),
+  discountDialog: document.getElementById('discountDialog'),
+  discountTitle: document.getElementById('discountDialogTitle'),
+  discountContent: document.getElementById('discountDialogContent'),
+  discountClose: document.getElementById('discountDialogClose'),
 };
 
 const state = {
@@ -277,6 +281,16 @@ async function fetchReport(startDate, endDate) {
   const errors = [];
   const candidates = [
     {
+      source: 'Reports Discount RPC v5.16.1',
+      rpc: 'get_reports_range_v5_16_1',
+      args: {
+        p_start_date: startDate,
+        p_end_date: endDate,
+        p_branch_id: branchId,
+        p_limit: 500,
+      },
+    },
+    {
       source: 'Reports RPC v5.15.1',
       rpc: 'get_reports_range_v5_15_1',
       args: {
@@ -419,7 +433,7 @@ async function load() {
     setMessage(error.message || 'โหลดรายงานไม่สำเร็จ', 'error');
     setDiagnostics(error.reportErrors || [{ source: 'Reports', message: error.message }]);
     if (E.source) E.source.textContent = 'ไม่สามารถเชื่อมต่อข้อมูลรายงาน';
-    console.error('[TKN Reports v5.15.2]', error);
+    console.error('[TKN Reports v5.16.1]', error);
   } finally {
     if (requestId === state.requestId) {
       E.load.disabled = false;
@@ -525,6 +539,137 @@ function filteredSummary() {
   };
 }
 
+
+function itemDiscountAmount(item) {
+  return Number(item?.discount_total ?? item?.item_discount_amount ?? 0) || 0;
+}
+
+function hasDiscount(item) {
+  return itemDiscountAmount(item) > 0.0001;
+}
+
+function conditionCode(item) {
+  const raw = String(item?.condition_code || '').trim().toUpperCase();
+  if (raw) return raw;
+  const label = String(item?.condition_label || '').trim();
+  return ({
+    'แกะซีล': 'OPENED', 'กล่องบุบ': 'DENTED_BOX', 'มีตำหนิ': 'DEFECT',
+    'ชำรุด': 'DAMAGED', 'อุปกรณ์ไม่ครบ': 'INCOMPLETE', 'เคลียร์สต็อก': 'CLEARANCE',
+  })[label] || '';
+}
+
+function conditionLabel(item) {
+  const provided = String(item?.condition_label || '').trim();
+  if (provided) return provided;
+  return ({
+    OPENED: 'แกะซีล', DENTED_BOX: 'กล่องบุบ', DEFECT: 'มีตำหนิ',
+    DAMAGED: 'ชำรุด', INCOMPLETE: 'อุปกรณ์ไม่ครบ', CLEARANCE: 'เคลียร์สต็อก',
+    OTHER: 'อื่น ๆ',
+  })[conditionCode(item)] || (hasDiscount(item) ? 'มีส่วนลด' : 'ปกติ');
+}
+
+function discountTypeLabel(type) {
+  return ({
+    PERCENT: 'ลดเป็นเปอร์เซ็นต์',
+    AMOUNT: 'ลดเป็นบาทต่อชิ้น',
+    NET_PRICE: 'กำหนดราคาสุทธิต่อชิ้น',
+  })[String(type || '').trim().toUpperCase()] || 'ไม่ระบุรูปแบบ';
+}
+
+function itemTone(item) {
+  if (item?.below_cost === true || String(item?.below_cost).toLowerCase() === 'true') return 'danger';
+  const code = conditionCode(item);
+  if (code === 'DAMAGED') return 'danger';
+  if (['DEFECT', 'INCOMPLETE', 'OTHER'].includes(code)) return 'attention';
+  if (['OPENED', 'DENTED_BOX', 'CLEARANCE'].includes(code)) return 'warning';
+  if (hasDiscount(item)) return 'info';
+  return 'neutral';
+}
+
+const TONE_RANK = { neutral: 0, info: 1, warning: 2, attention: 3, danger: 4 };
+
+function billDiscountInfo(billId) {
+  const items = state.items.filter((item) => String(item.sale_id) === String(billId) && hasDiscount(item));
+  const tone = items.reduce((current, item) => (
+    TONE_RANK[itemTone(item)] > TONE_RANK[current] ? itemTone(item) : current
+  ), 'neutral');
+  return {
+    items,
+    tone,
+    total: items.reduce((sum, item) => sum + itemDiscountAmount(item), 0),
+    belowCostCount: items.filter((item) => itemTone(item) === 'danger' && item?.below_cost).length,
+  };
+}
+
+function discountTypeValue(item) {
+  const type = String(item?.discount_type || '').toUpperCase();
+  const value = Number(item?.discount_input_value);
+  if (type === 'PERCENT' && Number.isFinite(value)) return `${value.toLocaleString('th-TH')}%`;
+  if (type === 'NET_PRICE' && Number.isFinite(value)) return `${money(value)} / ชิ้น`;
+  if (type === 'AMOUNT' && Number.isFinite(value)) return `${money(value)} / ชิ้น`;
+  return `${money(Number(item?.discount_per_unit || 0))} / ชิ้น`;
+}
+
+function detailField(label, value, { wide = false, className = '' } = {}) {
+  return `<div class="discount-detail-field${wide ? ' discount-detail-field--wide' : ''}">
+    <span>${escapeHtml(label)}</span>
+    <strong class="${escapeHtml(className)}">${value}</strong>
+  </div>`;
+}
+
+function openDiscountDetail(item) {
+  if (!item || !E.discountDialog || !E.discountContent) return;
+  const tone = itemTone(item);
+  const discount = itemDiscountAmount(item);
+  const perUnit = Number(item.discount_per_unit || 0);
+  const original = Number(item.unit_price || 0);
+  const effective = Number.isFinite(Number(item.effective_unit_price))
+    ? Number(item.effective_unit_price)
+    : Math.max(original - perUnit, 0);
+  const cost = Number(item.cost_price);
+  const profit = Number.isFinite(cost) ? effective - cost : null;
+  const qty = Number(item.discount_quantity || 0);
+  const approver = item.approved_by_name || item.approved_by_code || '-';
+  const recordedBy = item.recorded_by_name || '-';
+  const hasSnapshot = Boolean(
+    item.condition_label || item.condition_code || item.discount_reason
+    || item.discount_type || item.discount_notes || item.recorded_by_name
+  );
+
+  E.discountDialog.dataset.tone = tone;
+  E.discountTitle.textContent = `${item.product_name || 'สินค้า'} · ${item.product_code || '-'}`;
+  E.discountContent.innerHTML = `
+    <section class="discount-status-banner" data-tone="${tone}">
+      <div>
+        <h3>${escapeHtml(conditionLabel(item))}</h3>
+        <p>${escapeHtml(item.discount_reason || 'ไม่ระบุเหตุผลส่วนลด')}</p>
+      </div>
+      <div class="discount-status-amount">ลดรวม ${money(discount)}</div>
+    </section>
+    <section class="discount-detail-grid">
+      ${detailField('รูปแบบส่วนลด', escapeHtml(discountTypeLabel(item.discount_type)))}
+      ${detailField('ค่าที่กรอก', escapeHtml(discountTypeValue(item)))}
+      ${detailField('จำนวนที่ลดราคา', `${qty.toLocaleString('th-TH')} ชิ้น จากขาย ${Number(item.sold_quantity || 0).toLocaleString('th-TH')} ชิ้น`)}
+      ${detailField('ราคาปกติต่อชิ้น', money(original))}
+      ${detailField('ส่วนลดต่อชิ้น', money(perUnit))}
+      ${detailField('ราคาหลังลดต่อชิ้น', money(effective))}
+      ${detailField('ต้นทุนต่อชิ้น', Number.isFinite(cost) ? money(cost) : '-')}
+      ${detailField('กำไรหลังลดต่อชิ้น', profit === null ? '-' : money(profit), {
+        className: profit !== null && profit < 0 ? 'discount-profit--negative' : 'discount-profit--positive',
+      })}
+      ${detailField('ขายต่ำกว่าทุน', item?.below_cost === true || String(item?.below_cost).toLowerCase() === 'true' ? 'ใช่ — ต้องตรวจผู้อนุมัติ' : 'ไม่ใช่')}
+      ${detailField('ผู้ทำรายการ', escapeHtml(recordedBy))}
+      ${detailField('ผู้อนุมัติ', escapeHtml(approver))}
+      ${detailField('เวลาบันทึกรายละเอียด', item.audit_created_at ? dateTime(item.audit_created_at) : '-')}
+      ${detailField('หมายเหตุ', escapeHtml(item.discount_notes || '-'), { wide: true })}
+    </section>
+    ${hasSnapshot ? '' : '<p class="discount-legacy-note">รายการนี้มีส่วนลด แต่เป็นข้อมูลบิลรุ่นเก่าที่ไม่ได้บันทึกสภาพ เหตุผล หรือผู้อนุมัติไว้ครบ ระบบจึงแสดงได้เฉพาะยอดส่วนลดที่มีอยู่</p>'}
+  `;
+
+  if (typeof E.discountDialog.showModal === 'function') E.discountDialog.showModal();
+  else E.discountDialog.setAttribute('open', '');
+}
+
 function renderStats() {
   const payload = state.payload || {};
   const summary = payload.summary || {};
@@ -546,6 +691,9 @@ function renderStats() {
     ['เฉลี่ยต่อบิล', money(isFiltered ? filtered.averageBill : summary.average_bill)],
     ['บิลยกเลิก', Number(voids.void_count || 0).toLocaleString('th-TH')],
     ['ยอดคืนสินค้า', money(returns.return_amount)],
+    ['บิลมีส่วนลด', new Set(state.items.filter(hasDiscount).map((item) => String(item.sale_id))).size.toLocaleString('th-TH')],
+    ['ยอดส่วนลดสินค้า', money(state.items.filter(hasDiscount).reduce((sum, item) => sum + itemDiscountAmount(item), 0))],
+    ['รายการต่ำกว่าทุน', state.items.filter((item) => hasDiscount(item) && (item?.below_cost === true || String(item?.below_cost).toLowerCase() === 'true')).length.toLocaleString('th-TH')],
   ];
 
   E.stats.innerHTML = cards.map(([label, value]) => `
@@ -576,22 +724,39 @@ function openBill(id) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>รหัส</th><th>สินค้า</th><th>ขาย</th><th>คืนแล้ว</th><th>ราคา</th><th>รวม</th></tr></thead>
+        <thead><tr><th>รหัส</th><th>สินค้า</th><th>ขาย</th><th>คืนแล้ว</th><th>ราคา</th><th>รวม</th><th>ตรวจสอบ</th></tr></thead>
         <tbody>
-          ${items.map((item) => `
-            <tr>
-              <td>${escapeHtml(item.product_code || '-')}</td>
-              <td>${escapeHtml(item.product_name || '-')}</td>
-              <td>${Number(item.sold_quantity || 0).toLocaleString('th-TH')}</td>
-              <td>${Number(item.returned_quantity || 0).toLocaleString('th-TH')}</td>
-              <td>${money(item.unit_price)}</td>
-              <td>${money(item.line_amount)}</td>
-            </tr>
-          `).join('') || '<tr><td colspan="6">ไม่พบสินค้าในบิล</td></tr>'}
+          ${items.map((item, index) => {
+            const discount = itemDiscountAmount(item);
+            const tone = itemTone(item);
+            const condition = conditionLabel(item);
+            return `
+              <tr class="${hasDiscount(item) ? `report-item-row--${tone}` : ''}">
+                <td>${escapeHtml(item.product_code || '-')}</td>
+                <td><div class="report-item-name">
+                  <strong>${escapeHtml(item.product_name || '-')}</strong>
+                  ${hasDiscount(item) ? `<div class="report-item-badges">
+                    <span class="report-item-badge report-item-badge--discount">ลด ${money(discount)}</span>
+                    <span class="report-item-badge report-item-badge--${tone}">${escapeHtml(condition)}</span>
+                    ${(item?.below_cost === true || String(item?.below_cost).toLowerCase() === 'true') ? '<span class="report-item-badge report-item-badge--danger">ต่ำกว่าทุน</span>' : ''}
+                  </div>` : ''}
+                </div></td>
+                <td>${Number(item.sold_quantity || 0).toLocaleString('th-TH')}</td>
+                <td>${Number(item.returned_quantity || 0).toLocaleString('th-TH')}</td>
+                <td>${money(item.unit_price)}</td>
+                <td>${money(item.line_amount)}</td>
+                <td>${hasDiscount(item)
+                  ? `<button class="button secondary discount-detail-open" data-item-index="${index}" type="button">ดูรายละเอียด</button>`
+                  : '<span class="report-item-badge">ราคาปกติ</span>'}</td>
+              </tr>`;
+          }).join('') || '<tr><td colspan="7">ไม่พบสินค้าในบิล</td></tr>'}
         </tbody>
       </table>
     </div>
   `;
+  E.content.querySelectorAll('.discount-detail-open').forEach((button) => {
+    button.addEventListener('click', () => openDiscountDetail(items[Number(button.dataset.itemIndex)]));
+  });
   if (typeof E.dialog.showModal === 'function') E.dialog.showModal();
   else E.dialog.setAttribute('open', '');
 }
@@ -603,14 +768,23 @@ function exportCsv() {
   }
 
   const rows = [
-    ['วันที่', 'เลขบิล', 'ชำระ', 'ยอดสุทธิ', 'สถานะ'],
-    ...state.bills.map((bill) => [
-      dateTime(bill.created_at),
-      bill.sale_no,
-      paymentLabel(bill.payment_method),
-      bill.net_total,
-      statusLabel(bill.status),
-    ]),
+    ['วันที่', 'เลขบิล', 'ชำระ', 'ยอดสุทธิ', 'สถานะ', 'ยอดส่วนลดสินค้า', 'จำนวนรายการมีส่วนลด', 'สภาพ/เหตุผล'],
+    ...state.bills.map((bill) => {
+      const info = billDiscountInfo(bill.id);
+      const descriptions = info.items.map((item) => (
+        `${item.product_code || '-'}: ${conditionLabel(item)} / ${item.discount_reason || 'ไม่ระบุเหตุผล'}`
+      )).join(' | ');
+      return [
+        dateTime(bill.created_at),
+        bill.sale_no,
+        paymentLabel(bill.payment_method),
+        bill.net_total,
+        statusLabel(bill.status),
+        info.total,
+        info.items.length,
+        descriptions,
+      ];
+    }),
   ];
 
   const csv = `\ufeff${rows.map((row) => row.map((value) => (
@@ -629,16 +803,21 @@ function exportCsv() {
 }
 
 function renderTableOnly() {
-  E.rows.innerHTML = state.bills.map((bill) => `
-    <tr>
-      <td>${dateTime(bill.created_at)}</td>
-      <td><strong>${escapeHtml(bill.sale_no || '-')}</strong></td>
-      <td>${escapeHtml(paymentLabel(bill.payment_method))}</td>
-      <td>${money(bill.net_total)}</td>
-      <td>${statusBadge(bill.status)}</td>
-      <td><button class="button secondary detail" data-id="${escapeHtml(bill.id)}" type="button">รายละเอียด</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="6">ไม่พบข้อมูลตามตัวกรอง</td></tr>';
+  E.rows.innerHTML = state.bills.map((bill) => {
+    const info = billDiscountInfo(bill.id);
+    const hasBillDiscount = info.items.length > 0;
+    return `
+      <tr class="${hasBillDiscount ? `report-bill-row--${info.tone}` : ''}">
+        <td>${dateTime(bill.created_at)}</td>
+        <td><strong>${escapeHtml(bill.sale_no || '-')}</strong>
+          ${hasBillDiscount ? `<span class="report-discount-summary report-discount-summary--${info.tone}">${info.items.length.toLocaleString('th-TH')} รายการ · ลด ${money(info.total)}</span>` : ''}
+        </td>
+        <td>${escapeHtml(paymentLabel(bill.payment_method))}</td>
+        <td>${money(bill.net_total)}</td>
+        <td>${statusBadge(bill.status)}</td>
+        <td><button class="button secondary detail" data-id="${escapeHtml(bill.id)}" type="button">รายละเอียด</button></td>
+      </tr>`;
+  }).join('') || '<tr><td colspan="6">ไม่พบข้อมูลตามตัวกรอง</td></tr>';
 
   E.rows.querySelectorAll('.detail').forEach((button) => {
     button.addEventListener('click', () => openBill(button.dataset.id));
@@ -676,10 +855,14 @@ E.close?.addEventListener('click', () => {
   if (typeof E.dialog.close === 'function') E.dialog.close();
   else E.dialog.removeAttribute('open');
 });
+E.discountClose?.addEventListener('click', () => {
+  if (typeof E.discountDialog.close === 'function') E.discountDialog.close();
+  else E.discountDialog.removeAttribute('open');
+});
 
 init().catch((error) => {
   E.rows.innerHTML = '<tr><td colspan="6" class="report-error-cell">เปิดหน้ารายงานไม่สำเร็จ</td></tr>';
   setMessage(error.message || 'เปิดหน้ารายงานไม่สำเร็จ', 'error');
   setDiagnostics([{ source: 'เริ่มต้นระบบ', message: error.message || 'Unknown error' }]);
-  console.error('[TKN Reports init v5.15.2]', error);
+  console.error('[TKN Reports init v5.16.1]', error);
 });

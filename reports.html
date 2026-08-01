@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./css/reports-status-colors.css?v=5.2.3">
   <link rel="stylesheet" href="./css/reports-bill-history-button.css?v=5.2.4">
   <link rel="stylesheet" href="./css/reports-loader-v5-15-2.css?v=5.15.2">
+  <link rel="stylesheet" href="./css/reports-discount-popup-v5-16-1.css?v=5.16.1">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -23,7 +24,7 @@
     <div>
       <p class="eyebrow">MASTER 3.4 LTS · REPORTS</p>
       <h1>รายงานยอดขายและรายรับ</h1>
-      <p>กำหนดช่วงวันได้ พร้อมรายวัน รายเดือน รายปี และรายละเอียดสินค้าในบิล</p>
+      <p>กำหนดช่วงวันได้ พร้อมตรวจสอบรายละเอียดสินค้า ส่วนลด และสภาพสินค้าในบิล</p>
     </div>
     <div class="header-actions" aria-label="เมนูด่วนหน้ารายงาน">
       <a
@@ -112,7 +113,19 @@
     <div id="dialogContent"></div>
   </div>
 </dialog>
-<script type="module" src="./js/reports.js?v=5.15.2"></script>
+<dialog id="discountDialog" class="discount-detail-dialog" aria-labelledby="discountDialogTitle">
+  <div class="dialog-body discount-dialog-body">
+    <div class="dialog-head">
+      <div>
+        <p class="discount-dialog-eyebrow">ตรวจสอบส่วนลดและสภาพสินค้า</p>
+        <h2 id="discountDialogTitle">รายละเอียดสินค้า</h2>
+      </div>
+      <button id="discountDialogClose" class="button secondary" type="button">ปิด</button>
+    </div>
+    <div id="discountDialogContent"></div>
+  </div>
+</dialog>
+<script type="module" src="./js/reports.js?v=5.16.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
 </body>

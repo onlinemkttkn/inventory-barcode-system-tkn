@@ -460,7 +460,7 @@ async function checkout(event){
   }
   if(result.error){checkoutSubmitting=false;E.confirmPayment.disabled=false;return msg(E.actionMsg,result.error.message,'error')}
   const change=number(result.data?.change_amount,received-total);
-  const discountedItems=[...cart.values()].filter(x=>lineDiscount(x)>0).map(x=>({product_id:x.id,product_code:x.code,condition:x.condition,reason:x.discountReason,discount_quantity:x.discountQty,discount_per_unit:x.discountPerUnit,total_discount:lineDiscount(x),cost_price:x.cost,unit_price:x.price,approver:x.discountApprover||null,notes:x.discountNotes||null}));
+  const discountedItems=[...cart.values()].filter(x=>lineDiscount(x)>0).map(x=>({product_id:x.id,product_code:x.code,condition:x.condition,condition_code:x.conditionCode||null,reason:x.discountReason,discount_type:x.discountType||null,discount_input_value:number(x.discountInputValue,0),discount_quantity:x.discountQty,discount_per_unit:x.discountPerUnit,total_discount:lineDiscount(x),cost_price:x.cost,unit_price:x.price,effective_unit_price:Math.max(number(x.price,0)-number(x.discountPerUnit,0),0),below_cost:Math.max(number(x.price,0)-number(x.discountPerUnit,0),0)+0.0001<number(x.cost,0),approver:x.discountApprover||null,notes:x.discountNotes||null}));
   if(discountedItems.length)await writeAudit('POS_DAMAGED_ITEM_DISCOUNT','SALE',result.data.sale_no,'ขายสินค้ามีตำหนิ/ชำรุดพร้อมส่วนลด',{sale_no:result.data.sale_no,items:discountedItems,total_item_discount:itemDiscountTotal()});
   pendingSale={saleNo:result.data.sale_no,total,received,change};
   if(cash)await requestCashDrawer('SALE');

@@ -1,0 +1,153 @@
+/* TKN report discount inspection popup v5.16.1 */
+
+.report-discount-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.report-discount-summary--info { background: #e8f3ff; color: #075985; }
+.report-discount-summary--warning { background: #fff6cc; color: #854d0e; }
+.report-discount-summary--attention { background: #ffedd5; color: #9a3412; }
+.report-discount-summary--danger { background: #fee2e2; color: #991b1b; }
+
+.reports-page tbody tr.report-bill-row--info > td,
+.reports-page dialog tbody tr.report-item-row--info > td { background: #f3f9ff; }
+.reports-page tbody tr.report-bill-row--warning > td,
+.reports-page dialog tbody tr.report-item-row--warning > td { background: #fffbea; }
+.reports-page tbody tr.report-bill-row--attention > td,
+.reports-page dialog tbody tr.report-item-row--attention > td { background: #fff3e7; }
+.reports-page tbody tr.report-bill-row--danger > td,
+.reports-page dialog tbody tr.report-item-row--danger > td { background: #fff0f0; }
+
+.reports-page tbody tr.report-bill-row--info > td:first-child,
+.reports-page dialog tbody tr.report-item-row--info > td:first-child { box-shadow: inset 5px 0 #0ea5e9; }
+.reports-page tbody tr.report-bill-row--warning > td:first-child,
+.reports-page dialog tbody tr.report-item-row--warning > td:first-child { box-shadow: inset 5px 0 #eab308; }
+.reports-page tbody tr.report-bill-row--attention > td:first-child,
+.reports-page dialog tbody tr.report-item-row--attention > td:first-child { box-shadow: inset 5px 0 #f97316; }
+.reports-page tbody tr.report-bill-row--danger > td:first-child,
+.reports-page dialog tbody tr.report-item-row--danger > td:first-child { box-shadow: inset 5px 0 #dc2626; }
+
+.report-item-name { display: grid; gap: 5px; }
+.report-item-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.report-item-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 900;
+}
+.report-item-badge--discount { background: #e8f3ff; color: #075985; }
+.report-item-badge--warning { background: #fff6cc; color: #854d0e; }
+.report-item-badge--attention { background: #ffedd5; color: #9a3412; }
+.report-item-badge--danger { background: #fee2e2; color: #991b1b; }
+
+.discount-detail-open {
+  min-width: 116px;
+  border-color: #f59e0b !important;
+  background: #fff7df !important;
+  color: #7c2d12 !important;
+  font-weight: 900 !important;
+}
+.discount-detail-open:hover { background: #ffedb3 !important; }
+
+.reports-page #discountDialog {
+  width: min(760px, calc(100% - 28px));
+  border-top: 8px solid #64748b;
+}
+.reports-page #discountDialog[data-tone="info"] { border-top-color: #0ea5e9; }
+.reports-page #discountDialog[data-tone="warning"] { border-top-color: #eab308; }
+.reports-page #discountDialog[data-tone="attention"] { border-top-color: #f97316; }
+.reports-page #discountDialog[data-tone="danger"] { border-top-color: #dc2626; }
+
+.discount-dialog-eyebrow {
+  margin: 0 0 3px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.discount-dialog-body { padding-top: 18px !important; }
+.discount-status-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #dbe4ee;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+.discount-status-banner[data-tone="info"] { border-color: #bae6fd; background: #f0f9ff; color: #075985; }
+.discount-status-banner[data-tone="warning"] { border-color: #fde68a; background: #fffbeb; color: #854d0e; }
+.discount-status-banner[data-tone="attention"] { border-color: #fed7aa; background: #fff7ed; color: #9a3412; }
+.discount-status-banner[data-tone="danger"] { border-color: #fecaca; background: #fff1f2; color: #991b1b; }
+.discount-status-banner h3 { margin: 0 0 5px; font-size: 18px; font-weight: 950; }
+.discount-status-banner p { margin: 0; font-size: 13px; line-height: 1.5; }
+.discount-status-amount { white-space: nowrap; font-size: 22px; font-weight: 950; }
+
+.discount-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.discount-detail-field {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 13px;
+  background: #fff;
+}
+.discount-detail-field--wide { grid-column: 1 / -1; }
+.discount-detail-field span {
+  display: block;
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 850;
+}
+.discount-detail-field strong,
+.discount-detail-field p {
+  margin: 0;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.discount-profit--negative { color: #b91c1c !important; }
+.discount-profit--positive { color: #047857 !important; }
+.discount-legacy-note {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .discount-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .discount-status-banner { display: grid; }
+  .discount-status-amount { white-space: normal; }
+}
+@media (max-width: 480px) {
+  .discount-detail-grid { grid-template-columns: 1fr; }
+  .discount-detail-field--wide { grid-column: auto; }
+  .discount-detail-open { min-width: 0; width: 100%; }
+}
+@media print {
+  #discountDialog { display: none !important; }
+}
