@@ -1,0 +1,143 @@
+{
+  "version": "5.13.1",
+  "base": "v5.12.1 latest Dashboard UI",
+  "passed": 21,
+  "failed": 0,
+  "checks": [
+    {
+      "check": "Latest dashboard hero preserved",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Old standalone range panel absent",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Date controls integrated in latest action rail",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "HTML id dashboardStartDate",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "HTML id dashboardEndDate",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "HTML id applyDashboardRange",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "HTML id resetDashboardRange",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "HTML id dashboardRangeText",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "HTML id dashboardRangeMessage",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Latest UI CSS linked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Dashboard JS cache version",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Analytics JS cache version",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Report JS cache version",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Realtime JS cache version",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Date validation present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Range RPC present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Branch filter included",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Local range persistence",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "SQL non-destructive function",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "SQL no DROP TABLE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "SQL authenticated grant",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "files": {
+    "dashboard.html": {
+      "size": 16524,
+      "sha256": "7444dc00e7e038c1ee7737bc75b82c7d9efcde6bbee808bed19bdca54d6b85bc"
+    },
+    "css/dashboard-date-range-latest-v5-13-1.css": {
+      "size": 4248,
+      "sha256": "cb4475a356740c057544692e6a91111e2b0764138ebd745a9c472169c468b27b"
+    },
+    "js/dashboard.js": {
+      "size": 27209,
+      "sha256": "c31e814993330fe8ea49693b050b8e10667d18069d09c1fb127872c474cf1a5a"
+    },
+    "js/dashboard-analytics-v5-3.js": {
+      "size": 6718,
+      "sha256": "9bb5b092ad5c05f3f71b78196ff53071b503d54755b43ff9cfa29052490b7fb2"
+    },
+    "js/executive-report.js": {
+      "size": 7357,
+      "sha256": "1753c55e8dc9b852174d8ae77fe46ddfbd340c56a15c9a1873092cab45e29e6e"
+    },
+    "js/dashboard-realtime.js": {
+      "size": 4478,
+      "sha256": "d0c0628bc6f8704b251a7633fd8bffb8cd697c2974d1a3eaffa08ff2e4cc5fb1"
+    },
+    "sql/2026-08-01-dashboard-date-range-latest-v5.13.1.sql": {
+      "size": 13175,
+      "sha256": "d747c8f41f1cec2376634aa4283b140c2759edfe9b3a0734c941e213c8845138"
+    }
+  }
+}

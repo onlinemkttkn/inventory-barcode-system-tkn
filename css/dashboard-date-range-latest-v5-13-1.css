@@ -1,0 +1,181 @@
+/* TKN Dashboard Latest UI Date Range v5.13.1
+   Adds date controls to the current Dashboard action rail without replacing
+   the latest hero, cards, navigation, charts, or responsive layout. */
+
+.dashboard-page .dashboard-action-rail--dated{
+  display:grid!important;
+  grid-template-columns:minmax(190px,.75fr) minmax(620px,2.4fr) minmax(170px,.65fr);
+  grid-template-areas:
+    "heading range refresh"
+    "heading feedback note";
+  align-items:end;
+  gap:10px 18px;
+  padding:16px 18px!important;
+}
+
+.dashboard-page .dashboard-action-rail--dated .action-rail-heading{
+  grid-area:heading;
+  align-self:center;
+}
+
+.dashboard-page .dashboard-date-range-inline{
+  grid-area:range;
+  display:grid;
+  grid-template-columns:minmax(145px,1.05fr) minmax(145px,1fr) minmax(145px,1fr) auto auto;
+  align-items:end;
+  gap:10px;
+  min-width:0;
+}
+
+.dashboard-page .dashboard-date-range-inline label{
+  display:grid;
+  gap:5px;
+  min-width:0;
+  color:#5f554c;
+  font-size:12px;
+  font-weight:850;
+}
+
+.dashboard-page .dashboard-date-range-inline select,
+.dashboard-page .dashboard-date-range-inline input{
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  padding:9px 11px;
+  border:1px solid #ded6ca;
+  border-radius:11px;
+  background:#fffdf8;
+  color:#201b18;
+  font:inherit;
+  font-size:14px;
+  font-weight:750;
+  box-shadow:0 4px 14px rgba(45,35,18,.045);
+}
+
+.dashboard-page .dashboard-date-range-inline input:disabled{
+  opacity:.72;
+  background:#f2eee8;
+  cursor:not-allowed;
+}
+
+.dashboard-page .dashboard-date-range-inline .btn{
+  min-height:44px;
+  padding:10px 13px;
+  white-space:nowrap;
+}
+
+.dashboard-page .dashboard-range-reset{
+  min-width:78px;
+}
+
+.dashboard-page .dashboard-date-feedback{
+  grid-area:feedback;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+  color:#51483f;
+}
+
+.dashboard-page .dashboard-date-feedback > strong{
+  flex:0 0 auto;
+  font-size:13px;
+  font-weight:900;
+  color:#8c0a20;
+}
+
+.dashboard-page .dashboard-date-feedback .message{
+  min-height:0;
+  margin:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+}
+
+.dashboard-page .dashboard-refresh-latest{
+  grid-area:refresh;
+  width:100%;
+}
+
+.dashboard-page .dashboard-action-rail--dated .action-rail-note{
+  grid-area:note;
+  align-self:center;
+  margin:0!important;
+  font-size:12px!important;
+  line-height:1.35;
+}
+
+.dashboard-page .dashboard-report-range-toolbar{
+  display:flex!important;
+  justify-content:space-between;
+  align-items:end;
+  gap:14px;
+}
+
+.dashboard-page .dashboard-report-range-copy{
+  display:grid;
+  gap:5px;
+}
+
+.dashboard-page .dashboard-report-range-copy span{
+  color:#746c63;
+  font-size:13px;
+  font-weight:800;
+}
+
+.dashboard-page .dashboard-report-range-copy strong{
+  color:#8c0a20;
+  font-size:15px;
+}
+
+@media (max-width:1280px){
+  .dashboard-page .dashboard-action-rail--dated{
+    grid-template-columns:minmax(170px,.65fr) minmax(0,2fr);
+    grid-template-areas:
+      "heading range"
+      "refresh feedback"
+      "note note";
+    align-items:end;
+  }
+  .dashboard-page .dashboard-refresh-latest{width:auto;min-width:170px;}
+}
+
+@media (max-width:980px){
+  .dashboard-page .dashboard-action-rail--dated{
+    grid-template-columns:1fr;
+    grid-template-areas:"heading" "range" "feedback" "refresh" "note";
+    align-items:stretch;
+  }
+  .dashboard-page .dashboard-date-range-inline{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .dashboard-page .dashboard-date-range-inline .dashboard-range-apply,
+  .dashboard-page .dashboard-date-range-inline .dashboard-range-reset{
+    width:100%;
+  }
+}
+
+@media (max-width:680px){
+  .dashboard-page .dashboard-date-range-inline{
+    grid-template-columns:1fr 1fr;
+  }
+  .dashboard-page .dashboard-date-preset{grid-column:1 / -1;}
+  .dashboard-page .dashboard-date-feedback{
+    display:grid;
+    gap:4px;
+  }
+  .dashboard-page .dashboard-date-feedback .message{
+    white-space:normal;
+  }
+  .dashboard-page .dashboard-report-range-toolbar{
+    align-items:stretch;
+    flex-direction:column;
+  }
+  .dashboard-page .dashboard-report-range-toolbar .btn{width:100%;}
+}
+
+@media (max-width:430px){
+  .dashboard-page .dashboard-date-range-inline{grid-template-columns:1fr;}
+  .dashboard-page .dashboard-date-preset{grid-column:auto;}
+}

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#991b1b">
-  <title>TKN POS / ERP — Dashboard Master 3.5</title>
+  <title>TKN POS / ERP — Dashboard Latest UI v5.13.1</title>
   <link rel="stylesheet" href="./css/dashboard-v2.css?v=3.6.8">
   <link rel="stylesheet" href="./css/navigation.css?v=3.6.8">
   <link rel="stylesheet" href="./css/phase-9-5-navigation-fix-v1-1.css?v=1.1.0">
@@ -14,7 +14,8 @@
   <link rel="stylesheet" href="./css/ui-operations-reports-audit.css?v=3.6.9">
   <link rel="stylesheet" href="./css/auth-stability.css?v=3.6.11">
   <link rel="stylesheet" href="./css/dashboard-product-ui.css?v=5.4.2">
-  <link rel="stylesheet" href="./css/dashboard-analytics-v5-3.css?v=5.3.0">
+  <link rel="stylesheet" href="./css/dashboard-analytics-v5-3.css?v=5.13.1">
+  <link rel="stylesheet" href="./css/dashboard-date-range-latest-v5-13-1.css?v=5.13.1">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
 </head>
@@ -68,17 +69,45 @@
   </section>
 
   <section id="appArea" class="hidden">
-    <aside class="dashboard-action-rail dashboard-action-rail--top" aria-label="เครื่องมือ Dashboard">
+    <aside class="dashboard-action-rail dashboard-action-rail--top dashboard-action-rail--dated" aria-label="เครื่องมือและช่วงวันที่ Dashboard">
       <div class="action-rail-heading">
         <span>เครื่องมือ</span>
         <strong>รายงานและตรวจสอบ</strong>
       </div>
-      <button id="refreshBtn" class="btn primary" type="button">
-        รีเฟรชข้อมูล
-      </button>
-      <p class="action-rail-note">
-        ข้อมูลจะรีเฟรชอัตโนมัติเมื่อมีรายการขายหรือสต็อกเปลี่ยน
-      </p>
+
+      <div class="dashboard-date-range-inline" aria-label="กำหนดช่วงวันที่">
+        <label class="dashboard-date-preset">
+          <span>ช่วงข้อมูล</span>
+          <select id="dashboardRangePreset">
+            <option value="TODAY">วันนี้</option>
+            <option value="YESTERDAY">เมื่อวาน</option>
+            <option value="LAST_7">7 วันล่าสุด</option>
+            <option value="LAST_30">30 วันล่าสุด</option>
+            <option value="THIS_MONTH" selected>เดือนนี้</option>
+            <option value="LAST_MONTH">เดือนที่แล้ว</option>
+            <option value="THIS_YEAR">ปีนี้</option>
+            <option value="CUSTOM">กำหนดเอง</option>
+          </select>
+        </label>
+        <label>
+          <span>วันที่เริ่มต้น</span>
+          <input id="dashboardStartDate" type="date">
+        </label>
+        <label>
+          <span>วันที่สิ้นสุด</span>
+          <input id="dashboardEndDate" type="date">
+        </label>
+        <button id="applyDashboardRange" class="btn primary dashboard-range-apply" type="button">แสดงข้อมูล</button>
+        <button id="resetDashboardRange" class="btn secondary dashboard-range-reset" type="button">เดือนนี้</button>
+      </div>
+
+      <div class="dashboard-date-feedback">
+        <strong id="dashboardRangeText">กำลังเตรียมช่วงวันที่...</strong>
+        <p id="dashboardRangeMessage" class="message" aria-live="polite"></p>
+      </div>
+
+      <button id="refreshBtn" class="btn primary dashboard-refresh-latest" type="button">รีเฟรชข้อมูล</button>
+      <p class="action-rail-note">ข้อมูลจะรีเฟรชอัตโนมัติเมื่อมีรายการขายหรือสต็อกเปลี่ยน</p>
     </aside>
 
     <section class="stats-grid">
@@ -86,9 +115,9 @@
       <article class="stat danger-stat"><span>สินค้าหมด</span><strong id="outStock">-</strong></article>
       <article class="stat warning-stat"><span>สินค้าใกล้หมด</span><strong id="lowStock">-</strong></article>
       <article class="stat"><span>หมวดหมู่</span><strong id="totalCategories">-</strong></article>
-      <article class="stat sales-stat"><span>ยอดขายวันนี้</span><strong id="salesToday">-</strong></article>
-      <article class="stat"><span>บิลวันนี้</span><strong id="billsToday">-</strong></article>
-      <article class="stat sales-stat"><span>ยอดขายเดือนนี้</span><strong id="salesMonth">-</strong></article>
+      <article class="stat sales-stat"><span id="salesRangeLabel">ยอดขายตามช่วง</span><strong id="salesToday">-</strong></article>
+      <article class="stat"><span id="billsRangeLabel">บิลตามช่วง</span><strong id="billsToday">-</strong></article>
+      <article class="stat danger-stat"><span id="returnsRangeLabel">ยอดคืนตามช่วง</span><strong id="salesMonth">-</strong></article>
       <article class="stat warning-stat"><span>ใบโอนรอรับ</span><strong id="pendingTransfers">-</strong></article>
     </section>
 
@@ -108,7 +137,7 @@
         <div class="section-title">
           <div>
             <h2>สัดส่วนยอดขายตามประเภทสินค้า</h2>
-            <p>สัดส่วนยอดขายเดือนปัจจุบัน แสดงเป็นเปอร์เซ็นต์</p>
+            <p id="categoryAnalyticsRange">สัดส่วนยอดขายตามช่วงวันที่ที่เลือก</p>
           </div>
           <span class="analytics-live-badge">Realtime</span>
         </div>
@@ -126,11 +155,11 @@
         <div class="section-title analytics-title-with-actions">
           <div>
             <h2>แนวโน้มยอดขาย</h2>
-            <p>เปรียบเทียบยอดขายรายเดือนและรายไตรมาส</p>
+            <p id="trendAnalyticsRange">แสดงแนวโน้มภายในช่วงวันที่ที่เลือก</p>
           </div>
           <div class="analytics-mode-switch" role="group" aria-label="เลือกรูปแบบกราฟยอดขาย">
-            <button type="button" class="is-active" data-analytics-mode="MONTH">รายเดือน</button>
-            <button type="button" data-analytics-mode="QUARTER">รายไตรมาส</button>
+            <button type="button" class="is-active" data-analytics-mode="DAY">รายวัน</button>
+            <button type="button" data-analytics-mode="MONTH">รายเดือน</button>
           </div>
         </div>
         <div class="analytics-card-body">
@@ -183,8 +212,8 @@
       <article class="card">
         <div class="section-title">
           <div>
-            <h2>สินค้าขายดีเดือนนี้</h2>
-            <p>เรียงตามจำนวนขาย</p>
+            <h2 id="topProductsTitle">สินค้าขายดีตามช่วง</h2>
+            <p id="topProductsRange">เรียงตามจำนวนขายในช่วงวันที่ที่เลือก</p>
           </div>
         </div>
         <div class="table-wrap">
@@ -200,8 +229,8 @@
       <article class="card">
         <div class="section-title">
           <div>
-            <h2>ยอดขาย 14 วัน</h2>
-            <p>สรุปยอดขายรายวัน</p>
+            <h2 id="dailySalesTitle">ยอดขายตามช่วง</h2>
+            <p id="dailySalesRange">สรุปยอดขายรายวันตามช่วงวันที่ที่เลือก</p>
           </div>
         </div>
         <div class="chart-container">
@@ -213,12 +242,14 @@
 
     <section id="salesControlPanel" class="card sales-control-panel">
       <div class="section-title">
-        <div><h2>สรุปรายรับแบบรวดเร็ว</h2><p>ดูภาพรวมรายวัน รายเดือน หรือรายปี โดยแสดง 10 รายการล่าสุด</p></div>
+        <div><h2>สรุปรายรับแบบรวดเร็ว</h2><p>ใช้ช่วงวันที่เดียวกับตัวกรองด้านบน และแสดง 10 รายการล่าสุด</p></div>
       </div>
-      <div class="sales-control-toolbar">
-        <label>ช่วงเวลา<select id="reportPeriod"><option value="DAY">รายวัน</option><option value="MONTH">รายเดือน</option><option value="YEAR">รายปี</option></select></label>
-        <label>วันที่อ้างอิง<input id="reportAnchorDate" type="date"></label>
-        <button id="loadSalesControl" class="btn primary" type="button">โหลดรายงาน</button>
+      <div class="sales-control-toolbar dashboard-report-range-toolbar">
+        <div class="dashboard-report-range-copy">
+          <span>ช่วงรายงาน</span>
+          <strong id="reportRangeText">ใช้ช่วงวันที่จากด้านบน</strong>
+        </div>
+        <button id="loadSalesControl" class="btn primary" type="button">รีเฟรชช่วงนี้</button>
       </div>
       <div class="sales-control-stats">
         <article class="sales-control-stat"><span>จำนวนบิล</span><strong id="reportBillCount">0</strong></article>
@@ -261,10 +292,10 @@
 <script src="./js/auth-guard.js?v=3.6.11"></script>
 <script src="./js/go-live-security.js?v=5.2.0"></script>
 <script src="./js/dashboard-live-numbers.js?v=5.3.0"></script>
-<script src="./js/dashboard.js?v=5.4.2"></script>
-<script src="./js/executive-report.js?v=5.4.1"></script>
-<script src="./js/dashboard-analytics-v5-3.js?v=5.3.0"></script>
-<script src="./js/dashboard-realtime.js?v=5.3.0"></script>
+<script src="./js/dashboard.js?v=5.13.1"></script>
+<script src="./js/executive-report.js?v=5.13.1"></script>
+<script src="./js/dashboard-analytics-v5-3.js?v=5.13.1"></script>
+<script src="./js/dashboard-realtime.js?v=5.13.1"></script>
   <script src="./js/navigation-newtab-final.js?v=5.4.2"></script>
 </body>
 </html>

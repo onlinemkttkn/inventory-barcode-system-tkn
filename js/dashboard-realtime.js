@@ -4,7 +4,6 @@
   const indicator = document.getElementById('realtimeIndicator');
   const text = document.getElementById('realtimeText');
   const refreshButton = document.getElementById('refreshBtn');
-  const reportButton = document.getElementById('loadSalesControl');
 
   let channel = null;
   let refreshTimer = null;
@@ -31,10 +30,6 @@
         !refreshButton.classList.contains('hidden')
       ) {
         refreshButton.click();
-      }
-
-      if (reportButton && !reportButton.disabled) {
-        reportButton.click();
       }
 
       setState(
@@ -99,6 +94,12 @@
         'products',
         'categories',
         'transfer_documents',
+        'sales_returns',
+        'marketplace_receiving_sessions',
+        'marketplace_receiving_items',
+        'stock_boxes',
+        'stock_box_items',
+        'label_print_queue',
       ];
 
       watchedTables.forEach((table) => {
