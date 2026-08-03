@@ -214,10 +214,10 @@
     nav.className = 'tkn-nav-bar no-print';
     nav.innerHTML = `
       <div class="tkn-nav-brand">
-        <span class="tkn-brand-mark">TKN</span>
+        <img class="tkn-brand-logo" src="./assets/tkn-company-logo.png?v=5.18.0" alt="เถ้าแก่น้อย ชลบุรี">
         <div class="tkn-brand-copy">
-          <strong>POS / ERP</strong>
-          <small>Master 3.4 LTS</small>
+          <strong>ระบบบริหารร้านค้า</strong>
+          <small>Final v5.18.0</small>
         </div>
         <button
           class="tkn-nav-toggle"

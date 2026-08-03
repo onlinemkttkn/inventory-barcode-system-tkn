@@ -426,3 +426,7 @@
     margin-left:0;
   }
 }
+
+
+/* v5.18.0 company rebrand */
+.tkn-brand-logo{display:block;max-width:100%;object-fit:contain}

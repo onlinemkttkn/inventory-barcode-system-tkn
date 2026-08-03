@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const NAV_VERSION = '5.14.2';
+  const NAV_VERSION = '5.18.0';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
   const SHARED_CACHE_TTL = 5 * 60_000;
@@ -259,10 +259,10 @@
     nav.dataset.tknDynamicNav = NAV_VERSION;
     nav.innerHTML = `
       <div class="tkn-nav-brand">
-        <span class="tkn-brand-mark">TKN</span>
+        <img class="tkn-brand-logo" src="./assets/tkn-company-logo.png?v=5.18.0" alt="เถ้าแก่น้อย ชลบุรี">
         <div class="tkn-brand-copy">
-          <strong>POS / ERP</strong>
-          <small>Master 3.4 LTS</small>
+          <strong>ระบบบริหารร้านค้า</strong>
+          <small>Final v5.18.0</small>
         </div>
         ${current !== 'dashboard.html' ? `
           <button class="tkn-nav-quick-back" type="button" aria-label="ย้อนกลับหน้าก่อนหน้า" title="ย้อนกลับ">

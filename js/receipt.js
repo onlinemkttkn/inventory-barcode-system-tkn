@@ -338,7 +338,7 @@ async function renderReceipt(){
         <p class="receipt-thank">ขอบคุณที่ใช้บริการ</p>
         <p>กรุณาเก็บใบเสร็จไว้เป็นหลักฐาน</p>
         <p>สามารถเปลี่ยนหรือคืนสินค้า<br>ตามเงื่อนไขของบริษัท</p>
-        <p class="receipt-powered">TKN POS ERP · Master 3.4 LTS</p>
+        <p class="receipt-powered">ระบบเถ้าแก่น้อย ชลบุรี · Final v5.18.0</p>
       </footer>
     `;
 
