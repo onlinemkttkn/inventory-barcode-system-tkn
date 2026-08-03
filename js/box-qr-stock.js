@@ -431,6 +431,15 @@
     if ($("printAllBtn")) $("printAllBtn").textContent = labels[mode] || labels.QR;
   }
 
+  function updateQrEngineStatus() {
+    const status = $("qrEngineStatus");
+    if (!status) return;
+    const ready = Boolean(window.TKNQRHealth?.isReady?.() || (window.QRCode && typeof window.QRCode.toCanvas === "function"));
+    status.textContent = ready ? "QR พร้อมใช้งาน (Local)" : "QR ยังไม่พร้อม";
+    status.classList.toggle("ok", ready);
+    status.classList.toggle("error", !ready);
+  }
+
   function renderQueue() {
     const host = $("printQueue");
     if (!host) return;
@@ -439,6 +448,7 @@
     const showQr = mode === "QR" || mode === "BOTH";
     const showBarcode = mode === "BARCODE" || mode === "BOTH";
     syncPrintModeUi();
+    updateQrEngineStatus();
 
     S.queue.forEach((item, index) => {
       const article = document.createElement("article");
@@ -453,17 +463,29 @@
       host.appendChild(article);
 
       setTimeout(() => {
-        if (showQr && window.QRCode) {
+        if (showQr) {
           const qrHost = $("qr" + index);
           const canvas = document.createElement("canvas");
           const size = mode === "QR" ? 170 : 112;
-          Promise.resolve(window.QRCode.toCanvas(canvas, item.code, {
-            width: size,
-            margin: 1,
-            errorCorrectionLevel: "M",
-          })).then(() => qrHost?.appendChild(canvas)).catch((error) => {
+          const renderQr = async () => {
+            const ready = await (window.TKNQRHealth?.wait?.(1200) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas)));
+            if (!ready || typeof window.QRCode?.toCanvas !== "function") {
+              throw new Error(window.TKNQRHealth?.errorText?.() || "QR engine unavailable");
+            }
+            await window.QRCode.toCanvas(canvas, item.code, {
+              width: size,
+              margin: 2,
+              errorCorrectionLevel: "M",
+            });
+            qrHost?.replaceChildren(canvas);
+          };
+          renderQr().catch((error) => {
             console.error("QR render failed:", error);
-            if (qrHost) qrHost.textContent = "สร้าง QR ไม่สำเร็จ";
+            if (qrHost) {
+              qrHost.classList.add("qr-error");
+              qrHost.innerHTML = `<strong>สร้าง QR ไม่สำเร็จ</strong><small>${esc(error.message || "กรุณารีเฟรช")}</small>`;
+            }
+            updateQrEngineStatus();
           });
         }
         if (showBarcode && window.JsBarcode) {
@@ -527,6 +549,14 @@
     $("boxRows").onclick = (event) => { const index = event.target.dataset.remove; if (index !== undefined) void removeItem(Number(index)); };
     $("labelMode").onchange = renderQueue;
     $("printAllBtn").onclick = () => window.print();
+    $("retryQrBtn").onclick = async () => {
+      msg("กำลังตรวจและสร้าง QR ใหม่...");
+      const ready = await (window.TKNQRHealth?.wait?.(1500) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas)));
+      updateQrEngineStatus();
+      if (!ready) return msg(window.TKNQRHealth?.errorText?.() || "ระบบ QR ยังไม่พร้อม", "error");
+      renderQueue();
+      msg("สร้าง QR ในคิวใหม่เรียบร้อย", "success");
+    };
     $("clearPrintBtn").onclick = () => { if (confirm("ล้างคิวพิมพ์ในเครื่อง?")) { S.queue = []; save(); } };
     $("recountBtn").onclick = () => msg("แนะนำเปิดโหมดมือถือเพื่อสแกนและบันทึกร่างการตรวจนับ", "success");
     $("moveOutBtn").onclick = () => msg("เปิดกล่องก่อน แล้วลด/ลบรายการ พร้อมระบุเหตุผลใน Audit Log", "success");

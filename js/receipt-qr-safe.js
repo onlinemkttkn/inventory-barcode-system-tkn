@@ -4,7 +4,8 @@
   async function render(canvas, value, options = {}) {
     if (!canvas) return false;
 
-    if (window.QRCode && typeof window.QRCode.toCanvas === 'function') {
+    const ready = await (window.TKNQRHealth?.wait?.(1000) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas)));
+    if (ready && window.QRCode && typeof window.QRCode.toCanvas === 'function') {
       try {
         await window.QRCode.toCanvas(canvas, String(value || ''), options);
         return true;
@@ -24,7 +25,7 @@
     context.fillStyle = '#111';
     context.textAlign = 'center';
     context.font = `${Math.max(9, Math.floor(width / 10))}px sans-serif`;
-    context.fillText('QR ไม่พร้อม', width / 2, width / 2 - 5);
+    context.fillText('QR สำรอง', width / 2, width / 2 - 5);
     context.font = `${Math.max(7, Math.floor(width / 13))}px sans-serif`;
     context.fillText(String(value || '').slice(0, 18), width / 2, width / 2 + 13);
     return false;

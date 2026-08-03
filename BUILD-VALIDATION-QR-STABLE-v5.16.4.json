@@ -1,0 +1,37 @@
+{
+  "version": "v5.16.4",
+  "base": "v5.16.3",
+  "qr_engine_local": true,
+  "qr_engine_bytes": 34115,
+  "pages_using_local_engine": {
+    "print-labels.html": true,
+    "phase-9-2-reprint-receipt.html": true,
+    "receipt.html": true,
+    "box-qr-stock.html": true,
+    "generator.html": true
+  },
+  "external_qr_cdn_references": [],
+  "js_syntax": {
+    "checked": 135,
+    "failed": []
+  },
+  "checks": {
+    "box_qr_local": true,
+    "print_labels_local": true,
+    "generator_local": true,
+    "receipt_local": true,
+    "reprint_local": true,
+    "retry_button": true,
+    "no_external_qr_cdn": true,
+    "syntax_ok": true
+  },
+  "runtime_test": {
+    "ready": true,
+    "version": "5.16.4-local",
+    "canvas_draw_operations": 233,
+    "product_qr_modules": 21,
+    "box_qr_modules": 21,
+    "thai_utf8_modules": 29,
+    "result": "PASS"
+  }
+}

@@ -280,6 +280,10 @@ function generate() {
   }
 
   if (type !== 'barcode') {
+    if (!window.TKNQRHealth?.isReady?.() && typeof window.QRCode !== 'function') {
+      msg(els.generatorMessage, window.TKNQRHealth?.errorText?.() || 'ระบบ QR ยังไม่พร้อม', 'error');
+      return false;
+    }
     const pixels = qrPixels();
     qrInstance = new QRCode(els.qrCanvas, {
       text: qrValue,

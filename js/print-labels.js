@@ -405,6 +405,14 @@ function createLabel(product) {
 
   if (codeMode === "qr" || codeMode === "both") {
     const value = getProductQrValue(product);
+    if (!window.TKNQRHealth?.isReady?.() && typeof window.QRCode !== "function") {
+      const holder = document.createElement("div");
+      holder.className = "qr-holder code-error";
+      holder.textContent = window.TKNQRHealth?.errorText?.() || "QR engine unavailable";
+      codeRow.appendChild(holder);
+      label.appendChild(codeRow);
+      return label;
+    }
     const holder = document.createElement("div");
     holder.className = "qr-holder";
     codeRow.appendChild(holder);

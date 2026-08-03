@@ -19,3 +19,11 @@
   .qr-primary-note{display:none!important}
   .label{break-inside:avoid;page-break-inside:avoid;box-shadow:none}
 }
+
+/* v5.16.4 local QR health */
+.qr-engine-status{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;border-radius:999px;font-weight:800;background:#fff3cd;color:#7a5200;border:1px solid #f1d27a}
+.qr-engine-status.ok{background:#e8f7ee;color:#176b3a;border-color:#9fd5b5}
+.qr-engine-status.error{background:#fdeaea;color:#9d1c1c;border-color:#efaaaa}
+.label-qr.qr-error{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:150px;min-height:150px;padding:10px;border:2px dashed #c62828;border-radius:12px;background:#fff5f5;color:#9d1c1c;text-align:center}
+.label-qr.qr-error small{font-size:11px;line-height:1.35;word-break:break-word}
+.tkn-local-qr-canvas{display:block;max-width:100%;height:auto;image-rendering:pixelated}
