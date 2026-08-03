@@ -1,27 +1,91 @@
 {
   "id": "./dashboard.html",
-  "name": "TKN POS / ERP Mobile Workspace",
-  "short_name": "TKN POS",
-  "description": "ระบบขาย ตรวจสต็อก รับสินค้า จัดกล่อง และรายงานสำหรับงานภายในองค์กร",
+  "name": "ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี — Final v5.19.0",
+  "short_name": "เถ้าแก่น้อย ชลบุรี",
+  "description": "ระบบ POS, สต็อก, QR, Marketplace และรายงานสำหรับงานภายในองค์กร พร้อมหน้าจอเดียวกันบนมือถือ แท็บเล็ต และคอมพิวเตอร์",
   "lang": "th",
   "dir": "ltr",
-  "start_url": "./dashboard.html?source=pwa",
+  "start_url": "./dashboard.html?source=pwa&v=5.19.0",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "any",
   "background_color": "#f7f3eb",
-  "theme_color": "#c8101e",
-  "categories": ["business", "productivity", "finance"],
+  "theme_color": "#c41220",
+  "categories": [
+    "business",
+    "productivity",
+    "finance"
+  ],
   "icons": [
-    {"src":"./assets/icons/tkn-app-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"./assets/icons/tkn-app-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
-    {"src":"./assets/icons/tkn-app-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+    {
+      "src": "./assets/icons/tkn-app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/tkn-app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/tkn-app-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    {"name":"ขายหน้าร้าน","short_name":"POS","url":"./pos.html?source=pwa-shortcut","icons":[{"src":"./assets/icons/tkn-app-192.png","sizes":"192x192"}]},
-    {"name":"สแกนตรวจสต็อก","short_name":"สแกน","url":"./mobile-stock-check.html?source=pwa-shortcut","icons":[{"src":"./assets/icons/tkn-app-192.png","sizes":"192x192"}]},
-    {"name":"Box QR","short_name":"Box QR","url":"./box-qr-stock.html?source=pwa-shortcut","icons":[{"src":"./assets/icons/tkn-app-192.png","sizes":"192x192"}]},
-    {"name":"รายงาน","short_name":"รายงาน","url":"./reports.html?source=pwa-shortcut","icons":[{"src":"./assets/icons/tkn-app-192.png","sizes":"192x192"}]}
-  ]
+    {
+      "name": "ขายหน้าร้าน",
+      "short_name": "POS",
+      "url": "./pos.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./assets/icons/tkn-app-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "สแกนตรวจสต็อก",
+      "short_name": "สแกน",
+      "url": "./mobile-stock-check.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./assets/icons/tkn-app-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Box QR",
+      "short_name": "Box QR",
+      "url": "./box-qr-stock.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./assets/icons/tkn-app-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "รายงาน",
+      "short_name": "รายงาน",
+      "url": "./reports.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "./assets/icons/tkn-app-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "version": "5.19.0"
 }

@@ -1,0 +1,10 @@
+ลบไฟล์ระบบนำทาง/UI รุ่นเก่าเหล่านี้หลังอัปโหลด Patch v5.19.0:
+/css/mobile-app-shell-v5-17.css
+/css/mobile-app-shell-v5-18.css
+/css/ui-modern-v5-18.css
+/js/mobile-app-shell-v5-17.js
+/js/mobile-app-shell-v5-18.js
+/js/navigation.js
+/js/navigation-newtab-final.js
+/service-worker-v5.17.0.js
+/service-worker-v5.18.0.js

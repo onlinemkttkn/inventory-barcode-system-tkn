@@ -1,25 +1,22 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>TKN POS - รายงานคืนสินค้า v2.3</title><link rel="stylesheet" href="./css/returns.css?v=3.0.0">  <link rel="stylesheet" href="./css/navigation.css?v=5.18.0">
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>TKN POS - รายงานคืนสินค้า v2.3</title><link rel="stylesheet" href="./css/returns.css?v=3.0.0">  <link rel="stylesheet" href="./css/navigation.css?v=5.19.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
-
-  <!-- TKN Mobile App Shell v5.17.0 -->
   <meta name="theme-color" content="#c8101e">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.18.0">
-  <link rel="stylesheet" href="./css/ui-modern-v5-18.css?v=5.18.0">
-  <link rel="stylesheet" href="./css/mobile-app-shell-v5-18.css?v=5.18.0">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.19.0">
+
+  <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.19.0">
 </head><body data-required-permission="report.view" data-integrated-page="return-report" data-lock-back="true"><main class="page-shell">
 <nav class="integration-breadcrumb" aria-label="เส้นทาง">
   <a href="./dashboard.html" data-nav-dashboard>Dashboard</a>
   <span>›</span><strong>รายงานสินค้าคืน</strong>
-</nav><header class="page-header"><div><p class="eyebrow">PHASE 09.2 · COMPLETION v2.3</p><h1>รายงานสินค้าคืน</h1><p>สรุปจำนวนใบคืน ยอดคืนเงิน และสินค้าที่ถูกคืนมากที่สุด</p></div><a class="secondary-button" href="./dashboard.html">กลับ Dashboard</a></header><section class="panel"><div class="filter-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))"><label>วันที่เริ่มต้น<input id="dateFrom" type="date"></label><label>วันที่สิ้นสุด<input id="dateTo" type="date"></label></div><div class="actions"><button id="loadButton" class="primary-button">โหลดรายงาน</button><button id="thisMonthButton" class="secondary-button">เดือนนี้</button></div></section><section class="summary-grid"><article class="summary-card"><span>จำนวนใบคืน</span><strong id="returnCount">0</strong></article><article class="summary-card"><span>ยอดคืนเงินรวม</span><strong id="refundTotal">฿0.00</strong></article><article class="summary-card"><span>จำนวนบิลที่ได้รับผลกระทบ</span><strong id="affectedSales">0</strong></article></section><section class="panel"><h2>สินค้าที่ถูกคืนมากที่สุด</h2><div class="table-wrap"><table><thead><tr><th>อันดับ</th><th>รหัส</th><th>สินค้า</th><th>จำนวนคืน</th><th>ยอดคืน</th></tr></thead><tbody id="topProducts"></tbody></table></div></section><section class="panel"><h2>ยอดคืนรายวัน</h2><div class="table-wrap"><table><thead><tr><th>วันที่</th><th>จำนวนใบคืน</th><th>ยอดคืนเงิน</th></tr></thead><tbody id="dailyRows"></tbody></table></div><p id="message"></p></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./js/supabase-config.js?v=5.2.0"></script><script src="./js/go-live-security.js?v=5.2.0"></script><script type="module" src="./js/return-report.js?v=5.2.0"></script>  <script src="./js/tkn-safe-back.js?v=5.18.0"></script>
-<script src="./js/navigation-newtab-final.js?v=5.18.0"></script>
-
-  <script src="./js/mobile-app-shell-v5-18.js?v=5.18.0" defer></script>
+</nav><header class="page-header"><div><p class="eyebrow">PHASE 09.2 · COMPLETION v2.3</p><h1>รายงานสินค้าคืน</h1><p>สรุปจำนวนใบคืน ยอดคืนเงิน และสินค้าที่ถูกคืนมากที่สุด</p></div><a class="secondary-button" href="./dashboard.html">กลับ Dashboard</a></header><section class="panel"><div class="filter-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))"><label>วันที่เริ่มต้น<input id="dateFrom" type="date"></label><label>วันที่สิ้นสุด<input id="dateTo" type="date"></label></div><div class="actions"><button id="loadButton" class="primary-button">โหลดรายงาน</button><button id="thisMonthButton" class="secondary-button">เดือนนี้</button></div></section><section class="summary-grid"><article class="summary-card"><span>จำนวนใบคืน</span><strong id="returnCount">0</strong></article><article class="summary-card"><span>ยอดคืนเงินรวม</span><strong id="refundTotal">฿0.00</strong></article><article class="summary-card"><span>จำนวนบิลที่ได้รับผลกระทบ</span><strong id="affectedSales">0</strong></article></section><section class="panel"><h2>สินค้าที่ถูกคืนมากที่สุด</h2><div class="table-wrap"><table><thead><tr><th>อันดับ</th><th>รหัส</th><th>สินค้า</th><th>จำนวนคืน</th><th>ยอดคืน</th></tr></thead><tbody id="topProducts"></tbody></table></div></section><section class="panel"><h2>ยอดคืนรายวัน</h2><div class="table-wrap"><table><thead><tr><th>วันที่</th><th>จำนวนใบคืน</th><th>ยอดคืนเงิน</th></tr></thead><tbody id="dailyRows"></tbody></table></div><p id="message"></p></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./js/supabase-config.js?v=5.2.0"></script><script src="./js/go-live-security.js?v=5.2.0"></script><script type="module" src="./js/return-report.js?v=5.2.0"></script>  <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.19.0" defer></script>
 </body></html>
