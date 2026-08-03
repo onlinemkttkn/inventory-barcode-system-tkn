@@ -1,13 +1,198 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>แยกสินค้าและปิดกล่อง — TKN</title>
-<link rel="stylesheet" href="./css/global-font.css"><link rel="stylesheet" href="./css/theme-red-yellow-black.css"><link rel="stylesheet" href="./css/ui-modern-v5-19.css"><link rel="stylesheet" href="./css/app-shell-v5-19.css"><link rel="stylesheet" href="./css/sort-pack-qr-v5-20.css?v=5.20.0"><link rel="manifest" href="./manifest.webmanifest"></head>
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>แยกสินค้าและปิดกล่อง — เถ้าแก่น้อย ชลบุรี</title>
+  <link rel="stylesheet" href="./css/global-font.css">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css">
+  <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-1.css?v=5.20.1">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
-<main class="sp-shell"><header class="sp-hero"><div><small>FINAL v5.20.0 · SORT → LABEL → BOX</small><h1>แยกสินค้าและปิดกล่อง</h1><p>สแกน Tracking แล้วทำงานต่อเนื่องในหน้าเดียว ต้นทุนยังผูกกับล็อตเดิมแม้ย้ายกล่อง</p></div><div class="sp-status"><span id="cloudStatus">กำลังเชื่อมต่อ</span><b id="lotStatus">ยังไม่เปิดล็อต</b></div></header>
-<nav class="sp-steps" aria-label="ขั้นตอน"><button data-step="1" class="active"><b>1</b><span>สแกนพัสดุ</span></button><button data-step="2"><b>2</b><span>แยกประเภท</span></button><button data-step="3"><b>3</b><span>SKU และ QR</span></button><button data-step="4"><b>4</b><span>ใส่กล่อง</span></button><button data-step="5"><b>5</b><span>ปิดกล่อง</span></button></nav>
-<div id="notice" class="sp-notice" hidden></div>
-<section class="sp-panel active" data-panel="1"><div class="sp-panel-head"><div><h2>สแกน Tracking</h2><p>ระบบจะโหลดรายการรายชิ้น ต้นทุน และ SKU จากข้อมูลนำเข้า</p></div></div><div class="sp-scan"><input id="trackingInput" autocomplete="off" placeholder="สแกนหรือกรอก Tracking / Order Number" autofocus><button id="loadTrackingBtn" class="sp-primary">โหลดรายการ</button></div><div class="sp-grid-3"><label>แหล่งข้อมูล<select id="sourceSelect"><option value="AUTO">ตรวจหาอัตโนมัติ</option><option value="SHOPEE">Shopee</option><option value="LAZADA">Lazada</option><option value="MANUAL">รับเข้าเอง</option></select></label><label>รหัสล็อต<input id="lotCode" readonly></label><label>หมายเหตุ<input id="lotNote" placeholder="ไม่บังคับ"></label></div><div id="sourceSummary" class="sp-empty">ยังไม่ได้โหลดพัสดุ</div></section>
-<section class="sp-panel" data-panel="2"><div class="sp-panel-head"><div><h2>แยกประเภทสินค้า</h2><p>เลือกหมวดจากปุ่มใหญ่ ระบบบันทึกให้ทันทีโดยไม่เปิด Pop-up</p></div><div class="sp-counter"><b id="classifiedCount">0</b>/<span id="totalCount">0</span> รายการ</div></div><div class="sp-toolbar"><input id="itemSearch" placeholder="ค้นหา SKU ชื่อสินค้า หรือเลขรายการ"><select id="pageSize"><option>10</option><option selected>25</option><option>50</option><option>100</option></select><button id="clearSearchBtn">ล้างค้นหา</button></div><div id="categoryQuick" class="sp-category-quick"></div><div id="itemCards" class="sp-item-list"></div><div class="sp-pagination"><button id="prevPage">ก่อนหน้า</button><span id="pageInfo">1 / 1</span><button id="nextPage">ถัดไป</button></div></section>
-<section class="sp-panel" data-panel="3"><div class="sp-panel-head"><div><h2>ตรวจ SKU และสร้าง QR</h2><p>ใช้ SKU เดิมเมื่อพบสินค้าเดิม หรือสร้างรหัสใหม่แบบรวดเร็ว</p></div><button id="queueAllBtn">เพิ่มรายการพร้อมแล้วเข้าคิวทั้งหมด</button></div><div id="skuCards" class="sp-item-list"></div></section>
-<section class="sp-panel" data-panel="4"><div class="sp-panel-head"><div><h2>ติด QR และใส่กล่อง</h2><p>QR สินค้าผูกกับ SKU ส่วนต้นทุนแสดงเป็นรหัส C ซ่อนท้ายฉลาก</p></div><div class="sp-counter">คิวพิมพ์ <b id="labelCount">0</b></div></div><div class="sp-grid-3"><label>รหัสกล่อง<input id="boxCode" readonly></label><label>หมวดกล่อง<select id="boxCategory"></select></label><label>ตำแหน่งจัดเก็บ<input id="boxLocation" placeholder="คลัง > โซน > ชั้น"></label></div><div class="sp-actions"><button id="newBoxBtn">สร้างกล่องใหม่</button><button id="printLabelsBtn" class="sp-primary">พิมพ์ QR ทั้งหมด</button><button id="clearLabelQueueBtn">ล้างคิวฉลาก</button></div><div id="labelPreview" class="sp-label-grid"></div><div id="boxContents" class="sp-item-list"></div></section>
-<section class="sp-panel" data-panel="5"><div class="sp-panel-head"><div><h2>ตรวจสอบและปิดกล่อง</h2><p>เมื่อปิดแล้ว ระบบสร้าง QR กล่องพร้อมจำนวนและประเภทสินค้าภายใน</p></div></div><div id="closeSummary" class="sp-summary"></div><div class="sp-actions"><button id="backToBoxBtn">กลับไปแก้กล่อง</button><button id="closeBoxBtn" class="sp-primary sp-danger">ปิดผนึกและสร้าง QR กล่อง</button></div><div id="boxQrResult" class="sp-box-qr"></div></section>
-<footer class="sp-actionbar"><button id="previousStepBtn">ย้อนขั้นตอน</button><div><span id="actionHint">เริ่มจากสแกน Tracking</span><button id="nextStepBtn" class="sp-primary">ถัดไป</button></div></footer></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./js/vendor/tkn-qrcode-local-v5.16.4.js"></script><script src="./js/supabase-config.js"></script><script src="./js/auth-guard.js"></script><script src="./js/sort-pack-qr-v5-20.js?v=5.20.0"></script><script src="./js/app-shell-v5-19.js?v=5.20.0" defer></script></body></html>
+  <main class="sp-shell">
+    <header class="sp-hero">
+      <div class="sp-hero-copy">
+        <small>FINAL v5.20.1 · AUTO CATEGORY</small>
+        <h1>แยกสินค้าและปิดกล่อง</h1>
+        <p>สแกน Tracking แล้วระบบอ่านรายการ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมจำหมวดตาม SKU</p>
+      </div>
+      <div class="sp-status">
+        <span id="cloudStatus">กำลังเชื่อมต่อ</span>
+        <b id="lotStatus">ยังไม่เปิดล็อต</b>
+      </div>
+    </header>
+
+    <nav class="sp-steps" aria-label="ขั้นตอนการทำงาน">
+      <button type="button" data-step="1" class="active"><b>1</b><span>สแกนพัสดุ</span></button>
+      <button type="button" data-step="2"><b>2</b><span>แยกประเภท</span></button>
+      <button type="button" data-step="3"><b>3</b><span>SKU และ QR</span></button>
+      <button type="button" data-step="4"><b>4</b><span>ใส่กล่อง</span></button>
+      <button type="button" data-step="5"><b>5</b><span>ปิดกล่อง</span></button>
+    </nav>
+
+    <div id="notice" class="sp-notice" role="status" aria-live="polite" hidden></div>
+
+    <section class="sp-panel active" data-panel="1">
+      <div class="sp-panel-head">
+        <div>
+          <span class="sp-eyebrow">ขั้นตอนที่ 1</span>
+          <h2>สแกน Tracking</h2>
+          <p>ค้นหาจากฐานข้อมูลกลางก่อน แล้วตรวจพื้นที่งาน Shopee/Lazada ในเครื่องนี้ให้อัตโนมัติ</p>
+        </div>
+      </div>
+      <div class="sp-scan">
+        <label class="sp-scan-field">
+          <span class="sr-only">Tracking หรือ Order Number</span>
+          <input id="trackingInput" autocomplete="off" inputmode="text" placeholder="สแกนหรือกรอก Tracking / Order Number" autofocus>
+        </label>
+        <button id="loadTrackingBtn" type="button" class="sp-primary">โหลดรายการ</button>
+      </div>
+      <div class="sp-grid-3">
+        <label>แหล่งข้อมูล
+          <select id="sourceSelect">
+            <option value="AUTO">ตรวจหาอัตโนมัติ</option>
+            <option value="SHOPEE">Shopee</option>
+            <option value="LAZADA">Lazada</option>
+            <option value="MANUAL">รับเข้าเอง</option>
+          </select>
+        </label>
+        <label>รหัสล็อต<input id="lotCode" readonly placeholder="ระบบสร้างให้อัตโนมัติ"></label>
+        <label>หมายเหตุ<input id="lotNote" placeholder="ไม่บังคับ"></label>
+      </div>
+      <div id="sourceSummary" class="sp-empty">ยังไม่ได้โหลดพัสดุ</div>
+      <div id="sourceDataNote" class="sp-data-note">
+        <b>การอ่านหมวด:</b> ใช้หมวดหลัก/หมวดย่อยจากไฟล์ก่อน จากนั้นใช้ชื่อสินค้าและหมวดที่เคยยืนยันตาม SKU เป็นข้อมูลช่วย
+      </div>
+    </section>
+
+    <section class="sp-panel" data-panel="2">
+      <div class="sp-panel-head sp-panel-head-actions">
+        <div>
+          <span class="sp-eyebrow">ขั้นตอนที่ 2</span>
+          <h2>ตรวจหมวดสินค้า</h2>
+          <p>รายการที่ระบบมั่นใจจะยืนยันให้อัตโนมัติ ส่วนรายการที่ไม่ชัดเจนกดยืนยันเพียงครั้งเดียว</p>
+        </div>
+        <div class="sp-counter"><b id="classifiedCount">0</b>/<span id="totalCount">0</span> รายการพร้อม</div>
+      </div>
+
+      <div class="sp-category-stats" aria-label="สรุปการแยกหมวด">
+        <article><span>ยืนยันอัตโนมัติ</span><b id="autoCategoryCount">0</b></article>
+        <article><span>รอยืนยันคำแนะนำ</span><b id="suggestedCategoryCount">0</b></article>
+        <article><span>ยังเลือกไม่ได้</span><b id="missingCategoryCount">0</b></article>
+      </div>
+
+      <div class="sp-toolbar">
+        <label class="sp-search-control"><span>ค้นหา</span><input id="itemSearch" type="search" placeholder="SKU ชื่อสินค้า Tracking หรือหมวดจากไฟล์"></label>
+        <label><span>สถานะ</span>
+          <select id="categoryStatusFilter">
+            <option value="ALL">ทั้งหมด</option>
+            <option value="REVIEW">เฉพาะรอตรวจ</option>
+            <option value="CONFIRMED">ยืนยันแล้ว</option>
+            <option value="AUTO">ระบบยืนยันอัตโนมัติ</option>
+          </select>
+        </label>
+        <label><span>แสดงต่อหน้า</span>
+          <select id="pageSize"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+        </label>
+        <button id="clearSearchBtn" type="button">ล้างตัวกรอง</button>
+      </div>
+
+      <div class="sp-bulk-bar">
+        <div class="sp-bulk-select">
+          <button id="selectPageBtn" type="button">เลือกหน้านี้</button>
+          <button id="clearSelectionBtn" type="button">ล้างที่เลือก</button>
+          <span>เลือกแล้ว <b id="selectedCount">0</b> รายการ</span>
+        </div>
+        <button id="acceptAllSuggestionsBtn" type="button" class="sp-yellow-action">ยืนยันคำแนะนำทั้งหมด</button>
+      </div>
+
+      <div class="sp-quick-wrap">
+        <div>
+          <b>กำหนดหมวดให้รายการที่เลือก</b>
+          <small>เลือกสินค้าในรายการก่อน แล้วแตะหมวดเพียงครั้งเดียว</small>
+        </div>
+        <div id="categoryQuick" class="sp-category-quick"></div>
+      </div>
+
+      <div id="itemCards" class="sp-item-list"></div>
+      <div class="sp-pagination">
+        <button id="prevPage" type="button">ก่อนหน้า</button>
+        <span id="pageInfo">หน้า 1 / 1</span>
+        <button id="nextPage" type="button">ถัดไป</button>
+      </div>
+    </section>
+
+    <section class="sp-panel" data-panel="3">
+      <div class="sp-panel-head sp-panel-head-actions">
+        <div>
+          <span class="sp-eyebrow">ขั้นตอนที่ 3</span>
+          <h2>ตรวจ SKU ต้นทุน และสร้าง QR</h2>
+          <p>ต้นทุนที่มาจากไฟล์จะแสดงทันที รายการที่ยังไม่มีต้นทุนสามารถกรอกในแถวเดียวกันได้</p>
+        </div>
+        <button id="queueAllBtn" type="button" class="sp-yellow-action">เพิ่มรายการพร้อมแล้วทั้งหมด</button>
+      </div>
+      <div id="skuReadiness" class="sp-inline-summary"></div>
+      <div id="skuCards" class="sp-item-list"></div>
+    </section>
+
+    <section class="sp-panel" data-panel="4">
+      <div class="sp-panel-head sp-panel-head-actions">
+        <div>
+          <span class="sp-eyebrow">ขั้นตอนที่ 4</span>
+          <h2>พิมพ์ QR และใส่กล่อง</h2>
+          <p>QR สินค้าผูกกับ SKU ส่วนต้นทุนแสดงเป็นรหัส C ขนาดเล็กท้ายฉลาก</p>
+        </div>
+        <div class="sp-counter">ฉลาก <b id="labelCount">0</b> ดวง</div>
+      </div>
+      <div class="sp-grid-3">
+        <label>รหัสกล่อง<input id="boxCode" readonly></label>
+        <label>ประเภทกล่อง<select id="boxCategory"></select></label>
+        <label>ตำแหน่งจัดเก็บ<input id="boxLocation" placeholder="คลัง > โซน > ชั้น"></label>
+      </div>
+      <div class="sp-actions">
+        <button id="newBoxBtn" type="button">สร้างกล่องใหม่</button>
+        <button id="printLabelsBtn" type="button" class="sp-primary">พิมพ์ QR ทั้งหมด</button>
+        <button id="clearLabelQueueBtn" type="button" class="sp-muted-action">ล้างคิวฉลาก</button>
+      </div>
+      <div id="labelPreview" class="sp-label-grid"></div>
+      <h3 class="sp-section-title">สินค้าในกล่อง</h3>
+      <div id="boxContents" class="sp-item-list"></div>
+    </section>
+
+    <section class="sp-panel" data-panel="5">
+      <div class="sp-panel-head">
+        <div>
+          <span class="sp-eyebrow">ขั้นตอนที่ 5</span>
+          <h2>ตรวจสอบและปิดกล่อง</h2>
+          <p>เมื่อปิดแล้ว ระบบสร้าง QR กล่องพร้อมจำนวน SKU จำนวนชิ้น ประเภท และตำแหน่งจัดเก็บ</p>
+        </div>
+      </div>
+      <div id="closeSummary" class="sp-summary"></div>
+      <div class="sp-actions">
+        <button id="backToBoxBtn" type="button">กลับไปแก้กล่อง</button>
+        <button id="closeBoxBtn" type="button" class="sp-primary sp-danger">ปิดผนึกและสร้าง QR กล่อง</button>
+      </div>
+      <div id="boxQrResult" class="sp-box-qr"></div>
+    </section>
+
+    <footer class="sp-actionbar">
+      <button id="previousStepBtn" type="button">ย้อนขั้นตอน</button>
+      <div>
+        <span id="actionHint">เริ่มจากสแกน Tracking</span>
+        <button id="nextStepBtn" type="button" class="sp-primary">ถัดไป</button>
+      </div>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/vendor/tkn-qrcode-local-v5.16.4.js"></script>
+  <script src="./js/supabase-config.js"></script>
+  <script src="./js/auth-guard.js"></script>
+  <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.1"></script>
+  <script src="./js/sort-pack-qr-v5-20-1.js?v=5.20.1"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.20.1" defer></script>
+</body>
+</html>
