@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>แจ้งเตือนสต๊อก</title>
   <link rel="stylesheet" href="./css/stock-alerts.css?v=1.0.2">
   <link rel="stylesheet" href="./css/navigation.css?v=5.14.2">
@@ -12,6 +12,16 @@
   <link rel="stylesheet" href="./css/inventory-final-ui.css?v=1.0.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
+
+  <!-- TKN Mobile App Shell v5.17.0 -->
+  <meta name="theme-color" content="#c8101e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TKN POS">
+  <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.17.0">
+  <link rel="stylesheet" href="./css/mobile-app-shell-v5-17.css?v=5.17.0">
 </head>
 <body>
 <main class="shell">
@@ -94,5 +104,7 @@
 <script src="./js/stock-alerts.js?v=1.0.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.14.2"></script>
 <script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
+
+  <script src="./js/mobile-app-shell-v5-17.js?v=5.17.0" defer></script>
 </body>
 </html>

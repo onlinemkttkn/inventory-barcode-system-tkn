@@ -1,6 +1,16 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Box QR & Real-time Stock — TKN</title><link rel="stylesheet" href="./css/global-font.css?v=4.7.0"><link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0"><link rel="stylesheet" href="./css/navigation.css?v=5.14.2"><link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8"><link rel="stylesheet" href="./css/box-qr-stock.css?v=5.16.5"></head>
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Box QR & Real-time Stock — TKN</title><link rel="stylesheet" href="./css/global-font.css?v=4.7.0"><link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0"><link rel="stylesheet" href="./css/navigation.css?v=5.14.2"><link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8"><link rel="stylesheet" href="./css/box-qr-stock.css?v=5.16.5">
+  <!-- TKN Mobile App Shell v5.17.0 -->
+  <meta name="theme-color" content="#c8101e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TKN POS">
+  <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.17.0">
+  <link rel="stylesheet" href="./css/mobile-app-shell-v5-17.css?v=5.17.0">
+</head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR..."><main class="box-shell">
-<header class="hero"><div><small>TKN POS ERP · Marketplace Receiving · Final v5.16.5 · QR Queue Sync</small><h1>Box QR & Real-time Container Stock</h1><p>ใช้ QR Code เป็นรหัสหลักสำหรับตรวจรับ จัดกล่อง ตรวจสต็อก และขายผ่าน POS</p></div><nav><a class="camera-entry" href="./mobile-stock-check.html">📷 เปิดกล้องตรวจสินค้า</a><a href="./dashboard.html">Dashboard</a><a href="./import-export.html">Import / Export</a><a href="./pos.html">POS</a></nav></header>
+<header class="hero"><div><small>TKN POS ERP · Marketplace Receiving · Final v5.17.0 · Mobile/PWA Ready</small><h1>Box QR & Real-time Container Stock</h1><p>ใช้ QR Code เป็นรหัสหลักสำหรับตรวจรับ จัดกล่อง ตรวจสต็อก และขายผ่าน POS</p></div><nav><a class="camera-entry" href="./mobile-stock-check.html">📷 เปิดกล้องตรวจสินค้า</a><a href="./dashboard.html">Dashboard</a><a href="./import-export.html">Import / Export</a><a href="./pos.html">POS</a></nav></header>
 <section class="stats"><article><span>รอบตรวจรับ</span><b id="sessionCount">0</b></article><article><span>กำลังจัดกล่อง</span><b id="draftBoxCount">0</b></article><article><span>กล่องปิดแล้ว</span><b id="closedBoxCount">0</b></article><article><span>คิวพิมพ์</span><b id="printCount">0</b></article></section>
 <div id="message" class="notice"></div>
 <nav class="tabs"><button data-tab="receive" class="active">1 ตรวจรับ</button><button data-tab="box">2 จัดกล่อง</button><button data-tab="check">3 ตรวจสอบ QR</button><button data-tab="print">4 คิวพิมพ์</button><button data-tab="audit">5 ประวัติ</button></nav>
@@ -10,4 +20,6 @@
 <section id="print" class="panel"><h2>คิวพิมพ์ QR Code (รหัสหลัก)</h2><p class="qr-primary-note">QR สินค้าใช้รูปแบบ TKN-P-รหัสสินค้า และ QR กล่องใช้ TKN-B-รหัสกล่อง สามารถใช้ตรวจสต็อกและสแกนขายที่ POS ได้</p><div class="actions"><select id="labelMode"><option value="QR" selected>QR Code — ค่าเริ่มต้น</option><option value="BOTH">QR Code + Barcode</option><option value="BARCODE">Barcode เท่านั้น</option></select><button id="printAllBtn" class="primary">พิมพ์ QR ทั้งหมด</button><button id="retryQrBtn">สร้าง QR ใหม่</button><button id="clearPrintBtn">ล้างคิวทั้งหมด</button><span id="qrEngineStatus" class="qr-engine-status" role="status"></span></div><div id="printQueue" class="label-grid"></div></section>
 <section id="audit" class="panel"><h2>Audit Log</h2><div class="table"><table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>งาน</th><th>รหัส</th><th>รายละเอียด</th></tr></thead><tbody id="auditRows"></tbody></table></div></section>
 </main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./js/vendor/tkn-qrcode-local-v5.16.4.js?v=5.16.4"></script><script src="./js/tkn-qr-health-v5.16.4.js?v=5.16.4"></script><script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script><script src="./js/supabase-config.js?v=1.0.2"></script><script src="./js/auth-guard.js?v=5.6.0"></script><script src="./js/box-qr-stock.js?v=5.16.5"></script><script src="./js/tkn-safe-back.js?v=5.14.2"></script>
-<script src="./js/navigation-newtab-final.js?v=5.14.2"></script></body></html>
+<script src="./js/navigation-newtab-final.js?v=5.14.2"></script>
+  <script src="./js/mobile-app-shell-v5-17.js?v=5.17.0" defer></script>
+</body></html>

@@ -1,0 +1,477 @@
+{
+  "version": "v5.17.0",
+  "release": "Mobile/PWA Ready",
+  "html_pages": 55,
+  "all_pages_injected": true,
+  "page_results": [
+    {
+      "page": "audit-log.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "box-qr-stock.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "branch-stock.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "categories-admin.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "dashboard-integrated-phase-9-5-v1-1.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "dashboard.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 29
+    },
+    {
+      "page": "generator.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "hardware-settings.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "import-export.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 23
+    },
+    {
+      "page": "index.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 9
+    },
+    {
+      "page": "inventory-operations.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 24
+    },
+    {
+      "page": "issue.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 24
+    },
+    {
+      "page": "lazada-import.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 22
+    },
+    {
+      "page": "manual-product-import.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 18
+    },
+    {
+      "page": "member-history.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 15
+    },
+    {
+      "page": "members.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "mobile-stock-check.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "offline.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 3
+    },
+    {
+      "page": "phase-9-2-bill-search-integrated-v1-1.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "phase-9-2-bill-search-v2-1.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "phase-9-2-bill-search-v2-2.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "phase-9-2-bill-search.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 15
+    },
+    {
+      "page": "phase-9-2-reprint-receipt.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 13
+    },
+    {
+      "page": "phase-9-2-void-bill.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 9
+    },
+    {
+      "page": "pos-member.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 14
+    },
+    {
+      "page": "pos.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "print-labels.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 18
+    },
+    {
+      "page": "product-stock-admin.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "products-admin.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 19
+    },
+    {
+      "page": "purchase-order-create.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "purchase-order-history.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 15
+    },
+    {
+      "page": "receipt.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "receive.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 24
+    },
+    {
+      "page": "reports.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "sales-history.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "sales-return-history-integrated-v1-1.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "sales-return-history.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 14
+    },
+    {
+      "page": "sales-return-receipt-v2-3.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "sales-return-receipt.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 12
+    },
+    {
+      "page": "sales-return-report-integrated-v1-1.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 7
+    },
+    {
+      "page": "sales-return-report.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "sales-return-v2-1.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 8
+    },
+    {
+      "page": "sales-return-v2-2.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 8
+    },
+    {
+      "page": "sales-return.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "scanner.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "shopee-import.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 22
+    },
+    {
+      "page": "stock-alerts.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 16
+    },
+    {
+      "page": "stock-count-history.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "stock-count.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "suppliers.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 15
+    },
+    {
+      "page": "transactions.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 22
+    },
+    {
+      "page": "transfer-create.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "transfer-history.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 17
+    },
+    {
+      "page": "transfer-receive.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 21
+    },
+    {
+      "page": "users-admin.html",
+      "viewport": true,
+      "manifest": true,
+      "mobile_css": true,
+      "mobile_js": true,
+      "references": 15
+    }
+  ],
+  "javascript_files_checked": 137,
+  "javascript_syntax_failures": [],
+  "missing_local_references": [],
+  "manifest_valid": true,
+  "manifest_error": "",
+  "service_worker_exists": true,
+  "icons": [
+    {
+      "file": "assets/icons/tkn-app-192.png",
+      "exists": true,
+      "bytes": 1827
+    },
+    {
+      "file": "assets/icons/tkn-app-512.png",
+      "exists": true,
+      "bytes": 4954
+    },
+    {
+      "file": "assets/icons/tkn-app-maskable-512.png",
+      "exists": true,
+      "bytes": 5306
+    }
+  ],
+  "database_migration_required": false,
+  "notes": [
+    "Static structure and syntax validation only.",
+    "Live login, Supabase writes, camera permission and device printing require UAT after deployment.",
+    "Chromium screenshot smoke test was not completed in this environment because headless Chromium did not terminate reliably."
+  ]
+}
