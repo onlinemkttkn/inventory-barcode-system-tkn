@@ -379,11 +379,18 @@
 
   async function loadCloudStats() {
     try {
+      let printQueueQuery = supabaseClient.from("label_print_queue")
+        .select("copies")
+        .eq("status", "PENDING");
+      // The visible print queue belongs to the signed-in user. Filtering here
+      // prevents another user's pending labels from keeping this counter non-zero.
+      if (S.userId) printQueueQuery = printQueueQuery.eq("requested_by", S.userId);
+
       const [sessions, drafts, closed, queue] = await Promise.all([
         supabaseClient.from("marketplace_receiving_sessions").select("id", { count: "exact", head: true }),
         supabaseClient.from("stock_boxes").select("id", { count: "exact", head: true }).eq("status", "DRAFT"),
         supabaseClient.from("stock_boxes").select("id", { count: "exact", head: true }).eq("status", "CLOSED"),
-        supabaseClient.from("label_print_queue").select("copies", { count: "exact" }).eq("status", "PENDING"),
+        printQueueQuery,
       ]);
       S.cloudStats = {
         sessions: sessions.count || 0,
@@ -394,6 +401,44 @@
       renderStats();
     } catch (error) {
       console.warn("Cloud stats fallback:", error);
+    }
+  }
+
+  async function clearPrintQueue() {
+    if (!confirm("ล้างคิวพิมพ์ทั้งหมดของผู้ใช้งานนี้ ทั้งในเครื่องและส่วนกลาง?")) return;
+
+    const button = $("clearPrintBtn");
+    const localCopies = S.queue.reduce((sum, row) => sum + (Number(row.qty) || 1), 0);
+    if (button) {
+      button.disabled = true;
+      button.textContent = "กำลังล้างคิว...";
+    }
+
+    // Clear the visible/local queue immediately, and reset the cached counter so
+    // the number on the summary card does not keep showing the stale cloud value.
+    S.queue = [];
+    if (S.cloudStats) S.cloudStats.print = 0;
+    audit("PRINT_QUEUE_CLEAR", S.userId || S.user, `ล้างคิวในเครื่อง ${localCopies} ฉลาก`);
+    save();
+
+    try {
+      if (!S.userId) throw new Error("ไม่พบรหัสผู้ใช้งานสำหรับล้างคิวส่วนกลาง");
+      const { error } = await supabaseClient.from("label_print_queue")
+        .update({ status: "CLEARED" })
+        .eq("status", "PENDING")
+        .eq("requested_by", S.userId);
+      if (error) throw error;
+
+      await loadCloudStats();
+      msg("ล้างคิวพิมพ์ในเครื่องและส่วนกลางแล้ว", "success");
+    } catch (error) {
+      console.error("Clear print queue cloud error:", error);
+      msg("ล้างคิวในเครื่องแล้ว แต่ล้างคิวส่วนกลางไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตหรือสิทธิ์ฐานข้อมูล", "error");
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = "ล้างคิวทั้งหมด";
+      }
     }
   }
 
@@ -557,7 +602,7 @@
       renderQueue();
       msg("สร้าง QR ในคิวใหม่เรียบร้อย", "success");
     };
-    $("clearPrintBtn").onclick = () => { if (confirm("ล้างคิวพิมพ์ในเครื่อง?")) { S.queue = []; save(); } };
+    $("clearPrintBtn").onclick = () => { void clearPrintQueue(); };
     $("recountBtn").onclick = () => msg("แนะนำเปิดโหมดมือถือเพื่อสแกนและบันทึกร่างการตรวจนับ", "success");
     $("moveOutBtn").onclick = () => msg("เปิดกล่องก่อน แล้วลด/ลบรายการ พร้อมระบุเหตุผลใน Audit Log", "success");
   }

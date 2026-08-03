@@ -1,0 +1,11 @@
+{
+  "version": "5.16.5",
+  "feature": "print-queue-counter-sync-hotfix",
+  "javascript_syntax": "passed",
+  "clear_local_queue": "passed",
+  "clear_cloud_pending_queue": "passed",
+  "reset_cached_counter": "passed",
+  "reload_cloud_counter": "passed",
+  "filter_by_requested_by": "passed",
+  "sql_required": false
+}
