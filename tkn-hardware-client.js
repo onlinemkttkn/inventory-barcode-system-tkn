@@ -7,6 +7,7 @@
   const DB_NAME = 'tkn_hardware_jobs_v1';
   const DB_VERSION = 1;
   const STORE_NAME = 'jobs';
+  const CLIENT_VERSION = '5.17.1';
   const DEFAULTS = Object.freeze({
     mode: 'AUTO',
     service_url: 'http://127.0.0.1:17890',
@@ -85,7 +86,12 @@
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data.error || `Hardware HTTP ${response.status}`);
+        const error = new Error(
+          data.error || `Hardware HTTP ${response.status}`
+        );
+        error.status = response.status;
+        error.data = data;
+        throw error;
       }
       return data;
     } finally {
@@ -102,6 +108,14 @@
           ok: false,
           base_url: baseUrl,
           error: `Unexpected service: ${service || 'unknown'}`
+        };
+      }
+      if (data?.ok === false) {
+        return {
+          ...data,
+          ok: false,
+          base_url: baseUrl,
+          error: data.error || 'Hardware service reported not ready'
         };
       }
       return {...data, ok: true, base_url: baseUrl};
@@ -208,7 +222,11 @@
 
     const result = await request(endpoint.base_url, '/drawer', {
       method: 'POST',
-      body: meta,
+      body: {
+        ...meta,
+        printer_name: settings.printer_name,
+        paper_width_mm: settings.paper_width_mm
+      },
       timeout: 6000
     });
     return {...result, transport: endpoint.type};
@@ -223,7 +241,7 @@
     return {...result, transport: endpoint.type};
   }
 
-  async function printRaw(base64Data) {
+  async function printRaw(base64Data, options = {}) {
     if (!base64Data) throw new Error('Print data is required');
     const endpoint = await resolveEndpoint('PRINT');
     if (endpoint.type === 'BROWSER') {
@@ -231,12 +249,141 @@
       return {ok: true, transport: 'BROWSER'};
     }
 
+    const settings = getSettings();
     const result = await request(endpoint.base_url, '/print/raw', {
       method: 'POST',
-      body: {data_base64: base64Data},
+      body: {
+        data_base64: base64Data,
+        printer_name: options.printer_name || settings.printer_name,
+        paper_width_mm: options.paper_width_mm || settings.paper_width_mm,
+        job_name: options.job_name || 'TKN RAW PRINT'
+      },
       timeout: 12000
     });
     return {...result, transport: endpoint.type};
+  }
+
+  function bytesToBase64(bytes) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+      binary += String.fromCharCode(
+        ...bytes.subarray(offset, offset + chunkSize)
+      );
+    }
+    return btoa(binary);
+  }
+
+  function buildPrinterTestPayload(options = {}) {
+    const settings = getSettings();
+    const width = Number(options.paper_width_mm || settings.paper_width_mm) === 58
+      ? 58
+      : 80;
+    const printer = String(
+      options.printer_name || settings.printer_name || 'DEFAULT PRINTER'
+    );
+    const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const encoder = new TextEncoder();
+    const text = [
+      'TKN POS ERP',
+      `DRIVER TEST ${width}MM`,
+      `PRINTER: ${printer}`,
+      `TIME: ${timestamp}`,
+      '--------------------------------',
+      'PRINT DRIVER READY',
+      '',
+      '',
+      ''
+    ].join('\n');
+    const body = encoder.encode(text);
+    const initialize = Uint8Array.from([0x1b, 0x40]);
+    const cut = options.cut === false
+      ? new Uint8Array(0)
+      : Uint8Array.from([0x1d, 0x56, 0x42, 0x00]);
+    const payload = new Uint8Array(
+      initialize.length + body.length + cut.length
+    );
+    payload.set(initialize, 0);
+    payload.set(body, initialize.length);
+    payload.set(cut, initialize.length + body.length);
+    return bytesToBase64(payload);
+  }
+
+  function isMissingRoute(error) {
+    return Number(error?.status) === 404
+      || /not found|http 404/i.test(String(error?.message || ''));
+  }
+
+  async function testPrinter(options = {}) {
+    const settings = getSettings();
+    const endpoint = await resolveEndpoint('PRINT');
+    if (endpoint.type === 'BROWSER') {
+      return {
+        ok: true,
+        skipped: true,
+        transport: 'BROWSER',
+        message: 'Browser print test required'
+      };
+    }
+
+    const requestBody = {
+      printer_name: options.printer_name || settings.printer_name,
+      paper_width_mm: options.paper_width_mm || settings.paper_width_mm,
+      cut: options.cut !== false
+    };
+
+    try {
+      const result = await request(endpoint.base_url, '/print/test', {
+        method: 'POST',
+        body: requestBody,
+        timeout: 12000
+      });
+      return {
+        ...result,
+        transport: endpoint.type,
+        test_method: 'PRINT_TEST_ENDPOINT'
+      };
+    } catch (error) {
+      // Hardware Service v1.0 has /print/raw but no /print/test.
+      // Use the existing RAW route so the installed service does not need
+      // to be reinstalled just to perform a driver test.
+      if (isMissingRoute(error)) {
+        try {
+          const rawResult = await request(endpoint.base_url, '/print/raw', {
+            method: 'POST',
+            body: {
+              data_base64: buildPrinterTestPayload(requestBody),
+              printer_name: requestBody.printer_name,
+              paper_width_mm: requestBody.paper_width_mm,
+              job_name: 'TKN DRIVER TEST'
+            },
+            timeout: 12000
+          });
+          return {
+            ...rawResult,
+            ok: true,
+            transport: endpoint.type,
+            compatibility_mode: true,
+            test_method: 'RAW_COMPATIBILITY'
+          };
+        } catch (rawError) {
+          if (
+            isMissingRoute(rawError)
+            && settings.browser_print_fallback
+          ) {
+            return {
+              ok: true,
+              skipped: true,
+              transport: 'BROWSER',
+              compatibility_mode: true,
+              message: 'Bridge does not support print routes; use Browser Print'
+            };
+          }
+          throw rawError;
+        }
+      }
+      throw error;
+    }
   }
 
   async function printReceipt(options = {}) {
@@ -555,6 +702,7 @@
   }
 
   window.TKNHardware = Object.freeze({
+    version: CLIENT_VERSION,
     defaults: DEFAULTS,
     getSettings,
     saveSettings,
@@ -571,6 +719,7 @@
     resolveDrawerJob,
     circuitState,
     printRaw,
+    testPrinter,
     printReceipt
   });
 })();
