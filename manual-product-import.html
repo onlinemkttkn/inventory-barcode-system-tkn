@@ -17,10 +17,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.19.0">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
-  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.19.0">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์นำเข้าสินค้าด้วยตนเอง...">
 <main class="manual-shell">
@@ -35,7 +36,7 @@
       <label>สาขารับเข้า<select id="defaultBranch"></select></label>
       <label>ผู้ขาย/แหล่งที่มา<input id="defaultSupplier" autocomplete="off" placeholder="ชื่อร้านหรือผู้ขาย"></label>
       <label>เลขอ้างอิง<input id="defaultReference" autocomplete="off" placeholder="ใบซื้อ/Tracking/เลขรอบ"></label>
-      <label>กำไรจากทุน (%)<select id="markupPercentSelect" aria-label="เลือกเปอร์เซ็นต์กำไร">
+      <label>กำหนดต้นทุน<select id="markupPercentSelect" aria-label="เลือกเปอร์เซ็นต์กำไร">
           <option value="10">+10%</option>
               <option value="20">+20%</option>
               <option value="30" selected>+30%</option>
@@ -83,6 +84,7 @@
 <script src="./js/auth-guard.js?v=5.6.0"></script>
 <script src="./js/manual-product-import-v5-16.js?v=5.16.0"></script>
 <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.19.0" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

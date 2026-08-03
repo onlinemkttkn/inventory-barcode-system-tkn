@@ -1,0 +1,17 @@
+{
+  "source_version": "5.20.3",
+  "release_version": "5.20.4",
+  "patch_files": 63,
+  "html_pages_total": 56,
+  "target_ui_pages": 28,
+  "target_ui_injected": 28,
+  "app_shell_cache_bust_pages": 56,
+  "manifest_cache_bust_pages": 55,
+  "javascript_checked": 144,
+  "javascript_failures": [],
+  "css_braces_ok": true,
+  "local_references_checked": 871,
+  "missing_local_references": [],
+  "no_sql_in_patch": true,
+  "cost_wording_updated": true
+}

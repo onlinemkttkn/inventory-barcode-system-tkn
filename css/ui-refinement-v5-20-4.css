@@ -1,0 +1,368 @@
+/* TKN POS ERP Final v5.20.4 — Mobile/Tablet UI refinement (UI only, no database changes) */
+:root{
+  --tkn-ui-red:#c8101e;
+  --tkn-ui-red-dark:#8e0c16;
+  --tkn-ui-yellow:#ffc928;
+  --tkn-ui-ink:#21191a;
+  --tkn-ui-muted:#6f6869;
+  --tkn-ui-paper:#fff;
+  --tkn-ui-bg:#f7f3eb;
+  --tkn-ui-line:#eadfd5;
+  --tkn-ui-soft:#f4efea;
+  --tkn-ui-success:#08752c;
+  --tkn-ui-shadow:0 12px 30px rgba(42,24,25,.09);
+}
+
+.tkn-ui-icon{
+  display:inline-grid;
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  place-items:center;
+  vertical-align:middle;
+}
+.tkn-ui-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tkn-ui-icon.is-filled svg{fill:currentColor;stroke:none}
+
+.tkn-ui-detail-btn{
+  display:none;
+  min-height:40px;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:8px 12px;
+  border:1px solid #e0d3c9;
+  border-radius:11px;
+  background:#fff7d8;
+  color:#6a3d00;
+  font:inherit;
+  font-weight:850;
+  cursor:pointer;
+}
+.tkn-ui-detail-btn:hover,.tkn-ui-detail-btn:focus-visible{border-color:#d9a90d;outline:3px solid rgba(255,201,40,.26);outline-offset:1px}
+
+.tkn-ui-detail-dialog{
+  width:min(720px,calc(100vw - 24px));
+  max-width:none;
+  max-height:min(88dvh,880px);
+  padding:0;
+  border:0;
+  border-radius:22px;
+  overflow:hidden;
+  background:#fff;
+  color:var(--tkn-ui-ink);
+  box-shadow:0 28px 80px rgba(0,0,0,.34);
+}
+.tkn-ui-detail-dialog::backdrop{background:rgba(22,14,15,.67);backdrop-filter:blur(4px)}
+.tkn-ui-detail-card{display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:min(88dvh,880px)}
+.tkn-ui-detail-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;background:linear-gradient(120deg,#1d1718,#32191d);color:#fff}
+.tkn-ui-detail-head h2{margin:0;font-size:1.15rem}
+.tkn-ui-detail-close{display:grid;place-items:center;width:42px;height:42px;border:1px solid rgba(255,255,255,.25);border-radius:12px;background:#fff;color:#7d0b14;font:inherit;font-weight:950;cursor:pointer}
+.tkn-ui-detail-body{overflow:auto;padding:16px 18px;background:#fffdf9}
+.tkn-ui-detail-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0}
+.tkn-ui-detail-item{min-width:0;padding:12px 13px;border:1px solid var(--tkn-ui-line);border-radius:14px;background:#fff}
+.tkn-ui-detail-item dt{margin:0 0 5px;color:var(--tkn-ui-muted);font-size:.78rem;font-weight:800}
+.tkn-ui-detail-item dd{margin:0;overflow-wrap:anywhere;font-weight:800;line-height:1.5}
+.tkn-ui-detail-foot{padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--tkn-ui-line);background:#fff}
+.tkn-ui-detail-foot button{width:100%;min-height:46px;border:0;border-radius:12px;background:var(--tkn-ui-red);color:#fff;font:inherit;font-weight:900;cursor:pointer}
+
+/* Common compact controls */
+.tkn-ui-mobile-toolbar{display:grid;gap:10px}
+.tkn-ui-mobile-toolbar input,.tkn-ui-mobile-toolbar select,.tkn-ui-mobile-toolbar button{min-height:46px}
+
+/* Box QR — no horizontal tab hunting and always-visible main action */
+body[data-tkn-page="box-qr-stock.html"] .tabs{scroll-snap-type:none}
+body[data-tkn-page="box-qr-stock.html"] .receive-form .form-primary,
+body[data-tkn-page="box-qr-stock.html"] .box-form .form-primary{z-index:7}
+
+/* Product and inventory hub icon cards */
+.operation-card .tkn-ui-operation-icon{
+  display:grid;
+  width:46px;
+  height:46px;
+  place-items:center;
+  margin-bottom:10px;
+  border-radius:15px;
+  background:linear-gradient(145deg,#fff2b7,var(--tkn-ui-yellow));
+  color:#7c1018;
+  box-shadow:0 7px 18px rgba(141,91,0,.14);
+}
+.operation-card .tkn-ui-operation-icon .tkn-ui-icon{width:25px;height:25px}
+
+/* Report and summary number safety */
+body[data-tkn-page="reports.html"] .stats,
+body[data-tkn-page="phase-9-2-bill-search.html"] .summary-grid{min-width:0}
+body[data-tkn-page="reports.html"] .stat,
+body[data-tkn-page="phase-9-2-bill-search.html"] .summary-card{min-width:0;overflow:hidden}
+body[data-tkn-page="reports.html"] .stat strong,
+body[data-tkn-page="phase-9-2-bill-search.html"] .summary-card strong{
+  display:block;
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  font-variant-numeric:tabular-nums;
+  line-height:1.05;
+}
+
+/* Print labels search bar */
+body[data-tkn-page="print-labels.html"] #searchForm.search-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 112px;
+  align-items:stretch;
+  gap:9px;
+}
+body[data-tkn-page="print-labels.html"] #searchForm.search-row input{min-width:0;width:100%;height:46px;padding:10px 13px!important}
+body[data-tkn-page="print-labels.html"] #searchForm.search-row button{width:100%;min-width:0;height:46px;padding:10px 12px!important}
+
+/* Mobile card table mode. JS marks only the pages/tables that need this. */
+@media(max-width:760px){
+  .tkn-ui-detail-btn{display:inline-flex}
+  .tkn-ui-detail-list{grid-template-columns:1fr}
+
+  table.tkn-mobile-detail-table{display:block!important;min-width:0!important;width:100%!important;border-collapse:separate!important}
+  table.tkn-mobile-detail-table thead{display:none!important}
+  table.tkn-mobile-detail-table tbody{display:grid!important;gap:10px!important;width:100%!important}
+  table.tkn-mobile-detail-table tbody tr{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:7px 10px;
+    width:100%!important;
+    padding:13px;
+    border:1px solid var(--tkn-ui-line);
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 7px 20px rgba(43,27,25,.07);
+  }
+  table.tkn-mobile-detail-table tbody td{
+    display:none!important;
+    min-width:0!important;
+    height:auto!important;
+    padding:0!important;
+    border:0!important;
+    white-space:normal!important;
+    text-align:left!important;
+    overflow-wrap:anywhere;
+  }
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-primary,
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-secondary,
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-action{display:block!important}
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-primary:first-of-type{
+    grid-column:1/-1;
+    padding-bottom:8px!important;
+    border-bottom:1px solid #eee5dd!important;
+    color:var(--tkn-ui-ink);
+    font-weight:900;
+  }
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-primary::before,
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-secondary::before{
+    content:attr(data-label);
+    display:block;
+    margin-bottom:2px;
+    color:var(--tkn-ui-muted);
+    font-size:.68rem;
+    font-weight:750;
+  }
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-action{
+    grid-column:1/-1;
+    display:flex!important;
+    flex-wrap:wrap;
+    gap:8px;
+    padding-top:9px!important;
+    border-top:1px solid #eee5dd!important;
+  }
+  table.tkn-mobile-detail-table tbody td.tkn-mobile-action>*{min-height:40px}
+  table.tkn-mobile-detail-table tbody tr>td[colspan]{display:block!important;grid-column:1/-1;padding:18px!important;text-align:center!important}
+
+  /* Box QR tabs fit in two rows instead of scrolling off-screen. */
+  body[data-tkn-page="box-qr-stock.html"] .tabs{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:7px!important;
+    overflow:visible!important;
+    position:sticky;
+    top:calc(66px + env(safe-area-inset-top));
+    z-index:15;
+    padding:8px 0 10px!important;
+    background:linear-gradient(var(--bq-bg,#f7f3eb) 82%,transparent);
+  }
+  body[data-tkn-page="box-qr-stock.html"] .tabs button{
+    min-width:0!important;
+    min-height:46px!important;
+    padding:8px 5px!important;
+    white-space:normal!important;
+    line-height:1.2;
+    font-size:.78rem;
+  }
+  body[data-tkn-page="box-qr-stock.html"] .tabs button:nth-child(4),
+  body[data-tkn-page="box-qr-stock.html"] .tabs button:nth-child(5){grid-column:span 1}
+  body[data-tkn-page="box-qr-stock.html"] .receive-form,
+  body[data-tkn-page="box-qr-stock.html"] .box-form{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  body[data-tkn-page="box-qr-stock.html"] .receive-form>label:nth-child(3),
+  body[data-tkn-page="box-qr-stock.html"] .receive-form>label:nth-child(4),
+  body[data-tkn-page="box-qr-stock.html"] .receive-form>label:nth-child(7),
+  body[data-tkn-page="box-qr-stock.html"] .box-form>label:nth-child(3){grid-column:1/-1!important}
+  body[data-tkn-page="box-qr-stock.html"] .receive-form .form-primary,
+  body[data-tkn-page="box-qr-stock.html"] .box-form .form-primary{
+    position:sticky;
+    bottom:calc(82px + env(safe-area-inset-bottom));
+    grid-column:1/-1!important;
+    width:100%!important;
+    min-height:52px!important;
+    box-shadow:0 10px 26px rgba(143,13,21,.23)!important;
+  }
+  body[data-tkn-page="box-qr-stock.html"] .panel .actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px!important;
+  }
+  body[data-tkn-page="box-qr-stock.html"] .panel .actions>*{width:100%;min-width:0}
+  body[data-tkn-page="box-qr-stock.html"] #closeBoxBtn{grid-column:1/-1}
+  body[data-tkn-page="box-qr-stock.html"] .camera-input-row{grid-template-columns:minmax(0,1fr) 50px!important}
+  body[data-tkn-page="box-qr-stock.html"] .camera-scan-btn span{display:none}
+  body[data-tkn-page="box-qr-stock.html"] .camera-scan-btn{padding:0!important;min-width:50px!important}
+  body[data-tkn-page="box-qr-stock.html"] .check-scan{grid-template-columns:1fr 52px!important}
+  body[data-tkn-page="box-qr-stock.html"] .check-scan #scanBtn{grid-column:1/-1;width:100%}
+
+  /* Scanner mode icons */
+  body[data-tkn-page="mobile-stock-check.html"] .quick-modes{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  body[data-tkn-page="mobile-stock-check.html"] .mode-btn{min-width:0;padding:12px 7px!important}
+  body[data-tkn-page="mobile-stock-check.html"] .mode-btn>.tkn-ui-icon{width:30px;height:30px;margin:0 auto 6px}
+  body[data-tkn-page="mobile-stock-check.html"] .mode-btn b{font-size:.86rem}
+  body[data-tkn-page="mobile-stock-check.html"] .mode-btn small{font-size:.65rem;line-height:1.25}
+  body[data-tkn-page="mobile-stock-check.html"] .camera-icon{font-size:0!important}
+  body[data-tkn-page="mobile-stock-check.html"] .camera-icon .tkn-ui-icon{width:42px;height:42px;color:#fff}
+  body[data-tkn-page="mobile-stock-check.html"] .bottom-nav span{font-size:0!important}
+  body[data-tkn-page="mobile-stock-check.html"] .bottom-nav .tkn-ui-icon{width:22px;height:22px}
+
+  /* Sales history controls and bill-search controls use full-width primary action. */
+  body[data-tkn-page="sales-history.html"] .card.grid,
+  body[data-tkn-page="phase-9-2-bill-search.html"] .search-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  body[data-tkn-page="sales-history.html"] .card.grid label:nth-child(3),
+  body[data-tkn-page="sales-history.html"] #refresh,
+  body[data-tkn-page="phase-9-2-bill-search.html"] .actions{grid-column:1/-1}
+  body[data-tkn-page="sales-history.html"] #refresh{width:100%;min-height:48px}
+
+  /* Product management: keep useful summary, place details button with actions. */
+  body[data-tkn-page="products-admin.html"] td.actions{grid-template-columns:1fr 1fr 1fr!important}
+  body[data-tkn-page="products-admin.html"] td.actions .tkn-ui-detail-btn{width:100%;padding-inline:8px}
+  body[data-tkn-page="products-admin.html"] .quick-nav{overflow:visible!important}
+
+  /* Print labels search and controls */
+  body[data-tkn-page="print-labels.html"] #searchForm.search-row{grid-template-columns:minmax(0,1fr) 92px!important}
+  body[data-tkn-page="print-labels.html"] #searchForm.search-row button{font-size:.85rem}
+  body[data-tkn-page="print-labels.html"] .action-grid{grid-template-columns:1fr 1fr!important}
+
+  /* Product/inventory hub: all actions visible without horizontal scrolling. */
+  body[data-tkn-page="inventory-operations.html"] .operation-cards{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+    overflow:visible!important;
+  }
+  body[data-tkn-page="inventory-operations.html"] .operation-card{
+    min-width:0!important;
+    min-height:150px;
+    padding:14px!important;
+    align-content:start;
+  }
+  body[data-tkn-page="inventory-operations.html"] .operation-card strong{font-size:.94rem}
+  body[data-tkn-page="inventory-operations.html"] .operation-card span:not(.tkn-ui-operation-icon):not(.tkn-ui-icon){font-size:.72rem;line-height:1.4}
+
+  /* Import/Export toolbar: button cards wrap in two columns, never horizontal-scroll. */
+  body[data-tkn-page="import-export.html"] header .row,
+  body[data-tkn-page="import-export.html"] .top .row{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:100%;
+    gap:8px!important;
+  }
+  body[data-tkn-page="import-export.html"] header .row>*{width:100%;min-width:0}
+
+  /* Bill search summary */
+  body[data-tkn-page="phase-9-2-bill-search.html"] .summary-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  body[data-tkn-page="phase-9-2-bill-search.html"] .summary-card{padding:14px!important;min-height:105px}
+  body[data-tkn-page="phase-9-2-bill-search.html"] .summary-card:last-child{grid-column:1/-1}
+  body[data-tkn-page="phase-9-2-bill-search.html"] .summary-card strong{font-size:clamp(1.45rem,7vw,2.05rem)!important}
+
+  /* Reports: 2-column readable cards, no number collision. */
+  body[data-tkn-page="reports.html"] .stats{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  body[data-tkn-page="reports.html"] .stat{
+    min-height:118px!important;
+    padding:14px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:space-between!important;
+  }
+  body[data-tkn-page="reports.html"] .stat span{font-size:.78rem!important;line-height:1.25!important}
+  body[data-tkn-page="reports.html"] .stat strong{font-size:clamp(1.45rem,7vw,2.05rem)!important;letter-spacing:-.04em!important}
+  body[data-tkn-page="reports.html"] .report-toolbar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  body[data-tkn-page="reports.html"] .report-toolbar .report-control-heading,
+  body[data-tkn-page="reports.html"] .report-toolbar #load,
+  body[data-tkn-page="reports.html"] .report-selected-range,
+  body[data-tkn-page="reports.html"] .report-data-source{grid-column:1/-1}
+
+  /* Dialogs on mobile */
+  body[data-tkn-page="phase-9-2-bill-search.html"] dialog,
+  body[data-tkn-page="reports.html"] dialog{
+    width:100vw!important;
+    max-width:none!important;
+    max-height:100dvh!important;
+    height:100dvh!important;
+    margin:0!important;
+    border-radius:0!important;
+    padding:calc(12px + env(safe-area-inset-top)) 12px calc(92px + env(safe-area-inset-bottom))!important;
+  }
+}
+
+@media(max-width:430px){
+  body[data-tkn-page="box-qr-stock.html"] .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-tkn-page="box-qr-stock.html"] .tabs button:last-child{grid-column:1/-1}
+  body[data-tkn-page="inventory-operations.html"] .operation-cards{grid-template-columns:1fr 1fr!important}
+}
+
+@media(min-width:761px){
+  body[data-tkn-page="reports.html"] .stat strong{font-size:clamp(1.45rem,2.8vw,2.25rem)!important}
+}
+
+@media(max-width:760px){
+  body.tkn-ui-inventory-page .button-row,
+  body.tkn-ui-inventory-page .toolbar,
+  body.tkn-ui-inventory-page .actions,
+  body.tkn-ui-inventory-page .row{
+    max-width:100%;
+    flex-wrap:wrap!important;
+    overflow:visible!important;
+    gap:8px!important;
+  }
+  body.tkn-ui-inventory-page .button-row>button,
+  body.tkn-ui-inventory-page .toolbar>button,
+  body.tkn-ui-inventory-page .actions>button,
+  body.tkn-ui-inventory-page .row>button,
+  body.tkn-ui-inventory-page .row>a{
+    flex:1 1 132px;
+    min-width:0!important;
+  }
+  body.tkn-ui-inventory-page .search-row{
+    max-width:100%;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px!important;
+    overflow:visible!important;
+  }
+  body.tkn-ui-inventory-page .search-row input{min-width:0!important}
+  body.tkn-ui-inventory-page .search-row button{min-width:92px!important}
+  body.tkn-ui-inventory-page .table-wrap,
+  body.tkn-ui-inventory-page .wrap,
+  body.tkn-ui-inventory-page .table-scroll{max-width:100%}
+}
