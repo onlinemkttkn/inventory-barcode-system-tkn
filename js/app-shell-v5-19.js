@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.19.0';
+  const VERSION = '5.20.0';
   const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
@@ -51,6 +51,7 @@
     { key:'dashboard', group:'งานหลัก', label:'หน้าหลัก', short:'หน้าหลัก', href:'./dashboard.html', icon:'home', any:['dashboard.view'], pages:['dashboard.html','dashboard-integrated-phase-9-5-v1-1.html'] },
     { key:'pos', group:'งานหลัก', label:'POS / ขายหน้าร้าน', short:'ขาย', href:'./pos.html', icon:'pos', any:['pos.use'], pages:['pos.html','pos-member.html'] },
     { key:'scan', group:'งานหลัก', label:'สแกน QR / ตรวจสต็อก', short:'สแกน', href:'./mobile-stock-check.html', icon:'scan', any:['inventory.view','inventory.count','product.manage','pos.use'], pages:['mobile-stock-check.html','scanner.html'] },
+    { key:'sortPack', group:'งานหลัก', label:'แยกสินค้า / ปิดกล่อง', short:'แยกสินค้า', href:'./sort-pack-qr.html', icon:'box', any:['product.manage'], pages:['sort-pack-qr.html'] },
     { key:'box', group:'งานหลัก', label:'Box QR / จัดกล่อง', short:'Box QR', href:'./box-qr-stock.html', icon:'box', any:['product.manage'], pages:['box-qr-stock.html'] },
 
     { key:'products', group:'สินค้าและคลัง', label:'จัดการสินค้า', short:'สินค้า', href:'./products-admin.html', icon:'products', any:['product.manage'], pages:['products-admin.html','categories-admin.html','product-stock-admin.html'] },
@@ -80,7 +81,7 @@
 
   const PAGE_NAMES = Object.freeze({
     'dashboard.html':'หน้าหลัก', 'pos.html':'ขายหน้าร้าน', 'pos-member.html':'สมาชิกใน POS',
-    'mobile-stock-check.html':'สแกนตรวจสต็อก', 'scanner.html':'สแกน', 'box-qr-stock.html':'Box QR',
+    'mobile-stock-check.html':'สแกนตรวจสต็อก', 'sort-pack-qr.html':'แยกสินค้าและปิดกล่อง', 'scanner.html':'สแกน', 'box-qr-stock.html':'Box QR',
     'products-admin.html':'จัดการสินค้า', 'categories-admin.html':'หมวดสินค้า', 'product-stock-admin.html':'สต็อกสินค้า',
     'inventory-operations.html':'คลังสินค้า', 'receive.html':'รับสินค้า', 'issue.html':'เบิกสินค้า',
     'transfer-create.html':'สร้างใบโอน', 'transfer-receive.html':'รับโอน', 'transfer-history.html':'ประวัติโอน',
