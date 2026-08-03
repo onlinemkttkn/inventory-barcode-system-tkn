@@ -1,11 +1,11 @@
 {
   "id": "./dashboard.html",
-  "name": "ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี — Final v5.20.1",
+  "name": "ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี — Final v5.20.2",
   "short_name": "เถ้าแก่น้อย ชลบุรี",
   "description": "ระบบ POS, สต็อก, QR, Marketplace และรายงานสำหรับงานภายในองค์กร พร้อมหน้าจอเดียวกันบนมือถือ แท็บเล็ต และคอมพิวเตอร์",
   "lang": "th",
   "dir": "ltr",
-  "start_url": "./dashboard.html?source=pwa&v=5.20.1",
+  "start_url": "./dashboard.html?source=pwa&v=5.20.2",
   "scope": "./",
   "display": "standalone",
   "display_override": [
@@ -87,5 +87,5 @@
       ]
     }
   ],
-  "version": "5.20.1"
+  "version": "5.20.2"
 }

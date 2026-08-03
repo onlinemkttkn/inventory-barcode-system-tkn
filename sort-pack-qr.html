@@ -8,14 +8,14 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css">
-  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-1.css?v=5.20.1">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.20.2">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
     <header class="sp-hero">
       <div class="sp-hero-copy">
-        <small>FINAL v5.20.1 · AUTO CATEGORY</small>
+        <small>FINAL v5.20.2 · MOBILE CAMERA</small>
         <h1>แยกสินค้าและปิดกล่อง</h1>
         <p>สแกน Tracking แล้วระบบอ่านรายการ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมจำหมวดตาม SKU</p>
       </div>
@@ -44,11 +44,19 @@
         </div>
       </div>
       <div class="sp-scan">
+        <button id="openTrackingCameraBtn" type="button" class="sp-camera-scan-btn" aria-haspopup="dialog" aria-controls="trackingCameraDialog">
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M9 4.5 10.2 3h3.6L15 4.5h3A3 3 0 0 1 21 7.5v9A3 3 0 0 1 18 19.5H6a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3h3Zm3 3A4.5 4.5 0 1 0 12 16.5 4.5 4.5 0 0 0 12 7.5Zm0 2A2.5 2.5 0 1 1 12 14.5 2.5 2.5 0 0 1 12 9.5Zm5.5-2.25a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
+          <span>สแกนด้วยกล้อง</span>
+        </button>
         <label class="sp-scan-field">
           <span class="sr-only">Tracking หรือ Order Number</span>
-          <input id="trackingInput" autocomplete="off" inputmode="text" placeholder="สแกนหรือกรอก Tracking / Order Number" autofocus>
+          <input id="trackingInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="สแกนหรือกรอก Tracking / Order Number" autofocus>
         </label>
         <button id="loadTrackingBtn" type="button" class="sp-primary">โหลดรายการ</button>
+      </div>
+      <div class="sp-scan-help" id="trackingScanHelp">
+        <span><b>มือถือ:</b> แตะสแกนด้วยกล้อง</span>
+        <span><b>คอมพิวเตอร์:</b> ใช้เครื่องยิง USB/Bluetooth หรือกรอกเลขแล้วกด Enter</span>
       </div>
       <div class="sp-grid-3">
         <label>แหล่งข้อมูล
@@ -191,8 +199,10 @@
   <script src="./js/vendor/tkn-qrcode-local-v5.16.4.js"></script>
   <script src="./js/supabase-config.js"></script>
   <script src="./js/auth-guard.js"></script>
-  <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.1"></script>
-  <script src="./js/sort-pack-qr-v5-20-1.js?v=5.20.1"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.1" defer></script>
+  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+  <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
+  <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.2"></script>
+  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.20.2"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.20.2" defer></script>
 </body>
 </html>
