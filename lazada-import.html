@@ -28,7 +28,7 @@
   <main class="shopee-shell">
     <header class="hero-card">
       <div class="hero-copy">
-        <span class="eyebrow">TKN POS ERP · Lazada Workspace Final v5.19.0</span>
+        <span class="eyebrow">TKN POS ERP · Lazada Workspace Final v5.19.1</span>
         <h1>แยกหมวดและทยอยอัปเดตราคา</h1>
         <p>นำเข้าไฟล์ Lazada แบบ CSV แยกจาก Shopee รองรับรายการปกติและงานคืนสินค้า เลือกหมวด กรอกราคา และทยอยอัปเดตโดยไม่แตะยอดสต็อกเดิม</p>
       </div>
@@ -52,7 +52,7 @@
         <div>
           <span class="section-kicker">ขั้นตอนที่ 1</span>
           <h2>เลือกไฟล์ CSV จาก Lazada</h2>
-          <p>ต้องมี Tracking หรือ Order Number, Seller SKU/SKU และชื่อสินค้า ส่วนจำนวนจะใช้ 1 เมื่อเว้นว่าง และหมวดหลัก/หมวดย่อยใส่ภายหลังได้</p>
+          <p>รองรับไฟล์ Order Export และ Return Center ของ Lazada โดยอ่าน Inbound Tracking Number, Customer Order Number, SKU และ Product Name ได้อัตโนมัติ ส่วนจำนวนจะใช้ 1 เมื่อไฟล์ไม่มีคอลัมน์จำนวน</p>
         </div>
         <div class="button-row">
           <button id="downloadTemplateBtn" class="btn btn-secondary" type="button">ดาวน์โหลด Template Lazada</button>
@@ -63,8 +63,8 @@
       <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="เลือกไฟล์ CSV">
         <div class="drop-icon" aria-hidden="true">⇧</div>
         <strong>ลากไฟล์ CSV มาวาง หรือแตะเพื่อเลือกไฟล์</strong>
-        <span>อัปโหลดครั้งเดียว ระบบจะเก็บข้อมูลและราคาที่ทยอยกรอกไว้ในเครื่องนี้</span>
-        <input id="sourceFileInput" type="file" accept=".csv,text/csv" hidden>
+        <span>รองรับ CSV UTF-8/UTF-16 และไฟล์ Return Center ขนาดใหญ่ ระบบจะเก็บข้อมูลและราคาที่ทยอยกรอกไว้ในเครื่องนี้</span>
+        <input id="sourceFileInput" type="file" accept=".csv,text/csv,application/vnd.ms-excel" hidden>
       </div>
 
       <div class="file-strip">
@@ -202,7 +202,7 @@
 
       <section id="priceBulkTools" class="price-bulk-card" aria-label="คำนวณราคาขายหลายรายการ">
         <div class="price-bulk-head">
-          <div><span class="section-kicker">เครื่องมือคำนวณราคา Final v5.19.0</span><h3>บวก VAT และกำไรจากต้นทุนครั้งเดียว</h3><p>คำนวณเป็นราคาขายร่างก่อน ตรวจสอบและแก้ตัวเลขในตารางได้ แล้วจึงกดยืนยันอัปเดตเข้าระบบจริง</p></div>
+          <div><span class="section-kicker">เครื่องมือคำนวณราคา Final v5.19.1</span><h3>บวก VAT และกำไรจากต้นทุนครั้งเดียว</h3><p>คำนวณเป็นราคาขายร่างก่อน ตรวจสอบและแก้ตัวเลขในตารางได้ แล้วจึงกดยืนยันอัปเดตเข้าระบบจริง</p></div>
           <span class="price-bulk-badge">ยังไม่แตะสต็อก</span>
         </div>
 <div class="price-bulk-grid">
@@ -344,7 +344,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
-  <script src="./js/lazada-import.js?v=5.15.0"></script>
+  <script src="./js/lazada-import-v5-19-1.js?v=5.19.1"></script>
   <script src="./js/price-bulk-tools-v5-16.js?v=5.16.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/app-shell-v5-19.js?v=5.19.0" defer></script>

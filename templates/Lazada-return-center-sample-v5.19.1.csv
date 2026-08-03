@@ -1,0 +1,2 @@
+﻿Inbound Tracking Number,Customer Order Number,SKU,Status,Product Name,Product unit price,LZD Return type,QC Result,Item Category Name
+SSLT-DEMO-0001,ORDER-DEMO-0001,SKU-DEMO-001,handover,สินค้าตัวอย่าง,100.00,customer_return,pass,ตัวอย่างสินค้า
