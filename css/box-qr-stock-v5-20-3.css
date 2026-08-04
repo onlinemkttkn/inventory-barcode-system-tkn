@@ -53,6 +53,9 @@ button{touch-action:manipulation}
 .actions button{background:#f0eeee;color:#2a2324;border:1px solid #e6dddd}
 .actions button:hover,.actions button:focus-visible{border-color:#cdbcbc;background:#e9e4e4}
 .actions .action-emphasis{background:var(--bq-yellow);color:#241500;border-color:#e9b400}
+.actions .danger-outline,.row-delete{color:#b91c1c;border-color:#fecaca;background:#fff5f5}
+.actions .danger-outline:hover,.row-delete:hover{background:#fee2e2}
+.row-delete{min-height:36px;padding:7px 12px;white-space:nowrap}
 .table{overflow:auto;border:1px solid #eee4df;border-radius:14px}
 table{width:100%;border-collapse:collapse;background:#fff}
 th,td{padding:11px 10px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}

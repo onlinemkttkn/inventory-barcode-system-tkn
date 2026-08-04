@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "5.23.0";
+  const VERSION = "5.23.1";
   const LABEL_PROFILES = {
     "30x20": { width: 30, height: 20, qr: 8, barcode: 3.5, font: 5.5, lines: 1 },
     "32x25": { width: 32, height: 25, qr: 10, barcode: 4.5, font: 6, lines: 1 },
@@ -228,7 +228,7 @@
   async function syncReceiptToCloud(receipt, product) {
     try {
       const sessionId = await ensureCloudSession();
-      const { error } = await supabaseClient.from("marketplace_receiving_items").insert({
+      const { data, error } = await supabaseClient.from("marketplace_receiving_items").insert({
         session_id: sessionId,
         tracking_number: receipt.tracking || null,
         order_number: receipt.tracking || null,
@@ -239,8 +239,10 @@
         good_qty: receipt.good,
         condition_status: receipt.condition,
         created_by: S.userId,
-      });
+      }).select("id").single();
       if (error) throw error;
+      receipt.cloudId = data?.id || null;
+      save(false);
       return true;
     } catch (error) {
       console.warn("Receipt kept locally:", error);
@@ -265,7 +267,7 @@
 
   async function syncReceiptToBranchStock(receipt, product) {
     if (!receipt.good) return { ok: true, skipped: true };
-    const branchId = $("receiveBranch")?.value;
+    const branchId = receipt.branch_id || $("receiveBranch")?.value;
     if (!branchId) return { ok: false, error: "กรุณาเลือกสาขารับสินค้า" };
     if (!product.id) return { ok: false, error: "สินค้านี้ยังไม่มีรหัสในฐานข้อมูล จึงยังเพิ่มสต็อกไม่ได้" };
     try {
@@ -319,6 +321,7 @@
       sku: product.product_code, name: product.name, barcode: product.barcode || product.product_code,
       product_id: product.id || null, cost_price: Number(product.cost_price || 0), selling_price: Number(product.selling_price || 0),
       costMaskLetter: costLetter(product.product_code), boxes, piecesPerBox, loosePieces,
+      branch_id: $("receiveBranch")?.value || null,
       expected, actual, condition, good, at: now(),
     };
     S.receipts.unshift(receipt);
@@ -340,6 +343,88 @@
     }
     await loadCloudStats();
     $("receiveSku").focus();
+  }
+
+  async function reverseReceipt(receipt) {
+    if (S.boxItems.some((item) => item.sku === receipt.sku)) {
+      throw new Error(`SKU ${receipt.sku} อยู่ในกล่อง กรุณานำออกจากกล่องก่อนลบรายการตรวจรับ`);
+    }
+    if (Number(receipt.good || 0) > 0) {
+      const branchId = receipt.branch_id || $("receiveBranch")?.value;
+      if (!receipt.product_id || !branchId) {
+        throw new Error(`SKU ${receipt.sku} ไม่มีข้อมูลสาขาหรือรหัสสินค้า จึงย้อนสต็อกอัตโนมัติไม่ได้`);
+      }
+      const { error } = await supabaseClient.rpc("issue_branch_inventory", {
+        p_branch_id: branchId,
+        p_items: [{ product_id: receipt.product_id, quantity: Number(receipt.good), note: `ยกเลิกรับผ่าน Box QR ${receipt.id}` }],
+        p_requester_name: S.user || "Box QR",
+        p_department: "คลังสินค้า",
+        p_reference_no: receipt.id,
+        p_notes: `ย้อนรายการตรวจรับ ${receipt.sku} จำนวน ${receipt.good} ชิ้น`,
+        p_idempotency_key: `box-qr-receive-reverse:${receipt.id}`,
+      });
+      if (error) throw error;
+    }
+    if (receipt.cloudId) {
+      const { error } = await supabaseClient.from("marketplace_receiving_items").delete().eq("id", receipt.cloudId);
+      if (error) console.warn("Receipt cloud row was not deleted:", error);
+    }
+  }
+
+  async function deleteReceiptById(receiptId, ask = true) {
+    const receipt = S.receipts.find((row) => row.id === receiptId);
+    if (!receipt) return;
+    if (ask && !confirm(`ลบรายการ ${receipt.sku} และย้อนสต็อก ${receipt.good || 0} ชิ้นหรือไม่?`)) return;
+    try {
+      await reverseReceipt(receipt);
+      S.receipts = S.receipts.filter((row) => row.id !== receipt.id);
+      audit("RECEIVE_DELETE", receipt.sku, `ลบรายการและย้อนสต็อก ${receipt.good || 0} ชิ้น`);
+      save();
+      await loadCloudStats();
+      msg(`ลบ ${receipt.sku} และย้อนสต็อกเรียบร้อย`, "success");
+    } catch (error) {
+      msg(error.message || "ลบรายการไม่สำเร็จ", "error");
+    }
+  }
+
+  async function clearReceipts() {
+    if (!S.receipts.length) return msg("ไม่มีรายการตรวจรับให้ล้าง", "error");
+    if (!confirm(`ล้างรายการตรวจรับ ${S.receipts.length} รายการและย้อนสต็อกทั้งหมดหรือไม่?`)) return;
+    const rows = [...S.receipts];
+    try {
+      for (const receipt of rows) await reverseReceipt(receipt);
+      S.receipts = [];
+      audit("RECEIVE_CLEAR", S.session.id, `ล้าง ${rows.length} รายการและย้อนสต็อกแล้ว`);
+      save();
+      await loadCloudStats();
+      msg("ล้างรายการตรวจรับและย้อนสต็อกเรียบร้อย", "success");
+    } catch (error) {
+      msg(`หยุดการล้างรายการ: ${error.message || error}`, "error");
+    }
+  }
+
+  function installUsbScanner() {
+    let buffer = "";
+    let lastKeyAt = 0;
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return;
+      const at = Date.now();
+      if (at - lastKeyAt > 120) buffer = "";
+      lastKeyAt = at;
+      if (event.key === "Enter") {
+        const value = buffer.trim();
+        buffer = "";
+        if (!value) return;
+        event.preventDefault();
+        const active = document.querySelector(".panel.active")?.id;
+        if (active === "receive") { $("receiveSku").value = value; void receive(); }
+        else if (active === "box") { $("boxSku").value = value; void addBox(); }
+        else if (active === "check") { $("scanCode").value = value; void scan(); }
+        return;
+      }
+      if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) buffer += event.key;
+    });
   }
 
   async function addBox() {
@@ -866,8 +951,8 @@
       const boxes = Number(row.boxes ?? 0);
       const piecesPerBox = Number(row.piecesPerBox ?? row.actual ?? 1);
       const loosePieces = Number(row.loosePieces ?? 0);
-      return `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${boxes}</td><td>${piecesPerBox}</td><td>${loosePieces}</td><td><b>${row.actual}</b></td><td>${esc(row.condition)}</td></tr>`;
-    }).join("") || '<tr><td colspan="8">ยังไม่มีรายการ</td></tr>';
+      return `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${boxes}</td><td>${piecesPerBox}</td><td>${loosePieces}</td><td><b>${row.actual}</b></td><td>${esc(row.condition)}</td><td><button type="button" class="row-delete" data-delete-receipt="${esc(row.id)}">ลบ</button></td></tr>`;
+    }).join("") || '<tr><td colspan="9">ยังไม่มีรายการ</td></tr>';
     $("boxRows").innerHTML = S.boxItems.map((item, index) => `<tr><td>${esc(item.sku)}</td><td>${esc(item.name)}</td>
       <td><input class="box-qty-input" data-box-qty="${esc(item.sku)}" type="number" min="1" value="${item.qty}" ${S.box.status !== "DRAFT" ? "disabled" : ""}></td>
       <td><span class="count-status ${Number(S.counts[item.sku]) === Number(item.qty) ? "ok" : "bad"}">${Number(S.counts[item.sku]) === Number(item.qty) ? "นับตรง" : "รอตรวจนับ"}</span></td>
@@ -1088,7 +1173,11 @@
       audit("SESSION_NEW", S.session.id, S.session.source);
       save();
     });
-    bind("queueProductQrBtn", "click", queueProducts);
+    bind("clearReceiptsBtn", "click", () => { void clearReceipts(); });
+    bind("receiveRows", "click", (event) => {
+      const button = event.target instanceof Element ? event.target.closest("[data-delete-receipt]") : null;
+      if (button) void deleteReceiptById(button.dataset.deleteReceipt);
+    });
     bind("newBoxBtn", "click", () => {
       newBox();
       S.counts = {};
@@ -1108,6 +1197,7 @@
     bind("receiveSku", "keydown", (event) => { if (event.key === "Enter") void receive(); });
     ["receiveBoxQty", "piecesPerBox", "loosePieces"].forEach((id) => bind(id, "input", updateReceiveTotal));
     bind("boxSku", "keydown", (event) => { if (event.key === "Enter") void addBox(); });
+    installUsbScanner();
     bind("boxRows", "click", (event) => {
       const target = event.target instanceof Element ? event.target.closest("[data-remove]") : null;
       const index = target?.dataset?.remove;
