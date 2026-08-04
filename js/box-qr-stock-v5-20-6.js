@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "5.23.2";
+  const VERSION = "5.23.3";
   const LABEL_PROFILES = {
     "30x20": { width: 30, height: 20, qr: 8, barcode: 3.5, font: 5.5, lines: 1 },
     "32x25": { width: 32, height: 25, qr: 10, barcode: 4.5, font: 6, lines: 1 },
@@ -325,7 +325,8 @@
     const boxes = Math.max(0, Math.floor(Number($("receiveBoxQty").value) || 0));
     const piecesPerBox = Math.max(1, Math.floor(Number($("piecesPerBox").value) || 1));
     const loosePieces = Math.max(0, Math.floor(Number($("loosePieces").value) || 0));
-    const actual = (boxes * piecesPerBox) + loosePieces;
+    const calculatedTotal = (boxes * piecesPerBox) + loosePieces;
+    const actual = Math.max(1, Math.floor(Number($("receiveTotalPieces")?.value) || calculatedTotal));
     if (actual <= 0) return msg("กรุณาระบุจำนวนกล่องหรือเศษสินค้าอย่างน้อย 1 ชิ้น", "error");
     const expected = boxes * piecesPerBox;
     const condition = $("condition").value;
@@ -351,6 +352,9 @@
       syncReceiptToCloud(receipt, product),
       syncReceiptToBranchStock(receipt, product),
     ]);
+    receipt.cloudSynced = Boolean(synced);
+    receipt.stockSynced = Boolean(stockResult.ok && !stockResult.skipped);
+    save(false);
     if (synced && stockResult.ok) {
       msg(condition === "GOOD" ? `รับเข้า ${actual} ชิ้นและอัปเดตสต็อกสาขาแล้ว` : `บันทึกสินค้า ${actual} ชิ้นไว้ตรวจสอบ โดยยังไม่เพิ่มสต็อกพร้อมขาย`, "success");
     } else {
@@ -364,7 +368,8 @@
     if (S.boxItems.some((item) => item.sku === receipt.sku)) {
       throw new Error(`SKU ${receipt.sku} อยู่ในกล่อง กรุณานำออกจากกล่องก่อนลบรายการตรวจรับ`);
     }
-    if (Number(receipt.good || 0) > 0) {
+    const legacyStockWasLikelySynced = receipt.stockSynced == null && Boolean(receipt.product_id && receipt.branch_id);
+    if (Number(receipt.good || 0) > 0 && (receipt.stockSynced === true || legacyStockWasLikelySynced)) {
       const branchId = receipt.branch_id || $("receiveBranch")?.value;
       if (!receipt.product_id || !branchId) {
         throw new Error(`SKU ${receipt.sku} ไม่มีข้อมูลสาขาหรือรหัสสินค้า จึงย้อนสต็อกอัตโนมัติไม่ได้`);
@@ -416,6 +421,14 @@
     } catch (error) {
       msg(`หยุดการล้างรายการ: ${error.message || error}`, "error");
     }
+  }
+
+  function clearAuditHistory() {
+    if (!S.audit.length) return msg("ไม่มีประวัติในเครื่องให้ล้าง", "error");
+    if (!confirm(`ล้างประวัติในเครื่อง ${S.audit.length} รายการหรือไม่?`)) return;
+    S.audit = [];
+    save();
+    msg("ล้างประวัติในเครื่องแล้ว", "success");
   }
 
   function installUsbScanner() {
@@ -913,16 +926,8 @@
       // prevents another user's pending labels from keeping this counter non-zero.
       if (S.userId) printQueueQuery = printQueueQuery.eq("requested_by", S.userId);
 
-      const [sessions, drafts, closed, queue] = await Promise.all([
-        supabaseClient.from("marketplace_receiving_sessions").select("id", { count: "exact", head: true }),
-        supabaseClient.from("stock_boxes").select("id", { count: "exact", head: true }).eq("status", "DRAFT"),
-        supabaseClient.from("stock_boxes").select("id", { count: "exact", head: true }).eq("status", "CLOSED"),
-        printQueueQuery,
-      ]);
+      const queue = await printQueueQuery;
       S.cloudStats = {
-        sessions: sessions.count || 0,
-        drafts: drafts.count || 0,
-        closed: closed.count || 0,
         print: (queue.data || []).reduce((sum, row) => sum + Number(row.copies || 1), 0),
       };
       renderStats();
@@ -970,10 +975,33 @@
     }
   }
 
+  async function markPrintQueueCompleted() {
+    const copies = S.queue.reduce((sum, row) => sum + Math.max(1, Number(row.qty) || 1), 0);
+    if (!copies) return;
+    S.queue = [];
+    if (S.cloudStats) S.cloudStats.print = 0;
+    audit("PRINT_COMPLETED", S.userId || S.user, `ยืนยันพิมพ์สำเร็จ ${copies} ฉลาก`);
+    save();
+    try {
+      if (S.userId) {
+        const { error } = await supabaseClient.from("label_print_queue")
+          .update({ status: "PRINTED" })
+          .eq("status", "PENDING")
+          .eq("requested_by", S.userId);
+        if (error) throw error;
+      }
+      await loadCloudStats();
+      msg(`ตัดคิวที่พิมพ์สำเร็จแล้ว ${copies} ฉลาก`, "success");
+    } catch (error) {
+      console.warn("Print completion sync failed:", error);
+      msg("ตัดคิวในเครื่องแล้ว แต่ปรับสถานะคิวส่วนกลางไม่สำเร็จ", "error");
+    }
+  }
+
   function renderStats() {
-    $("sessionCount").textContent = S.cloudStats?.sessions ?? (S.session ? 1 : 0);
-    $("draftBoxCount").textContent = S.cloudStats?.drafts ?? (S.box?.status === "DRAFT" ? 1 : 0);
-    $("closedBoxCount").textContent = S.cloudStats?.closed ?? (S.box?.status === "CLOSED" ? 1 : 0);
+    $("sessionCount").textContent = new Set(S.receipts.map((row) => row.sku).filter(Boolean)).size;
+    $("draftBoxCount").textContent = S.boxItems.length;
+    $("closedBoxCount").textContent = S.boxItems.reduce((sum, item) => sum + Number(item.qty || 0), 0);
     const pendingLocalCopies = (Array.isArray(S.queue) ? S.queue : [])
       .filter((row) => row?.pendingSync === true)
       .reduce((sum, row) => sum + Math.max(1, Number(row.qty) || 1), 0);
@@ -1009,7 +1037,7 @@
     const boxes = Math.max(0, Math.floor(Number($("receiveBoxQty")?.value) || 0));
     const piecesPerBox = Math.max(1, Math.floor(Number($("piecesPerBox")?.value) || 1));
     const loosePieces = Math.max(0, Math.floor(Number($("loosePieces")?.value) || 0));
-    if ($("receiveTotalPieces")) $("receiveTotalPieces").textContent = `${(boxes * piecesPerBox) + loosePieces} ชิ้น`;
+    if ($("receiveTotalPieces")) $("receiveTotalPieces").value = String((boxes * piecesPerBox) + loosePieces);
   }
 
   function readLabelSettings() {
@@ -1214,6 +1242,7 @@
       save();
     });
     bind("clearReceiptsBtn", "click", () => { void clearReceipts(); });
+    bind("clearAuditBtn", "click", clearAuditHistory);
     bind("receiveRows", "click", (event) => {
       const button = event.target instanceof Element ? event.target.closest("[data-delete-receipt]") : null;
       if (button) void deleteReceiptById(button.dataset.deleteReceipt);
@@ -1262,6 +1291,9 @@
     bind("printAllBtn", "click", () => {
       if (!Array.isArray(S.queue) || !S.queue.length) return msg("ยังไม่มี QR ในคิวพิมพ์", "error");
       window.print();
+      window.setTimeout(() => {
+        if (confirm("พิมพ์ฉลากสำเร็จแล้วหรือไม่? กดตกลงเพื่อตัดรายการออกจากคิวพิมพ์")) void markPrintQueueCompleted();
+      }, 300);
     });
     bind("retryQrBtn", "click", async () => {
       msg("กำลังตรวจและสร้าง QR ใหม่...");
