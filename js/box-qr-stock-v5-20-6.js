@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "5.23.1";
+  const VERSION = "5.23.2";
   const LABEL_PROFILES = {
     "30x20": { width: 30, height: 20, qr: 8, barcode: 3.5, font: 5.5, lines: 1 },
     "32x25": { width: 32, height: 25, qr: 10, barcode: 4.5, font: 6, lines: 1 },
@@ -108,6 +108,21 @@
   const hiddenCostSku = (item) => Number(item?.cost_price || 0) > 0
     ? `${item.sku}-${item.costMaskLetter || costLetter(item.sku)}${compactCost(item.cost_price)}`
     : String(item?.sku || "");
+
+  function boxLabelItem(pendingSync = true) {
+    const skuCount = S.boxItems.length;
+    const pieceCount = S.boxItems.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    const location = S.box?.location ? ` · ${S.box.location}` : "";
+    return {
+      type: "BOX",
+      code: S.box.id,
+      sku: S.box.id,
+      barcode: S.box.id,
+      name: `กล่อง ${S.box.id} · ${skuCount} SKU · ${pieceCount} ชิ้น${location}`,
+      qty: 1,
+      pendingSync,
+    };
+  }
 
   function msg(text, kind = "") {
     $("message").textContent = text;
@@ -459,7 +474,7 @@
     }
     S.box.status = "CLOSED";
     S.box.location = $("location").value.trim();
-    enqueueLabel({ type: "BOX", code: S.box.id, sku: S.box.id, barcode: S.box.id, name: `กล่อง ${S.box.id}`, qty: 1, pendingSync: true });
+    enqueueLabel(boxLabelItem(true));
     audit("BOX_CLOSE", S.box.id, `รวม ${S.boxItems.reduce((sum, item) => sum + item.qty, 0)} ชิ้น`);
     save();
     let queueSynced = false;
@@ -729,10 +744,33 @@
     host.innerHTML = `<canvas aria-label="QR กล่อง ${esc(S.box.id)}"></canvas><strong>${esc(S.box.id)}</strong><small>${S.boxItems.length} SKU · ${S.boxItems.reduce((s, i) => s + Number(i.qty || 0), 0)} ชิ้น</small>`;
     try {
       const canvas = host.querySelector("canvas");
+      const ready = await (window.TKNQRHealth?.wait?.(2500) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas || window.TKNQR?.toCanvas)));
       const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
-      if (typeof toCanvas !== "function") throw new Error("QR engine unavailable");
+      if (!ready || typeof toCanvas !== "function") throw new Error(window.TKNQRHealth?.errorText?.() || "QR engine unavailable");
       await toCanvas(canvas, S.box.id, { width: 240, margin: 2, errorCorrectionLevel: "M" });
     } catch (error) { host.insertAdjacentHTML("beforeend", `<em>สร้าง QR ไม่สำเร็จ: ${esc(error.message)}</em>`); }
+  }
+
+  async function queueAndShowBoxLabel() {
+    if (!S.boxItems.length) return msg("กล่องยังไม่มีสินค้า", "error");
+    if (S.box.status !== "CLOSED") return msg("กรุณาตรวจนับและปิดกล่องก่อนสร้างฉลากกล่อง", "error");
+    enqueueLabel(boxLabelItem(true));
+    save(false);
+    try {
+      await supabaseClient.from("label_print_queue").update({ status: "CLEARED" })
+        .eq("status", "PENDING").eq("requested_by", S.userId).eq("reference_code", S.box.id);
+      const { error } = await supabaseClient.from("label_print_queue").insert({
+        label_type: "BOX", reference_code: S.box.id, copies: 1,
+        status: "PENDING", requested_by: S.userId,
+      });
+      if (error) throw error;
+      await loadCloudPrintQueue();
+    } catch (error) {
+      console.warn("Box label remains local:", error);
+      render();
+    }
+    activateTab("print");
+    msg("สร้างฉลากกล่อง QR + Code 128 พร้อมพิมพ์แล้ว", "success");
   }
 
   async function syncCurrentBoxSnapshot() {
@@ -826,7 +864,9 @@
           code: codeValue,
           sku,
           barcode: product?.barcode || sku || codeValue,
-          name: type === "BOX" ? `กล่อง ${codeValue}` : (product?.name || sku || codeValue),
+          name: type === "BOX"
+            ? (codeValue === S.box?.id ? boxLabelItem(false).name : `กล่อง ${codeValue}`)
+            : (product?.name || sku || codeValue),
           cost_price: Number(product?.cost_price || 0),
           costMaskLetter: costLetter(sku),
           qty: Math.max(1, Number(row.copies) || 1),
@@ -1188,6 +1228,7 @@
     bind("addReceivedToBoxBtn", "click", () => { void addReceivedToBox(); });
     bind("addBoxItemBtn", "click", addBox);
     bind("closeBoxBtn", "click", closeBox);
+    bind("printBoxLabelBtn", "click", () => { void queueAndShowBoxLabel(); });
     bind("openBoxBtn", "click", openBox);
     bind("scanBtn", "click", scan);
     bind("receiveProductCameraBtn", "click", () => { void openCamera("receive-product"); });

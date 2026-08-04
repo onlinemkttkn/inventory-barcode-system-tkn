@@ -19,13 +19,13 @@
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.8">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
   <link rel="stylesheet" href="./css/box-qr-preview-v5-20-6.css?v=5.20.8">
-  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.23.1">
+  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.23.2">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.23.1</small>
+        <small>TKN POS ERP · Box QR · Final v5.23.2</small>
         <h1>จัดกล่องและตรวจสต็อกด้วย QR</h1>
         <p>รับสินค้าเป็นกล่อง บันทึกสต็อกเป็นชิ้น พร้อมจัดกล่องและสร้าง QR ในหน้าเดียว</p>
       </div>
@@ -145,7 +145,8 @@
     <section id="finalize" class="panel">
       <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 5</span><h2>ปิดกล่องและสร้าง QR กล่อง</h2></div><p>ปิดได้เมื่อจำนวนตรวจนับตรงทุกรายการ</p></div>
       <div id="finalBoxSummary" class="final-box-summary"></div>
-      <div class="actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button></div>
+      <div class="actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button><button id="printBoxLabelBtn" type="button" class="action-emphasis">สร้าง/พิมพ์ฉลาก QR กล่อง</button></div>
+      <p class="qr-primary-note">ฉลากกล่องใช้รูปแบบเดียวกับฉลากสินค้า: QR กล่อง · Barcode Code 128 · รหัสกล่อง · จำนวน SKU/ชิ้น และตำแหน่งจัดเก็บ</p>
       <div id="finalBoxQr" class="final-box-qr"></div>
     </section>
 
@@ -163,9 +164,9 @@
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
-  <script src="./js/box-qr-stock-v5-20-6.js?v=5.23.1"></script>
+  <script src="./js/box-qr-stock-v5-20-6.js?v=5.23.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.23.1" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.23.2" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 </body>
 </html>
