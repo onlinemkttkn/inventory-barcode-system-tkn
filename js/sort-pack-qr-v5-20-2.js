@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.21.1';
+  const VERSION = '5.22.0';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -27,6 +27,7 @@
     selectedIds: [],
     expandedIds: [],
     categories: CATEGORIES,
+    labelSettings: { preset: '40x30', width: 40, height: 30, orientation: 'PORTRAIT', columns: 1, margin: 0, gap: 0, qr: 20, font: 9, showName: true },
   };
 
   let persistTimer = null;
@@ -49,8 +50,9 @@
     const amount = Math.round(Number(value || 0) * 100) / 100;
     return Number.isInteger(amount) ? String(amount) : amount.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
   };
+  const randomLetter = () => String.fromCharCode(65 + Math.floor(Math.random() * 26));
   const skuWithHiddenCost = (item) => item?.hasCost
-    ? `${String(item.sku || '').trim()}-${compactCost(item.unitCost)}`
+    ? `${String(item.sku || '').trim()}-${item.costMaskLetter || 'X'}${compactCost(item.unitCost)}`
     : String(item?.sku || '').trim();
   const unique = (values) => [...new Set(values.filter(Boolean))];
 
@@ -88,6 +90,7 @@
       status: item.status || 'PENDING',
       labelQueued: Boolean(item.labelQueued),
       productId: item.productId || null,
+      costMaskLetter: /^[A-Z]$/.test(String(item.costMaskLetter || '').toUpperCase()) ? String(item.costMaskLetter).toUpperCase() : '',
     };
   }
 
@@ -100,10 +103,12 @@
       state.categories = CATEGORIES;
       state.items = Array.isArray(stored?.items) ? stored.items.map(migrateItem) : [];
       state.labelQueue = Array.isArray(stored?.labelQueue) ? stored.labelQueue.map(migrateItem) : [];
+      state.labelQueue.forEach((item) => { if (item.hasCost && !item.costMaskLetter) item.costMaskLetter = randomLetter(); });
       if (stored?.box?.items) stored.box.items = stored.box.items.map(migrateItem);
       state.box = stored?.box || null;
       state.selectedIds = Array.isArray(stored?.selectedIds) ? stored.selectedIds : [];
       state.expandedIds = [];
+      state.labelSettings = { ...state.labelSettings, ...(stored?.labelSettings || {}) };
       state.pageSize = [10, 25, 50, 100].includes(Number(stored?.pageSize)) ? Number(stored.pageSize) : 25;
       if (!localStorage.getItem(STATE_KEY)) saveState();
     } catch (error) {
@@ -916,6 +921,7 @@
 
   function queueItem(item) {
     if (!itemReadyForQueue(item)) return false;
+    if (!item.costMaskLetter) item.costMaskLetter = randomLetter();
     item.labelQueued = true;
     const snapshot = cloneItem(item);
     const queueIndex = state.labelQueue.findIndex((row) => row.id === item.id);
@@ -960,6 +966,7 @@
     </article>`).join('') || '<div class="sp-empty">ยังไม่มีสินค้าในกล่อง</div>';
 
     const units = labelUnits();
+    applyLabelSettings(false);
     $('labelCount').textContent = String(units.length);
     $('labelPreview').innerHTML = units.map(({ item, index, quantity }) => `<article class="sp-label" data-label="${esc(item.id)}" data-unit="${index}">
       <canvas></canvas>
@@ -975,12 +982,75 @@
       const canvas = element.querySelector('canvas');
       if (!item || !canvas) return;
       try {
-        if (window.TKNQRCode?.toCanvas) window.TKNQRCode.toCanvas(canvas, `TKN-P-${item.sku}`, { width: 160, margin: 1 });
-        else window.QRCode?.toCanvas?.(canvas, `TKN-P-${item.sku}`, { width: 160, margin: 1 });
+        const pixelSize = Math.max(64, Math.round(Number(state.labelSettings?.qr || 20) * 3.78));
+        if (window.TKNQRCode?.toCanvas) window.TKNQRCode.toCanvas(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1 });
+        else window.QRCode?.toCanvas?.(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1 });
       } catch (error) {
         console.warn('สร้าง QR สินค้าไม่สำเร็จ:', error);
       }
     });
+  }
+
+  function readLabelSettings() {
+    const preset = $('labelSizePreset')?.value || '40x30';
+    return {
+      preset,
+      width: Math.max(20, numberValue($('labelWidthMm')?.value, 40)),
+      height: Math.max(15, numberValue($('labelHeightMm')?.value, 30)),
+      orientation: $('labelOrientation')?.value || 'PORTRAIT',
+      columns: Math.max(1, Math.min(5, Math.round(numberValue($('labelColumns')?.value, 1)))),
+      margin: Math.max(0, numberValue($('labelMarginMm')?.value, 0)),
+      gap: Math.max(0, numberValue($('labelGapMm')?.value, 0)),
+      qr: Math.max(12, numberValue($('labelQrMm')?.value, 20)),
+      font: Math.max(7, numberValue($('labelFontPx')?.value, 9)),
+      showName: Boolean($('labelShowName')?.checked),
+    };
+  }
+
+  function applyLabelSettings(save = true) {
+    if ($('labelWidthMm')) state.labelSettings = readLabelSettings();
+    const settings = state.labelSettings || {};
+    const width = settings.orientation === 'LANDSCAPE' ? Number(settings.height) : Number(settings.width);
+    const height = settings.orientation === 'LANDSCAPE' ? Number(settings.width) : Number(settings.height);
+    const maxQr = Math.max(12, Math.min(width - 4, height - (settings.showName ? 9 : 6)));
+    const qr = Math.min(Number(settings.qr || 20), maxQr);
+    const grid = $('labelPreview');
+    if (grid) {
+      grid.style.setProperty('--label-w', `${width}mm`);
+      grid.style.setProperty('--label-h', `${height}mm`);
+      grid.style.setProperty('--label-gap', `${Number(settings.gap || 0)}mm`);
+      grid.style.setProperty('--label-cols', String(settings.columns || 1));
+      grid.style.setProperty('--qr-mm', `${qr}mm`);
+      grid.style.setProperty('--sku-font', `${Number(settings.font || 9)}px`);
+    }
+    document.body.dataset.labelShowName = String(Boolean(settings.showName));
+    let printStyle = document.getElementById('tknDynamicLabelPage');
+    if (!printStyle) {
+      printStyle = document.createElement('style');
+      printStyle.id = 'tknDynamicLabelPage';
+      document.head.appendChild(printStyle);
+    }
+    const pageWidth = (width * Number(settings.columns || 1)) + (Number(settings.gap || 0) * Math.max(0, Number(settings.columns || 1) - 1)) + (Number(settings.margin || 0) * 2);
+    const pageHeight = height + (Number(settings.margin || 0) * 2);
+    printStyle.textContent = `@page{size:${pageWidth}mm ${pageHeight}mm;margin:${Number(settings.margin || 0)}mm}`;
+    if ($('labelSettingSummary')) $('labelSettingSummary').textContent = `${width} × ${height} มม. · ${settings.columns} ดวง/แถว · QR ${qr} มม.`;
+    if (save) { saveState(); renderBox(); }
+  }
+
+  function fillLabelSettingInputs() {
+    const settings = state.labelSettings || {};
+    if (!$('labelSizePreset')) return;
+    $('labelSizePreset').value = settings.preset || '40x30';
+    $('labelWidthMm').value = settings.width || 40;
+    $('labelHeightMm').value = settings.height || 30;
+    $('labelOrientation').value = settings.orientation || 'PORTRAIT';
+    $('labelColumns').value = settings.columns || 1;
+    $('labelMarginMm').value = settings.margin || 0;
+    $('labelGapMm').value = settings.gap || 0;
+    $('labelQrMm').value = settings.qr || 20;
+    $('labelFontPx').value = settings.font || 9;
+    $('labelShowName').checked = settings.showName !== false;
+    applyLabelSettings(false);
   }
 
   function renderClose() {
@@ -1286,8 +1356,22 @@
       saveState();
       render();
     });
+    $('labelSizePreset').addEventListener('change', (event) => {
+      const sizes = { '32x25': [32, 25], '30x20': [30, 20], '40x30': [40, 30], '50x40': [50, 40] };
+      const size = sizes[event.target.value];
+      if (size) {
+        $('labelWidthMm').value = size[0];
+        $('labelHeightMm').value = size[1];
+      }
+      applyLabelSettings(true);
+    });
+    $('applyLabelSettingsBtn').addEventListener('click', () => {
+      applyLabelSettings(true);
+      message('บันทึกขนาดฉลากและปรับตัวอย่างแล้ว', 'success');
+    });
     $('printLabelsBtn').addEventListener('click', () => {
       if (!state.labelQueue.length) return message('คิวฉลากว่าง', 'error');
+      applyLabelSettings(false);
       drawLabels();
       setTimeout(() => window.print(), 350);
     });
@@ -1306,6 +1390,7 @@
 
   async function init() {
     loadState();
+    fillLabelSettingInputs();
     bind();
     const client = await waitClient();
     setCloudStatus(client ? 'เชื่อมต่อฐานข้อมูลแล้ว' : 'โหมดเครื่องนี้');

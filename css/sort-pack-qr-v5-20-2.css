@@ -317,6 +317,19 @@ body { overflow-x: hidden; }
 .sp-label canvas { display: block; width: 100%; max-width: 150px; height: auto; margin: 0 auto; }
 .sp-label h4 { display: -webkit-box; margin: 5px 0; overflow: hidden; font-size: .92rem; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .sp-label small { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 800; }
+.sp-label-settings{margin:14px 0;border:1px solid #d8dde6;border-radius:14px;background:#f8fafc;padding:12px}
+.sp-label-settings summary{cursor:pointer;font-weight:900;color:#202632}
+.sp-label-settings-grid{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px;margin-top:12px}
+.sp-label-settings-grid label{font-size:.82rem;font-weight:800}
+.sp-label-settings-grid input,.sp-label-settings-grid select{width:100%;min-height:40px;margin-top:5px;border:1px solid #cbd2dc;border-radius:9px;padding:8px;background:#fff}
+.sp-label-settings-grid .sp-setting-check{display:flex;align-items:center;gap:8px;padding-top:22px}.sp-setting-check input{width:18px;min-height:18px;margin:0}
+.sp-setting-actions{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.sp-setting-actions button{border:0;border-radius:10px;padding:10px 14px;background:#202938;color:#fff;font-weight:900}.sp-setting-actions span{font-weight:800;color:#596274}
+.sp-label-grid{--label-w:40mm;--label-h:30mm;--label-gap:0mm;--label-cols:1;--qr-mm:20mm;--sku-font:9px}
+.sp-label{box-sizing:border-box;width:var(--label-w);height:var(--label-h);padding:1mm;overflow:hidden;border-radius:2mm}
+.sp-label canvas{width:var(--qr-mm)!important;height:var(--qr-mm)!important;max-width:none}
+.sp-label h4{font-size:7px;line-height:1.1;margin:1px 0;-webkit-line-clamp:1}
+.sp-label small{font-size:var(--sku-font);line-height:1.05;overflow-wrap:anywhere}
+body[data-label-show-name="false"] .sp-label h4{display:none}
 .sp-box-qr { margin-top: 18px; text-align: center; }
 .sp-box-qr canvas { width: 100%; max-width: 260px; }
 
@@ -484,8 +497,10 @@ body.sp-camera-open { overflow: hidden; }
   .sp-panel-head,
   .sp-section-title,
   #boxContents { display: none !important; }
+  .sp-label-settings { display:none !important; }
   .sp-shell,
   .sp-panel { padding: 0; border: 0; background: #fff; box-shadow: none; }
-  .sp-label-grid { grid-template-columns: repeat(3, 1fr); }
-  .sp-label { break-inside: avoid; }
+  .sp-label-grid { display:grid!important;grid-template-columns:repeat(var(--label-cols),var(--label-w))!important;gap:var(--label-gap)!important;margin:0!important;width:max-content!important; }
+  .sp-label { break-inside: avoid;page-break-inside:avoid;border-radius:0; }
 }
+@media(max-width:900px){.sp-label-settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
