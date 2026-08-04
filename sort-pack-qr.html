@@ -8,16 +8,16 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css">
-  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.1">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.3">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
     <header class="sp-hero">
       <div class="sp-hero-copy">
-        <small>FINAL v5.22.1 · MOBILE CAMERA · LABEL SETUP</small>
+        <small>FINAL v5.22.3 · MULTI SKU SCAN · QR RESTORED</small>
         <h1>แยกสินค้าและปิดกล่อง</h1>
-        <p>สแกน Tracking แล้วระบบอ่านรายการ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมจำหมวดตาม SKU</p>
+        <p>สแกน SKU ต่อเนื่องแล้วระบบอ่านชื่อ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมรวมเป็นล็อตเดียว</p>
       </div>
       <div class="sp-status">
         <span id="cloudStatus">กำลังเชื่อมต่อ</span>
@@ -26,7 +26,7 @@
     </header>
 
     <nav class="sp-steps" aria-label="ขั้นตอนการทำงาน">
-      <button type="button" data-step="1" class="active"><b>1</b><span>สแกนพัสดุ</span></button>
+      <button type="button" data-step="1" class="active"><b>1</b><span>สแกน SKU</span></button>
       <button type="button" data-step="2"><b>2</b><span>แยกประเภท</span></button>
       <button type="button" data-step="3"><b>3</b><span>SKU และ QR</span></button>
       <button type="button" data-step="4"><b>4</b><span>ใส่กล่อง</span></button>
@@ -39,8 +39,8 @@
       <div class="sp-panel-head">
         <div>
           <span class="sp-eyebrow">ขั้นตอนที่ 1</span>
-          <h2>สแกน Tracking / QR สินค้า / Barcode</h2>
-          <p>ค้นหาจากข้อมูล Shopee/Lazada และฐานสินค้า แล้วดึงชื่อ ราคา และหมวดให้อัตโนมัติ</p>
+          <h2>สแกน SKU / QR สินค้า / Barcode</h2>
+          <p>เพิ่มได้ครั้งละ 10–20 SKU ระบบจะสะสมรายการไว้ แล้วค่อยกด “ถัดไป” เพียงครั้งเดียว</p>
         </div>
       </div>
       <div class="sp-scan">
@@ -49,10 +49,10 @@
           <span>สแกนด้วยกล้อง</span>
         </button>
         <label class="sp-scan-field">
-          <span class="sr-only">Tracking, SKU, QR สินค้า หรือ Barcode</span>
-          <input id="trackingInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="Tracking / TKN-P-SKU / SKU / Barcode" autofocus>
+          <span class="sr-only">SKU, QR สินค้า หรือ Barcode</span>
+          <input id="trackingInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="สแกน SKU / TKN-P-SKU / Barcode" autofocus>
         </label>
-        <button id="loadTrackingBtn" type="button" class="sp-primary">โหลดรายการ</button>
+        <button id="loadTrackingBtn" type="button" class="sp-primary">เพิ่ม SKU</button>
       </div>
       <div class="sp-scan-help" id="trackingScanHelp">
         <span><b>มือถือ:</b> แตะสแกนด้วยกล้อง</span>
@@ -70,7 +70,8 @@
         <label>รหัสล็อต<input id="lotCode" readonly placeholder="ระบบสร้างให้อัตโนมัติ"></label>
         <label>หมายเหตุ<input id="lotNote" placeholder="ไม่บังคับ"></label>
       </div>
-      <div id="sourceSummary" class="sp-empty">ยังไม่ได้โหลดพัสดุ</div>
+      <div id="sourceSummary" class="sp-empty">ยังไม่ได้เพิ่ม SKU</div>
+      <div id="scanBatchList" class="sp-scan-batch" aria-live="polite"></div>
       <div id="sourceDataNote" class="sp-data-note">
         <b>การอ่านหมวด:</b> ใช้หมวดหลัก/หมวดย่อยจากไฟล์ก่อน จากนั้นใช้ชื่อสินค้าและหมวดที่เคยยืนยันตาม SKU เป็นข้อมูลช่วย
       </div>
@@ -184,6 +185,7 @@
       </details>
       <div class="sp-actions">
         <button id="newBoxBtn" type="button">สร้างกล่องใหม่</button>
+        <button id="generateBoxQrBtn" type="button" class="sp-yellow-action">สร้าง/อัปเดต QR สินค้าทั้งหมด</button>
         <button id="printLabelsBtn" type="button" class="sp-primary">พิมพ์ QR ทั้งหมด</button>
         <button id="clearLabelQueueBtn" type="button" class="sp-muted-action">ล้างคิวฉลาก</button>
       </div>
@@ -211,7 +213,7 @@
     <footer class="sp-actionbar">
       <button id="previousStepBtn" type="button">ย้อนขั้นตอน</button>
       <div>
-        <span id="actionHint">เริ่มจากสแกน Tracking</span>
+        <span id="actionHint">เริ่มจากสแกน SKU</span>
         <button id="nextStepBtn" type="button" class="sp-primary">ถัดไป</button>
       </div>
     </footer>
@@ -225,7 +227,7 @@
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
   <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.2"></script>
-  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.1"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.22.1" defer></script>
+  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.3"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.22.3" defer></script>
 </body>
 </html>

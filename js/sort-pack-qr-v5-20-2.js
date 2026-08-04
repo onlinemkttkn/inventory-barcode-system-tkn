@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.1';
+  const VERSION = '5.22.3';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -635,7 +635,7 @@
           const normalized = String(value || '').trim();
           if (!normalized) return;
           $('trackingInput').value = normalized;
-          message(`สแกนสำเร็จ: ${normalized} · กำลังโหลดรายการ`, 'success');
+          message(`สแกนสำเร็จ: ${normalized} · กำลังเพิ่ม SKU`, 'success');
           await loadTracking();
         },
       });
@@ -645,7 +645,7 @@
 
   async function loadTracking() {
     const tracking = $('trackingInput').value.trim();
-    if (!tracking) return message('กรุณาสแกน Tracking ก่อน', 'error');
+    if (!tracking) return message('กรุณาสแกน SKU ก่อน', 'error');
     $('loadTrackingBtn').disabled = true;
     $('openTrackingCameraBtn').disabled = true;
     $('trackingInput').setAttribute('aria-busy', 'true');
@@ -670,32 +670,47 @@
 
       await prepareCategorySuggestions(items);
       const sources = unique(items.map((item) => item.source));
-      state.lot = {
-        code: newLotCode(),
-        tracking,
-        source: sources.length === 1 ? sources[0] : $('sourceSelect').value,
-        note: $('lotNote').value.trim(),
-        openedAt: nowIso(),
-        status: 'OPEN',
-        dataLocation: result.location,
-      };
-      state.items = items;
-      state.box = null;
-      state.labelQueue = [];
-      state.selectedIds = [];
-      state.expandedIds = [];
-      state.page = 1;
+      if (!state.lot || state.lot.status === 'CLOSED') {
+        state.lot = {
+          code: newLotCode(), tracking, scanCodes: [],
+          source: sources.length === 1 ? sources[0] : $('sourceSelect').value,
+          note: $('lotNote').value.trim(), openedAt: nowIso(), status: 'OPEN', dataLocation: result.location,
+        };
+        state.items = [];
+        state.box = null;
+        state.labelQueue = [];
+        state.selectedIds = [];
+        state.expandedIds = [];
+        state.page = 1;
+      }
+      state.lot.scanCodes = unique([...(state.lot.scanCodes || []), tracking]);
+      state.lot.note = $('lotNote').value.trim();
+      state.lot.dataLocation = result.location || state.lot.dataLocation;
+      let added = 0;
+      let increased = 0;
+      items.forEach((incoming) => {
+        const key = String(incoming.sku || incoming.sourceSku || '').trim().toLowerCase();
+        const existing = key && state.items.find((row) => String(row.sku || row.sourceSku || '').trim().toLowerCase() === key);
+        if (existing) {
+          existing.quantity += Math.max(1, Number(incoming.quantity) || 1);
+          increased += 1;
+        } else {
+          state.items.push(incoming);
+          added += 1;
+        }
+      });
       $('lotCode').value = state.lot.code;
       await persistLot();
       schedulePersist(50);
       saveState();
       render();
-      go(2);
+      $('trackingInput').value = '';
+      $('trackingInput').focus();
 
       const autoCount = state.items.filter((item) => item.categoryConfirmed).length;
       const reviewCount = state.items.filter((item) => !item.categoryConfirmed && item.suggestedCategory).length;
       const locationText = result.location === 'SERVER' ? 'ฐานข้อมูลกลาง' : result.location === 'LOCAL' ? 'ไฟล์ในเครื่องนี้' : result.location === 'PRODUCT' ? 'ฐานสินค้า/บาร์โค้ด' : 'รายการใหม่';
-      message(`โหลดจาก${locationText} ${items.length.toLocaleString('th-TH')} รายการ · ยืนยันหมวดอัตโนมัติ ${autoCount} · รอตรวจ ${reviewCount}`, 'success');
+      message(`เพิ่มจาก${locationText}แล้ว ${added} SKU${increased ? ` · SKU ซ้ำเพิ่มจำนวน ${increased}` : ''} · สะสม ${state.items.length} SKU · กดถัดไปเมื่อสแกนครบ`, 'success');
     } catch (error) {
       console.error(error);
       message(error.message || 'โหลดข้อมูลไม่สำเร็จ', 'error');
@@ -703,7 +718,7 @@
       $('loadTrackingBtn').disabled = false;
       $('openTrackingCameraBtn').disabled = false;
       $('trackingInput').removeAttribute('aria-busy');
-      $('loadTrackingBtn').textContent = 'โหลดรายการ';
+      $('loadTrackingBtn').textContent = 'เพิ่ม SKU';
     }
   }
 
@@ -715,7 +730,7 @@
     $('previousStepBtn').disabled = step === 1;
     $('nextStepBtn').textContent = step === 5 ? 'เริ่มล็อตถัดไป' : 'ถัดไป';
     $('actionHint').textContent = [
-      'สแกน Tracking เพื่อเริ่มงาน',
+      'สแกน SKU ต่อเนื่อง แล้วกดถัดไปเมื่อครบ',
       'ตรวจเฉพาะรายการที่ระบบยังไม่มั่นใจ',
       'ตรวจ SKU และต้นทุนก่อนเข้าคิว QR',
       'พิมพ์ QR แล้วใส่สินค้าเข้ากล่อง',
@@ -744,7 +759,8 @@
   function renderSummary() {
     if (!state.lot) {
       $('sourceSummary').className = 'sp-empty';
-      $('sourceSummary').textContent = 'ยังไม่ได้โหลดพัสดุ';
+      $('sourceSummary').textContent = 'ยังไม่ได้เพิ่ม SKU';
+      if ($('scanBatchList')) $('scanBatchList').innerHTML = '';
       $('totalCount').textContent = '0';
       $('classifiedCount').textContent = '0';
       return;
@@ -755,11 +771,19 @@
     const locationText = state.lot.dataLocation === 'SERVER' ? 'ฐานข้อมูลกลาง' : state.lot.dataLocation === 'LOCAL' ? 'ไฟล์ในเครื่อง' : state.lot.dataLocation === 'PRODUCT' ? 'ฐานสินค้า/บาร์โค้ด' : 'กรอกใหม่';
     $('sourceSummary').className = 'sp-summary';
     $('sourceSummary').innerHTML = `<div class="sp-summary-grid">
-      <article><span>Tracking</span><b>${esc(state.lot.tracking)}</b></article>
+      <article><span>SKU ที่เพิ่ม</span><b>${state.items.length}</b></article>
       <article><span>รายการ / ชิ้น</span><b>${state.items.length} / ${totalQuantity}</b></article>
       <article><span>ต้นทุนรวม</span><b>฿${money(totalCost)}</b></article>
       <article><span>แหล่งข้อมูล</span><b>${esc(locationText)}</b></article>
     </div>${missingCost ? `<p><strong>รอกรอกต้นทุน:</strong> ${missingCost} รายการ</p>` : ''}`;
+    if ($('scanBatchList')) {
+      $('scanBatchList').innerHTML = `<div class="sp-scan-batch-head"><b>รายการ SKU ที่สแกนไว้</b><span>${state.items.length} SKU · ${totalQuantity} ชิ้น</span></div>
+        <div class="sp-scan-batch-items">${state.items.map((item, index) => `<article>
+          <span class="sp-scan-number">${index + 1}</span>
+          <div><b>${esc(item.sku || item.sourceSku || 'ยังไม่มี SKU')}</b><small>${esc(item.name)} · ${item.quantity} ชิ้น</small></div>
+          <button type="button" data-remove-scan="${esc(item.id)}">ลบ</button>
+        </article>`).join('')}</div>`;
+    }
     $('totalCount').textContent = String(state.items.length);
     $('classifiedCount').textContent = String(state.items.filter((item) => item.categoryConfirmed).length);
   }
@@ -969,26 +993,33 @@
     applyLabelSettings(false);
     $('labelCount').textContent = String(units.length);
     $('labelPreview').innerHTML = units.map(({ item, index, quantity }) => `<article class="sp-label" data-label="${esc(item.id)}" data-unit="${index}">
-      <canvas></canvas>
+      <div class="sp-label-qr-status">กำลังสร้าง QR...</div><canvas></canvas>
       <h4>${esc(item.name)}</h4>
       <small>${esc(skuWithHiddenCost(item))}${quantity > 1 ? ` · ${index}/${quantity}` : ''}</small>
     </article>`).join('');
-    setTimeout(drawLabels, 0);
+    setTimeout(() => { void drawLabels(); }, 0);
   }
 
-  function drawLabels() {
-    document.querySelectorAll('[data-label]').forEach((element) => {
+  async function drawLabels() {
+    const ready = await (window.TKNQRHealth?.wait?.(2500)
+      ?? Promise.resolve(Boolean(window.QRCode?.toCanvas || window.TKNQR?.toCanvas)));
+    const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
+    const elements = [...document.querySelectorAll('[data-label]')];
+    await Promise.all(elements.map(async (element) => {
       const item = state.labelQueue.find((row) => row.id === element.dataset.label);
       const canvas = element.querySelector('canvas');
+      const status = element.querySelector('.sp-label-qr-status');
       if (!item || !canvas) return;
       try {
+        if (!ready || typeof toCanvas !== 'function') throw new Error('ระบบ QR ยังไม่พร้อม');
         const pixelSize = Math.max(64, Math.round(Number(state.labelSettings?.qr || 20) * 3.78));
-        if (window.TKNQRCode?.toCanvas) window.TKNQRCode.toCanvas(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1 });
-        else window.QRCode?.toCanvas?.(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1 });
+        await toCanvas(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1, errorCorrectionLevel: 'M' });
+        if (status) { status.textContent = 'QR พร้อม'; status.className = 'sp-label-qr-status is-success'; }
       } catch (error) {
         console.warn('สร้าง QR สินค้าไม่สำเร็จ:', error);
+        if (status) { status.textContent = `QR ไม่สำเร็จ: ${error.message || 'ลองใหม่'}`; status.className = 'sp-label-qr-status is-error'; }
       }
-    });
+    }));
   }
 
   function readLabelSettings() {
@@ -1078,7 +1109,7 @@
     renderSku();
     renderBox();
     renderClose();
-    $('lotStatus').textContent = state.lot ? `${state.lot.code} · ${state.lot.tracking}` : 'ยังไม่เปิดล็อต';
+    $('lotStatus').textContent = state.lot ? `${state.lot.code} · ${state.items.length} SKU` : 'ยังไม่เปิดล็อต';
     $('pageSize').value = String(state.pageSize);
     $('categoryStatusFilter').value = state.statusFilter;
   }
@@ -1169,7 +1200,7 @@
 
   function validateCurrentStep() {
     if (state.step === 1) {
-      if (!state.lot) { message('กรุณาโหลด Tracking ก่อน', 'error'); return false; }
+      if (!state.lot || !state.items.length) { message('กรุณาเพิ่ม SKU อย่างน้อย 1 รายการก่อน', 'error'); return false; }
     }
     if (state.step === 2) {
       const pending = state.items.filter((item) => !item.categoryConfirmed).length;
@@ -1330,6 +1361,19 @@
       event.preventDefault();
       loadTracking();
     });
+    $('scanBatchList')?.addEventListener('click', (event) => {
+      const button = event.target instanceof Element ? event.target.closest('[data-remove-scan]') : null;
+      if (!button) return;
+      const id = button.dataset.removeScan;
+      state.items = state.items.filter((item) => item.id !== id);
+      state.selectedIds = state.selectedIds.filter((selectedId) => selectedId !== id);
+      state.labelQueue = state.labelQueue.filter((item) => item.id !== id);
+      if (state.box?.items) state.box.items = state.box.items.filter((item) => item.id !== id);
+      saveState();
+      render();
+      $('trackingInput').focus();
+      message('ลบ SKU ออกจากรายการสแกนแล้ว', 'success');
+    });
     document.addEventListener('visibilitychange', () => { if (document.hidden) trackingCamera?.close(); });
     window.addEventListener('pagehide', () => trackingCamera?.close());
     $('nextStepBtn').addEventListener('click', nextStep);
@@ -1385,6 +1429,15 @@
       saveState();
       render();
     });
+    $('generateBoxQrBtn').addEventListener('click', async () => {
+      const readyItems = state.items.filter(itemReadyForQueue);
+      if (!readyItems.length) return message('ยังไม่มีรายการที่มี SKU ต้นทุน และหมวดครบ', 'error');
+      readyItems.forEach(queueItem);
+      renderBox();
+      await drawLabels();
+      const missing = state.items.length - readyItems.length;
+      message(`สร้าง/อัปเดต QR แล้ว ${labelUnits().length} ดวง${missing ? ` · ยังไม่พร้อม ${missing} รายการ` : ''}`, missing ? 'info' : 'success');
+    });
     $('labelSizePreset').addEventListener('change', (event) => {
       const sizes = { '32x25': [32, 25], '30x20': [30, 20], '40x30': [40, 30], '50x40': [50, 40] };
       const size = sizes[event.target.value];
@@ -1398,11 +1451,11 @@
       applyLabelSettings(true);
       message('บันทึกขนาดฉลากและปรับตัวอย่างแล้ว', 'success');
     });
-    $('printLabelsBtn').addEventListener('click', () => {
+    $('printLabelsBtn').addEventListener('click', async () => {
       if (!state.labelQueue.length) return message('คิวฉลากว่าง', 'error');
       applyLabelSettings(false);
-      drawLabels();
-      setTimeout(() => window.print(), 350);
+      await drawLabels();
+      window.print();
     });
     $('clearLabelQueueBtn').addEventListener('click', () => {
       if (!confirm('ล้างคิวฉลากทั้งหมด? สินค้าที่อยู่ในกล่องร่างจะยังคงอยู่')) return;
@@ -1425,7 +1478,7 @@
     setCloudStatus(client ? 'เชื่อมต่อฐานข้อมูลแล้ว' : 'โหมดเครื่องนี้');
     if (state.lot) {
       $('lotCode').value = state.lot.code;
-      $('trackingInput').value = state.lot.tracking || '';
+      $('trackingInput').value = '';
       $('lotNote').value = state.lot.note || '';
       $('itemSearch').value = state.query || '';
     }
