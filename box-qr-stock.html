@@ -19,13 +19,13 @@
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.8">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
   <link rel="stylesheet" href="./css/box-qr-preview-v5-20-6.css?v=5.20.8">
-  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.23.3">
+  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.23.1">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.23.3</small>
+        <small>TKN POS ERP · Box QR · Final v5.23.1</small>
         <h1>จัดกล่องและตรวจสต็อกด้วย QR</h1>
         <p>รับสินค้าเป็นกล่อง บันทึกสต็อกเป็นชิ้น พร้อมจัดกล่องและสร้าง QR ในหน้าเดียว</p>
       </div>
@@ -39,10 +39,10 @@
     </header>
 
     <section class="stats" aria-label="สรุปงาน Box QR">
-      <article><span>SKU ในรอบปัจจุบัน</span><b id="sessionCount">0</b></article>
-      <article><span>SKU ในกล่อง</span><b id="draftBoxCount">0</b></article>
-      <article><span>รวมชิ้นในกล่อง</span><b id="closedBoxCount">0</b></article>
-      <article><span>คิวพิมพ์คงเหลือ</span><b id="printCount">0</b></article>
+      <article><span>รอบตรวจรับ</span><b id="sessionCount">0</b></article>
+      <article><span>กำลังจัดกล่อง</span><b id="draftBoxCount">0</b></article>
+      <article><span>กล่องปิดแล้ว</span><b id="closedBoxCount">0</b></article>
+      <article><span>คิวพิมพ์</span><b id="printCount">0</b></article>
     </section>
 
     <div id="message" class="notice" role="status" aria-live="polite"></div>
@@ -78,13 +78,13 @@
         <label><span>จำนวนกล่องรับเข้า</span><input id="receiveBoxQty" type="number" min="0" step="1" inputmode="numeric" value="1"></label>
         <label><span>จำนวนชิ้นต่อกล่อง</span><input id="piecesPerBox" type="number" min="1" step="1" inputmode="numeric" value="1"></label>
         <label><span>เศษสินค้า (ชิ้น)</span><input id="loosePieces" type="number" min="0" step="1" inputmode="numeric" value="0"></label>
-        <label class="receive-total-field"><span>รวมเข้าสต็อก (ชิ้น) — ปรับได้</span><input id="receiveTotalPieces" type="number" min="1" step="1" inputmode="numeric" value="1"></label>
+        <label class="receive-total-field"><span>รวมเข้าสต็อก</span><output id="receiveTotalPieces">1 ชิ้น</output></label>
         <label><span>สภาพ</span><select id="condition"><option value="GOOD">งานดี</option><option value="DAMAGED">งานเสีย</option><option value="NOT_AS_DESCRIBED">ไม่ตรงปก</option><option value="INCOMPLETE">ชิ้นส่วนไม่ครบ</option><option value="UNUSABLE">ใช้ไม่ได้</option><option value="RECHECK">รอตรวจซ้ำ</option><option value="RETURN">ส่งคืน</option><option value="PARTS">แยกขายอะไหล่</option></select></label>
         <button id="receiveBtn" type="button" class="primary form-primary">ยืนยันตรวจรับ</button>
       </div>
-      <div class="scan-help"><span>📱 กล้องมือถือรองรับ QR, SKU และ Barcode</span><span>⌨️ เครื่องสแกน USB/Bluetooth ยิงรหัสแล้วกด Enter ได้ทันที</span><span>📦 รับเข้าเป็นกล่อง · สต็อกบันทึกเป็นชิ้น</span></div>
-      <div class="actions"><button id="newSessionBtn" type="button">สร้างรอบใหม่</button><button id="clearReceiptsBtn" type="button" class="danger-outline">ล้างรายการตรวจรับ</button></div>
-      <div class="table receive-table"><table><thead><tr><th>เวลา</th><th>SKU</th><th>ชื่อสินค้า</th><th>กล่อง</th><th>ชิ้น/กล่อง</th><th>เศษ</th><th>รวมชิ้น</th><th>สภาพ</th><th>จัดการ</th></tr></thead><tbody id="receiveRows"></tbody></table></div>
+      <div class="scan-help"><span>📱 กล้องมือถือรองรับ QR, SKU และ Barcode</span><span>📦 รับเข้าเป็นกล่อง · สต็อกบันทึกเป็นชิ้น</span></div>
+      <div class="actions"><button id="newSessionBtn" type="button">สร้างรอบใหม่</button><button id="queueProductQrBtn" type="button">เพิ่ม QR สินค้าเข้าคิวพิมพ์</button></div>
+      <div class="table receive-table"><table><thead><tr><th>เวลา</th><th>SKU</th><th>ชื่อสินค้า</th><th>กล่อง</th><th>ชิ้น/กล่อง</th><th>เศษ</th><th>รวมชิ้น</th><th>สภาพ</th></tr></thead><tbody id="receiveRows"></tbody></table></div>
     </section>
 
     <section id="box" class="panel">
@@ -94,7 +94,7 @@
       </div>
       <div class="grid form box-form">
         <label><span>รหัสกล่อง</span><input id="boxCode" readonly></label>
-        <label><span>คลัง/โซน</span><select id="location"><option value="">เลือกตำแหน่งจัดเก็บ</option><option value="โกดังสต๊อกคลังสินค้า">โกดังสต๊อกคลังสินค้า</option><option value="โกดังสาขา">โกดังสาขา</option></select></label>
+        <label><span>คลัง/โซน</span><input id="location" placeholder="คลังหลัก > โซน A > ชั้น 03"></label>
         <label class="camera-field camera-field-wide">
           <span>QR สินค้า / SKU / Barcode</span>
           <div class="camera-input-row">
@@ -108,7 +108,7 @@
         <label><span>จำนวนต่อการสแกน</span><input id="boxQty" type="number" min="1" inputmode="numeric" value="1"></label>
         <button id="addBoxItemBtn" type="button" class="primary form-primary">เพิ่มเข้ากล่อง</button>
       </div>
-      <div class="scan-help is-yellow"><span>⌨️ รองรับเครื่องสแกน USB/Bluetooth ยิงแล้ว Enter</span><span>ตั้งจำนวนเป็น 1 สำหรับสินค้าคละชิ้น</span><span>ปิดหน้ากล้องเมื่อสแกนครบ แล้วตรวจรายการก่อนปิดกล่อง</span></div>
+      <div class="scan-help is-yellow"><span>ตั้งจำนวนเป็น 1 สำหรับสินค้าคละชิ้น</span><span>ปิดหน้ากล้องเมื่อสแกนครบ แล้วตรวจรายการก่อนปิดกล่อง</span></div>
       <div class="actions"><button id="newBoxBtn" type="button">สร้างกล่องใหม่</button><button id="addReceivedToBoxBtn" type="button" class="action-emphasis">เพิ่มสินค้าตรวจรับทั้งหมดลงกล่อง</button><button id="openBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button></div>
       <div class="table"><table><thead><tr><th>SKU</th><th>ชื่อสินค้า</th><th>จำนวนชิ้น</th><th>สถานะ</th><th></th></tr></thead><tbody id="boxRows"></tbody></table></div>
       <h3 class="box-total">รวม <span id="boxTotal">0</span> ชิ้น</h3>
@@ -145,13 +145,12 @@
     <section id="finalize" class="panel">
       <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 5</span><h2>ปิดกล่องและสร้าง QR กล่อง</h2></div><p>ปิดได้เมื่อจำนวนตรวจนับตรงทุกรายการ</p></div>
       <div id="finalBoxSummary" class="final-box-summary"></div>
-      <div class="actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button><button id="printBoxLabelBtn" type="button" class="action-emphasis">สร้าง/พิมพ์ฉลาก QR กล่อง</button></div>
-      <p class="qr-primary-note">ฉลากกล่องใช้รูปแบบเดียวกับฉลากสินค้า: QR กล่อง · Barcode Code 128 · รหัสกล่อง · จำนวน SKU/ชิ้น และตำแหน่งจัดเก็บ</p>
+      <div class="actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button></div>
       <div id="finalBoxQr" class="final-box-qr"></div>
     </section>
 
     <section id="audit" class="panel">
-      <div class="panel-head"><div><span class="eyebrow">ประวัติในเครื่อง</span><h2>Audit Log</h2></div><button id="clearAuditBtn" type="button" class="danger-outline">ล้างประวัติ</button></div>
+      <h2>Audit Log</h2>
       <div class="table"><table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>งาน</th><th>รหัส</th><th>รายละเอียด</th></tr></thead><tbody id="auditRows"></tbody></table></div>
     </section>
   </main>
@@ -164,9 +163,9 @@
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
-  <script src="./js/box-qr-stock-v5-20-6.js?v=5.23.3"></script>
+  <script src="./js/box-qr-stock-v5-20-6.js?v=5.23.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.23.3" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.23.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 </body>
 </html>
