@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.20.9';
+  const VERSION = '5.21.0';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -211,6 +211,18 @@
     return String(value ?? '').trim().replace(/^['"]+/, '').replace(/\s+/g, '').toUpperCase();
   }
 
+  function scanCandidates(raw) {
+    let value = String(raw ?? '').trim();
+    try {
+      const url = new URL(value);
+      value = url.searchParams.get('id') || url.searchParams.get('code') || value;
+    } catch {}
+    const candidates = [value];
+    const productCode = value.replace(/^TKN-P-/i, '').trim();
+    if (productCode && productCode !== value) candidates.push(productCode);
+    return unique(candidates.map((entry) => String(entry || '').trim()).filter(Boolean));
+  }
+
   function sourceCandidates() {
     const selected = $('sourceSelect').value;
     if (selected === 'SHOPEE' || selected === 'LAZADA') return [selected];
@@ -346,11 +358,63 @@
     return deduplicateItems(items);
   }
 
+  async function findProductByScan(raw) {
+    const client = await waitClient();
+    if (!client) return null;
+    const candidates = scanCandidates(raw);
+    for (const value of candidates) {
+      for (const field of ['product_code', 'barcode']) {
+        try {
+          const result = await client.from('product_inventory_list')
+            .select('id,product_code,barcode,name,category_name,cost_price,selling_price')
+            .eq(field, value).limit(1).maybeSingle();
+          if (!result.error && result.data) return result.data;
+        } catch {}
+        try {
+          const result = await client.from('products')
+            .select('id,product_code,barcode,name,cost_price,selling_price')
+            .eq(field, value).limit(1).maybeSingle();
+          if (!result.error && result.data) return result.data;
+        } catch {}
+      }
+    }
+    return null;
+  }
+
   async function findSource(tracking) {
-    const serverRows = await readServerRows(tracking);
-    if (serverRows.length) return { items: deduplicateItems(serverRows), location: 'SERVER' };
-    const localRows = await readLocalMarketplaceRows(tracking);
-    if (localRows.length) return { items: localRows, location: 'LOCAL' };
+    const candidates = scanCandidates(tracking);
+    for (const candidate of candidates) {
+      const serverRows = await readServerRows(candidate);
+      if (serverRows.length) return { items: deduplicateItems(serverRows), location: 'SERVER', matchedBy: candidate };
+    }
+    for (const candidate of candidates) {
+      const localRows = await readLocalMarketplaceRows(candidate);
+      if (localRows.length) return { items: localRows, location: 'LOCAL', matchedBy: candidate };
+    }
+    const product = await findProductByScan(tracking);
+    if (product) {
+      const costProvided = product.cost_price !== null && product.cost_price !== undefined && String(product.cost_price).trim() !== '';
+      return {
+        location: 'PRODUCT',
+        matchedBy: product.product_code,
+        items: [migrateItem({
+          id: crypto.randomUUID(),
+          sourceItemId: `PRODUCT:${product.id || product.product_code}`,
+          source: 'PRODUCT',
+          tracking: '',
+          sourceSku: product.product_code,
+          sku: product.product_code,
+          name: product.name || 'สินค้าไม่ระบุชื่อ',
+          quantity: 1,
+          unitCost: product.cost_price,
+          hasCost: costProvided,
+          sellingPrice: product.selling_price,
+          mainCategory: product.category_name || '',
+          sourceCategory: product.category_name || '',
+          productId: product.id || null,
+        })],
+      };
+    }
     return { items: [], location: 'NONE' };
   }
 
@@ -625,7 +689,7 @@
 
       const autoCount = state.items.filter((item) => item.categoryConfirmed).length;
       const reviewCount = state.items.filter((item) => !item.categoryConfirmed && item.suggestedCategory).length;
-      const locationText = result.location === 'SERVER' ? 'ฐานข้อมูลกลาง' : result.location === 'LOCAL' ? 'ไฟล์ในเครื่องนี้' : 'รายการใหม่';
+      const locationText = result.location === 'SERVER' ? 'ฐานข้อมูลกลาง' : result.location === 'LOCAL' ? 'ไฟล์ในเครื่องนี้' : result.location === 'PRODUCT' ? 'ฐานสินค้า/บาร์โค้ด' : 'รายการใหม่';
       message(`โหลดจาก${locationText} ${items.length.toLocaleString('th-TH')} รายการ · ยืนยันหมวดอัตโนมัติ ${autoCount} · รอตรวจ ${reviewCount}`, 'success');
     } catch (error) {
       console.error(error);
@@ -683,7 +747,7 @@
     const totalQuantity = state.items.reduce((sum, item) => sum + item.quantity, 0);
     const totalCost = state.items.reduce((sum, item) => sum + (item.hasCost ? item.quantity * item.unitCost : 0), 0);
     const missingCost = state.items.filter((item) => !item.hasCost).length;
-    const locationText = state.lot.dataLocation === 'SERVER' ? 'ฐานข้อมูลกลาง' : state.lot.dataLocation === 'LOCAL' ? 'ไฟล์ในเครื่อง' : 'กรอกใหม่';
+    const locationText = state.lot.dataLocation === 'SERVER' ? 'ฐานข้อมูลกลาง' : state.lot.dataLocation === 'LOCAL' ? 'ไฟล์ในเครื่อง' : state.lot.dataLocation === 'PRODUCT' ? 'ฐานสินค้า/บาร์โค้ด' : 'กรอกใหม่';
     $('sourceSummary').className = 'sp-summary';
     $('sourceSummary').innerHTML = `<div class="sp-summary-grid">
       <article><span>Tracking</span><b>${esc(state.lot.tracking)}</b></article>

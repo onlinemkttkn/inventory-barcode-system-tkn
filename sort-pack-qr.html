@@ -39,8 +39,8 @@
       <div class="sp-panel-head">
         <div>
           <span class="sp-eyebrow">ขั้นตอนที่ 1</span>
-          <h2>สแกน Tracking</h2>
-          <p>ค้นหาจากฐานข้อมูลกลางก่อน แล้วตรวจพื้นที่งาน Shopee/Lazada ในเครื่องนี้ให้อัตโนมัติ</p>
+          <h2>สแกน Tracking / QR สินค้า / Barcode</h2>
+          <p>ค้นหาจากข้อมูล Shopee/Lazada และฐานสินค้า แล้วดึงชื่อ ราคา และหมวดให้อัตโนมัติ</p>
         </div>
       </div>
       <div class="sp-scan">
@@ -49,8 +49,8 @@
           <span>สแกนด้วยกล้อง</span>
         </button>
         <label class="sp-scan-field">
-          <span class="sr-only">Tracking หรือ Order Number</span>
-          <input id="trackingInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="สแกนหรือกรอก Tracking / Order Number" autofocus>
+          <span class="sr-only">Tracking, SKU, QR สินค้า หรือ Barcode</span>
+          <input id="trackingInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="Tracking / TKN-P-SKU / SKU / Barcode" autofocus>
         </label>
         <button id="loadTrackingBtn" type="button" class="sp-primary">โหลดรายการ</button>
       </div>
@@ -202,7 +202,7 @@
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
   <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.2"></script>
-  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.20.9"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.9" defer></script>
+  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.21.0"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.21.0" defer></script>
 </body>
 </html>
