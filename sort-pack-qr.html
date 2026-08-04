@@ -8,14 +8,14 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css">
-  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.8">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.9">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
     <header class="sp-hero">
       <div class="sp-hero-copy">
-        <small>FINAL v5.22.8 · AUTO FIT LABEL</small>
+        <small>FINAL v5.22.9 · UNIVERSAL DT PRINT</small>
         <h1>แยกสินค้าและปิดกล่อง</h1>
         <p>สแกน SKU ต่อเนื่องแล้วระบบอ่านชื่อ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมรวมเป็นล็อตเดียว</p>
       </div>
@@ -164,15 +164,25 @@
       <details class="sp-label-settings" open>
         <summary>ตั้งค่ากระดาษและฉลาก</summary>
         <div class="sp-label-settings-grid">
+          <label>รูปแบบเครื่องพิมพ์<select id="labelPrinterMode">
+            <option value="AUTO" selected>อัตโนมัติ</option>
+            <option value="ROLL">DT แบบม้วน — 1 ดวง/หน้า</option>
+            <option value="SHEET">กระดาษแผ่น — หลายดวง/หน้า</option>
+          </select></label>
+          <label>ความละเอียด<select id="labelPrinterDpi"><option value="203">203 DPI</option><option value="300" selected>300 DPI</option><option value="600">600 DPI</option></select></label>
           <label>ขนาดฉลาก<select id="labelSizePreset">
             <option value="32x25">3.2 × 2.5 ซม.</option>
             <option value="30x20">3 × 2 ซม.</option>
             <option value="40x30">4 × 3 ซม.</option>
             <option value="50x40" selected>5 × 4 ซม.</option>
+            <option value="CUSTOM">กำหนดขนาดเอง</option>
           </select></label>
+          <label class="sp-custom-label-size" hidden>กว้าง (มม.)<input id="labelCustomWidth" type="number" min="20" max="120" step="0.1" value="50"></label>
+          <label class="sp-custom-label-size" hidden>สูง (มม.)<input id="labelCustomHeight" type="number" min="15" max="150" step="0.1" value="40"></label>
           <label>จำนวนต่อแถว<input id="labelColumns" type="number" min="1" max="5" step="1" value="2"></label>
           <label class="sp-setting-check"><input id="labelShowName" type="checkbox" checked> แสดงชื่อสินค้า</label>
         </div>
+        <p class="sp-printer-note">Gap / Black Mark / Continuous และระดับความร้อน ให้เลือกในไดรเวอร์ของเครื่องพิมพ์</p>
         <div class="sp-setting-actions"><button id="applyLabelSettingsBtn" type="button">ใช้การตั้งค่าและดูตัวอย่าง</button><span id="labelSettingSummary"></span></div>
       </details>
       <div class="sp-actions">
@@ -219,7 +229,7 @@
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
   <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.2"></script>
-  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.8"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.22.8" defer></script>
+  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.9"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.22.9" defer></script>
 </body>
 </html>

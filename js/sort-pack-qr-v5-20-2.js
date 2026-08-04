@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.8';
-  const LABEL_SETTINGS_VERSION = 6;
+  const VERSION = '5.22.9';
+  const LABEL_SETTINGS_VERSION = 7;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -13,7 +13,7 @@
     '40x30': { width: 40, height: 30, qr: 16, nameFont: 2.8, skuFont: 1.8, nameLines: 3 },
     '50x40': { width: 50, height: 40, qr: 20, nameFont: 3.2, skuFont: 2, nameLines: 4 },
   });
-  const DEFAULT_LABEL_SETTINGS = Object.freeze({ preset: '50x40', columns: 2, showName: true, ...LABEL_PROFILES['50x40'] });
+  const DEFAULT_LABEL_SETTINGS = Object.freeze({ printerMode: 'AUTO', dpi: 300, preset: '50x40', customWidth: 50, customHeight: 40, columns: 2, showName: true, ...LABEL_PROFILES['50x40'] });
 
   const $ = (id) => document.getElementById(id);
   const CATEGORIES = [...ENGINE.CATEGORIES];
@@ -1024,7 +1024,8 @@
       if (!item || !canvas) return;
       try {
         if (!ready || typeof toCanvas !== 'function') throw new Error('ระบบ QR ยังไม่พร้อม');
-        const pixelSize = Math.max(64, Math.round(Number(state.labelSettings?.qr || 20) * 3.78));
+        const dpi = Math.max(203, Number(state.labelSettings?.dpi) || 300);
+        const pixelSize = Math.min(2048, Math.max(96, Math.round((Number(state.labelSettings?.qr || 20) / 25.4) * dpi)));
         await toCanvas(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1, errorCorrectionLevel: 'M' });
         if (status) { status.textContent = ''; status.hidden = true; }
       } catch (error) {
@@ -1034,11 +1035,31 @@
     }));
   }
 
+  function labelProfile(preset, customWidth, customHeight) {
+    if (preset !== 'CUSTOM') return LABEL_PROFILES[preset] || LABEL_PROFILES['50x40'];
+    const width = Math.max(20, Math.min(120, numberValue(customWidth, 50)));
+    const height = Math.max(15, Math.min(150, numberValue(customHeight, 40)));
+    const shortSide = Math.min(width, height);
+    return {
+      width, height,
+      qr: Math.max(9, Math.min(width - 4, height * 0.55, shortSide * 0.55)),
+      nameFont: Math.max(2, Math.min(3.5, shortSide / 12)),
+      skuFont: Math.max(1.4, Math.min(2.1, shortSide / 20)),
+      nameLines: shortSide >= 35 ? 4 : shortSide >= 25 ? 3 : 2,
+    };
+  }
+
   function readLabelSettings() {
     const preset = $('labelSizePreset')?.value || '50x40';
-    const profile = LABEL_PROFILES[preset] || LABEL_PROFILES['50x40'];
+    const customWidth = numberValue($('labelCustomWidth')?.value, 50);
+    const customHeight = numberValue($('labelCustomHeight')?.value, 40);
+    const profile = labelProfile(preset, customWidth, customHeight);
     return {
+      printerMode: $('labelPrinterMode')?.value || 'AUTO',
+      dpi: [203, 300, 600].includes(Number($('labelPrinterDpi')?.value)) ? Number($('labelPrinterDpi').value) : 300,
       preset,
+      customWidth,
+      customHeight,
       columns: Math.max(1, Math.min(5, Math.round(numberValue($('labelColumns')?.value, 1)))),
       showName: Boolean($('labelShowName')?.checked),
       ...profile,
@@ -1048,40 +1069,49 @@
   function applyLabelSettings(save = true) {
     if ($('labelSizePreset')) state.labelSettings = readLabelSettings();
     const settings = state.labelSettings || {};
-    const profile = LABEL_PROFILES[settings.preset] || LABEL_PROFILES['50x40'];
+    const profile = labelProfile(settings.preset, settings.customWidth, settings.customHeight);
     const width = profile.width;
     const height = profile.height;
     const qr = profile.qr;
     Object.assign(state.labelSettings, profile);
+    const printMode = settings.printerMode === 'AUTO' ? (Number(settings.columns || 1) === 1 ? 'ROLL' : 'SHEET') : settings.printerMode;
     const grid = $('labelPreview');
     if (grid) {
       grid.style.setProperty('--label-w', `${width}mm`);
       grid.style.setProperty('--label-h', `${height}mm`);
       grid.style.setProperty('--label-gap', '0mm');
-      grid.style.setProperty('--label-cols', String(settings.columns || 1));
+      grid.style.setProperty('--label-cols', String(printMode === 'ROLL' ? 1 : (settings.columns || 1)));
       grid.style.setProperty('--qr-mm', `${qr}mm`);
       grid.style.setProperty('--name-font', `${profile.nameFont}px`);
       grid.style.setProperty('--sku-font', `${profile.skuFont}px`);
       grid.style.setProperty('--name-lines', String(profile.nameLines));
     }
     document.body.dataset.labelShowName = String(Boolean(settings.showName));
+    document.body.dataset.labelPrintMode = printMode;
     let printStyle = document.getElementById('tknDynamicLabelPage');
     if (!printStyle) {
       printStyle = document.createElement('style');
       printStyle.id = 'tknDynamicLabelPage';
       document.head.appendChild(printStyle);
     }
-    printStyle.textContent = '@page{size:auto;margin:0}';
-    if ($('labelSettingSummary')) $('labelSettingSummary').textContent = `${width} × ${height} มม. · ${settings.columns} ดวง/แถว · ปรับ QR และตัวอักษรอัตโนมัติ`;
+    printStyle.textContent = printMode === 'ROLL'
+      ? `@page{size:${width}mm ${height}mm;margin:0}`
+      : '@page{size:auto;margin:0}';
+    if ($('labelSettingSummary')) $('labelSettingSummary').textContent = `${printMode === 'ROLL' ? 'DT ม้วน' : 'กระดาษแผ่น'} · ${width} × ${height} มม. · ${printMode === 'ROLL' ? 1 : settings.columns} ดวง/แถว · ${settings.dpi || 300} DPI`;
     if (save) { saveState(); renderBox(); }
   }
 
   function fillLabelSettingInputs() {
     const settings = state.labelSettings || {};
     if (!$('labelSizePreset')) return;
+    $('labelPrinterMode').value = settings.printerMode || 'AUTO';
+    $('labelPrinterDpi').value = String(settings.dpi || 300);
     $('labelSizePreset').value = settings.preset || '50x40';
+    $('labelCustomWidth').value = settings.customWidth || settings.width || 50;
+    $('labelCustomHeight').value = settings.customHeight || settings.height || 40;
     $('labelColumns').value = settings.columns || 1;
     $('labelShowName').checked = settings.showName !== false;
+    document.querySelectorAll('.sp-custom-label-size').forEach((field) => { field.hidden = $('labelSizePreset').value !== 'CUSTOM'; });
     applyLabelSettings(false);
   }
 
@@ -1440,7 +1470,11 @@
       message(`สร้าง/อัปเดต QR แล้ว ${labelUnits().length} ดวง${missing ? ` · ยังไม่พร้อม ${missing} รายการ` : ''}`, missing ? 'info' : 'success');
     });
     $('labelSizePreset').addEventListener('change', (event) => {
+      document.querySelectorAll('.sp-custom-label-size').forEach((field) => { field.hidden = event.target.value !== 'CUSTOM'; });
       applyLabelSettings(true);
+    });
+    ['labelPrinterMode', 'labelPrinterDpi', 'labelColumns', 'labelShowName', 'labelCustomWidth', 'labelCustomHeight'].forEach((id) => {
+      $(id)?.addEventListener('change', () => applyLabelSettings(true));
     });
     $('applyLabelSettingsBtn').addEventListener('click', () => {
       applyLabelSettings(true);

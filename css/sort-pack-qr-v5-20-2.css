@@ -329,6 +329,7 @@ body { overflow-x: hidden; }
 .sp-label-settings-grid input,.sp-label-settings-grid select{width:100%;min-height:40px;margin-top:5px;border:1px solid #cbd2dc;border-radius:9px;padding:8px;background:#fff}
 .sp-label-settings-grid .sp-setting-check{display:flex;align-items:center;gap:8px;padding-top:22px}.sp-setting-check input{width:18px;min-height:18px;margin:0}
 .sp-setting-actions{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.sp-setting-actions button{border:0;border-radius:10px;padding:10px 14px;background:#202938;color:#fff;font-weight:900}.sp-setting-actions span{font-weight:800;color:#596274}
+.sp-printer-note{margin:10px 0 0;color:#64748b;font-size:.78rem!important}
 .sp-label-grid{--label-w:50mm;--label-h:40mm;--label-gap:0mm;--label-cols:2;--qr-mm:20mm;--name-font:3.2px;--sku-font:2px;--name-lines:4}
 .sp-label{box-sizing:border-box;width:var(--label-w);height:var(--label-h);padding:1mm;overflow:hidden;border-radius:2mm}
 .sp-label canvas{width:var(--qr-mm)!important;height:var(--qr-mm)!important;max-width:none}
@@ -531,5 +532,7 @@ body.sp-camera-open { overflow: hidden; }
   .sp-panel { padding: 0; border: 0; background: #fff; box-shadow: none; }
   .sp-label-grid { display:grid!important;grid-template-columns:repeat(var(--label-cols),var(--label-w))!important;gap:var(--label-gap)!important;margin:0!important;width:max-content!important; }
   .sp-label { break-inside: avoid;page-break-inside:avoid;border-radius:0; }
+  body[data-label-print-mode="ROLL"] .sp-label-grid{grid-template-columns:var(--label-w)!important}
+  body[data-label-print-mode="ROLL"] .sp-label:not(:last-child){break-after:page;page-break-after:always}
 }
 @media(max-width:900px){.sp-label-settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
