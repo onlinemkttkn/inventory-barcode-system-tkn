@@ -1,17 +1,17 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.9';
-  const LABEL_SETTINGS_VERSION = 7;
+  const VERSION = '5.22.10';
+  const LABEL_SETTINGS_VERSION = 8;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
   if (!ENGINE) throw new Error('ไม่พบ TKN Category Engine v5.20.1');
   const LABEL_PROFILES = Object.freeze({
-    '30x20': { width: 30, height: 20, qr: 11, nameFont: 2.2, skuFont: 1.6, nameLines: 2 },
-    '32x25': { width: 32, height: 25, qr: 13, nameFont: 2.4, skuFont: 1.7, nameLines: 2 },
-    '40x30': { width: 40, height: 30, qr: 16, nameFont: 2.8, skuFont: 1.8, nameLines: 3 },
-    '50x40': { width: 50, height: 40, qr: 20, nameFont: 3.2, skuFont: 2, nameLines: 4 },
+    '30x20': { width: 30, height: 20, qr: 11, nameFont: 2.2, skuFont: 1.6, nameWeight: 400, skuWeight: 400, nameLines: 2 },
+    '32x25': { width: 32, height: 25, qr: 13, nameFont: 2.4, skuFont: 1.7, nameWeight: 400, skuWeight: 400, nameLines: 2 },
+    '40x30': { width: 40, height: 30, qr: 16, nameFont: 2.8, skuFont: 1.8, nameWeight: 300, skuWeight: 300, nameLines: 3 },
+    '50x40': { width: 50, height: 40, qr: 20, nameFont: 3.2, skuFont: 2, nameWeight: 300, skuWeight: 300, nameLines: 4 },
   });
   const DEFAULT_LABEL_SETTINGS = Object.freeze({ printerMode: 'AUTO', dpi: 300, preset: '50x40', customWidth: 50, customHeight: 40, columns: 2, showName: true, ...LABEL_PROFILES['50x40'] });
 
@@ -1045,6 +1045,8 @@
       qr: Math.max(9, Math.min(width - 4, height * 0.55, shortSide * 0.55)),
       nameFont: Math.max(2, Math.min(3.5, shortSide / 12)),
       skuFont: Math.max(1.4, Math.min(2.1, shortSide / 20)),
+      nameWeight: shortSide <= 25 ? 400 : 300,
+      skuWeight: shortSide <= 25 ? 400 : 300,
       nameLines: shortSide >= 35 ? 4 : shortSide >= 25 ? 3 : 2,
     };
   }
@@ -1084,6 +1086,8 @@
       grid.style.setProperty('--qr-mm', `${qr}mm`);
       grid.style.setProperty('--name-font', `${profile.nameFont}px`);
       grid.style.setProperty('--sku-font', `${profile.skuFont}px`);
+      grid.style.setProperty('--name-weight', String(profile.nameWeight));
+      grid.style.setProperty('--sku-weight', String(profile.skuWeight));
       grid.style.setProperty('--name-lines', String(profile.nameLines));
     }
     document.body.dataset.labelShowName = String(Boolean(settings.showName));

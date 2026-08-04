@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.9';
+  const VERSION = '5.22.10';
   const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
