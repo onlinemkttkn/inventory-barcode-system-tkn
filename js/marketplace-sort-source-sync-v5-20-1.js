@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.20.9';
+  const VERSION = '5.21.1';
   const page = (location.pathname.split('/').pop() || '').toLowerCase();
   const config = page.includes('lazada')
     ? { source: 'LAZADA', dbName: 'tkn_marketplace_import_lazada_v1' }
@@ -150,6 +150,17 @@
       });
   }
 
+  function priceSignature(rows) {
+    return rows.map((row) => [
+      row.source,
+      row.tracking_number,
+      row.source_sku || row.sku_id,
+      row.sku || row.product_code,
+      row.unit_cost ?? row.cost_price,
+      row.selling_price,
+    ].join('|')).sort().join('\n');
+  }
+
   async function syncWorkspace(force = false) {
     if (running) return;
     running = true;
@@ -161,6 +172,7 @@
       }
 
       const payload = normalizeRows(workspace.rows);
+      const signature = priceSignature(workspace.rows);
       localStorage.setItem(`tkn_sort_source_rows_${config.source.toLowerCase()}_v5209`, JSON.stringify({
         items: payload,
         savedAt: workspace.savedAt,
@@ -168,7 +180,7 @@
       }));
 
       const previous = JSON.parse(localStorage.getItem(syncKey) || '{}');
-      if (!force && workspace.savedAt && previous.savedAt === workspace.savedAt && previous.rowCount === workspace.rows.length) {
+      if (!force && workspace.savedAt && previous.savedAt === workspace.savedAt && previous.rowCount === workspace.rows.length && previous.priceSignature === signature) {
         setBadge(`พร้อมใช้ในโมดูลแยกสินค้า ${workspace.rows.length.toLocaleString('th-TH')} รายการ`, 'ok');
         return;
       }
@@ -192,6 +204,7 @@
       localStorage.setItem(syncKey, JSON.stringify({
         savedAt: workspace.savedAt,
         rowCount: workspace.rows.length,
+        priceSignature: signature,
         syncedAt: new Date().toISOString(),
       }));
       setBadge(`พร้อมใช้ในโมดูลแยกสินค้า ${payload.length.toLocaleString('th-TH')} รายการ`, 'ok');

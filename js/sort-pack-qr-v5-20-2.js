@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.21.0';
+  const VERSION = '5.21.1';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -384,12 +384,12 @@
   async function findSource(tracking) {
     const candidates = scanCandidates(tracking);
     for (const candidate of candidates) {
-      const serverRows = await readServerRows(candidate);
-      if (serverRows.length) return { items: deduplicateItems(serverRows), location: 'SERVER', matchedBy: candidate };
-    }
-    for (const candidate of candidates) {
       const localRows = await readLocalMarketplaceRows(candidate);
       if (localRows.length) return { items: localRows, location: 'LOCAL', matchedBy: candidate };
+    }
+    for (const candidate of candidates) {
+      const serverRows = await readServerRows(candidate);
+      if (serverRows.length) return { items: deduplicateItems(serverRows), location: 'SERVER', matchedBy: candidate };
     }
     const product = await findProductByScan(tracking);
     if (product) {
