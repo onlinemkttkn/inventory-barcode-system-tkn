@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.5">
-  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.22.13">
   <meta name="theme-color" content="#c8101e">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,12 +19,13 @@
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.8">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
   <link rel="stylesheet" href="./css/box-qr-preview-v5-20-6.css?v=5.20.8">
+  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.23.0">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.22.13</small>
+        <small>TKN POS ERP · Box QR · Final v5.23.0</small>
         <h1>จัดกล่องและตรวจสต็อกด้วย QR</h1>
         <p>รับสินค้าเป็นกล่อง บันทึกสต็อกเป็นชิ้น พร้อมจัดกล่องและสร้าง QR ในหน้าเดียว</p>
       </div>
@@ -50,9 +50,10 @@
     <nav class="tabs" aria-label="เมนู Box QR">
       <button type="button" class="active" data-tab="receive">1 ตรวจรับ</button>
       <button type="button" data-tab="box">2 จัดกล่อง</button>
-      <button type="button" data-tab="check">3 ตรวจสอบ QR</button>
-      <button type="button" data-tab="print">4 คิวพิมพ์</button>
-      <button type="button" data-tab="audit">5 ประวัติ</button>
+      <button type="button" data-tab="check">3 ตรวจนับ</button>
+      <button type="button" data-tab="print">4 ฉลากสินค้า</button>
+      <button type="button" data-tab="finalize">5 ปิดกล่องและ QR</button>
+      <button type="button" data-tab="audit">6 ประวัติ</button>
     </nav>
 
     <section id="receive" class="panel active">
@@ -108,13 +109,13 @@
         <button id="addBoxItemBtn" type="button" class="primary form-primary">เพิ่มเข้ากล่อง</button>
       </div>
       <div class="scan-help is-yellow"><span>ตั้งจำนวนเป็น 1 สำหรับสินค้าคละชิ้น</span><span>ปิดหน้ากล้องเมื่อสแกนครบ แล้วตรวจรายการก่อนปิดกล่อง</span></div>
-      <div class="actions"><button id="newBoxBtn" type="button">สร้างกล่องใหม่</button><button id="closeBoxBtn" type="button" class="action-emphasis">ปิดกล่องและสร้าง QR</button><button id="openBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button></div>
-      <div class="table"><table><thead><tr><th>SKU</th><th>ชื่อสินค้า</th><th>จำนวน</th><th></th></tr></thead><tbody id="boxRows"></tbody></table></div>
+      <div class="actions"><button id="newBoxBtn" type="button">สร้างกล่องใหม่</button><button id="addReceivedToBoxBtn" type="button" class="action-emphasis">เพิ่มสินค้าตรวจรับทั้งหมดลงกล่อง</button><button id="openBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button></div>
+      <div class="table"><table><thead><tr><th>SKU</th><th>ชื่อสินค้า</th><th>จำนวนชิ้น</th><th>สถานะ</th><th></th></tr></thead><tbody id="boxRows"></tbody></table></div>
       <h3 class="box-total">รวม <span id="boxTotal">0</span> ชิ้น</h3>
     </section>
 
     <section id="check" class="panel">
-      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 3</span><h2>ตรวจสินค้าและสต็อก</h2></div><p>สแกนได้ทั้ง QR สินค้าและ QR กล่อง</p></div>
+      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 3</span><h2>ตรวจนับสินค้าก่อนปิดกล่อง</h2></div><p>กรอกจำนวนที่ตรวจจริงให้ตรงกับจำนวนในกล่อง</p></div>
       <div class="scan check-scan">
         <input id="scanCode" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="TKN-P-..., TKN-B-..., SKU หรือ Barcode">
         <button id="checkCameraBtn" type="button" class="camera-scan-btn" aria-label="เปิดกล้องตรวจสินค้าและกล่อง">
@@ -124,14 +125,28 @@
         <button id="scanBtn" type="button" class="primary">ตรวจสอบ</button>
       </div>
       <div id="scanResult" class="result">ยังไม่ได้สแกน</div>
-      <div class="actions"><button id="recountBtn" type="button">เริ่มตรวจนับกล่อง</button><button id="moveOutBtn" type="button">นำสินค้าออกจากกล่อง</button></div>
+      <div class="actions"><button id="recountBtn" type="button">เริ่มตรวจนับใหม่</button><button id="confirmCountBtn" type="button" class="action-emphasis">ยืนยันผลตรวจนับ</button><button id="moveOutBtn" type="button">กลับไปแก้รายการในกล่อง</button></div>
+      <div class="table count-table"><table><thead><tr><th>SKU</th><th>ชื่อสินค้า</th><th>ในกล่อง</th><th>ตรวจจริง</th><th>ผลต่าง</th><th>สถานะ</th></tr></thead><tbody id="countRows"></tbody></table></div>
     </section>
 
     <section id="print" class="panel">
-      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 4</span><h2>คิวพิมพ์ QR Code (รหัสหลัก)</h2></div><p>แสดงตัวอย่างฉลากก่อนสั่งพิมพ์ หากคิวเพิ่งเปลี่ยนให้กด “โหลดคิวใหม่”</p></div>
-      <p class="qr-primary-note">QR สินค้าใช้รูปแบบ TKN-P-รหัสสินค้า และ QR กล่องใช้ TKN-B-รหัสกล่อง สามารถใช้ตรวจสต็อกและสแกนขายที่ POS ได้</p>
-      <div class="actions print-toolbar"><select id="labelMode" aria-label="รูปแบบฉลาก"><option value="QR" selected>QR Code — ค่าเริ่มต้น</option><option value="BOTH">QR Code + Barcode</option><option value="BARCODE">Barcode เท่านั้น</option></select><button id="refreshPrintBtn" type="button">โหลดคิวใหม่</button><button id="printAllBtn" type="button" class="primary">พิมพ์ QR ทั้งหมด</button><button id="retryQrBtn" type="button">สร้าง QR ใหม่</button><button id="clearPrintBtn" type="button">ล้างคิวทั้งหมด</button><span id="qrEngineStatus" class="qr-engine-status" role="status"></span></div>
+      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 4</span><h2>สร้างฉลากสินค้า</h2></div><p>QR สินค้า · Barcode Code 128 · SKU ต้นทุนแฝง · ชื่อสินค้า</p></div>
+      <p class="qr-primary-note">Barcode ใช้รหัสจริงสำหรับ POS ส่วนรหัสต้นทุนแฝงแสดงเฉพาะข้อความ SKU ใต้ Barcode</p>
+      <details class="label-settings" open><summary>ตั้งค่ากระดาษและฉลาก</summary><div class="label-settings-grid">
+        <label><span>รูปแบบเครื่องพิมพ์</span><select id="labelPrinterMode"><option value="AUTO">อัตโนมัติ</option><option value="ROLL">DT ม้วน</option><option value="SHEET">กระดาษแผ่น A4</option></select></label>
+        <label><span>ความละเอียด</span><select id="labelPrinterDpi"><option>203</option><option selected>300</option><option>600</option></select></label>
+        <label><span>ขนาดฉลาก</span><select id="labelSizePreset"><option value="30x20">3 × 2 ซม.</option><option value="32x25">3.2 × 2.5 ซม.</option><option value="40x30">4 × 3 ซม.</option><option value="50x40" selected>5 × 4 ซม.</option></select></label>
+        <label><span>จำนวนต่อแถว</span><input id="labelColumns" type="number" min="1" max="5" value="2"></label>
+      </div><p id="labelSettingSummary" class="label-setting-summary"></p></details>
+      <div class="actions print-toolbar"><select id="labelMode" hidden><option value="BOTH" selected>QR + Barcode</option></select><button id="queueBoxProductsBtn" type="button" class="action-emphasis">สร้าง/อัปเดตฉลากสินค้าทั้งกล่อง</button><button id="refreshPrintBtn" type="button">โหลดคิวใหม่</button><button id="printAllBtn" type="button" class="primary">พิมพ์ฉลากทั้งหมด</button><button id="retryQrBtn" type="button">สร้างฉลากใหม่</button><button id="clearPrintBtn" type="button">ล้างคิวทั้งหมด</button><span id="qrEngineStatus" class="qr-engine-status" role="status"></span></div>
       <div id="printQueue" class="label-grid"></div>
+    </section>
+
+    <section id="finalize" class="panel">
+      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 5</span><h2>ปิดกล่องและสร้าง QR กล่อง</h2></div><p>ปิดได้เมื่อจำนวนตรวจนับตรงทุกรายการ</p></div>
+      <div id="finalBoxSummary" class="final-box-summary"></div>
+      <div class="actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button></div>
+      <div id="finalBoxQr" class="final-box-qr"></div>
     </section>
 
     <section id="audit" class="panel">
@@ -148,9 +163,9 @@
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
-  <script src="./js/box-qr-stock-v5-20-6.js?v=5.22.13"></script>
+  <script src="./js/box-qr-stock-v5-20-6.js?v=5.23.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.8" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.23.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '5.22.12';
+const VERSION = '5.23.0';
 const STATIC_CACHE = `tkn-static-${VERSION}`;
 const PAGE_CACHE = `tkn-pages-${VERSION}`;
 const CORE_ASSETS = [

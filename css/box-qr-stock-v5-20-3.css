@@ -80,6 +80,23 @@ tbody tr:last-child td{border-bottom:0}
 .label-qr.qr-error small{font-size:11px;line-height:1.35;word-break:break-word}
 .tkn-local-qr-canvas{display:block;max-width:100%;height:auto;image-rendering:pixelated}
 
+/* Box QR Final v5.23.0 */
+.label-settings{margin:12px 0 15px;padding:13px;border:1px solid #d8dde6;border-radius:14px;background:#f8fafc}
+.label-settings summary{cursor:pointer;font-weight:900}.label-settings-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin-top:12px}
+.label-settings-grid label{font-weight:800}.label-settings-grid select,.label-settings-grid input{width:100%;min-height:46px;margin-top:5px;padding:9px 11px;border:1px solid #cbd2dc;border-radius:10px;background:#fff}
+.label-setting-summary{margin:10px 0 0;color:#596274;font-weight:800}
+.label-grid{--label-w:50mm;--label-h:40mm;--label-cols:2;--qr-mm:16mm;--barcode-mm:7mm;--label-font:7px;--name-lines:2;display:grid;grid-template-columns:repeat(var(--label-cols),var(--label-w))!important;gap:0;width:max-content;max-width:none;overflow:visible}
+.label-grid .label{box-sizing:border-box;display:grid;grid-template-rows:var(--qr-mm) var(--barcode-mm) auto minmax(0,1fr);justify-items:center;align-content:start;width:var(--label-w);height:var(--label-h);min-height:0!important;padding:1mm;gap:0;border:1px solid #111;border-radius:2mm;overflow:hidden}
+.label-grid .label-qr{display:grid;place-items:center;width:var(--qr-mm);height:var(--qr-mm);min-height:0!important;margin:0!important}
+.label-grid .label-qr canvas{display:block;width:var(--qr-mm)!important;height:var(--qr-mm)!important;margin:0!important}
+.label-grid .label-barcode{display:block;width:calc(100% - 2mm)!important;height:var(--barcode-mm)!important;max-width:100%}
+.label-grid .label small,.label-grid .label b{display:-webkit-box;width:100%;margin:1px 0 0;overflow:hidden;text-align:center;overflow-wrap:anywhere;font-size:var(--label-font)!important;font-weight:400!important;line-height:1.08!important;-webkit-box-orient:vertical}
+.label-grid .label small{-webkit-line-clamp:2}.label-grid .label b{-webkit-line-clamp:var(--name-lines)}
+.box-qty-input,.count-input{width:88px;min-height:42px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px}
+.count-status{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:900}.count-status.ok{background:#dcfce7;color:#166534}.count-status.bad{background:#fff0c2;color:#854d0e}.count-ok{color:#15803d;font-weight:900}.count-bad{color:#c8101e;font-weight:900}
+.count-table{margin-top:14px}.final-box-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.final-box-summary article{padding:14px;border:1px solid #e5ddd7;border-radius:13px;background:#fff}.final-box-summary span,.final-box-summary b{display:block}.final-box-summary span{color:var(--bq-muted);font-size:13px}.final-box-summary b{margin-top:6px;font-size:19px;overflow-wrap:anywhere}
+.final-box-qr{display:grid;justify-items:center;gap:7px;margin-top:16px}.final-box-qr canvas{width:240px;height:240px;max-width:100%}.final-box-qr strong{font-size:20px}.final-box-qr small{color:var(--bq-muted)}
+
 /* กล้องมือถือ Box QR */
 body.bq-camera-open{overflow:hidden}
 .bq-camera-dialog{border:0;padding:0;background:transparent;width:min(760px,calc(100vw - 24px));max-width:none;color:#fff}
@@ -133,6 +150,8 @@ body.bq-camera-open{overflow:hidden}
   #receive .form-primary{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:6;min-height:56px;box-shadow:0 8px 24px rgba(200,16,30,.25)}
   .receive-table{margin-inline:-6px}
   .receive-table table{min-width:860px}
+  .label-settings-grid{grid-template-columns:1fr 1fr}.label-grid{max-width:none}.print-toolbar{display:grid;grid-template-columns:1fr 1fr}.print-toolbar button{min-height:52px}.print-toolbar .action-emphasis,.print-toolbar .primary{grid-column:1/-1}
+  .final-box-summary{grid-template-columns:1fr 1fr}.final-box-summary article:first-child{grid-column:1/-1}.count-table table{min-width:760px}
   .actions{display:grid;grid-template-columns:1fr 1fr}
   .actions button{min-height:49px}
   .actions button:nth-child(3):last-child{grid-column:1/-1}
@@ -154,11 +173,14 @@ body.bq-camera-open{overflow:hidden}
   .actions button:nth-child(3):last-child{grid-column:auto}
   .check-scan{grid-template-columns:1fr}
   .check-scan input{grid-column:auto}
+  .label-settings-grid,.print-toolbar,.final-box-summary{grid-template-columns:1fr}.final-box-summary article:first-child,.print-toolbar .action-emphasis,.print-toolbar .primary{grid-column:auto}
 }
 @media print{
   body *{visibility:hidden}
   .label-grid,.label-grid *{visibility:visible}
-  .label-grid{position:absolute;inset:0;display:grid}
+  .label-grid{position:absolute;left:0;top:0;display:grid!important;grid-template-columns:repeat(var(--label-cols),var(--label-w))!important;gap:0!important;margin:0!important;width:max-content!important}
+  body[data-label-print-mode="ROLL"] .label-grid{grid-template-columns:var(--label-w)!important}
+  body[data-label-print-mode="ROLL"] .label{break-after:page;page-break-after:always}
   .tabs,.hero,.stats,.actions,.notice,.qr-primary-note{display:none!important}
   .label{break-inside:avoid;page-break-inside:avoid;box-shadow:none}
 }

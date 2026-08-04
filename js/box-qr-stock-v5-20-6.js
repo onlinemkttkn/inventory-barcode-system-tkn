@@ -1,6 +1,14 @@
 (() => {
   "use strict";
 
+  const VERSION = "5.23.0";
+  const LABEL_PROFILES = {
+    "30x20": { width: 30, height: 20, qr: 8, barcode: 3.5, font: 5.5, lines: 1 },
+    "32x25": { width: 32, height: 25, qr: 10, barcode: 4.5, font: 6, lines: 1 },
+    "40x30": { width: 40, height: 30, qr: 12, barcode: 5.5, font: 6, lines: 2 },
+    "50x40": { width: 50, height: 40, qr: 16, barcode: 7, font: 7, lines: 2 },
+  };
+
   const $ = (id) => document.getElementById(id);
   const bind = (id, eventName, handler) => {
     const element = $(id);
@@ -23,6 +31,9 @@
     user: "-",
     userId: null,
     cloudStats: null,
+    counts: {},
+    countConfirmed: false,
+    labelSettings: { printerMode: "AUTO", dpi: 300, preset: "50x40", columns: 2 },
   };
 
   let cameraScanner = null;
@@ -92,6 +103,11 @@
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[char]));
   const integer = (value) => Number(value || 0).toLocaleString("th-TH");
+  const compactCost = (value) => Number(value || 0).toLocaleString("th-TH", { maximumFractionDigits: 2, useGrouping: false });
+  const costLetter = (sku) => String.fromCharCode(65 + [...String(sku || "")].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 26);
+  const hiddenCostSku = (item) => Number(item?.cost_price || 0) > 0
+    ? `${item.sku}-${item.costMaskLetter || costLetter(item.sku)}${compactCost(item.cost_price)}`
+    : String(item?.sku || "");
 
   function msg(text, kind = "") {
     $("message").textContent = text;
@@ -105,6 +121,8 @@
 
   function load() {
     try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (_) {}
+    S.counts ||= {};
+    S.labelSettings = { printerMode: "AUTO", dpi: 300, preset: "50x40", columns: 2, ...(S.labelSettings || {}) };
     if (!S.session) newSession();
     if (!S.box) newBox();
     render();
@@ -161,7 +179,7 @@
   }
 
   async function productByScan(raw) {
-    const value = cleanScan(raw).replace(/^TKN-P-/i, "").replace(/[%_,()]/g, "");
+    const value = cleanScan(raw).replace(/^TKN-P-/i, "").replace(/[%(),]/g, "");
     if (!value) return null;
     try {
       const { data, error } = await supabaseClient.from("products")
@@ -298,7 +316,9 @@
     S.session.source = $("source").value;
     const receipt = {
       id: code("REC"), session_id: S.session.id, tracking: "",
-      sku: product.product_code, name: product.name, boxes, piecesPerBox, loosePieces,
+      sku: product.product_code, name: product.name, barcode: product.barcode || product.product_code,
+      product_id: product.id || null, cost_price: Number(product.cost_price || 0), selling_price: Number(product.selling_price || 0),
+      costMaskLetter: costLetter(product.product_code), boxes, piecesPerBox, loosePieces,
       expected, actual, condition, good, at: now(),
     };
     S.receipts.unshift(receipt);
@@ -330,9 +350,12 @@
     let item = S.boxItems.find((row) => row.sku === product.product_code);
     if (item) item.qty += qty;
     else {
-      item = { sku: product.product_code, name: product.name, qty, product_id: product.id || null };
+      item = { sku: product.product_code, name: product.name, qty, product_id: product.id || null,
+        barcode: product.barcode || product.product_code, cost_price: Number(product.cost_price || 0),
+        selling_price: Number(product.selling_price || 0), costMaskLetter: costLetter(product.product_code) };
       S.boxItems.push(item);
     }
+    S.countConfirmed = false;
     S.box.location = $("location").value.trim();
     audit("BOX_IN", S.box.id, `${product.product_code} +${qty}`);
     $("boxSku").value = "";
@@ -345,9 +368,13 @@
 
   async function closeBox() {
     if (!S.boxItems.length) return msg("กล่องยังไม่มีสินค้า", "error");
+    if (!S.countConfirmed || S.boxItems.some((item) => Number(S.counts[item.sku]) !== Number(item.qty))) {
+      activateTab("check");
+      return msg("กรุณาตรวจนับให้ตรงทุกรายการก่อนปิดกล่อง", "error");
+    }
     S.box.status = "CLOSED";
     S.box.location = $("location").value.trim();
-    S.queue.push({ type: "BOX", code: S.box.id, name: `กล่อง ${S.box.id}`, qty: 1, pendingSync: true });
+    enqueueLabel({ type: "BOX", code: S.box.id, sku: S.box.id, barcode: S.box.id, name: `กล่อง ${S.box.id}`, qty: 1, pendingSync: true });
     audit("BOX_CLOSE", S.box.id, `รวม ${S.boxItems.reduce((sum, item) => sum + item.qty, 0)} ชิ้น`);
     save();
     let queueSynced = false;
@@ -357,6 +384,8 @@
         status: "CLOSED", location_text: S.box.location || null, closed_at: now(),
       }).eq("id", boxId);
       if (error) throw error;
+      await supabaseClient.from("label_print_queue").update({ status: "CLEARED" })
+        .eq("status", "PENDING").eq("requested_by", S.userId).eq("reference_code", S.box.id);
       const { error: queueError } = await supabaseClient.from("label_print_queue").insert({
         label_type: "BOX", reference_code: S.box.id, copies: 1,
         status: "PENDING", requested_by: S.userId,
@@ -370,12 +399,14 @@
     }
     if (queueSynced) await loadCloudPrintQueue();
     else render();
+    await drawFinalBoxQr();
     await loadCloudStats();
   }
 
   async function openBox() {
     if (!confirm("เปิดกล่องเพื่อแก้ไข? ระบบจะบันทึกประวัติ")) return;
     S.box.status = "DRAFT";
+    S.countConfirmed = false;
     audit("BOX_OPEN", S.box.id, "เปิดกล่องเพื่อแก้ไข");
     save();
     try {
@@ -389,7 +420,9 @@
 
   async function queueProducts() {
     const receipts = S.receipts.filter((row) => row.good > 0);
-    for (const row of receipts) S.queue.push({ type: "PRODUCT", code: `TKN-P-${row.sku}`, name: row.name, qty: row.good, price: "", pendingSync: true });
+    for (const row of receipts) enqueueLabel({ type: "PRODUCT", code: `TKN-P-${row.sku}`, sku: row.sku,
+      barcode: row.barcode || row.sku, name: row.name, qty: row.good, cost_price: row.cost_price,
+      costMaskLetter: row.costMaskLetter, productId: row.product_id, pendingSync: true });
     audit("PRINT_QUEUE", S.session.id, "เพิ่ม QR สินค้าจากรอบตรวจรับ");
     save();
     let queueSynced = false;
@@ -411,6 +444,58 @@
     if (queueSynced) await loadCloudPrintQueue();
     else render();
     await loadCloudStats();
+  }
+
+  function enqueueLabel(incoming) {
+    const key = queueKey(incoming);
+    const existing = S.queue.find((item) => queueKey(item) === key);
+    if (existing) Object.assign(existing, incoming, { qty: Number(incoming.qty || existing.qty || 1) });
+    else S.queue.push(incoming);
+  }
+
+  async function addReceivedToBox() {
+    if (S.box.status !== "DRAFT") return msg("กล่องปิดแล้ว ต้องเปิดกล่องก่อนแก้ไข", "error");
+    const rows = S.receipts.filter((row) => Number(row.good) > 0);
+    if (!rows.length) return msg("ยังไม่มีสินค้าสภาพดีในรอบตรวจรับ", "error");
+    for (const row of rows) {
+      let item = S.boxItems.find((entry) => entry.sku === row.sku);
+      if (item) item.qty += Number(row.good);
+      else {
+        item = { sku: row.sku, name: row.name, qty: Number(row.good), product_id: row.product_id || null,
+          barcode: row.barcode || row.sku, cost_price: Number(row.cost_price || 0), selling_price: Number(row.selling_price || 0),
+          costMaskLetter: row.costMaskLetter || costLetter(row.sku) };
+        S.boxItems.push(item);
+      }
+      await syncBoxItemToCloud({ id: item.product_id }, item);
+    }
+    S.countConfirmed = false;
+    S.box.location = $("location").value.trim();
+    audit("BOX_BATCH_IN", S.box.id, `เพิ่มจากรอบตรวจรับ ${rows.length} SKU`);
+    save();
+    msg(`เพิ่มสินค้าตรวจรับ ${rows.length} SKU ลงกล่องแล้ว`, "success");
+  }
+
+  async function queueBoxProducts() {
+    if (!S.boxItems.length) return msg("กล่องยังไม่มีสินค้า", "error");
+    for (const item of S.boxItems) enqueueLabel({ type: "PRODUCT", code: `TKN-P-${item.sku}`, sku: item.sku,
+      barcode: item.barcode || item.sku, name: item.name, qty: item.qty, cost_price: item.cost_price,
+      costMaskLetter: item.costMaskLetter || costLetter(item.sku), productId: item.product_id, pendingSync: true });
+    audit("BOX_LABEL_UPDATE", S.box.id, `สร้างฉลาก ${S.boxItems.length} SKU`);
+    save();
+    try {
+      const refs = S.boxItems.map((item) => `TKN-P-${item.sku}`);
+      if (S.userId && refs.length) {
+        await supabaseClient.from("label_print_queue").update({ status: "CLEARED" })
+          .eq("status", "PENDING").eq("requested_by", S.userId).in("reference_code", refs);
+        const { error } = await supabaseClient.from("label_print_queue").insert(S.boxItems.map((item) => ({
+          label_type: "PRODUCT", reference_code: `TKN-P-${item.sku}`, product_id: item.product_id || null,
+          copies: Math.max(1, Number(item.qty) || 1), status: "PENDING", requested_by: S.userId,
+        })));
+        if (error) throw error;
+      }
+    } catch (error) { console.warn("Box labels kept locally:", error); }
+    activateTab("print");
+    msg("สร้าง/อัปเดตฉลากสินค้าทั้งกล่องแล้ว", "success");
   }
 
   async function lookupCloudBox(boxCode) {
@@ -467,6 +552,16 @@
       $("scanResult").innerHTML = `<h3>${esc(found.id)}</h3><p>สถานะ ${esc(found.status)} · ${esc(found.location || "ยังไม่ระบุตำแหน่ง")}</p><ul>${found.items.map((item) => `<li>${esc(item.name)} (${esc(item.sku)}) — ${integer(item.qty)} ชิ้น</li>`).join("")}</ul><b>รวม ${integer(found.items.reduce((sum, item) => sum + Number(item.qty || 0), 0))} ชิ้น</b>`;
     } else {
       const product = await productByScan(raw);
+      if ($("check")?.classList.contains("active")) {
+        const boxed = S.boxItems.find((item) => item.sku === product.product_code);
+        if (boxed) {
+          S.counts[boxed.sku] = Math.min(Number(boxed.qty), Number(S.counts[boxed.sku] || 0) + 1);
+          S.countConfirmed = false;
+          save();
+          msg(`นับ ${boxed.name}: ${S.counts[boxed.sku]}/${boxed.qty} ชิ้น`, "success");
+          return;
+        }
+      }
       const info = await loadProductStock(product);
       S.lastScan = { type: "PRODUCT", product, ...info };
       $("scanResult").innerHTML = `<h3>${esc(product.name)}</h3><p>รหัส ${esc(product.product_code)} · ราคา ${Number(product.selling_price || 0).toLocaleString("th-TH")} บาท</p><p><b>สต็อกในระบบ ${integer(info.stock)} ชิ้น</b> · อยู่ในกล่อง ${integer(info.inBoxes)} ชิ้น</p><p>${info.branches.map((row) => `${esc(row.branch_name || "สาขา")}: ${integer(row.quantity)}`).join(" · ") || "ไม่พบข้อมูลแยกสาขา"}</p>`;
@@ -480,6 +575,8 @@
     if (S.box.status !== "DRAFT") return msg("ต้องเปิดกล่องก่อนลบ", "error");
     const removed = S.boxItems[index];
     S.boxItems.splice(index, 1);
+    if (removed) delete S.counts[removed.sku];
+    S.countConfirmed = false;
     audit("BOX_REMOVE", S.box.id, `${removed?.sku || "-"} removed`);
     save();
     if (S.box.cloudId && removed) {
@@ -490,6 +587,67 @@
         msg("ลบในเครื่องแล้ว แต่ส่วนกลางยังไม่สำเร็จ", "error");
       }
     }
+  }
+
+  function startRecount() {
+    S.counts = Object.fromEntries(S.boxItems.map((item) => [item.sku, 0]));
+    S.countConfirmed = false;
+    save();
+    msg("เริ่มรอบตรวจนับใหม่แล้ว สแกนสินค้าหรือกรอกจำนวนตรวจจริง", "success");
+  }
+
+  function confirmCount() {
+    if (!S.boxItems.length) return msg("กล่องยังไม่มีสินค้า", "error");
+    const mismatches = S.boxItems.filter((item) => Number(S.counts[item.sku] || 0) !== Number(item.qty));
+    if (mismatches.length) return msg(`จำนวนยังไม่ตรง ${mismatches.length} SKU กรุณาตรวจใหม่`, "error");
+    S.countConfirmed = true;
+    audit("BOX_COUNT_CONFIRMED", S.box.id, `ตรง ${S.boxItems.length} SKU`);
+    save();
+    void queueBoxProducts();
+  }
+
+  function updateBoxQuantity(sku, value) {
+    const item = S.boxItems.find((row) => row.sku === sku);
+    if (!item || S.box.status !== "DRAFT") return;
+    item.qty = Math.max(1, Math.floor(Number(value) || 1));
+    S.countConfirmed = false;
+    save();
+    void syncBoxItemToCloud({ id: item.product_id }, item);
+  }
+
+  function renderCountRows() {
+    const host = $("countRows");
+    if (!host) return;
+    host.innerHTML = S.boxItems.map((item) => {
+      const counted = Number(S.counts[item.sku] || 0);
+      const diff = counted - Number(item.qty);
+      return `<tr><td>${esc(item.sku)}</td><td>${esc(item.name)}</td><td>${item.qty}</td>
+        <td><input class="count-input" data-count-sku="${esc(item.sku)}" type="number" min="0" value="${counted}"></td>
+        <td class="${diff === 0 ? "count-ok" : "count-bad"}">${diff > 0 ? "+" : ""}${diff}</td>
+        <td><span class="count-status ${diff === 0 ? "ok" : "bad"}">${diff === 0 ? "ตรง" : "ไม่ตรง"}</span></td></tr>`;
+    }).join("") || '<tr><td colspan="6">ยังไม่มีสินค้าในกล่อง</td></tr>';
+  }
+
+  function renderFinalSummary() {
+    const host = $("finalBoxSummary");
+    if (!host) return;
+    const total = S.boxItems.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    const matched = S.boxItems.filter((item) => Number(S.counts[item.sku]) === Number(item.qty)).length;
+    host.innerHTML = `<article><span>รหัสกล่อง</span><b>${esc(S.box.id)}</b></article>
+      <article><span>จำนวน SKU</span><b>${S.boxItems.length}</b></article><article><span>จำนวนชิ้น</span><b>${total}</b></article>
+      <article><span>ตรวจนับ</span><b>${matched}/${S.boxItems.length}</b></article><article><span>สถานะ</span><b>${esc(S.box.status)}</b></article>`;
+  }
+
+  async function drawFinalBoxQr() {
+    const host = $("finalBoxQr");
+    if (!host || !S.box) return;
+    host.innerHTML = `<canvas aria-label="QR กล่อง ${esc(S.box.id)}"></canvas><strong>${esc(S.box.id)}</strong><small>${S.boxItems.length} SKU · ${S.boxItems.reduce((s, i) => s + Number(i.qty || 0), 0)} ชิ้น</small>`;
+    try {
+      const canvas = host.querySelector("canvas");
+      const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
+      if (typeof toCanvas !== "function") throw new Error("QR engine unavailable");
+      await toCanvas(canvas, S.box.id, { width: 240, margin: 2, errorCorrectionLevel: "M" });
+    } catch (error) { host.insertAdjacentHTML("beforeend", `<em>สร้าง QR ไม่สำเร็จ: ${esc(error.message)}</em>`); }
   }
 
   async function syncCurrentBoxSnapshot() {
@@ -528,7 +686,7 @@
     for (let index = 0; index < uniqueValues.length; index += 100) {
       const batch = uniqueValues.slice(index, index + 100);
       const { data, error } = await supabaseClient.from("products")
-        .select("id,product_code,name,barcode")
+        .select("id,product_code,name,barcode,cost_price,selling_price")
         .in(field, batch);
       if (error) throw error;
       products.push(...(data || []));
@@ -581,7 +739,11 @@
         const item = {
           type,
           code: codeValue,
+          sku,
+          barcode: product?.barcode || sku || codeValue,
           name: type === "BOX" ? `กล่อง ${codeValue}` : (product?.name || sku || codeValue),
+          cost_price: Number(product?.cost_price || 0),
+          costMaskLetter: costLetter(sku),
           qty: Math.max(1, Number(row.copies) || 1),
           productId: row.product_id || product?.id || null,
           cloudIds: [row.id],
@@ -706,9 +868,15 @@
       const loosePieces = Number(row.loosePieces ?? 0);
       return `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${boxes}</td><td>${piecesPerBox}</td><td>${loosePieces}</td><td><b>${row.actual}</b></td><td>${esc(row.condition)}</td></tr>`;
     }).join("") || '<tr><td colspan="8">ยังไม่มีรายการ</td></tr>';
-    $("boxRows").innerHTML = S.boxItems.map((item, index) => `<tr><td>${esc(item.sku)}</td><td>${esc(item.name)}</td><td>${item.qty}</td><td><button data-remove="${index}">ลบ</button></td></tr>`).join("") || '<tr><td colspan="4">ยังไม่มีสินค้าในกล่อง</td></tr>';
+    $("boxRows").innerHTML = S.boxItems.map((item, index) => `<tr><td>${esc(item.sku)}</td><td>${esc(item.name)}</td>
+      <td><input class="box-qty-input" data-box-qty="${esc(item.sku)}" type="number" min="1" value="${item.qty}" ${S.box.status !== "DRAFT" ? "disabled" : ""}></td>
+      <td><span class="count-status ${Number(S.counts[item.sku]) === Number(item.qty) ? "ok" : "bad"}">${Number(S.counts[item.sku]) === Number(item.qty) ? "นับตรง" : "รอตรวจนับ"}</span></td>
+      <td><button data-remove="${index}">นำออก</button></td></tr>`).join("") || '<tr><td colspan="5">ยังไม่มีสินค้าในกล่อง</td></tr>';
     $("boxTotal").textContent = S.boxItems.reduce((sum, item) => sum + item.qty, 0);
     $("auditRows").innerHTML = S.audit.map((row) => `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.user)}</td><td>${esc(row.action)}</td><td>${esc(row.ref)}</td><td>${esc(row.detail)}</td></tr>`).join("") || '<tr><td colspan="5">ยังไม่มีประวัติ</td></tr>';
+    renderCountRows();
+    renderFinalSummary();
+    applyLabelSettings(false);
     renderQueue();
   }
 
@@ -719,8 +887,53 @@
     if ($("receiveTotalPieces")) $("receiveTotalPieces").textContent = `${(boxes * piecesPerBox) + loosePieces} ชิ้น`;
   }
 
+  function readLabelSettings() {
+    return {
+      printerMode: $("labelPrinterMode")?.value || S.labelSettings.printerMode || "AUTO",
+      dpi: [203, 300, 600].includes(Number($("labelPrinterDpi")?.value)) ? Number($("labelPrinterDpi").value) : 300,
+      preset: $("labelSizePreset")?.value || S.labelSettings.preset || "50x40",
+      columns: Math.max(1, Math.min(5, Math.floor(Number($("labelColumns")?.value) || 1))),
+    };
+  }
+
+  function applyLabelSettings(saveAfter = true) {
+    if ($("labelSizePreset")) S.labelSettings = readLabelSettings();
+    const settings = S.labelSettings;
+    const profile = LABEL_PROFILES[settings.preset] || LABEL_PROFILES["50x40"];
+    const mode = settings.printerMode === "AUTO" ? (settings.columns === 1 ? "ROLL" : "SHEET") : settings.printerMode;
+    const maxColumns = Math.max(1, Math.floor(200 / profile.width));
+    const columns = mode === "ROLL" ? 1 : Math.min(settings.columns, maxColumns);
+    settings.columns = columns;
+    if ($("labelColumns")) $("labelColumns").value = columns;
+    const host = $("printQueue");
+    if (host) {
+      host.style.setProperty("--label-w", `${profile.width}mm`);
+      host.style.setProperty("--label-h", `${profile.height}mm`);
+      host.style.setProperty("--label-cols", columns);
+      host.style.setProperty("--qr-mm", `${profile.qr}mm`);
+      host.style.setProperty("--barcode-mm", `${profile.barcode}mm`);
+      host.style.setProperty("--label-font", `${profile.font}px`);
+      host.style.setProperty("--name-lines", profile.lines);
+    }
+    document.body.dataset.labelPrintMode = mode;
+    let style = $("boxQrDynamicPrintStyle");
+    if (!style) { style = document.createElement("style"); style.id = "boxQrDynamicPrintStyle"; document.head.appendChild(style); }
+    style.textContent = mode === "ROLL" ? `@page{size:${profile.width}mm ${profile.height}mm;margin:0}` : "@page{size:A4 portrait;margin:5mm}";
+    if ($("labelSettingSummary")) $("labelSettingSummary").textContent = `${mode === "ROLL" ? "DT ม้วน" : "A4"} · ${profile.width} × ${profile.height} มม. · ${columns} ดวง/แถว · ${settings.dpi} DPI`;
+    if (saveAfter) save(false);
+  }
+
+  function fillLabelSettings() {
+    if (!$("labelSizePreset")) return;
+    $("labelPrinterMode").value = S.labelSettings.printerMode || "AUTO";
+    $("labelPrinterDpi").value = String(S.labelSettings.dpi || 300);
+    $("labelSizePreset").value = S.labelSettings.preset || "50x40";
+    $("labelColumns").value = S.labelSettings.columns || 2;
+    applyLabelSettings(false);
+  }
+
   function currentLabelMode() {
-    return $("labelMode")?.value || "QR";
+    return "BOTH";
   }
 
   function syncPrintModeUi() {
@@ -773,20 +986,19 @@
         previewIndex += 1;
         const article = document.createElement("article");
         article.className = `label label-mode-${mode.toLowerCase()}`;
-        const kind = item.type === "BOX" ? "QR กล่อง" : "QR สินค้า";
         article.innerHTML = `
-          <span class="label-kind">${kind}</span>
-          <b>${esc(item.name)}</b>
           ${showQr ? `<div class="label-qr" id="qrPreview${currentIndex}"><span class="qr-loading">กำลังสร้าง QR...</span></div>` : ""}
           ${showBarcode ? `<svg class="label-barcode" id="barPreview${currentIndex}"></svg>` : ""}
-          <small>${esc(item.code)} · ฉลาก ${copyNo}/${copies}</small>`;
+          <small>${esc(item.type === "PRODUCT" ? hiddenCostSku({ ...item, sku: item.sku || productCodeFromReference(item.code) }) : item.code)}${copies > 1 ? ` · ${copyNo}/${copies}` : ""}</small>
+          <b>${esc(item.name)}</b>`;
         host.appendChild(article);
 
         requestAnimationFrame(() => {
           if (showQr) {
             const qrHost = article.querySelector('.label-qr');
             const canvas = document.createElement("canvas");
-            const size = mode === "QR" ? 170 : 112;
+            const profile = LABEL_PROFILES[S.labelSettings.preset] || LABEL_PROFILES["50x40"];
+            const size = Math.max(96, Math.round((profile.qr / 25.4) * Number(S.labelSettings.dpi || 300)));
             const renderQr = async () => {
               const ready = await (window.TKNQRHealth?.wait?.(2500) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas || window.TKNQR?.toCanvas)));
               const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
@@ -811,9 +1023,11 @@
           }
           if (showBarcode && window.JsBarcode) {
             try {
-              window.JsBarcode("#barPreview" + currentIndex, item.code, {
-                format: "CODE128", height: mode === "BOTH" ? 28 : 42,
-                displayValue: false, margin: 2,
+              const barcodeValue = String(item.barcode || item.sku || productCodeFromReference(item.code) || item.code).trim();
+              const barWidth = barcodeValue.length > 24 ? 0.65 : barcodeValue.length > 16 ? 0.85 : 1.15;
+              window.JsBarcode("#barPreview" + currentIndex, barcodeValue, {
+                format: "CODE128", height: 34, width: barWidth,
+                displayValue: false, margin: 0,
               });
             } catch (error) {
               console.error("Barcode render failed:", error);
@@ -838,6 +1052,7 @@
     button.classList.add("active");
     $(tab)?.classList.add("active");
     if (tab === "print") void loadCloudPrintQueue();
+    if (tab === "finalize" && S.box?.status === "CLOSED") void drawFinalBoxQr();
   }
 
   function applyUrlIntent() {
@@ -876,9 +1091,12 @@
     bind("queueProductQrBtn", "click", queueProducts);
     bind("newBoxBtn", "click", () => {
       newBox();
+      S.counts = {};
+      S.countConfirmed = false;
       audit("BOX_NEW", S.box.id, "");
       save();
     });
+    bind("addReceivedToBoxBtn", "click", () => { void addReceivedToBox(); });
     bind("addBoxItemBtn", "click", addBox);
     bind("closeBoxBtn", "click", closeBox);
     bind("openBoxBtn", "click", openBox);
@@ -894,6 +1112,17 @@
       const target = event.target instanceof Element ? event.target.closest("[data-remove]") : null;
       const index = target?.dataset?.remove;
       if (index !== undefined) void removeItem(Number(index));
+    });
+    bind("boxRows", "change", (event) => {
+      const input = event.target instanceof Element ? event.target.closest("[data-box-qty]") : null;
+      if (input) updateBoxQuantity(input.dataset.boxQty, input.value);
+    });
+    bind("countRows", "change", (event) => {
+      const input = event.target instanceof Element ? event.target.closest("[data-count-sku]") : null;
+      if (!input) return;
+      S.counts[input.dataset.countSku] = Math.max(0, Math.floor(Number(input.value) || 0));
+      S.countConfirmed = false;
+      save();
     });
 
     // Print controls are optional in compact/mobile deployments. Missing controls must not abort the whole page.
@@ -912,8 +1141,12 @@
       msg("สร้าง QR ในคิวใหม่เรียบร้อย", "success");
     });
     bind("clearPrintBtn", "click", () => { void clearPrintQueue(); });
-    bind("recountBtn", "click", () => msg("แนะนำเปิดโหมดมือถือเพื่อสแกนและบันทึกร่างการตรวจนับ", "success"));
-    bind("moveOutBtn", "click", () => msg("เปิดกล่องก่อน แล้วลด/ลบรายการ พร้อมระบุเหตุผลใน Audit Log", "success"));
+    bind("queueBoxProductsBtn", "click", () => { void queueBoxProducts(); });
+    bind("recountBtn", "click", startRecount);
+    bind("confirmCountBtn", "click", confirmCount);
+    bind("moveOutBtn", "click", () => activateTab("box"));
+    bind("finalOpenBoxBtn", "click", () => { void openBox(); });
+    ["labelPrinterMode", "labelPrinterDpi", "labelSizePreset", "labelColumns"].forEach((id) => bind(id, "change", () => { applyLabelSettings(); renderQueue(); }));
   }
 
   async function initializePage() {
@@ -926,8 +1159,9 @@
       const { data: { session } } = await window.supabaseClient.auth.getSession();
       S.user = session?.user?.email || access?.email || "-";
       S.userId = session?.user?.id || null;
-      if ($("labelMode")) $("labelMode").value = "QR";
+      if ($("labelMode")) $("labelMode").value = "BOTH";
       load();
+      fillLabelSettings();
       bindEvents();
       await syncCurrentBoxSnapshot();
       await loadCloudPrintQueue();
