@@ -1,0 +1,11 @@
+{
+  "version": "5.20.7",
+  "status": "PASS",
+  "checks": {
+    "javascript_syntax": "PASS",
+    "box_qr_preview_render_path": "PASS",
+    "tracking_normalization": "PASS",
+    "product_price_enrichment": "PASS",
+    "service_worker_cache_bump": "PASS"
+  }
+}
