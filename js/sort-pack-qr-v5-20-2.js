@@ -1,17 +1,17 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.11';
-  const LABEL_SETTINGS_VERSION = 8;
+  const VERSION = '5.22.12';
+  const LABEL_SETTINGS_VERSION = 9;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
   if (!ENGINE) throw new Error('ไม่พบ TKN Category Engine v5.20.1');
   const LABEL_PROFILES = Object.freeze({
-    '30x20': { width: 30, height: 20, qr: 11, nameFont: 2.2, skuFont: 1.6, nameWeight: 400, skuWeight: 400, nameLines: 2 },
-    '32x25': { width: 32, height: 25, qr: 13, nameFont: 2.4, skuFont: 1.7, nameWeight: 400, skuWeight: 400, nameLines: 2 },
-    '40x30': { width: 40, height: 30, qr: 16, nameFont: 2.8, skuFont: 1.8, nameWeight: 300, skuWeight: 300, nameLines: 3 },
-    '50x40': { width: 50, height: 40, qr: 20, nameFont: 3.2, skuFont: 2, nameWeight: 300, skuWeight: 300, nameLines: 4 },
+    '30x20': { width: 30, height: 20, qr: 11, nameFont: 6, skuFont: 6, nameWeight: 400, skuWeight: 400, nameLines: 1 },
+    '32x25': { width: 32, height: 25, qr: 13, nameFont: 6, skuFont: 6, nameWeight: 400, skuWeight: 400, nameLines: 2 },
+    '40x30': { width: 40, height: 30, qr: 16, nameFont: 7, skuFont: 7, nameWeight: 400, skuWeight: 400, nameLines: 2 },
+    '50x40': { width: 50, height: 40, qr: 20, nameFont: 8, skuFont: 8, nameWeight: 400, skuWeight: 400, nameLines: 3 },
   });
   const DEFAULT_LABEL_SETTINGS = Object.freeze({ printerMode: 'AUTO', dpi: 300, preset: '50x40', customWidth: 50, customHeight: 40, columns: 2, showName: true, ...LABEL_PROFILES['50x40'] });
 
@@ -1043,10 +1043,10 @@
     return {
       width, height,
       qr: Math.max(9, Math.min(width - 4, height * 0.55, shortSide * 0.55)),
-      nameFont: Math.max(2, Math.min(3.5, shortSide / 12)),
-      skuFont: Math.max(1.4, Math.min(2.1, shortSide / 20)),
-      nameWeight: shortSide <= 25 ? 400 : 300,
-      skuWeight: shortSide <= 25 ? 400 : 300,
+      nameFont: Math.max(6, Math.min(9, shortSide / 5)),
+      skuFont: Math.max(6, Math.min(9, shortSide / 5)),
+      nameWeight: 400,
+      skuWeight: 400,
       nameLines: shortSide >= 35 ? 4 : shortSide >= 25 ? 3 : 2,
     };
   }
@@ -1077,12 +1077,17 @@
     const qr = profile.qr;
     Object.assign(state.labelSettings, profile);
     const printMode = settings.printerMode === 'AUTO' ? (Number(settings.columns || 1) === 1 ? 'ROLL' : 'SHEET') : settings.printerMode;
+    const requestedColumns = Math.max(1, Number(settings.columns || 1));
+    const maxSheetColumns = Math.max(1, Math.floor(200 / width));
+    const effectiveColumns = printMode === 'ROLL' ? 1 : Math.min(requestedColumns, maxSheetColumns, 5);
+    settings.columns = effectiveColumns;
+    if ($('labelColumns')) $('labelColumns').value = String(effectiveColumns);
     const grid = $('labelPreview');
     if (grid) {
       grid.style.setProperty('--label-w', `${width}mm`);
       grid.style.setProperty('--label-h', `${height}mm`);
       grid.style.setProperty('--label-gap', '0mm');
-      grid.style.setProperty('--label-cols', String(printMode === 'ROLL' ? 1 : (settings.columns || 1)));
+      grid.style.setProperty('--label-cols', String(effectiveColumns));
       grid.style.setProperty('--qr-mm', `${qr}mm`);
       grid.style.setProperty('--name-font', `${profile.skuFont}px`);
       grid.style.setProperty('--sku-font', `${profile.skuFont}px`);
@@ -1100,8 +1105,8 @@
     }
     printStyle.textContent = printMode === 'ROLL'
       ? `@page{size:${width}mm ${height}mm;margin:0}`
-      : '@page{size:auto;margin:0}';
-    if ($('labelSettingSummary')) $('labelSettingSummary').textContent = `${printMode === 'ROLL' ? 'DT ม้วน' : 'กระดาษแผ่น'} · ${width} × ${height} มม. · ${printMode === 'ROLL' ? 1 : settings.columns} ดวง/แถว · ${settings.dpi || 300} DPI`;
+      : '@page{size:A4 portrait;margin:5mm}';
+    if ($('labelSettingSummary')) $('labelSettingSummary').textContent = `${printMode === 'ROLL' ? 'DT ม้วน' : 'กระดาษแผ่น'} · ${width} × ${height} มม. · ${effectiveColumns} ดวง/แถว · ${settings.dpi || 300} DPI`;
     if (save) { saveState(); renderBox(); }
   }
 
