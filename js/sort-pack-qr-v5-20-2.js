@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.0';
+  const VERSION = '5.22.1';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -1083,11 +1083,48 @@
     $('categoryStatusFilter').value = state.statusFilter;
   }
 
+  async function drawBoxQr(box, quantity) {
+    const area = $('boxQrResult');
+    area.innerHTML = `<h3>ปิดกล่องสำเร็จ</h3>
+      <div class="sp-box-qr-status" id="boxQrStatus">กำลังสร้าง QR กล่อง...</div>
+      <canvas id="boxQrCanvas" aria-label="QR กล่อง ${esc(box.code)}"></canvas>
+      <p><b>${esc(box.code)}</b></p>
+      <p>${box.items.length} SKU · ${quantity} ชิ้น</p>
+      <div class="sp-actions"><button id="printBoxQrBtn" type="button" class="sp-primary">พิมพ์ QR กล่อง</button></div>`;
+
+    const canvas = $('boxQrCanvas');
+    const status = $('boxQrStatus');
+    $('printBoxQrBtn')?.addEventListener('click', () => {
+      document.body.classList.add('sp-print-box-qr');
+      window.addEventListener('afterprint', () => document.body.classList.remove('sp-print-box-qr'), { once: true });
+      window.print();
+    });
+    try {
+      const ready = await (window.TKNQRHealth?.wait?.(2500)
+        ?? Promise.resolve(Boolean(window.QRCode?.toCanvas || window.TKNQR?.toCanvas)));
+      const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
+      if (!ready || typeof toCanvas !== 'function') throw new Error('ไม่พบระบบสร้าง QR ในเครื่อง');
+      await toCanvas(canvas, box.code, { width: 260, margin: 1, errorCorrectionLevel: 'M' });
+      status.textContent = 'QR กล่องพร้อมพิมพ์';
+      status.classList.add('is-success');
+      return true;
+    } catch (error) {
+      console.error('สร้าง QR กล่องไม่สำเร็จ:', error);
+      status.textContent = `สร้าง QR ไม่สำเร็จ: ${error.message || 'กรุณารีเฟรชหน้า'}`;
+      status.classList.add('is-error');
+      message('ปิดกล่องแล้ว แต่สร้างภาพ QR ไม่สำเร็จ กรุณารีเฟรชแล้วลองอีกครั้ง', 'error');
+      return false;
+    }
+  }
+
   async function closeBox() {
     const box = ensureBox();
     if (!box?.items?.length) return message('ยังไม่มีสินค้าในกล่อง', 'error');
-    if (!box.location.trim()) return message('กรุณาระบุตำแหน่งจัดเก็บก่อนปิดกล่อง', 'error');
     const quantity = box.items.reduce((sum, item) => sum + item.quantity, 0);
+    if (box.status === 'CLOSED') {
+      await drawBoxQr(box, quantity);
+      return message('กล่องนี้ปิดแล้ว ระบบแสดง QR กล่องให้อีกครั้ง', 'success');
+    }
     if (!confirm(`ปิดผนึกกล่อง ${box.code} จำนวน ${quantity} ชิ้น?`)) return;
 
     box.status = 'CLOSED';
@@ -1106,7 +1143,7 @@
         const boxResult = await client.from('stock_boxes').upsert({
           box_code: box.code,
           status: 'CLOSED',
-          location: box.location,
+          location: box.location || null,
           source: 'SORT_PACK',
           closed_at: box.closedAt,
         }, { onConflict: 'box_code' }).select('id').single();
@@ -1126,16 +1163,8 @@
     }
 
     saveState();
-    const area = $('boxQrResult');
-    area.innerHTML = `<h3>ปิดกล่องสำเร็จ</h3><canvas id="boxQrCanvas"></canvas><p><b>${esc(box.code)}</b></p><p>${box.items.length} SKU · ${quantity} ชิ้น</p>`;
-    setTimeout(() => {
-      const canvas = $('boxQrCanvas');
-      try {
-        if (window.TKNQRCode?.toCanvas) window.TKNQRCode.toCanvas(canvas, box.code, { width: 260, margin: 1 });
-        else window.QRCode?.toCanvas?.(canvas, box.code, { width: 260, margin: 1 });
-      } catch {}
-    }, 0);
-    message('ปิดผนึกและสร้าง QR กล่องแล้ว', 'success');
+    const qrReady = await drawBoxQr(box, quantity);
+    if (qrReady) message(`ปิดผนึกและสร้าง QR กล่องแล้ว${box.location ? '' : ' · ยังไม่ระบุตำแหน่งจัดเก็บ'}`, 'success');
   }
 
   function validateCurrentStep() {

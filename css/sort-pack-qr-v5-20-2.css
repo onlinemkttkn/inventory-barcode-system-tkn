@@ -332,6 +332,16 @@ body { overflow-x: hidden; }
 body[data-label-show-name="false"] .sp-label h4{display:none}
 .sp-box-qr { margin-top: 18px; text-align: center; }
 .sp-box-qr canvas { width: 100%; max-width: 260px; }
+.sp-box-qr-status { margin: 10px auto; font-weight: 700; color: #64748b; }
+.sp-box-qr-status.is-success { color: #15803d; }
+.sp-box-qr-status.is-error { color: #c8101e; }
+
+@media print {
+  body.sp-print-box-qr * { visibility: hidden; }
+  body.sp-print-box-qr #boxQrResult, body.sp-print-box-qr #boxQrResult * { visibility: visible; }
+  body.sp-print-box-qr #boxQrResult { position: fixed; inset: 0; display: grid; place-content: center; background: #fff; }
+  body.sp-print-box-qr #boxQrResult .sp-actions, body.sp-print-box-qr #boxQrResult .sp-box-qr-status { display: none !important; }
+}
 
 .sp-actionbar {
   position: fixed;
