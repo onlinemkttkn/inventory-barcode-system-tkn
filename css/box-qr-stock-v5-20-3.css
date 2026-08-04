@@ -80,7 +80,13 @@ tbody tr:last-child td{border-bottom:0}
 .label-qr.qr-error small{font-size:11px;line-height:1.35;word-break:break-word}
 .tkn-local-qr-canvas{display:block;max-width:100%;height:auto;image-rendering:pixelated}
 
-/* Box QR Final v5.23.1 */
+/* Box QR Final v5.24.0 */
+.receive-hidden-field{display:none!important}
+.workflow-nav{position:sticky;bottom:10px;z-index:12;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:14px 0;padding:10px;border:1px solid #e2d8d2;border-radius:15px;background:rgba(255,255,255,.96);box-shadow:0 10px 30px rgba(42,24,25,.14);backdrop-filter:blur(10px)}
+.workflow-nav button{min-height:48px;padding:10px 18px;border:1px solid #ddd2cc;border-radius:11px;background:#f4f1ef;font-weight:900;cursor:pointer}
+.workflow-nav button.primary{background:var(--bq-red);color:#fff;border-color:var(--bq-red)}
+.workflow-nav button:disabled{opacity:.45;cursor:not-allowed}
+.workflow-nav span{text-align:center;color:#655d5e;font-weight:800}
 .label-settings{margin:12px 0 15px;padding:13px;border:1px solid #d8dde6;border-radius:14px;background:#f8fafc}
 .label-settings summary{cursor:pointer;font-weight:900}.label-settings-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin-top:12px}
 .label-settings-grid label{font-weight:800}.label-settings-grid select,.label-settings-grid input{width:100%;min-height:46px;margin-top:5px;padding:9px 11px;border:1px solid #cbd2dc;border-radius:10px;background:#fff}
@@ -165,6 +171,9 @@ body.bq-camera-open{overflow:hidden}
   .bq-camera-frame{aspect-ratio:auto;min-height:0}
   .bq-camera-target{inset:22% 8%}
   .bq-camera-head{padding-top:calc(14px + env(safe-area-inset-top))}
+  .workflow-nav{bottom:calc(72px + env(safe-area-inset-bottom));grid-template-columns:1fr 1.45fr;padding:8px}
+  .workflow-nav span{grid-column:1/-1;grid-row:1;font-size:13px}
+  .workflow-nav button{grid-row:2;padding-inline:10px}
 }
 @media(max-width:390px){
   .stats{grid-template-columns:1fr 1fr}

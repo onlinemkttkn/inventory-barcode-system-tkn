@@ -1,7 +1,9 @@
 (() => {
   "use strict";
 
-  const VERSION = "5.23.3";
+  const VERSION = "5.24.0";
+  const WORKFLOW_TABS = ["receive", "box", "check", "print", "finalize", "audit"];
+  const WORKFLOW_NEXT_LABELS = ["ถัดไป: จัดลงกล่อง", "ถัดไป: ตรวจนับ", "ถัดไป: สร้างฉลาก", "ถัดไป: ปิดกล่อง", "ถัดไป: ประวัติ", "จบงาน"];
   const LABEL_PROFILES = {
     "30x20": { width: 30, height: 20, qr: 8, barcode: 3.5, font: 5.5, lines: 1 },
     "32x25": { width: 32, height: 25, qr: 10, barcode: 4.5, font: 6, lines: 1 },
@@ -108,21 +110,6 @@
   const hiddenCostSku = (item) => Number(item?.cost_price || 0) > 0
     ? `${item.sku}-${item.costMaskLetter || costLetter(item.sku)}${compactCost(item.cost_price)}`
     : String(item?.sku || "");
-
-  function boxLabelItem(pendingSync = true) {
-    const skuCount = S.boxItems.length;
-    const pieceCount = S.boxItems.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-    const location = S.box?.location ? ` · ${S.box.location}` : "";
-    return {
-      type: "BOX",
-      code: S.box.id,
-      sku: S.box.id,
-      barcode: S.box.id,
-      name: `กล่อง ${S.box.id} · ${skuCount} SKU · ${pieceCount} ชิ้น${location}`,
-      qty: 1,
-      pendingSync,
-    };
-  }
 
   function msg(text, kind = "") {
     $("message").textContent = text;
@@ -243,7 +230,7 @@
   async function syncReceiptToCloud(receipt, product) {
     try {
       const sessionId = await ensureCloudSession();
-      const { data, error } = await supabaseClient.from("marketplace_receiving_items").insert({
+      const { error } = await supabaseClient.from("marketplace_receiving_items").insert({
         session_id: sessionId,
         tracking_number: receipt.tracking || null,
         order_number: receipt.tracking || null,
@@ -254,10 +241,8 @@
         good_qty: receipt.good,
         condition_status: receipt.condition,
         created_by: S.userId,
-      }).select("id").single();
+      });
       if (error) throw error;
-      receipt.cloudId = data?.id || null;
-      save(false);
       return true;
     } catch (error) {
       console.warn("Receipt kept locally:", error);
@@ -282,7 +267,7 @@
 
   async function syncReceiptToBranchStock(receipt, product) {
     if (!receipt.good) return { ok: true, skipped: true };
-    const branchId = receipt.branch_id || $("receiveBranch")?.value;
+    const branchId = $("receiveBranch")?.value;
     if (!branchId) return { ok: false, error: "กรุณาเลือกสาขารับสินค้า" };
     if (!product.id) return { ok: false, error: "สินค้านี้ยังไม่มีรหัสในฐานข้อมูล จึงยังเพิ่มสต็อกไม่ได้" };
     try {
@@ -325,8 +310,7 @@
     const boxes = Math.max(0, Math.floor(Number($("receiveBoxQty").value) || 0));
     const piecesPerBox = Math.max(1, Math.floor(Number($("piecesPerBox").value) || 1));
     const loosePieces = Math.max(0, Math.floor(Number($("loosePieces").value) || 0));
-    const calculatedTotal = (boxes * piecesPerBox) + loosePieces;
-    const actual = Math.max(1, Math.floor(Number($("receiveTotalPieces")?.value) || calculatedTotal));
+    const actual = (boxes * piecesPerBox) + loosePieces;
     if (actual <= 0) return msg("กรุณาระบุจำนวนกล่องหรือเศษสินค้าอย่างน้อย 1 ชิ้น", "error");
     const expected = boxes * piecesPerBox;
     const condition = $("condition").value;
@@ -337,7 +321,6 @@
       sku: product.product_code, name: product.name, barcode: product.barcode || product.product_code,
       product_id: product.id || null, cost_price: Number(product.cost_price || 0), selling_price: Number(product.selling_price || 0),
       costMaskLetter: costLetter(product.product_code), boxes, piecesPerBox, loosePieces,
-      branch_id: $("receiveBranch")?.value || null,
       expected, actual, condition, good, at: now(),
     };
     S.receipts.unshift(receipt);
@@ -347,112 +330,14 @@
     $("loosePieces").value = "0";
     updateReceiveTotal();
     save();
-    msg("บันทึกในเครื่องแล้ว กำลังส่งเข้าฐานข้อมูลกลาง...", "success");
-    const [synced, stockResult] = await Promise.all([
-      syncReceiptToCloud(receipt, product),
-      syncReceiptToBranchStock(receipt, product),
-    ]);
-    receipt.cloudSynced = Boolean(synced);
-    receipt.stockSynced = Boolean(stockResult.ok && !stockResult.skipped);
-    save(false);
-    if (synced && stockResult.ok) {
-      msg(condition === "GOOD" ? `รับเข้า ${actual} ชิ้นและอัปเดตสต็อกสาขาแล้ว` : `บันทึกสินค้า ${actual} ชิ้นไว้ตรวจสอบ โดยยังไม่เพิ่มสต็อกพร้อมขาย`, "success");
-    } else {
-      msg(`บันทึกในเครื่องแล้ว แต่ซิงก์ไม่ครบ${stockResult.error ? `: ${stockResult.error}` : ""}`, "error");
-    }
+    msg("เพิ่มรายการที่จะเก็บแล้ว กำลังซิงก์รอบจัดเก็บ...", "success");
+    const synced = await syncReceiptToCloud(receipt, product);
+    msg(synced
+      ? `เพิ่ม ${product.name} จำนวน ${actual} ชิ้นแล้ว · ยิงรายการต่อได้ หรือกดถัดไปเมื่อครบ`
+      : "บันทึกรายการในเครื่องแล้ว แต่ยังซิงก์ส่วนกลางไม่สำเร็จ",
+      synced ? "success" : "error");
     await loadCloudStats();
     $("receiveSku").focus();
-  }
-
-  async function reverseReceipt(receipt) {
-    if (S.boxItems.some((item) => item.sku === receipt.sku)) {
-      throw new Error(`SKU ${receipt.sku} อยู่ในกล่อง กรุณานำออกจากกล่องก่อนลบรายการตรวจรับ`);
-    }
-    const legacyStockWasLikelySynced = receipt.stockSynced == null && Boolean(receipt.product_id && receipt.branch_id);
-    if (Number(receipt.good || 0) > 0 && (receipt.stockSynced === true || legacyStockWasLikelySynced)) {
-      const branchId = receipt.branch_id || $("receiveBranch")?.value;
-      if (!receipt.product_id || !branchId) {
-        throw new Error(`SKU ${receipt.sku} ไม่มีข้อมูลสาขาหรือรหัสสินค้า จึงย้อนสต็อกอัตโนมัติไม่ได้`);
-      }
-      const { error } = await supabaseClient.rpc("issue_branch_inventory", {
-        p_branch_id: branchId,
-        p_items: [{ product_id: receipt.product_id, quantity: Number(receipt.good), note: `ยกเลิกรับผ่าน Box QR ${receipt.id}` }],
-        p_requester_name: S.user || "Box QR",
-        p_department: "คลังสินค้า",
-        p_reference_no: receipt.id,
-        p_notes: `ย้อนรายการตรวจรับ ${receipt.sku} จำนวน ${receipt.good} ชิ้น`,
-        p_idempotency_key: `box-qr-receive-reverse:${receipt.id}`,
-      });
-      if (error) throw error;
-    }
-    if (receipt.cloudId) {
-      const { error } = await supabaseClient.from("marketplace_receiving_items").delete().eq("id", receipt.cloudId);
-      if (error) console.warn("Receipt cloud row was not deleted:", error);
-    }
-  }
-
-  async function deleteReceiptById(receiptId, ask = true) {
-    const receipt = S.receipts.find((row) => row.id === receiptId);
-    if (!receipt) return;
-    if (ask && !confirm(`ลบรายการ ${receipt.sku} และย้อนสต็อก ${receipt.good || 0} ชิ้นหรือไม่?`)) return;
-    try {
-      await reverseReceipt(receipt);
-      S.receipts = S.receipts.filter((row) => row.id !== receipt.id);
-      audit("RECEIVE_DELETE", receipt.sku, `ลบรายการและย้อนสต็อก ${receipt.good || 0} ชิ้น`);
-      save();
-      await loadCloudStats();
-      msg(`ลบ ${receipt.sku} และย้อนสต็อกเรียบร้อย`, "success");
-    } catch (error) {
-      msg(error.message || "ลบรายการไม่สำเร็จ", "error");
-    }
-  }
-
-  async function clearReceipts() {
-    if (!S.receipts.length) return msg("ไม่มีรายการตรวจรับให้ล้าง", "error");
-    if (!confirm(`ล้างรายการตรวจรับ ${S.receipts.length} รายการและย้อนสต็อกทั้งหมดหรือไม่?`)) return;
-    const rows = [...S.receipts];
-    try {
-      for (const receipt of rows) await reverseReceipt(receipt);
-      S.receipts = [];
-      audit("RECEIVE_CLEAR", S.session.id, `ล้าง ${rows.length} รายการและย้อนสต็อกแล้ว`);
-      save();
-      await loadCloudStats();
-      msg("ล้างรายการตรวจรับและย้อนสต็อกเรียบร้อย", "success");
-    } catch (error) {
-      msg(`หยุดการล้างรายการ: ${error.message || error}`, "error");
-    }
-  }
-
-  function clearAuditHistory() {
-    if (!S.audit.length) return msg("ไม่มีประวัติในเครื่องให้ล้าง", "error");
-    if (!confirm(`ล้างประวัติในเครื่อง ${S.audit.length} รายการหรือไม่?`)) return;
-    S.audit = [];
-    save();
-    msg("ล้างประวัติในเครื่องแล้ว", "success");
-  }
-
-  function installUsbScanner() {
-    let buffer = "";
-    let lastKeyAt = 0;
-    document.addEventListener("keydown", (event) => {
-      const target = event.target;
-      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return;
-      const at = Date.now();
-      if (at - lastKeyAt > 120) buffer = "";
-      lastKeyAt = at;
-      if (event.key === "Enter") {
-        const value = buffer.trim();
-        buffer = "";
-        if (!value) return;
-        event.preventDefault();
-        const active = document.querySelector(".panel.active")?.id;
-        if (active === "receive") { $("receiveSku").value = value; void receive(); }
-        else if (active === "box") { $("boxSku").value = value; void addBox(); }
-        else if (active === "check") { $("scanCode").value = value; void scan(); }
-        return;
-      }
-      if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) buffer += event.key;
-    });
   }
 
   async function addBox() {
@@ -487,7 +372,7 @@
     }
     S.box.status = "CLOSED";
     S.box.location = $("location").value.trim();
-    enqueueLabel(boxLabelItem(true));
+    enqueueLabel({ type: "BOX", code: S.box.id, sku: S.box.id, barcode: S.box.id, name: `กล่อง ${S.box.id}`, qty: 1, pendingSync: true });
     audit("BOX_CLOSE", S.box.id, `รวม ${S.boxItems.reduce((sum, item) => sum + item.qty, 0)} ชิ้น`);
     save();
     let queueSynced = false;
@@ -569,7 +454,7 @@
   async function addReceivedToBox() {
     if (S.box.status !== "DRAFT") return msg("กล่องปิดแล้ว ต้องเปิดกล่องก่อนแก้ไข", "error");
     const rows = S.receipts.filter((row) => Number(row.good) > 0);
-    if (!rows.length) return msg("ยังไม่มีสินค้าสภาพดีในรอบตรวจรับ", "error");
+    if (!rows.length) return msg("ยังไม่มีสินค้าจากหน้าร้านในรอบจัดเก็บ", "error");
     for (const row of rows) {
       let item = S.boxItems.find((entry) => entry.sku === row.sku);
       if (item) item.qty += Number(row.good);
@@ -583,9 +468,9 @@
     }
     S.countConfirmed = false;
     S.box.location = $("location").value.trim();
-    audit("BOX_BATCH_IN", S.box.id, `เพิ่มจากรอบตรวจรับ ${rows.length} SKU`);
+    audit("BOX_BATCH_IN", S.box.id, `เก็บจากหน้าร้าน ${rows.length} SKU`);
     save();
-    msg(`เพิ่มสินค้าตรวจรับ ${rows.length} SKU ลงกล่องแล้ว`, "success");
+    msg(`เพิ่มสินค้าจากหน้าร้าน ${rows.length} SKU ลงกล่องแล้ว · POS จะไม่นับจำนวนนี้เป็นพร้อมขาย`, "success");
   }
 
   async function queueBoxProducts() {
@@ -757,33 +642,10 @@
     host.innerHTML = `<canvas aria-label="QR กล่อง ${esc(S.box.id)}"></canvas><strong>${esc(S.box.id)}</strong><small>${S.boxItems.length} SKU · ${S.boxItems.reduce((s, i) => s + Number(i.qty || 0), 0)} ชิ้น</small>`;
     try {
       const canvas = host.querySelector("canvas");
-      const ready = await (window.TKNQRHealth?.wait?.(2500) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas || window.TKNQR?.toCanvas)));
       const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
-      if (!ready || typeof toCanvas !== "function") throw new Error(window.TKNQRHealth?.errorText?.() || "QR engine unavailable");
+      if (typeof toCanvas !== "function") throw new Error("QR engine unavailable");
       await toCanvas(canvas, S.box.id, { width: 240, margin: 2, errorCorrectionLevel: "M" });
     } catch (error) { host.insertAdjacentHTML("beforeend", `<em>สร้าง QR ไม่สำเร็จ: ${esc(error.message)}</em>`); }
-  }
-
-  async function queueAndShowBoxLabel() {
-    if (!S.boxItems.length) return msg("กล่องยังไม่มีสินค้า", "error");
-    if (S.box.status !== "CLOSED") return msg("กรุณาตรวจนับและปิดกล่องก่อนสร้างฉลากกล่อง", "error");
-    enqueueLabel(boxLabelItem(true));
-    save(false);
-    try {
-      await supabaseClient.from("label_print_queue").update({ status: "CLEARED" })
-        .eq("status", "PENDING").eq("requested_by", S.userId).eq("reference_code", S.box.id);
-      const { error } = await supabaseClient.from("label_print_queue").insert({
-        label_type: "BOX", reference_code: S.box.id, copies: 1,
-        status: "PENDING", requested_by: S.userId,
-      });
-      if (error) throw error;
-      await loadCloudPrintQueue();
-    } catch (error) {
-      console.warn("Box label remains local:", error);
-      render();
-    }
-    activateTab("print");
-    msg("สร้างฉลากกล่อง QR + Code 128 พร้อมพิมพ์แล้ว", "success");
   }
 
   async function syncCurrentBoxSnapshot() {
@@ -877,9 +739,7 @@
           code: codeValue,
           sku,
           barcode: product?.barcode || sku || codeValue,
-          name: type === "BOX"
-            ? (codeValue === S.box?.id ? boxLabelItem(false).name : `กล่อง ${codeValue}`)
-            : (product?.name || sku || codeValue),
+          name: type === "BOX" ? `กล่อง ${codeValue}` : (product?.name || sku || codeValue),
           cost_price: Number(product?.cost_price || 0),
           costMaskLetter: costLetter(sku),
           qty: Math.max(1, Number(row.copies) || 1),
@@ -926,8 +786,16 @@
       // prevents another user's pending labels from keeping this counter non-zero.
       if (S.userId) printQueueQuery = printQueueQuery.eq("requested_by", S.userId);
 
-      const queue = await printQueueQuery;
+      const [sessions, drafts, closed, queue] = await Promise.all([
+        supabaseClient.from("marketplace_receiving_sessions").select("id", { count: "exact", head: true }),
+        supabaseClient.from("stock_boxes").select("id", { count: "exact", head: true }).eq("status", "DRAFT"),
+        supabaseClient.from("stock_boxes").select("id", { count: "exact", head: true }).eq("status", "CLOSED"),
+        printQueueQuery,
+      ]);
       S.cloudStats = {
+        sessions: sessions.count || 0,
+        drafts: drafts.count || 0,
+        closed: closed.count || 0,
         print: (queue.data || []).reduce((sum, row) => sum + Number(row.copies || 1), 0),
       };
       renderStats();
@@ -975,33 +843,10 @@
     }
   }
 
-  async function markPrintQueueCompleted() {
-    const copies = S.queue.reduce((sum, row) => sum + Math.max(1, Number(row.qty) || 1), 0);
-    if (!copies) return;
-    S.queue = [];
-    if (S.cloudStats) S.cloudStats.print = 0;
-    audit("PRINT_COMPLETED", S.userId || S.user, `ยืนยันพิมพ์สำเร็จ ${copies} ฉลาก`);
-    save();
-    try {
-      if (S.userId) {
-        const { error } = await supabaseClient.from("label_print_queue")
-          .update({ status: "PRINTED" })
-          .eq("status", "PENDING")
-          .eq("requested_by", S.userId);
-        if (error) throw error;
-      }
-      await loadCloudStats();
-      msg(`ตัดคิวที่พิมพ์สำเร็จแล้ว ${copies} ฉลาก`, "success");
-    } catch (error) {
-      console.warn("Print completion sync failed:", error);
-      msg("ตัดคิวในเครื่องแล้ว แต่ปรับสถานะคิวส่วนกลางไม่สำเร็จ", "error");
-    }
-  }
-
   function renderStats() {
-    $("sessionCount").textContent = new Set(S.receipts.map((row) => row.sku).filter(Boolean)).size;
-    $("draftBoxCount").textContent = S.boxItems.length;
-    $("closedBoxCount").textContent = S.boxItems.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    $("sessionCount").textContent = S.cloudStats?.sessions ?? (S.session ? 1 : 0);
+    $("draftBoxCount").textContent = S.cloudStats?.drafts ?? (S.box?.status === "DRAFT" ? 1 : 0);
+    $("closedBoxCount").textContent = S.cloudStats?.closed ?? (S.box?.status === "CLOSED" ? 1 : 0);
     const pendingLocalCopies = (Array.isArray(S.queue) ? S.queue : [])
       .filter((row) => row?.pendingSync === true)
       .reduce((sum, row) => sum + Math.max(1, Number(row.qty) || 1), 0);
@@ -1019,8 +864,8 @@
       const boxes = Number(row.boxes ?? 0);
       const piecesPerBox = Number(row.piecesPerBox ?? row.actual ?? 1);
       const loosePieces = Number(row.loosePieces ?? 0);
-      return `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${boxes}</td><td>${piecesPerBox}</td><td>${loosePieces}</td><td><b>${row.actual}</b></td><td>${esc(row.condition)}</td><td><button type="button" class="row-delete" data-delete-receipt="${esc(row.id)}">ลบ</button></td></tr>`;
-    }).join("") || '<tr><td colspan="9">ยังไม่มีรายการ</td></tr>';
+      return `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td><b>${row.actual}</b> ชิ้น</td><td>${esc(row.condition)}</td></tr>`;
+    }).join("") || '<tr><td colspan="5">ยังไม่มีรายการสินค้าที่จะเก็บ</td></tr>';
     $("boxRows").innerHTML = S.boxItems.map((item, index) => `<tr><td>${esc(item.sku)}</td><td>${esc(item.name)}</td>
       <td><input class="box-qty-input" data-box-qty="${esc(item.sku)}" type="number" min="1" value="${item.qty}" ${S.box.status !== "DRAFT" ? "disabled" : ""}></td>
       <td><span class="count-status ${Number(S.counts[item.sku]) === Number(item.qty) ? "ok" : "bad"}">${Number(S.counts[item.sku]) === Number(item.qty) ? "นับตรง" : "รอตรวจนับ"}</span></td>
@@ -1029,6 +874,7 @@
     $("auditRows").innerHTML = S.audit.map((row) => `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.user)}</td><td>${esc(row.action)}</td><td>${esc(row.ref)}</td><td>${esc(row.detail)}</td></tr>`).join("") || '<tr><td colspan="5">ยังไม่มีประวัติ</td></tr>';
     renderCountRows();
     renderFinalSummary();
+    updateWorkflowNav();
     applyLabelSettings(false);
     renderQueue();
   }
@@ -1037,7 +883,7 @@
     const boxes = Math.max(0, Math.floor(Number($("receiveBoxQty")?.value) || 0));
     const piecesPerBox = Math.max(1, Math.floor(Number($("piecesPerBox")?.value) || 1));
     const loosePieces = Math.max(0, Math.floor(Number($("loosePieces")?.value) || 0));
-    if ($("receiveTotalPieces")) $("receiveTotalPieces").value = String((boxes * piecesPerBox) + loosePieces);
+    if ($("receiveTotalPieces")) $("receiveTotalPieces").textContent = `${(boxes * piecesPerBox) + loosePieces} ชิ้น`;
   }
 
   function readLabelSettings() {
@@ -1204,8 +1050,54 @@
     document.querySelectorAll(".tabs button,.panel").forEach((element) => element.classList.remove("active"));
     button.classList.add("active");
     $(tab)?.classList.add("active");
+    updateWorkflowNav();
     if (tab === "print") void loadCloudPrintQueue();
     if (tab === "finalize" && S.box?.status === "CLOSED") void drawFinalBoxQr();
+  }
+
+  function activeWorkflowIndex() {
+    const active = document.querySelector(".tabs button.active")?.dataset?.tab;
+    return Math.max(0, WORKFLOW_TABS.indexOf(active));
+  }
+
+  function updateWorkflowNav() {
+    const index = activeWorkflowIndex();
+    if ($("workflowStatus")) $("workflowStatus").textContent = `ขั้นตอน ${index + 1} จาก ${WORKFLOW_TABS.length}`;
+    if ($("workflowPrevBtn")) $("workflowPrevBtn").disabled = index === 0;
+    if ($("workflowNextBtn")) {
+      $("workflowNextBtn").disabled = index === WORKFLOW_TABS.length - 1;
+      $("workflowNextBtn").textContent = WORKFLOW_NEXT_LABELS[index];
+    }
+  }
+
+  async function workflowNext() {
+    const index = activeWorkflowIndex();
+    if (index === 0) {
+      if (!S.receipts.some((row) => Number(row.good) > 0)) return msg("กรุณายิงสินค้าอย่างน้อย 1 รายการก่อนกดถัดไป", "error");
+      activateTab("box");
+      return msg("ตรวจรายการแล้ว กดเพิ่มทั้งหมดลงกล่องหรือสแกนเพิ่มในขั้นตอนที่ 2", "success");
+    }
+    if (index === 1) {
+      if (!S.boxItems.length && S.receipts.some((row) => Number(row.good) > 0)) await addReceivedToBox();
+      if (!S.boxItems.length) return msg("ยังไม่มีสินค้าในกล่อง", "error");
+      activateTab("check");
+      if (!Object.keys(S.counts || {}).length) startRecount();
+      return;
+    }
+    if (index === 2) {
+      if (!S.countConfirmed) return msg("กรุณาตรวจนับและกดยืนยันผลตรวจนับก่อน", "error");
+      return activateTab("print");
+    }
+    if (index === 3) return activateTab("finalize");
+    if (index === 4) {
+      if (S.box?.status !== "CLOSED") return msg("กรุณาปิดผนึกและสร้าง QR กล่องก่อน", "error");
+      activateTab("audit");
+    }
+  }
+
+  function workflowPrevious() {
+    const index = activeWorkflowIndex();
+    if (index > 0) activateTab(WORKFLOW_TABS[index - 1]);
   }
 
   function applyUrlIntent() {
@@ -1241,12 +1133,7 @@
       audit("SESSION_NEW", S.session.id, S.session.source);
       save();
     });
-    bind("clearReceiptsBtn", "click", () => { void clearReceipts(); });
-    bind("clearAuditBtn", "click", clearAuditHistory);
-    bind("receiveRows", "click", (event) => {
-      const button = event.target instanceof Element ? event.target.closest("[data-delete-receipt]") : null;
-      if (button) void deleteReceiptById(button.dataset.deleteReceipt);
-    });
+    bind("queueProductQrBtn", "click", queueProducts);
     bind("newBoxBtn", "click", () => {
       newBox();
       S.counts = {};
@@ -1257,7 +1144,6 @@
     bind("addReceivedToBoxBtn", "click", () => { void addReceivedToBox(); });
     bind("addBoxItemBtn", "click", addBox);
     bind("closeBoxBtn", "click", closeBox);
-    bind("printBoxLabelBtn", "click", () => { void queueAndShowBoxLabel(); });
     bind("openBoxBtn", "click", openBox);
     bind("scanBtn", "click", scan);
     bind("receiveProductCameraBtn", "click", () => { void openCamera("receive-product"); });
@@ -1267,7 +1153,6 @@
     bind("receiveSku", "keydown", (event) => { if (event.key === "Enter") void receive(); });
     ["receiveBoxQty", "piecesPerBox", "loosePieces"].forEach((id) => bind(id, "input", updateReceiveTotal));
     bind("boxSku", "keydown", (event) => { if (event.key === "Enter") void addBox(); });
-    installUsbScanner();
     bind("boxRows", "click", (event) => {
       const target = event.target instanceof Element ? event.target.closest("[data-remove]") : null;
       const index = target?.dataset?.remove;
@@ -1291,9 +1176,6 @@
     bind("printAllBtn", "click", () => {
       if (!Array.isArray(S.queue) || !S.queue.length) return msg("ยังไม่มี QR ในคิวพิมพ์", "error");
       window.print();
-      window.setTimeout(() => {
-        if (confirm("พิมพ์ฉลากสำเร็จแล้วหรือไม่? กดตกลงเพื่อตัดรายการออกจากคิวพิมพ์")) void markPrintQueueCompleted();
-      }, 300);
     });
     bind("retryQrBtn", "click", async () => {
       msg("กำลังตรวจและสร้าง QR ใหม่...");
@@ -1308,6 +1190,8 @@
     bind("recountBtn", "click", startRecount);
     bind("confirmCountBtn", "click", confirmCount);
     bind("moveOutBtn", "click", () => activateTab("box"));
+    bind("workflowNextBtn", "click", () => { void workflowNext(); });
+    bind("workflowPrevBtn", "click", workflowPrevious);
     bind("finalOpenBoxBtn", "click", () => { void openBox(); });
     ["labelPrinterMode", "labelPrinterDpi", "labelSizePreset", "labelColumns"].forEach((id) => bind(id, "change", () => { applyLabelSettings(); renderQueue(); }));
   }
@@ -1336,7 +1220,7 @@
         location.replace("./dashboard.html");
       });
       window.TKNAuthGuard.ready();
-      if (!new URLSearchParams(location.search).get("scan")) msg("ระบบ QR พร้อมใช้งาน · QR สินค้าใช้ตรวจสต็อกและสแกนขายที่ POS ได้", "success");
+      if (!new URLSearchParams(location.search).get("scan")) msg("เริ่มจากยิงสินค้าที่เหลือหน้าร้าน แล้วกดถัดไปเพื่อจัดลงกล่อง", "success");
     } catch (error) {
       console.error("Box QR initialization error:", error);
       if (error?.code === "INVENTORY_PERMISSION_DENIED") return;

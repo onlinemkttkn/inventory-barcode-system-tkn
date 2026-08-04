@@ -340,10 +340,17 @@ async function searchProducts(event){
     const rows=inv.data||[];
     if(!rows.length){E.results.innerHTML='';return msg(E.searchMsg,'ไม่พบสินค้า หรือสินค้าหมดสต็อก','error')}
     const ids=[...new Set(rows.map(r=>r.product_id).filter(Boolean))];
+    const boxedMap=new Map();
+    if(ids.length){
+      const boxed=await supabaseClient.from('stock_box_items').select('product_id,quantity,stock_boxes!inner(status)').in('product_id',ids).in('stock_boxes.status',['DRAFT','CLOSED']).gt('quantity',0);
+      if(boxed.error)throw new Error(`ตรวจสต็อกหน้าร้านไม่สำเร็จ: ${boxed.error.message}`);
+      (boxed.data||[]).forEach(item=>boxedMap.set(item.product_id,number(boxedMap.get(item.product_id))+number(item.quantity)));
+    }
     const pr=await supabaseClient.from('products').select('id,selling_price,cost_price,is_active').in('id',ids);
     if(pr.error)throw pr.error;
     const map=new Map((pr.data||[]).map(p=>[p.id,p]));
-    const products=rows.map(r=>{const p=map.get(r.product_id)||{};return{id:r.product_id,code:r.product_code,name:r.product_name,barcode:r.barcode,stock:number(r.quantity),price:number(r.selling_price,number(p.selling_price)),cost:number(p.cost_price),active:p.is_active!==false}}).filter(p=>p.active);
+    const products=rows.map(r=>{const p=map.get(r.product_id)||{};return{id:r.product_id,code:r.product_code,name:r.product_name,barcode:r.barcode,stock:Math.max(0,number(r.quantity)-number(boxedMap.get(r.product_id))),price:number(r.selling_price,number(p.selling_price)),cost:number(p.cost_price),active:p.is_active!==false}}).filter(p=>p.active&&p.stock>0);
+    if(!products.length){E.results.innerHTML='';return msg(E.searchMsg,'สินค้านี้ถูกเก็บอยู่ในกล่อง ไม่มีจำนวนพร้อมขายหน้าร้าน','error')}
     E.results.innerHTML=products.map(p=>`<article class="product-result" data-id="${p.id}"><div><strong>${esc(p.name)}</strong><small>${esc(p.code)} · คงเหลือ ${p.stock.toLocaleString('th-TH')} · ${money(p.price)}</small></div><button class="btn primary add-product" type="button">เพิ่ม</button></article>`).join('');
     E.results.querySelectorAll('.product-result').forEach(row=>{const p=products.find(x=>x.id===row.dataset.id);row.querySelector('button').onclick=()=>addProduct(p)});
     if(products.length===1){addProduct(products[0]);E.search.value='';E.search.focus()}
