@@ -44,25 +44,10 @@
     const scanner = camera();
     if (!scanner) return;
 
-    if (mode === "tracking") {
-      scanner.onScan = async (value) => {
-        $("tracking").value = cleanScan(value);
-        $("receiveSku").focus();
-        msg("สแกน Tracking แล้ว · ยิง QR สินค้าต่อได้เลย", "success");
-      };
-      await scanner.open({
-        title: "สแกน Tracking / Order",
-        instruction: "เล็งบาร์โค้ดบนฉลากพัสดุให้อยู่กลางกรอบ",
-        successText: "รับเลขพัสดุแล้ว",
-        closeOnScan: true,
-      });
-      return;
-    }
-
     if (mode === "receive-product") {
       scanner.onScan = async (value) => {
         $("receiveSku").value = cleanScan(value);
-        $("actualQty").focus();
+        $("receiveBoxQty").focus();
         msg("สแกนสินค้าแล้ว · ตรวจจำนวนและสภาพก่อนยืนยัน", "success");
       };
       await scanner.open({
@@ -245,6 +230,43 @@
     }
   }
 
+  async function loadReceiveBranches(access) {
+    const select = $("receiveBranch");
+    if (!select) return;
+    const { data, error } = await supabaseClient.from("branches")
+      .select("id,code,name,sort_order").eq("is_active", true).order("sort_order").order("code");
+    if (error) throw error;
+    const branches = data || [];
+    select.innerHTML = branches.map((branch) => `<option value="${esc(branch.id)}">${esc(branch.name)}</option>`).join("");
+    const valid = new Set(branches.map((branch) => branch.id));
+    const preferred = [sessionStorage.getItem("tkn_inventory_branch_id"), access?.branch_id, branches[0]?.id]
+      .find((id) => id && valid.has(id));
+    if (preferred) select.value = preferred;
+    select.addEventListener("change", () => sessionStorage.setItem("tkn_inventory_branch_id", select.value));
+  }
+
+  async function syncReceiptToBranchStock(receipt, product) {
+    if (!receipt.good) return { ok: true, skipped: true };
+    const branchId = $("receiveBranch")?.value;
+    if (!branchId) return { ok: false, error: "กรุณาเลือกสาขารับสินค้า" };
+    if (!product.id) return { ok: false, error: "สินค้านี้ยังไม่มีรหัสในฐานข้อมูล จึงยังเพิ่มสต็อกไม่ได้" };
+    try {
+      const { data, error } = await supabaseClient.rpc("receive_branch_inventory", {
+        p_branch_id: branchId,
+        p_items: [{ product_id: product.id, quantity: receipt.good, note: `รับผ่าน Box QR ${receipt.id}` }],
+        p_supplier_name: S.session.source || null,
+        p_reference_no: receipt.id,
+        p_notes: `${receipt.boxes} กล่อง × ${receipt.piecesPerBox} ชิ้น + เศษ ${receipt.loosePieces}`,
+        p_idempotency_key: `box-qr-receive:${receipt.id}`,
+      });
+      if (error) throw error;
+      return { ok: true, data };
+    } catch (error) {
+      console.warn("Branch stock receive failed:", error);
+      return { ok: false, error: error.message };
+    }
+  }
+
   async function syncBoxItemToCloud(product, item) {
     try {
       const boxId = await ensureCloudBox();
@@ -265,22 +287,37 @@
   async function receive() {
     const product = await productByScan($("receiveSku").value);
     if (!product) return msg("กรุณายิง SKU หรือ Barcode", "error");
-    const expected = Number($("expectedQty").value) || 0;
-    const actual = Number($("actualQty").value) || 0;
+    const boxes = Math.max(0, Math.floor(Number($("receiveBoxQty").value) || 0));
+    const piecesPerBox = Math.max(1, Math.floor(Number($("piecesPerBox").value) || 1));
+    const loosePieces = Math.max(0, Math.floor(Number($("loosePieces").value) || 0));
+    const actual = (boxes * piecesPerBox) + loosePieces;
+    if (actual <= 0) return msg("กรุณาระบุจำนวนกล่องหรือเศษสินค้าอย่างน้อย 1 ชิ้น", "error");
+    const expected = boxes * piecesPerBox;
     const condition = $("condition").value;
     const good = condition === "GOOD" ? actual : 0;
     S.session.source = $("source").value;
     const receipt = {
-      id: code("REC"), session_id: S.session.id, tracking: $("tracking").value,
-      sku: product.product_code, name: product.name, expected, actual, condition, good, at: now(),
+      id: code("REC"), session_id: S.session.id, tracking: "",
+      sku: product.product_code, name: product.name, boxes, piecesPerBox, loosePieces,
+      expected, actual, condition, good, at: now(),
     };
     S.receipts.unshift(receipt);
-    audit("RECEIVE", product.product_code, `ตรวจจริง ${actual}, สภาพ ${condition}`);
+    audit("RECEIVE", product.product_code, `${boxes} กล่อง × ${piecesPerBox} ชิ้น + เศษ ${loosePieces} = ${actual} ชิ้น, สภาพ ${condition}`);
     $("receiveSku").value = "";
+    $("receiveBoxQty").value = "1";
+    $("loosePieces").value = "0";
+    updateReceiveTotal();
     save();
     msg("บันทึกในเครื่องแล้ว กำลังส่งเข้าฐานข้อมูลกลาง...", "success");
-    const synced = await syncReceiptToCloud(receipt, product);
-    msg(synced ? "บันทึกตรวจรับและซิงก์ส่วนกลางแล้ว" : "บันทึกในเครื่องแล้ว แต่ยังซิงก์ส่วนกลางไม่สำเร็จ", synced ? "success" : "error");
+    const [synced, stockResult] = await Promise.all([
+      syncReceiptToCloud(receipt, product),
+      syncReceiptToBranchStock(receipt, product),
+    ]);
+    if (synced && stockResult.ok) {
+      msg(condition === "GOOD" ? `รับเข้า ${actual} ชิ้นและอัปเดตสต็อกสาขาแล้ว` : `บันทึกสินค้า ${actual} ชิ้นไว้ตรวจสอบ โดยยังไม่เพิ่มสต็อกพร้อมขาย`, "success");
+    } else {
+      msg(`บันทึกในเครื่องแล้ว แต่ซิงก์ไม่ครบ${stockResult.error ? `: ${stockResult.error}` : ""}`, "error");
+    }
     await loadCloudStats();
     $("receiveSku").focus();
   }
@@ -663,11 +700,23 @@
     $("boxCode").value = S.box?.id || "";
     $("location").value = S.box?.location || $("location").value;
     renderStats();
-    $("receiveRows").innerHTML = S.receipts.map((row) => `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${row.expected}</td><td>${row.actual}</td><td>${esc(row.condition)}</td><td>${row.good}</td></tr>`).join("") || '<tr><td colspan="7">ยังไม่มีรายการ</td></tr>';
+    $("receiveRows").innerHTML = S.receipts.map((row) => {
+      const boxes = Number(row.boxes ?? 0);
+      const piecesPerBox = Number(row.piecesPerBox ?? row.actual ?? 1);
+      const loosePieces = Number(row.loosePieces ?? 0);
+      return `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${boxes}</td><td>${piecesPerBox}</td><td>${loosePieces}</td><td><b>${row.actual}</b></td><td>${esc(row.condition)}</td></tr>`;
+    }).join("") || '<tr><td colspan="8">ยังไม่มีรายการ</td></tr>';
     $("boxRows").innerHTML = S.boxItems.map((item, index) => `<tr><td>${esc(item.sku)}</td><td>${esc(item.name)}</td><td>${item.qty}</td><td><button data-remove="${index}">ลบ</button></td></tr>`).join("") || '<tr><td colspan="4">ยังไม่มีสินค้าในกล่อง</td></tr>';
     $("boxTotal").textContent = S.boxItems.reduce((sum, item) => sum + item.qty, 0);
     $("auditRows").innerHTML = S.audit.map((row) => `<tr><td>${new Date(row.at).toLocaleString("th-TH")}</td><td>${esc(row.user)}</td><td>${esc(row.action)}</td><td>${esc(row.ref)}</td><td>${esc(row.detail)}</td></tr>`).join("") || '<tr><td colspan="5">ยังไม่มีประวัติ</td></tr>';
     renderQueue();
+  }
+
+  function updateReceiveTotal() {
+    const boxes = Math.max(0, Math.floor(Number($("receiveBoxQty")?.value) || 0));
+    const piecesPerBox = Math.max(1, Math.floor(Number($("piecesPerBox")?.value) || 1));
+    const loosePieces = Math.max(0, Math.floor(Number($("loosePieces")?.value) || 0));
+    if ($("receiveTotalPieces")) $("receiveTotalPieces").textContent = `${(boxes * piecesPerBox) + loosePieces} ชิ้น`;
   }
 
   function currentLabelMode() {
@@ -834,12 +883,12 @@
     bind("closeBoxBtn", "click", closeBox);
     bind("openBoxBtn", "click", openBox);
     bind("scanBtn", "click", scan);
-    bind("trackingCameraBtn", "click", () => { void openCamera("tracking"); });
     bind("receiveProductCameraBtn", "click", () => { void openCamera("receive-product"); });
     bind("boxProductCameraBtn", "click", () => { void openCamera("box-product"); });
     bind("checkCameraBtn", "click", () => { void openCamera("check"); });
     bind("scanCode", "keydown", (event) => { if (event.key === "Enter") void scan(); });
     bind("receiveSku", "keydown", (event) => { if (event.key === "Enter") void receive(); });
+    ["receiveBoxQty", "piecesPerBox", "loosePieces"].forEach((id) => bind(id, "input", updateReceiveTotal));
     bind("boxSku", "keydown", (event) => { if (event.key === "Enter") void addBox(); });
     bind("boxRows", "click", (event) => {
       const target = event.target instanceof Element ? event.target.closest("[data-remove]") : null;
@@ -873,6 +922,7 @@
       if (!window.supabaseClient) throw new Error("ไม่พบการเชื่อมต่อ Supabase กรุณาตรวจว่า js/supabase-config.js ถูกอัปโหลดครบ");
       const access = await window.TKNAuthGuard.requireAccess("product.manage", { loadingText: "กำลังตรวจสอบสิทธิ์ระบบ Box QR..." });
       if (!access) return;
+      await loadReceiveBranches(access);
       const { data: { session } } = await window.supabaseClient.auth.getSession();
       S.user = session?.user?.email || access?.email || "-";
       S.userId = session?.user?.id || null;

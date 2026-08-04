@@ -35,6 +35,8 @@ button{touch-action:manipulation}
 .form input,.form select,.scan input,.actions select{width:100%;padding:11px 12px;border:1px solid #d7ccc5;border-radius:11px;background:#fff;min-height:48px;color:var(--bq-black);outline:none}
 .form input:focus,.form select:focus,.scan input:focus{border-color:var(--bq-red);box-shadow:0 0 0 3px rgba(200,16,30,.1)}
 .form input[readonly]{background:#f5f2ef;color:#5f5859}
+.receive-total-field output{display:flex;align-items:center;min-height:48px;padding:10px 14px;border:2px solid #e0ae00;border-radius:11px;background:#fff4c7;color:#8f0d15;font-size:21px;font-weight:900}
+.receive-table td:nth-child(4),.receive-table td:nth-child(5),.receive-table td:nth-child(6),.receive-table td:nth-child(7){text-align:center}
 .form-primary{width:100%}
 .camera-field-wide{grid-column:span 1}
 .camera-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
@@ -127,6 +129,10 @@ body.bq-camera-open{overflow:hidden}
   .camera-input-row .camera-scan-continuous{grid-column:1/-1;width:100%;padding:12px 15px}
   .camera-input-row .camera-scan-continuous span{display:inline}
   .form-primary{min-height:54px}
+  .receive-total-field output{min-height:54px;justify-content:center;font-size:24px}
+  #receive .form-primary{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:6;min-height:56px;box-shadow:0 8px 24px rgba(200,16,30,.25)}
+  .receive-table{margin-inline:-6px}
+  .receive-table table{min-width:860px}
   .actions{display:grid;grid-template-columns:1fr 1fr}
   .actions button{min-height:49px}
   .actions button:nth-child(3):last-child{grid-column:1/-1}

@@ -36,6 +36,17 @@ h1 { margin: 0; }
   border: 1px solid #dfe5ef;
   border-radius: 16px;
 }
+.return-bill-finder{display:grid;gap:14px;margin-bottom:18px;padding:16px;border:1px solid #f0c653;border-radius:14px;background:#fff9df}
+.return-bill-finder[hidden]{display:none!important}
+.return-bill-finder p{margin:4px 0 0;color:#6b5a28}
+.return-bill-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.return-bill-search input{width:100%;min-width:0;min-height:50px;border:1px solid #cfd7e5;border-radius:11px;padding:11px 13px;font-size:16px}
+.return-bill-search button{min-height:50px;font-weight:800}
+.return-bill-results{display:grid;gap:8px}
+.return-bill-result{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;width:100%;min-height:58px;border:1px solid #d9e0ea;border-radius:12px;padding:10px 12px;background:#fff;text-align:left;cursor:pointer}
+.return-bill-result:hover,.return-bill-result:focus-visible{border-color:#c8101e;box-shadow:0 0 0 3px rgba(200,16,30,.1)}
+.return-bill-result span,.return-bill-result small{display:block}.return-bill-result small{margin-top:3px;color:#667085}.return-bill-result em{font-style:normal;font-weight:800;color:#c8101e}
+.return-search-message{margin:0;padding:10px;border-radius:10px;background:#f3f6fa}.return-search-message.error{color:#b42318;background:#fff0f0}
 
 .warning {
   padding: 14px 16px;
@@ -144,6 +155,12 @@ button:disabled {
 }
 
 @media (max-width: 760px) {
+  .page-shell{width:100%;margin:0;padding:12px 12px calc(96px + env(safe-area-inset-bottom))}
+  .integration-breadcrumb{overflow-x:auto;white-space:nowrap}
+  .panel{padding:14px;margin-top:14px;border-radius:14px}
+  .warning{font-size:14px}
+  .return-bill-search{grid-template-columns:1fr}
+  .return-bill-result{grid-template-columns:minmax(0,1fr) auto}.return-bill-result em{grid-column:1/-1;text-align:center;padding:8px;border-radius:9px;background:#fff0b8}
   .return-form,
   .summary-grid {
     grid-template-columns: 1fr;
@@ -152,6 +169,13 @@ button:disabled {
   .page-header {
     flex-direction: column;
   }
+  .page-header button,.actions button{width:100%;min-height:52px;font-weight:800}
+  .actions{display:grid;grid-template-columns:1fr;position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:5;padding:8px;border-radius:14px;background:rgba(255,255,255,.94);box-shadow:0 8px 28px rgba(15,23,42,.16)}
+  .table-wrap{margin-inline:-14px;padding-inline:14px;scroll-snap-type:x proximity}
+  table{min-width:980px}
+  th,td{padding:10px 8px}
+  .qty-input{width:82px;min-height:48px;font-size:16px}
+  textarea,select{min-height:52px;font-size:16px}
 }
 
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS - คืนสินค้า Return Balance v2.2</title>
-  <link rel="stylesheet" href="./css/sales-return.css?v=3.6.2">
+  <link rel="stylesheet" href="./css/sales-return.css?v=5.22.13">
   <link rel="stylesheet" href="./css/return-balance.css?v=3.0.0">
   <link rel="stylesheet" href="./css/navigation.css?v=5.19.0">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
@@ -32,7 +32,7 @@
 </nav>
     <header class="page-header">
       <div>
-        <p class="eyebrow">TKN POS / ERP · Phase 9.2 · Return Balance v2.2</p>
+        <p class="eyebrow">TKN POS / ERP · คืนสินค้าและคืนสต็อกเป็นชิ้น</p>
         <h1>คืนสินค้า</h1>
         <p id="billSummary">กำลังโหลดข้อมูลบิล...</p>
       </div>
@@ -43,6 +43,18 @@
     </header>
 
     <section class="panel">
+      <section id="returnBillFinder" class="return-bill-finder" hidden>
+        <div>
+          <strong>ค้นหาบิลก่อนคืนสินค้า</strong>
+          <p>กรอกเลขบิล ชื่อลูกค้า เบอร์โทร หรือ SKU/Barcode</p>
+        </div>
+        <form id="returnBillSearchForm" class="return-bill-search">
+          <input id="returnBillKeyword" autocomplete="off" enterkeyhint="search" placeholder="เลขบิล / ลูกค้า / SKU / Barcode">
+          <button id="returnBillSearchButton" class="primary-button" type="submit">ค้นหาบิล</button>
+        </form>
+        <div id="returnBillResults" class="return-bill-results"></div>
+      </section>
+
       <div class="warning">
         <strong>ขั้นตอนตรวจสอบ</strong>
         <p>
@@ -57,12 +69,12 @@
             <tr>
               <th>สินค้า</th>
               <th>รหัสสินค้า</th>
-              <th>ซื้อทั้งหมด</th>
-              <th>คืนแล้ว</th>
-              <th>ยังคืนได้</th>
-              <th>คืนครั้งนี้</th>
-              <th>เหลือหลังคืน</th>
-              <th>ราคาต่อหน่วย</th>
+              <th>ซื้อทั้งหมด (ชิ้น)</th>
+              <th>คืนแล้ว (ชิ้น)</th>
+              <th>ยังคืนได้ (ชิ้น)</th>
+              <th>คืนครั้งนี้ (ชิ้น)</th>
+              <th>เหลือหลังคืน (ชิ้น)</th>
+              <th>ราคาต่อชิ้น</th>
               <th>ยอดคืนครั้งนี้</th>
             </tr>
           </thead>
@@ -94,19 +106,19 @@
 
       <section class="return-balance-summary">
         <article>
-          <span>ซื้อทั้งหมด</span>
+          <span>ซื้อทั้งหมด (ชิ้น)</span>
           <strong id="totalPurchasedQty">0</strong>
         </article>
         <article>
-          <span>คืนไปแล้ว</span>
+          <span>คืนไปแล้ว (ชิ้น)</span>
           <strong id="totalReturnedBefore">0</strong>
         </article>
         <article class="active-summary">
-          <span>คืนครั้งนี้</span>
+          <span>คืนครั้งนี้ (ชิ้น)</span>
           <strong id="totalReturnQty">0</strong>
         </article>
         <article>
-          <span>เหลือคืนได้หลังรายการนี้</span>
+          <span>เหลือคืนได้หลังรายการนี้ (ชิ้น)</span>
           <strong id="totalRemainingAfter">0</strong>
         </article>
         <article class="refund-summary">
@@ -192,7 +204,7 @@
   </dialog>
 
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
-  <script type="module" src="./js/sales-return.js?v=3.6.2"></script>
+  <script type="module" src="./js/sales-return.js?v=5.22.13"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
 </body>

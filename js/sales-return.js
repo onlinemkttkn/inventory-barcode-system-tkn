@@ -1,7 +1,7 @@
 import { supabaseClient } from './supabase-client.js';
 
 const params = new URLSearchParams(window.location.search);
-const saleId = params.get('sale_id');
+let saleId = params.get('sale_id');
 const saleNoFromUrl = params.get('sale_no') || '';
 
 const CASH_APPROVAL_THRESHOLD = 5000;
@@ -16,6 +16,11 @@ const state = {
 
 const els = {
   billSummary: document.querySelector('#billSummary'),
+  returnBillFinder: document.querySelector('#returnBillFinder'),
+  returnBillSearchForm: document.querySelector('#returnBillSearchForm'),
+  returnBillKeyword: document.querySelector('#returnBillKeyword'),
+  returnBillSearchButton: document.querySelector('#returnBillSearchButton'),
+  returnBillResults: document.querySelector('#returnBillResults'),
   returnRows: document.querySelector('#returnRows'),
   returnReason: document.querySelector('#returnReason'),
   refundMethod: document.querySelector('#refundMethod'),
@@ -309,11 +314,15 @@ function getItemBalance(item) {
 
 async function loadSale() {
   if (!saleId) {
-    els.billSummary.textContent = 'ไม่พบ sale_id';
+    els.billSummary.textContent = 'ค้นหาบิลเพื่อเริ่มคืนสินค้า';
+    els.returnBillFinder.hidden = false;
     els.returnRows.innerHTML =
-      '<tr><td colspan="6" class="empty-row">ไม่พบรหัสบิล</td></tr>';
+      '<tr><td colspan="9" class="empty-row">กรุณาค้นหาและเลือกบิลด้านบน</td></tr>';
+    els.confirmButton.disabled = true;
     return;
   }
+
+  els.returnBillFinder.hidden = true;
 
   try {
     const { data, error } = await supabaseClient.rpc(
@@ -353,6 +362,52 @@ async function loadSale() {
       '<tr><td colspan="6" class="empty-row">โหลดข้อมูลไม่สำเร็จ</td></tr>';
   }
 }
+
+async function searchReturnBills(event) {
+  event?.preventDefault();
+  const keyword = els.returnBillKeyword?.value.trim() || '';
+  if (!keyword) {
+    els.returnBillResults.innerHTML = '<p class="return-search-message error">กรุณากรอกข้อมูลที่ต้องการค้นหา</p>';
+    els.returnBillKeyword?.focus();
+    return;
+  }
+
+  els.returnBillSearchButton.disabled = true;
+  els.returnBillResults.innerHTML = '<p class="return-search-message">กำลังค้นหาบิล...</p>';
+  try {
+    const { data, error } = await supabaseClient.rpc('search_sales_bills_phase_9_2', {
+      p_keyword: keyword,
+      p_date_from: null,
+      p_date_to: null,
+      p_payment_method: null,
+      p_sales_channel: null,
+      p_status: null,
+      p_limit: 20
+    });
+    if (error) throw error;
+    const bills = Array.isArray(data) ? data : [];
+    els.returnBillResults.innerHTML = bills.length
+      ? bills.map((bill) => `<button type="button" class="return-bill-result" data-sale-id="${escapeHtml(bill.id)}" data-sale-no="${escapeHtml(bill.sale_no || '')}">
+          <span><strong>${escapeHtml(bill.sale_no || '-')}</strong><small>${escapeHtml(bill.customer_name || 'ลูกค้าหน้าร้าน')}</small></span>
+          <b>${formatMoney(bill.net_total)}</b><em>เลือกบิลนี้</em>
+        </button>`).join('')
+      : '<p class="return-search-message error">ไม่พบบิลตามคำค้นหา</p>';
+  } catch (error) {
+    els.returnBillResults.innerHTML = `<p class="return-search-message error">ค้นหาไม่สำเร็จ: ${escapeHtml(error.message)}</p>`;
+  } finally {
+    els.returnBillSearchButton.disabled = false;
+  }
+}
+
+els.returnBillSearchForm?.addEventListener('submit', searchReturnBills);
+els.returnBillResults?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-sale-id]');
+  if (!button) return;
+  const next = new URL(location.href);
+  next.searchParams.set('sale_id', button.dataset.saleId);
+  if (button.dataset.saleNo) next.searchParams.set('sale_no', button.dataset.saleNo);
+  location.assign(next.href);
+});
 
 function renderRows() {
   if (!state.items.length) {
