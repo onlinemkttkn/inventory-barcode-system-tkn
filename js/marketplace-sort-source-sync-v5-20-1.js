@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.20.1';
+  const VERSION = '5.20.9';
   const page = (location.pathname.split('/').pop() || '').toLowerCase();
   const config = page.includes('lazada')
     ? { source: 'LAZADA', dbName: 'tkn_marketplace_import_lazada_v1' }
@@ -160,6 +160,13 @@
         return;
       }
 
+      const payload = normalizeRows(workspace.rows);
+      localStorage.setItem(`tkn_sort_source_rows_${config.source.toLowerCase()}_v5209`, JSON.stringify({
+        items: payload,
+        savedAt: workspace.savedAt,
+        rowCount: payload.length,
+      }));
+
       const previous = JSON.parse(localStorage.getItem(syncKey) || '{}');
       if (!force && workspace.savedAt && previous.savedAt === workspace.savedAt && previous.rowCount === workspace.rows.length) {
         setBadge(`พร้อมใช้ในโมดูลแยกสินค้า ${workspace.rows.length.toLocaleString('th-TH')} รายการ`, 'ok');
@@ -172,7 +179,6 @@
         return;
       }
 
-      const payload = normalizeRows(workspace.rows);
       setBadge(`กำลังส่ง ${payload.length.toLocaleString('th-TH')} รายการไปโมดูลแยกสินค้า...`);
       for (let start = 0; start < payload.length; start += 400) {
         const chunk = payload.slice(start, start + 400);

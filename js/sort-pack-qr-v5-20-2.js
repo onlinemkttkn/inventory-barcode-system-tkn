@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.20.8';
+  const VERSION = '5.20.9';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -186,30 +186,28 @@
     if (!db) return [];
     try {
       const transaction = db.transaction('records', 'readonly');
-      const store = transaction.objectStore('records');
-      let rows = [];
-      if (store.indexNames.contains('tracking_number')) {
-        rows = await requestResult(store.index('tracking_number').getAll(IDBKeyRange.only(tracking)));
-      }
-      if (!rows.length) {
-        const all = await requestResult(store.getAll());
-        const wanted = normalizeTracking(tracking);
-        rows = all.filter((row) => [
-          row.tracking_number,
-          row.handover_tracking_number,
-          row.order_number,
-          row.return_number,
-          row.platform_return_item_id,
-          row.rms_return_item_id,
-        ].some((value) => normalizeTracking(value) === wanted));
-      }
-      return rows || [];
+      const all = await requestResult(transaction.objectStore('records').getAll());
+      const wanted = normalizeLookup(tracking);
+      return (all || []).filter((row) => [
+        row.tracking_number,
+        row.handover_tracking_number,
+        row.order_number,
+        row.return_number,
+        row.platform_return_item_id,
+        row.rms_return_item_id,
+        row.source_sku,
+        row.sku_id,
+        row.seller_sku,
+        row.sku,
+        row.product_code,
+        row.barcode,
+      ].some((value) => normalizeLookup(value) === wanted));
     } finally {
       db.close();
     }
   }
 
-  function normalizeTracking(value) {
+  function normalizeLookup(value) {
     return String(value ?? '').trim().replace(/^['"]+/, '').replace(/\s+/g, '').toUpperCase();
   }
 
@@ -293,6 +291,19 @@
             if (source) orderQuery = orderQuery.eq('source', source);
             result = await orderQuery;
           }
+          if ((!result.data || !result.data.length) && table === 'marketplace_sorting_source_items') {
+            let skuQuery = client.from(table).select('*').eq('source_sku', tracking);
+            if (source) skuQuery = skuQuery.eq('source', source);
+            result = await skuQuery;
+          }
+          if ((!result.data || !result.data.length) && table === 'marketplace_sorting_source_items') {
+            let productCodeQuery = client.from(table).select('*').eq('sku', tracking);
+            if (source) productCodeQuery = productCodeQuery.eq('source', source);
+            result = await productCodeQuery;
+          }
+          if ((!result.data || !result.data.length) && table === 'marketplace_receiving_items') {
+            result = await client.from(table).select('*').eq('sku', tracking);
+          }
           if (!result.error && result.data?.length) {
             return result.data.map((row) => normalizeSourceRow(row, source, tracking));
           }
@@ -317,12 +328,17 @@
     }
     if (items.length) return deduplicateItems(items);
 
-    const keys = Object.keys(localStorage).filter((key) => /shopee|lazada|import/i.test(key));
+    const keys = Object.keys(localStorage).filter((key) => /shopee|lazada|import|sort.source.rows/i.test(key));
     for (const key of keys) {
       try {
         const raw = JSON.parse(localStorage.getItem(key));
         const rows = Array.isArray(raw) ? raw : (raw?.items || raw?.rows || []);
-        const found = rows.filter((row) => String(row.tracking_number || row.tracking || row.order_number || '').trim() === tracking);
+        const wanted = normalizeLookup(tracking);
+        const found = rows.filter((row) => [
+          row.tracking_number, row.tracking, row.handover_tracking_number, row.order_number,
+          row.return_number, row.source_sku, row.sku_id, row.seller_sku, row.sku,
+          row.product_code, row.barcode,
+        ].some((value) => normalizeLookup(value) === wanted));
         const source = /lazada/i.test(key) ? 'LAZADA' : 'SHOPEE';
         items.push(...found.map((row) => normalizeSourceRow(row, source, tracking)));
       } catch {}
