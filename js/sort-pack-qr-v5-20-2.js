@@ -1,17 +1,17 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.12';
-  const LABEL_SETTINGS_VERSION = 9;
+  const VERSION = '5.22.14';
+  const LABEL_SETTINGS_VERSION = 10;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
   if (!ENGINE) throw new Error('ไม่พบ TKN Category Engine v5.20.1');
   const LABEL_PROFILES = Object.freeze({
-    '30x20': { width: 30, height: 20, qr: 11, nameFont: 6, skuFont: 6, nameWeight: 400, skuWeight: 400, nameLines: 1 },
-    '32x25': { width: 32, height: 25, qr: 13, nameFont: 6, skuFont: 6, nameWeight: 400, skuWeight: 400, nameLines: 2 },
-    '40x30': { width: 40, height: 30, qr: 16, nameFont: 7, skuFont: 7, nameWeight: 400, skuWeight: 400, nameLines: 2 },
-    '50x40': { width: 50, height: 40, qr: 20, nameFont: 8, skuFont: 8, nameWeight: 400, skuWeight: 400, nameLines: 3 },
+    '30x20': { width: 30, height: 20, qr: 8, barcodeHeight: 3.5, nameFont: 5.5, skuFont: 5.5, nameWeight: 400, skuWeight: 400, nameLines: 1 },
+    '32x25': { width: 32, height: 25, qr: 10, barcodeHeight: 4.5, nameFont: 6, skuFont: 6, nameWeight: 400, skuWeight: 400, nameLines: 1 },
+    '40x30': { width: 40, height: 30, qr: 12, barcodeHeight: 5.5, nameFont: 6, skuFont: 6, nameWeight: 400, skuWeight: 400, nameLines: 2 },
+    '50x40': { width: 50, height: 40, qr: 16, barcodeHeight: 7, nameFont: 7, skuFont: 7, nameWeight: 400, skuWeight: 400, nameLines: 2 },
   });
   const DEFAULT_LABEL_SETTINGS = Object.freeze({ printerMode: 'AUTO', dpi: 300, preset: '50x40', customWidth: 50, customHeight: 40, columns: 2, showName: true, ...LABEL_PROFILES['50x40'] });
 
@@ -81,6 +81,7 @@
       order: item.order || '',
       sourceSku: item.sourceSku || '',
       sku: item.sku || item.sourceSku || '',
+      barcode: item.barcode || '',
       name: item.name || 'สินค้าไม่ระบุชื่อ',
       quantity: Math.max(1, numberValue(item.quantity, 1)),
       unitCost: Math.max(0, numberValue(item.unitCost, 0)),
@@ -269,6 +270,7 @@
       order: String(row.order_number || row.return_number || '').trim(),
       sourceSku,
       sku,
+      barcode: String(row.barcode || '').trim(),
       name: String(row.product_name || row.item_name || row.name || 'สินค้าไม่ระบุชื่อ').trim(),
       quantity: row.quantity ?? row.item_quantity ?? row.actual_qty ?? 1,
       unitCost: costRaw,
@@ -421,6 +423,7 @@
           tracking: '',
           sourceSku: product.product_code,
           sku: product.product_code,
+          barcode: product.barcode || '',
           name: product.name || 'สินค้าไม่ระบุชื่อ',
           quantity: 1,
           unitCost: product.cost_price,
@@ -445,14 +448,14 @@
     try {
       for (let start = 0; start < productIds.length; start += 100) {
         const { data, error } = await client.from('products')
-          .select('id,product_code,name,cost_price,selling_price')
+          .select('id,product_code,barcode,name,cost_price,selling_price')
           .in('id', productIds.slice(start, start + 100));
         if (error) throw error;
         products.push(...(data || []));
       }
       for (let start = 0; start < productCodes.length; start += 100) {
         const { data, error } = await client.from('products')
-          .select('id,product_code,name,cost_price,selling_price')
+          .select('id,product_code,barcode,name,cost_price,selling_price')
           .in('product_code', productCodes.slice(start, start + 100));
         if (error) throw error;
         products.push(...(data || []));
@@ -469,6 +472,7 @@
       if (!product) return;
       item.productId = product.id;
       item.sku = item.sku || product.product_code || item.sourceSku;
+      item.barcode = product.barcode || item.barcode || '';
       if (!item.name || /^(สินค้าไม่ระบุชื่อ|รายการใหม่)/.test(item.name)) item.name = product.name || item.name;
       if (!item.hasCost && product.cost_price !== null && product.cost_price !== undefined && String(product.cost_price).trim() !== '') {
         item.unitCost = Math.max(0, numberValue(product.cost_price, 0));
@@ -1005,9 +1009,10 @@
     applyLabelSettings(false);
     $('labelCount').textContent = String(units.length);
     $('labelPreview').innerHTML = units.map(({ item, index, quantity }) => `<article class="sp-label" data-label="${esc(item.id)}" data-unit="${index}">
-      <div class="sp-label-qr-status" hidden></div><canvas></canvas>
-      <h4>${esc(item.name)}</h4>
+      <div class="sp-label-qr-status" hidden></div><canvas class="sp-label-qr"></canvas>
+      <svg class="sp-label-barcode" aria-label="Barcode ${esc(item.barcode || item.sku)}"></svg>
       <small>${esc(skuWithHiddenCost(item))}${quantity > 1 ? ` · ${index}/${quantity}` : ''}</small>
+      <h4>${esc(item.name)}</h4>
     </article>`).join('');
     setTimeout(() => { void drawLabels(); }, 0);
   }
@@ -1019,7 +1024,8 @@
     const elements = [...document.querySelectorAll('[data-label]')];
     await Promise.all(elements.map(async (element) => {
       const item = state.labelQueue.find((row) => row.id === element.dataset.label);
-      const canvas = element.querySelector('canvas');
+      const canvas = element.querySelector('.sp-label-qr');
+      const barcodeSvg = element.querySelector('.sp-label-barcode');
       const status = element.querySelector('.sp-label-qr-status');
       if (!item || !canvas) return;
       try {
@@ -1027,6 +1033,14 @@
         const dpi = Math.max(203, Number(state.labelSettings?.dpi) || 300);
         const pixelSize = Math.min(2048, Math.max(96, Math.round((Number(state.labelSettings?.qr || 20) / 25.4) * dpi)));
         await toCanvas(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1, errorCorrectionLevel: 'M' });
+        if (typeof window.JsBarcode !== 'function') throw new Error('ระบบ Barcode ยังไม่พร้อม');
+        const barcodeValue = String(item.barcode || item.sku || '').trim();
+        if (!barcodeValue) throw new Error('สินค้าไม่มี Barcode หรือ SKU');
+        const barWidth = barcodeValue.length > 24 ? 0.65 : barcodeValue.length > 16 ? 0.85 : 1.15;
+        window.JsBarcode(barcodeSvg, barcodeValue, {
+          format: 'CODE128', displayValue: false, margin: 0,
+          width: barWidth, height: 34, background: '#fff', lineColor: '#000',
+        });
         if (status) { status.textContent = ''; status.hidden = true; }
       } catch (error) {
         console.warn('สร้าง QR สินค้าไม่สำเร็จ:', error);
@@ -1043,6 +1057,7 @@
     return {
       width, height,
       qr: Math.max(9, Math.min(width - 4, height * 0.55, shortSide * 0.55)),
+      barcodeHeight: Math.max(3.5, Math.min(8, shortSide * 0.18)),
       nameFont: Math.max(6, Math.min(9, shortSide / 5)),
       skuFont: Math.max(6, Math.min(9, shortSide / 5)),
       nameWeight: 400,
@@ -1089,6 +1104,7 @@
       grid.style.setProperty('--label-gap', '0mm');
       grid.style.setProperty('--label-cols', String(effectiveColumns));
       grid.style.setProperty('--qr-mm', `${qr}mm`);
+      grid.style.setProperty('--barcode-mm', `${profile.barcodeHeight || 6}mm`);
       grid.style.setProperty('--name-font', `${profile.skuFont}px`);
       grid.style.setProperty('--sku-font', `${profile.skuFont}px`);
       grid.style.setProperty('--name-weight', String(profile.nameWeight));
