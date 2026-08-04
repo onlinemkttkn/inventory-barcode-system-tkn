@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.10';
+  const VERSION = '5.22.11';
   const LABEL_SETTINGS_VERSION = 8;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
@@ -1084,7 +1084,7 @@
       grid.style.setProperty('--label-gap', '0mm');
       grid.style.setProperty('--label-cols', String(printMode === 'ROLL' ? 1 : (settings.columns || 1)));
       grid.style.setProperty('--qr-mm', `${qr}mm`);
-      grid.style.setProperty('--name-font', `${profile.nameFont}px`);
+      grid.style.setProperty('--name-font', `${profile.skuFont}px`);
       grid.style.setProperty('--sku-font', `${profile.skuFont}px`);
       grid.style.setProperty('--name-weight', String(profile.nameWeight));
       grid.style.setProperty('--sku-weight', String(profile.skuWeight));
