@@ -9,6 +9,11 @@
 .print-queue-empty span{max-width:520px;line-height:1.55}
 .print-queue-limit{grid-column:1/-1;border-left:5px solid #f4bd16;border-radius:12px;background:#fff4c9;padding:12px 14px;font-weight:800;color:#674700}
 .label small{overflow-wrap:anywhere}
+.label-qr{min-height:170px;display:grid;place-items:center;margin:8px auto}
+.label-qr canvas{display:block;width:170px;height:170px;max-width:100%;image-rendering:pixelated}
+.label-qr .qr-loading{font-size:13px;color:#786f69;font-weight:700}
+.label-qr.qr-error{padding:12px;border:1px dashed #d7152a;border-radius:10px;background:#fff2f3;color:#9d0d1b}
+.label-qr.qr-error small{display:block;margin-top:4px}
 @media(max-width:720px){
   .print-toolbar{display:grid!important;grid-template-columns:1fr 1fr;gap:9px}
   .print-toolbar select,.print-toolbar .qr-engine-status{grid-column:1/-1;width:100%;min-width:0}

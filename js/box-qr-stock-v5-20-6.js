@@ -728,22 +728,23 @@
         article.innerHTML = `
           <span class="label-kind">${kind}</span>
           <b>${esc(item.name)}</b>
-          ${showQr ? `<div class="label-qr" id="qrPreview${currentIndex}"></div>` : ""}
+          ${showQr ? `<div class="label-qr" id="qrPreview${currentIndex}"><span class="qr-loading">กำลังสร้าง QR...</span></div>` : ""}
           ${showBarcode ? `<svg class="label-barcode" id="barPreview${currentIndex}"></svg>` : ""}
           <small>${esc(item.code)} · ฉลาก ${copyNo}/${copies}</small>`;
         host.appendChild(article);
 
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           if (showQr) {
-            const qrHost = $("qrPreview" + currentIndex);
+            const qrHost = article.querySelector('.label-qr');
             const canvas = document.createElement("canvas");
             const size = mode === "QR" ? 170 : 112;
             const renderQr = async () => {
-              const ready = await (window.TKNQRHealth?.wait?.(1200) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas)));
-              if (!ready || typeof window.QRCode?.toCanvas !== "function") {
+              const ready = await (window.TKNQRHealth?.wait?.(2500) ?? Promise.resolve(Boolean(window.QRCode?.toCanvas || window.TKNQR?.toCanvas)));
+              const toCanvas = window.QRCode?.toCanvas || window.TKNQR?.toCanvas;
+              if (!ready || typeof toCanvas !== "function") {
                 throw new Error(window.TKNQRHealth?.errorText?.() || "QR engine unavailable");
               }
-              await window.QRCode.toCanvas(canvas, item.code, {
+              await toCanvas(canvas, item.code, {
                 width: size,
                 margin: 2,
                 errorCorrectionLevel: "M",

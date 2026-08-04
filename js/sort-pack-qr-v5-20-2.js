@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.20.2';
+  const VERSION = '5.20.8';
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
@@ -45,6 +45,13 @@
   const nowIso = () => new Date().toISOString();
   const cloneItem = (item) => JSON.parse(JSON.stringify(item));
   const codeCost = (value) => `C${Math.round(Number(value || 0) * 100).toString(36).toUpperCase()}`;
+  const compactCost = (value) => {
+    const amount = Math.round(Number(value || 0) * 100) / 100;
+    return Number.isInteger(amount) ? String(amount) : amount.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  };
+  const skuWithHiddenCost = (item) => item?.hasCost
+    ? `${String(item.sku || '').trim()}-${compactCost(item.unitCost)}`
+    : String(item?.sku || '').trim();
   const unique = (values) => [...new Set(values.filter(Boolean))];
 
   function saveState() {
@@ -68,6 +75,7 @@
       unitCost: Math.max(0, numberValue(item.unitCost, 0)),
       hasCost: item.hasCost !== undefined ? Boolean(item.hasCost) : Number(item.unitCost || 0) > 0,
       sourcePrice: Math.max(0, numberValue(item.sourcePrice, 0)),
+      sellingPrice: Math.max(0, numberValue(item.sellingPrice, 0)),
       mainCategory: item.mainCategory || '',
       subCategory: item.subCategory || '',
       sourceCategory,
@@ -185,12 +193,24 @@
       }
       if (!rows.length) {
         const all = await requestResult(store.getAll());
-        rows = all.filter((row) => String(row.tracking_number || row.order_number || '').trim() === tracking);
+        const wanted = normalizeTracking(tracking);
+        rows = all.filter((row) => [
+          row.tracking_number,
+          row.handover_tracking_number,
+          row.order_number,
+          row.return_number,
+          row.platform_return_item_id,
+          row.rms_return_item_id,
+        ].some((value) => normalizeTracking(value) === wanted));
       }
       return rows || [];
     } finally {
       db.close();
     }
+  }
+
+  function normalizeTracking(value) {
+    return String(value ?? '').trim().replace(/^['"]+/, '').replace(/\s+/g, '').toUpperCase();
   }
 
   function sourceCandidates() {
@@ -227,6 +247,7 @@
       unitCost: costRaw,
       hasCost,
       sourcePrice: row.source_item_price ?? row.item_price_pp ?? 0,
+      sellingPrice: row.selling_price ?? row.sale_price ?? row.source_item_price ?? row.item_price_pp ?? 0,
       mainCategory,
       subCategory,
       sourceCategory,
@@ -315,6 +336,52 @@
     const localRows = await readLocalMarketplaceRows(tracking);
     if (localRows.length) return { items: localRows, location: 'LOCAL' };
     return { items: [], location: 'NONE' };
+  }
+
+  async function enrichItemsFromProducts(items) {
+    const client = await waitClient();
+    if (!client || !items.length) return items;
+    const productIds = unique(items.map((item) => item.productId).filter(Boolean));
+    const productCodes = unique(items.flatMap((item) => [item.sku, item.sourceSku])
+      .map((value) => String(value || '').trim()).filter(Boolean));
+    const products = [];
+    try {
+      for (let start = 0; start < productIds.length; start += 100) {
+        const { data, error } = await client.from('products')
+          .select('id,product_code,name,cost_price,selling_price')
+          .in('id', productIds.slice(start, start + 100));
+        if (error) throw error;
+        products.push(...(data || []));
+      }
+      for (let start = 0; start < productCodes.length; start += 100) {
+        const { data, error } = await client.from('products')
+          .select('id,product_code,name,cost_price,selling_price')
+          .in('product_code', productCodes.slice(start, start + 100));
+        if (error) throw error;
+        products.push(...(data || []));
+      }
+    } catch (error) {
+      console.warn('อ่านชื่อและราคาสินค้าจาก SKU ไม่สำเร็จ:', error);
+      return items;
+    }
+    const byId = new Map(products.map((product) => [String(product.id), product]));
+    const byCode = new Map(products.map((product) => [String(product.product_code || '').trim().toUpperCase(), product]));
+    items.forEach((item) => {
+      const product = byId.get(String(item.productId || ''))
+        || byCode.get(String(item.sku || item.sourceSku || '').trim().toUpperCase());
+      if (!product) return;
+      item.productId = product.id;
+      item.sku = item.sku || product.product_code || item.sourceSku;
+      if (!item.name || /^(สินค้าไม่ระบุชื่อ|รายการใหม่)/.test(item.name)) item.name = product.name || item.name;
+      if (!item.hasCost && product.cost_price !== null && product.cost_price !== undefined && String(product.cost_price).trim() !== '') {
+        item.unitCost = Math.max(0, numberValue(product.cost_price, 0));
+        item.hasCost = true;
+      }
+      if (!item.sellingPrice && product.selling_price !== null && product.selling_price !== undefined) {
+        item.sellingPrice = Math.max(0, numberValue(product.selling_price, 0));
+      }
+    });
+    return items;
   }
 
   async function loadRemoteCategoryRules(items) {
@@ -514,6 +581,8 @@
         message('ไม่พบรายการจากไฟล์ จึงสร้างรายการรอระบุข้อมูล 1 รายการ', 'info');
       }
 
+      await enrichItemsFromProducts(items);
+
       await prepareCategorySuggestions(items);
       const sources = unique(items.map((item) => item.source));
       state.lot = {
@@ -701,7 +770,7 @@
           <div class="sp-qty"><b>${item.quantity}</b><small>ชิ้น</small></div>
           <h3>${esc(item.name)}</h3>
           <p>SKU: ${esc(item.sku || item.sourceSku || 'ยังไม่มี')} · Tracking: ${esc(item.tracking)}</p>
-          <p class="cost">${item.hasCost ? `ต้นทุน ฿${money(item.unitCost)} / ชิ้น` : 'ยังไม่มีต้นทุนในไฟล์'}</p>
+          <p class="cost">${item.hasCost ? `ต้นทุน ฿${money(item.unitCost)} / ชิ้น` : 'ยังไม่มีต้นทุนในไฟล์'}${item.sellingPrice ? ` · ราคาขาย ฿${money(item.sellingPrice)}` : ''}</p>
           <div class="sp-item-meta">
             <span class="sp-badge ${badgeClass}">${esc(originLabel(item))}</span>
             <span class="sp-badge is-source">${esc(item.source)}: ${esc(sourceCategory)}</span>
@@ -806,7 +875,7 @@
 
     $('boxContents').innerHTML = box.items.map((item) => `<article class="sp-item done" data-id="${esc(item.id)}">
       <div class="sp-qty"><b>${item.quantity}</b><small>ชิ้น</small></div>
-      <div class="sp-item-main"><h3>${esc(item.name)}</h3><p>${esc(item.sku)} · ${esc(item.category)} · (${codeCost(item.unitCost)})</p></div>
+      <div class="sp-item-main"><h3>${esc(item.name)}</h3><p><b>SKU ${esc(item.sku)}</b> · ต้นทุน ฿${money(item.unitCost)}${item.sellingPrice ? ` · ราคาขาย ฿${money(item.sellingPrice)}` : ''} · ${esc(item.category)} · (${codeCost(item.unitCost)})</p></div>
       <div class="sp-item-actions"><button type="button" data-remove-box="${esc(item.id)}">นำออกจากกล่อง</button></div>
     </article>`).join('') || '<div class="sp-empty">ยังไม่มีสินค้าในกล่อง</div>';
 
@@ -815,7 +884,7 @@
     $('labelPreview').innerHTML = units.map(({ item, index, quantity }) => `<article class="sp-label" data-label="${esc(item.id)}" data-unit="${index}">
       <canvas></canvas>
       <h4>${esc(item.name)}</h4>
-      <small>${esc(item.sku)} · (${codeCost(item.unitCost)})${quantity > 1 ? ` · ${index}/${quantity}` : ''}</small>
+      <small>${esc(skuWithHiddenCost(item))}${quantity > 1 ? ` · ${index}/${quantity}` : ''}</small>
     </article>`).join('');
     setTimeout(drawLabels, 0);
   }
