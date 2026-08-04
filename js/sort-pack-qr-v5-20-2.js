@@ -1,11 +1,13 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.3';
+  const VERSION = '5.22.5';
+  const LABEL_SETTINGS_VERSION = 3;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
   if (!ENGINE) throw new Error('ไม่พบ TKN Category Engine v5.20.1');
+  const DEFAULT_LABEL_SETTINGS = Object.freeze({ preset: '50x40', width: 50, height: 40, orientation: 'PORTRAIT', columns: 1, margin: 0, gap: 0, qr: 20, font: 6, showName: true });
 
   const $ = (id) => document.getElementById(id);
   const CATEGORIES = [...ENGINE.CATEGORIES];
@@ -27,7 +29,8 @@
     selectedIds: [],
     expandedIds: [],
     categories: CATEGORIES,
-    labelSettings: { preset: '40x30', width: 40, height: 30, orientation: 'PORTRAIT', columns: 1, margin: 0, gap: 0, qr: 20, font: 9, showName: true },
+    labelSettingsVersion: LABEL_SETTINGS_VERSION,
+    labelSettings: { ...DEFAULT_LABEL_SETTINGS },
   };
 
   let persistTimer = null;
@@ -108,7 +111,10 @@
       state.box = stored?.box || null;
       state.selectedIds = Array.isArray(stored?.selectedIds) ? stored.selectedIds : [];
       state.expandedIds = [];
-      state.labelSettings = { ...state.labelSettings, ...(stored?.labelSettings || {}) };
+      if (Number(stored?.labelSettingsVersion) === LABEL_SETTINGS_VERSION) {
+        state.labelSettings = { ...DEFAULT_LABEL_SETTINGS, ...(stored?.labelSettings || {}) };
+      } else state.labelSettings = { ...DEFAULT_LABEL_SETTINGS };
+      state.labelSettingsVersion = LABEL_SETTINGS_VERSION;
       state.pageSize = [10, 25, 50, 100].includes(Number(stored?.pageSize)) ? Number(stored.pageSize) : 25;
       if (!localStorage.getItem(STATE_KEY)) saveState();
     } catch (error) {
@@ -1023,7 +1029,7 @@
   }
 
   function readLabelSettings() {
-    const preset = $('labelSizePreset')?.value || '40x30';
+    const preset = $('labelSizePreset')?.value || '50x40';
     return {
       preset,
       width: Math.max(20, numberValue($('labelWidthMm')?.value, 40)),
@@ -1033,7 +1039,7 @@
       margin: Math.max(0, numberValue($('labelMarginMm')?.value, 0)),
       gap: Math.max(0, numberValue($('labelGapMm')?.value, 0)),
       qr: Math.max(12, numberValue($('labelQrMm')?.value, 20)),
-      font: Math.max(7, numberValue($('labelFontPx')?.value, 9)),
+      font: Math.max(5, numberValue($('labelFontPx')?.value, 6)),
       showName: Boolean($('labelShowName')?.checked),
     };
   }
@@ -1052,7 +1058,7 @@
       grid.style.setProperty('--label-gap', `${Number(settings.gap || 0)}mm`);
       grid.style.setProperty('--label-cols', String(settings.columns || 1));
       grid.style.setProperty('--qr-mm', `${qr}mm`);
-      grid.style.setProperty('--sku-font', `${Number(settings.font || 9)}px`);
+      grid.style.setProperty('--sku-font', `${Number(settings.font || 6)}px`);
     }
     document.body.dataset.labelShowName = String(Boolean(settings.showName));
     let printStyle = document.getElementById('tknDynamicLabelPage');
@@ -1071,15 +1077,15 @@
   function fillLabelSettingInputs() {
     const settings = state.labelSettings || {};
     if (!$('labelSizePreset')) return;
-    $('labelSizePreset').value = settings.preset || '40x30';
-    $('labelWidthMm').value = settings.width || 40;
-    $('labelHeightMm').value = settings.height || 30;
+    $('labelSizePreset').value = settings.preset || '50x40';
+    $('labelWidthMm').value = settings.width || 50;
+    $('labelHeightMm').value = settings.height || 40;
     $('labelOrientation').value = settings.orientation || 'PORTRAIT';
     $('labelColumns').value = settings.columns || 1;
     $('labelMarginMm').value = settings.margin || 0;
     $('labelGapMm').value = settings.gap || 0;
     $('labelQrMm').value = settings.qr || 20;
-    $('labelFontPx').value = settings.font || 9;
+    $('labelFontPx').value = settings.font || 6;
     $('labelShowName').checked = settings.showName !== false;
     applyLabelSettings(false);
   }

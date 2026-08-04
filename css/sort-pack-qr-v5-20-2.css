@@ -266,6 +266,8 @@ body { overflow-x: hidden; }
 .sp-item h3 { margin: 0 0 5px; color: var(--sp-black); font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
 .sp-item p { margin: 3px 0; color: var(--sp-muted); line-height: 1.45; overflow-wrap: anywhere; }
 .sp-item .cost { color: var(--sp-red); font-weight: 900; }
+#boxContents .sp-item h3 { font-size: .84rem; }
+#boxContents .sp-item p { font-size: .75rem; }
 .sp-item-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
 .sp-badge { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 8px; border: 1px solid #d9dde4; border-radius: 999px; background: #f7f8fa; color: #4d5561; font-size: .75rem; font-weight: 850; }
 .sp-badge.is-auto { border-color: #a9d7bd; background: var(--sp-success-soft); color: #125f35; }
@@ -327,10 +329,10 @@ body { overflow-x: hidden; }
 .sp-label-settings-grid input,.sp-label-settings-grid select{width:100%;min-height:40px;margin-top:5px;border:1px solid #cbd2dc;border-radius:9px;padding:8px;background:#fff}
 .sp-label-settings-grid .sp-setting-check{display:flex;align-items:center;gap:8px;padding-top:22px}.sp-setting-check input{width:18px;min-height:18px;margin:0}
 .sp-setting-actions{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.sp-setting-actions button{border:0;border-radius:10px;padding:10px 14px;background:#202938;color:#fff;font-weight:900}.sp-setting-actions span{font-weight:800;color:#596274}
-.sp-label-grid{--label-w:40mm;--label-h:30mm;--label-gap:0mm;--label-cols:1;--qr-mm:20mm;--sku-font:9px}
+.sp-label-grid{--label-w:50mm;--label-h:40mm;--label-gap:0mm;--label-cols:1;--qr-mm:20mm;--sku-font:6px}
 .sp-label{box-sizing:border-box;width:var(--label-w);height:var(--label-h);padding:1mm;overflow:hidden;border-radius:2mm}
 .sp-label canvas{width:var(--qr-mm)!important;height:var(--qr-mm)!important;max-width:none}
-.sp-label h4{font-size:7px;line-height:1.1;margin:1px 0;-webkit-line-clamp:1}
+.sp-label h4{font-size:5px;line-height:1.1;margin:1px 0;-webkit-line-clamp:1}
 .sp-label small{font-size:var(--sku-font);line-height:1.05;overflow-wrap:anywhere}
 body[data-label-show-name="false"] .sp-label h4{display:none}
 @media print { .sp-label-qr-status { display: none !important; } }

@@ -8,14 +8,14 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css">
-  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.3">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.5">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
     <header class="sp-hero">
       <div class="sp-hero-copy">
-        <small>FINAL v5.22.3 · MULTI SKU SCAN · QR RESTORED</small>
+        <small>FINAL v5.22.5 · MULTI SKU SCAN · 5×4 LABEL</small>
         <h1>แยกสินค้าและปิดกล่อง</h1>
         <p>สแกน SKU ต่อเนื่องแล้วระบบอ่านชื่อ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมรวมเป็นล็อตเดียว</p>
       </div>
@@ -167,18 +167,18 @@
           <label>ขนาดฉลาก<select id="labelSizePreset">
             <option value="32x25">3.2 × 2.5 ซม.</option>
             <option value="30x20">3 × 2 ซม.</option>
-            <option value="40x30" selected>4 × 3 ซม.</option>
-            <option value="50x40">5 × 4 ซม.</option>
+            <option value="40x30">4 × 3 ซม.</option>
+            <option value="50x40" selected>5 × 4 ซม.</option>
             <option value="CUSTOM">กำหนดเอง</option>
           </select></label>
-          <label>กว้าง (มม.)<input id="labelWidthMm" type="number" min="20" max="120" step="0.1" value="40"></label>
-          <label>สูง (มม.)<input id="labelHeightMm" type="number" min="15" max="120" step="0.1" value="30"></label>
+          <label>กว้าง (มม.)<input id="labelWidthMm" type="number" min="20" max="120" step="0.1" value="50"></label>
+          <label>สูง (มม.)<input id="labelHeightMm" type="number" min="15" max="120" step="0.1" value="40"></label>
           <label>แนวฉลาก<select id="labelOrientation"><option value="PORTRAIT">ตามขนาด</option><option value="LANDSCAPE">สลับกว้าง–สูง</option></select></label>
           <label>จำนวนต่อแถว<input id="labelColumns" type="number" min="1" max="5" step="1" value="1"></label>
           <label>ขอบกระดาษ (มม.)<input id="labelMarginMm" type="number" min="0" max="10" step="0.5" value="0"></label>
           <label>ช่องว่าง (มม.)<input id="labelGapMm" type="number" min="0" max="10" step="0.5" value="0"></label>
           <label>ขนาด QR (มม.)<input id="labelQrMm" type="number" min="12" max="45" step="1" value="20"></label>
-          <label>ขนาดอักษร SKU (px)<input id="labelFontPx" type="number" min="7" max="18" step="1" value="9"></label>
+          <label>ขนาดอักษร SKU (px)<input id="labelFontPx" type="number" min="5" max="18" step="1" value="6"></label>
           <label class="sp-setting-check"><input id="labelShowName" type="checkbox" checked> แสดงชื่อสินค้า</label>
         </div>
         <div class="sp-setting-actions"><button id="applyLabelSettingsBtn" type="button">ใช้การตั้งค่าและดูตัวอย่าง</button><span id="labelSettingSummary"></span></div>
@@ -227,7 +227,7 @@
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
   <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.2"></script>
-  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.3"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.22.3" defer></script>
+  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.5"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.22.5" defer></script>
 </body>
 </html>
