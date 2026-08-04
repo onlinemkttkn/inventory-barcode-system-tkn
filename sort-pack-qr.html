@@ -8,14 +8,14 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css">
-  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.6">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.7">
   <link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
     <header class="sp-hero">
       <div class="sp-hero-copy">
-        <small>FINAL v5.22.6 · MULTI SKU SCAN · THIN LABEL</small>
+        <small>FINAL v5.22.7 · MULTI SKU SCAN · UNIFORM THIN LABEL</small>
         <h1>แยกสินค้าและปิดกล่อง</h1>
         <p>สแกน SKU ต่อเนื่องแล้วระบบอ่านชื่อ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมรวมเป็นล็อตเดียว</p>
       </div>
@@ -178,7 +178,7 @@
           <label>ขอบกระดาษ (มม.)<input id="labelMarginMm" type="number" min="0" max="10" step="0.5" value="0"></label>
           <label>ช่องว่าง (มม.)<input id="labelGapMm" type="number" min="0" max="10" step="0.5" value="0"></label>
           <label>ขนาด QR (มม.)<input id="labelQrMm" type="number" min="12" max="45" step="1" value="20"></label>
-          <label>ขนาดอักษร SKU (px)<input id="labelFontPx" type="number" min="5" max="18" step="1" value="6"></label>
+          <label>ขนาดอักษรฉลาก (px)<input id="labelFontPx" type="number" min="2" max="18" step="1" value="3"></label>
           <label class="sp-setting-check"><input id="labelShowName" type="checkbox" checked> แสดงชื่อสินค้า</label>
         </div>
         <div class="sp-setting-actions"><button id="applyLabelSettingsBtn" type="button">ใช้การตั้งค่าและดูตัวอย่าง</button><span id="labelSettingSummary"></span></div>
@@ -227,7 +227,7 @@
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
   <script src="./js/tkn-category-engine-v5-20-1.js?v=5.20.2"></script>
-  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.6"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.22.6" defer></script>
+  <script src="./js/sort-pack-qr-v5-20-2.js?v=5.22.7"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.22.7" defer></script>
 </body>
 </html>

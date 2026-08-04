@@ -1,13 +1,13 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.6';
-  const LABEL_SETTINGS_VERSION = 4;
+  const VERSION = '5.22.7';
+  const LABEL_SETTINGS_VERSION = 5;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
   if (!ENGINE) throw new Error('ไม่พบ TKN Category Engine v5.20.1');
-  const DEFAULT_LABEL_SETTINGS = Object.freeze({ preset: '50x40', width: 50, height: 40, orientation: 'PORTRAIT', columns: 2, margin: 0, gap: 0, qr: 20, font: 6, showName: true });
+  const DEFAULT_LABEL_SETTINGS = Object.freeze({ preset: '50x40', width: 50, height: 40, orientation: 'PORTRAIT', columns: 2, margin: 0, gap: 0, qr: 20, font: 3, showName: true });
 
   const $ = (id) => document.getElementById(id);
   const CATEGORIES = [...ENGINE.CATEGORIES];
@@ -1039,7 +1039,7 @@
       margin: Math.max(0, numberValue($('labelMarginMm')?.value, 0)),
       gap: Math.max(0, numberValue($('labelGapMm')?.value, 0)),
       qr: Math.max(12, numberValue($('labelQrMm')?.value, 20)),
-      font: Math.max(5, numberValue($('labelFontPx')?.value, 6)),
+      font: Math.max(2, numberValue($('labelFontPx')?.value, 3)),
       showName: Boolean($('labelShowName')?.checked),
     };
   }
@@ -1058,7 +1058,7 @@
       grid.style.setProperty('--label-gap', `${Number(settings.gap || 0)}mm`);
       grid.style.setProperty('--label-cols', String(settings.columns || 1));
       grid.style.setProperty('--qr-mm', `${qr}mm`);
-      grid.style.setProperty('--sku-font', `${Number(settings.font || 6)}px`);
+      grid.style.setProperty('--sku-font', `${Number(settings.font || 3)}px`);
     }
     document.body.dataset.labelShowName = String(Boolean(settings.showName));
     let printStyle = document.getElementById('tknDynamicLabelPage');
@@ -1083,7 +1083,7 @@
     $('labelMarginMm').value = settings.margin || 0;
     $('labelGapMm').value = settings.gap || 0;
     $('labelQrMm').value = settings.qr || 20;
-    $('labelFontPx').value = settings.font || 6;
+    $('labelFontPx').value = settings.font || 3;
     $('labelShowName').checked = settings.showName !== false;
     applyLabelSettings(false);
   }
