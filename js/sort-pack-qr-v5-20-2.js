@@ -1,13 +1,13 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.22.5';
-  const LABEL_SETTINGS_VERSION = 3;
+  const VERSION = '5.22.6';
+  const LABEL_SETTINGS_VERSION = 4;
   const STATE_KEY = 'tkn_sort_pack_v5202';
   const LEGACY_STATE_KEY = 'tkn_sort_pack_v5201';
   const ENGINE = window.TKNCategoryEngine;
   if (!ENGINE) throw new Error('ไม่พบ TKN Category Engine v5.20.1');
-  const DEFAULT_LABEL_SETTINGS = Object.freeze({ preset: '50x40', width: 50, height: 40, orientation: 'PORTRAIT', columns: 1, margin: 0, gap: 0, qr: 20, font: 6, showName: true });
+  const DEFAULT_LABEL_SETTINGS = Object.freeze({ preset: '50x40', width: 50, height: 40, orientation: 'PORTRAIT', columns: 2, margin: 0, gap: 0, qr: 20, font: 6, showName: true });
 
   const $ = (id) => document.getElementById(id);
   const CATEGORIES = [...ENGINE.CATEGORIES];
@@ -999,7 +999,7 @@
     applyLabelSettings(false);
     $('labelCount').textContent = String(units.length);
     $('labelPreview').innerHTML = units.map(({ item, index, quantity }) => `<article class="sp-label" data-label="${esc(item.id)}" data-unit="${index}">
-      <div class="sp-label-qr-status">กำลังสร้าง QR...</div><canvas></canvas>
+      <div class="sp-label-qr-status" hidden></div><canvas></canvas>
       <h4>${esc(item.name)}</h4>
       <small>${esc(skuWithHiddenCost(item))}${quantity > 1 ? ` · ${index}/${quantity}` : ''}</small>
     </article>`).join('');
@@ -1020,10 +1020,10 @@
         if (!ready || typeof toCanvas !== 'function') throw new Error('ระบบ QR ยังไม่พร้อม');
         const pixelSize = Math.max(64, Math.round(Number(state.labelSettings?.qr || 20) * 3.78));
         await toCanvas(canvas, `TKN-P-${item.sku}`, { width: pixelSize, margin: 1, errorCorrectionLevel: 'M' });
-        if (status) { status.textContent = 'QR พร้อม'; status.className = 'sp-label-qr-status is-success'; }
+        if (status) { status.textContent = ''; status.hidden = true; }
       } catch (error) {
         console.warn('สร้าง QR สินค้าไม่สำเร็จ:', error);
-        if (status) { status.textContent = `QR ไม่สำเร็จ: ${error.message || 'ลองใหม่'}`; status.className = 'sp-label-qr-status is-error'; }
+        if (status) { status.textContent = `QR ไม่สำเร็จ: ${error.message || 'ลองใหม่'}`; status.className = 'sp-label-qr-status is-error'; status.hidden = false; }
       }
     }));
   }
@@ -1067,9 +1067,7 @@
       printStyle.id = 'tknDynamicLabelPage';
       document.head.appendChild(printStyle);
     }
-    const pageWidth = (width * Number(settings.columns || 1)) + (Number(settings.gap || 0) * Math.max(0, Number(settings.columns || 1) - 1)) + (Number(settings.margin || 0) * 2);
-    const pageHeight = height + (Number(settings.margin || 0) * 2);
-    printStyle.textContent = `@page{size:${pageWidth}mm ${pageHeight}mm;margin:${Number(settings.margin || 0)}mm}`;
+    printStyle.textContent = `@page{size:auto;margin:${Number(settings.margin || 0)}mm}`;
     if ($('labelSettingSummary')) $('labelSettingSummary').textContent = `${width} × ${height} มม. · ${settings.columns} ดวง/แถว · QR ${qr} มม.`;
     if (save) { saveState(); renderBox(); }
   }
