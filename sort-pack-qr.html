@@ -9,13 +9,14 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css">
   <link rel="stylesheet" href="./css/sort-pack-qr-v5-20-2.css?v=5.22.14">
-  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./css/sort-pack-qr-v5-25-6.css?v=5.25.6">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.25.6">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
     <header class="sp-hero">
       <div class="sp-hero-copy">
-        <small>FINAL v5.22.14 · QR + CODE 128 POS LABEL</small>
+        <small>FINAL v5.25.6 · QR + CODE 128 POS LABEL</small>
         <h1>แยกสินค้าและปิดกล่อง</h1>
         <p>สแกน SKU ต่อเนื่องแล้วระบบอ่านชื่อ ต้นทุน และหมวดจาก Shopee/Lazada พร้อมรวมเป็นล็อตเดียว</p>
       </div>
@@ -159,6 +160,13 @@
       <div class="sp-grid-3">
         <label>รหัสกล่อง<input id="boxCode" readonly></label>
         <label>ประเภทกล่อง<select id="boxCategory"></select></label>
+        <label>โซนกล่อง<select id="boxZoneCode">
+          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option>
+          <option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option>
+          <option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option>
+          <option>S</option><option>T</option><option>U</option><option>V</option><option>W</option><option>X</option>
+          <option>Y</option><option>Z</option>
+        </select></label>
         <label>ตำแหน่งจัดเก็บ<input id="boxLocation" placeholder="คลัง > โซน > ชั้น"></label>
       </div>
       <details class="sp-label-settings" open>
@@ -231,7 +239,8 @@
   <script src="./js/tracking-camera-scanner-v5-20-2.js?v=5.20.2"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-category-engine-v5-25-0.js?v=5.25.0"></script>
-  <script src="./js/sort-pack-qr-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.1" defer></script>
+  <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
+  <script src="./js/sort-pack-qr-v5-25-6.js?v=5.25.6"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.6" defer></script>
 </body>
 </html>

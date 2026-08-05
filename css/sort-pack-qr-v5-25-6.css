@@ -1,0 +1,6 @@
+/* TKN POS ERP v5.25.6 — box code above closing QR */
+.sp-box-qr .sp-box-code{margin:8px 0 6px;font:1000 clamp(22px,3vw,38px)/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;color:#171014;text-align:center}
+.sp-box-qr .sp-box-code b{font:inherit}
+@media print{
+  body.sp-print-box-qr #boxQrResult .sp-box-code{margin:0 0 4mm!important;font-size:7mm!important;color:#111!important}
+}

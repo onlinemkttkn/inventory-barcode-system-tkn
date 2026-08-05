@@ -17,15 +17,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.25.4">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.25.6">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
-  <link rel="stylesheet" href="./css/box-qr-stock-v5-25-4.css?v=5.25.4">
+  <link rel="stylesheet" href="./css/box-qr-stock-v5-25-6.css?v=5.25.6">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.25.4</small>
+        <small>TKN POS ERP · Box QR · Final v5.25.6</small>
         <h1>รับคืนและจัดสินค้าลงกล่อง</h1>
         <p>สแกนสินค้าที่เหลือจากหน้าร้านแล้วเพิ่มเข้ากล่องทันที จำนวนที่สแกนคือจำนวนจริงในกล่อง จากนั้นปิดกล่องและพิมพ์ QR ได้เลย</p>
       </div>
@@ -114,6 +114,35 @@
 
       <div id="finalBoxSummary" class="final-box-summary"></div>
 
+      <div class="grid form box-identity-form no-print">
+        <label><span>ประเภทสินค้าประจำกล่อง</span>
+          <select id="boxCategorySelect">
+            <option value="">ตรวจจากสินค้าอัตโนมัติ</option>
+            <option>ไอทีและอิเล็กทรอนิกส์</option>
+            <option>ออดิโอ</option>
+            <option>รองเท้า</option>
+            <option>เครื่องประดับ</option>
+            <option>ของใช้ในบ้าน</option>
+            <option>ของเล่นและโมเดล</option>
+            <option>เสื้อผ้า</option>
+            <option>กระเป๋า</option>
+            <option>เครื่องสำอาง</option>
+            <option>อื่น ๆ</option>
+          </select>
+        </label>
+        <label><span>โซนจัดเก็บ</span>
+          <select id="boxZoneCode">
+            <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option>
+            <option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option>
+            <option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option>
+            <option>S</option><option>T</option><option>U</option><option>V</option><option>W</option><option>X</option>
+            <option>Y</option><option>Z</option>
+          </select>
+        </label>
+        <label><span>รหัสกล่องเมื่อปิด</span><output id="boxFinalCodePreview">GEN-A##</output></label>
+      </div>
+      <p class="box-code-help no-print">รูปแบบมาตรฐาน: <b>ประเภท-โซน-เลขกล่อง 2 หลัก</b> เช่น IT-A01 โดย QR จะเก็บรหัสเต็ม TKN-B-IT-A01 เพื่อให้ทุกหน้าสแกนได้เหมือนเดิม</p>
+
       <details class="box-print-settings" open>
         <summary>ตั้งค่ากระดาษและเครื่องพิมพ์ QR กล่อง</summary>
         <div class="box-print-settings-grid">
@@ -152,9 +181,10 @@
   <script src="./js/auth-guard.js?v=5.6.0"></script>
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/box-qr-stock-v5-25-4.js?v=5.25.4"></script>
+  <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
+  <script src="./js/box-qr-stock-v5-25-6.js?v=5.25.6"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.6" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 </body>
 </html>
