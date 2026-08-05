@@ -1,0 +1,100 @@
+{
+  "version": "5.25.2",
+  "summary": {
+    "passed": 18,
+    "failed": 0,
+    "total": 18
+  },
+  "checks": [
+    {
+      "name": "JavaScript syntax: js/box-qr-stock-v5-25-2.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/products-admin-v5-25-2.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/app-shell-v5-19.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: service-worker-v5.25.2.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Unknown SKU popup exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Unknown SKU blocked before receive",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Unknown SKU blocked before box",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Database lookup errors blocked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Old placeholder rows removed safely",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Products page supports create intent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Products page returns to Box QR",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Local assets exist: box-qr-stock.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Local assets exist: products-admin.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker assets exist",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker cache version 5.25.2",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "App shell registers v5.25.2",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Box page loads new guard script",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Product page loads new prefill script",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
