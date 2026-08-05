@@ -19,7 +19,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.25.1">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
@@ -88,9 +88,8 @@
 
           <label class="field">
             ใช้ค่า Barcode จาก (เมื่อเลือก Barcode)
-            <select id="barcodeSource">
-              <option value="product_code" selected>SKU ของล็อต (แนะนำ)</option>
-              <option value="barcode">บาร์โค้ดผู้ผลิตเดิม</option>
+            <select id="barcodeSource" disabled>
+              <option value="product_code" selected>SKU ของล็อต + ต้นทุนแฝง (มาตรฐานระบบ)</option>
             </select>
           </label>
 
@@ -113,7 +112,7 @@
               <label class="field">ขนาดตัวอักษร<input id="labelFontSize" type="number" min="6" max="30" step="1" value="10"></label>
             </div>
           </details>
-          <p class="message success">QR ใช้ค่า TKN-P-SKU และ Barcode ใช้ SKU เดียวกัน เพื่อให้ Stock Check และ POS อ้างอิงรหัสเดียวทั้งระบบ</p>
+          <p class="message success">QR ใช้ค่า TKN-P-SKU และ Barcode ใช้ SKU ของล็อตเดียวกัน พร้อมต้นทุนแฝง เพื่อให้ทุกหน้าสแกนรหัสมาตรฐานเดียว</p>
 
           <div class="action-grid">
             <button id="previewBtn" class="btn primary" type="button">สร้างตัวอย่าง</button>
@@ -168,10 +167,10 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="./js/supabase-config.js?v=3.4.10"></script>
   <script src="./js/auth-guard.js?v=3.6.11"></script>
-  <script src="./js/tkn-product-pattern-v5-25-0.js?v=5.25.0"></script>
-  <script src="./js/print-labels-v5-25-0.js?v=5.25.0"></script>
+  <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
+  <script src="./js/print-labels-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.0" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.1" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

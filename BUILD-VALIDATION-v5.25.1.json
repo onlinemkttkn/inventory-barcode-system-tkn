@@ -1,0 +1,231 @@
+{
+  "version": "5.25.1",
+  "generated_at_utc": "2026-08-05T07:18:00.836405+00:00",
+  "summary": {
+    "passed": 44,
+    "failed": 0,
+    "total": 44
+  },
+  "checks": [
+    {
+      "name": "file exists: js/tkn-product-pattern-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/print-labels-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/generator-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/generator-product-link-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/sort-pack-qr-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/products-admin-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: pos-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/mobile-stock-check-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/box-qr-stock-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/scanner-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: service-worker-v5.25.1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: manifest.webmanifest",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: print-labels.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: generator.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: pos.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all HTML local references exist",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "service worker assets exist",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/tkn-product-pattern-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/print-labels-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/generator-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/generator-product-link-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/sort-pack-qr-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/products-admin-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: pos-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/mobile-stock-check-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/box-qr-stock-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/scanner-v5-25-1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/app-shell-v5-19.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: service-worker-v5.25.1.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "print labels uses canonical SKU",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "print labels ignores manufacturer barcode for output",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "generator uses canonical SKU for barcode and QR",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "runtime canonical SKU/QR/scan fallback test",
+      "ok": true,
+      "detail": "{\"sku\":\"F001-T150\",\"qr\":\"TKN-P-F001-T150\",\"candidates\":[\"F001-T150\",\"F001\"]}"
+    },
+    {
+      "name": "old file removed: js/tkn-product-pattern-v5-25-0.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/print-labels-v5-25-0.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/sort-pack-qr-v5-25-0.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/products-admin-v5-25-0.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: pos-v5-25-0.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: service-worker-v5.25.0.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/generator.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/generator-product-link.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/scanner.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/mobile-stock-check.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old file removed: js/box-qr-stock-v5-24-1.js",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}
