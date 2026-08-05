@@ -1,0 +1,142 @@
+{
+  "package": "TKN POS ERP Unified QR / SKU Lot Cost / Promotions Patch",
+  "version": "5.25.0",
+  "base_version": "5.24.1",
+  "created_at": "2026-08-05T01:08:00+07:00",
+  "non_destructive": true,
+  "manifest_note": "PATCH-MANIFEST-v5.25.0.json is intentionally excluded from its own checksum list.",
+  "file_count_including_manifest": 27,
+  "checksummed_file_count": 26,
+  "files": [
+    {
+      "path": "VERSION.txt",
+      "size_bytes": 54,
+      "sha256": "63208dc868ec59417fffaf397f76104c43f33a15500e06ca9a04e61cff78603d"
+    },
+    {
+      "path": "app-shell-v5-19.js",
+      "size_bytes": 37731,
+      "sha256": "aad5fa3e50bcd6e7252fe7e71d0ad17d074323b30bcb0b69beeee0fc6cbadb64"
+    },
+    {
+      "path": "js/app-shell-v5-19.js",
+      "size_bytes": 37731,
+      "sha256": "4b026ebff82230e045a580feaf7b370053b1aba70efa559e2245b9012d874cda"
+    },
+    {
+      "path": "pos.html",
+      "size_bytes": 19380,
+      "sha256": "83697bb8ac4b6c1fd4dcf21a88c683c51d0fef08f2b069cb40547fd9fa78053c"
+    },
+    {
+      "path": "pos-v5-25-0.js",
+      "size_bytes": 47063,
+      "sha256": "994690845c546037c9938796b7e19b5b98656bde393dcf06352823657dfe9dc9"
+    },
+    {
+      "path": "print-labels.html",
+      "size_bytes": 10363,
+      "sha256": "2112bdad9e5e6d296568de505b2a6863226ea67af2a13c160dff2774a11b0e43"
+    },
+    {
+      "path": "products-admin.html",
+      "size_bytes": 17303,
+      "sha256": "628ae1d30e2ead603467553bcafcadb54281dbce31da9f2cd4619d20bb9ae807"
+    },
+    {
+      "path": "sort-pack-qr.html",
+      "size_bytes": 15799,
+      "sha256": "6200fd03c23a62aff11bc720b910ff58b6aef20d149f957066c0da7d5e7c5b08"
+    },
+    {
+      "path": "stock-promotions.html",
+      "size_bytes": 5886,
+      "sha256": "cb5713e3afbcb401568d80d147c5786deb4697eec337eeed0e744900f056269d"
+    },
+    {
+      "path": "service-worker-v5.25.0.js",
+      "size_bytes": 3910,
+      "sha256": "2d919d29fe34c7f7501ac412c1a4014f0c6a5b30102b98c53c543c467d6e0ab7"
+    },
+    {
+      "path": "css/print-labels-v5-25-0.css",
+      "size_bytes": 9697,
+      "sha256": "2eab65191bd690a8458e442c02283b2770c3f301155c45c5d85fcf915eafe2d1"
+    },
+    {
+      "path": "css/products-admin-v5-25-0.css",
+      "size_bytes": 503,
+      "sha256": "26bdeaf02e0831195f0d8dcc03ea269d9b35b7983c41fb3eefda51d1706cb274"
+    },
+    {
+      "path": "css/stock-promotions-v5-25-0.css",
+      "size_bytes": 3138,
+      "sha256": "4d1763fe6d6a3adcb431a36e3db89bf166175f02c33fb90ecfe64d3f5a8abeae"
+    },
+    {
+      "path": "js/tkn-product-pattern-v5-25-0.js",
+      "size_bytes": 6908,
+      "sha256": "012df5ac8027fb28f4c09ce89c855bfce5e3d187441a6466fbed94faadf3a613"
+    },
+    {
+      "path": "js/tkn-category-engine-v5-25-0.js",
+      "size_bytes": 14108,
+      "sha256": "63b857f683f6235834bc86711e76f060e74a410615fb5e045fda10f79db77564"
+    },
+    {
+      "path": "js/print-labels-v5-25-0.js",
+      "size_bytes": 24284,
+      "sha256": "25fe2f3a2d8b2b0aae28587addc9d18d83b143d6f8ff30e7aa2936099a3b8b79"
+    },
+    {
+      "path": "js/products-admin-v5-25-0.js",
+      "size_bytes": 20640,
+      "sha256": "fddf8a294ec53745294973b2fe028ed0692e17fdfaf0c2311346f9b9bbd7afcf"
+    },
+    {
+      "path": "js/sort-pack-qr-v5-25-0.js",
+      "size_bytes": 76886,
+      "sha256": "2e156816aa9d294003955c95171691d924793125bbcf72d28ec399dca415bce8"
+    },
+    {
+      "path": "js/stock-promotions-v5-25-0.js",
+      "size_bytes": 11270,
+      "sha256": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507"
+    },
+    {
+      "path": "sql/2026-08-05-unified-qr-sku-stock-v5.25.0.sql",
+      "size_bytes": 22035,
+      "sha256": "2da137c021dba0e24c7124c6d5646a2b82708ba9389c8ffd0ad9e0eb01d9d617"
+    },
+    {
+      "path": "SPEC-LOCK-v5.25.0.md",
+      "size_bytes": 4811,
+      "sha256": "ef00b2b950f2985ddcd7976c0db96b103b879856795508eb062417d11944903d"
+    },
+    {
+      "path": "README-UPGRADE-v5.25.0.md",
+      "size_bytes": 4093,
+      "sha256": "8398f86343d87b14b33453296549720e671c84fce4da579aa7594ded4e18824c"
+    },
+    {
+      "path": "UAT-v5.25.0.md",
+      "size_bytes": 4696,
+      "sha256": "64fd864f868505dea76e06b6650a500a1d10b79e8587115e546c62d265139adf"
+    },
+    {
+      "path": "CHANGELOG-v5.25.0.md",
+      "size_bytes": 1723,
+      "sha256": "0d83440c15fc785648990fa55866a6853257d45d6df5bd68d5d540c1ff56e40c"
+    },
+    {
+      "path": "PATCH-FILES-v5.25.0.txt",
+      "size_bytes": 669,
+      "sha256": "092db1c43593faf82875d2d1610ba4ac1a6d135395e687d1d248afe3048e8d95"
+    },
+    {
+      "path": "BUILD-VALIDATION-v5.25.0.json",
+      "size_bytes": 2368,
+      "sha256": "2dc5865048b5a1727fd4371661501e5b260df1b94be2834d4a9902f7f8f73172"
+    }
+  ]
+}

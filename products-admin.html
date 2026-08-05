@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <link rel="stylesheet" href="./css/products-admin.css?v=5.4.4">
+  <link rel="stylesheet" href="./css/products-admin-v5-25-0.css?v=5.25.0">
   <!-- TKN Global Prompt Typography v4.7.0 -->
   <link rel="stylesheet" href="css/global-font.css?v=4.7.0">
   <meta name="theme-color" content="#c8101e">
@@ -20,7 +21,7 @@
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
-  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
 </head>
 <body>
@@ -55,6 +56,10 @@
     <a class="quick-nav-item" href="./import-export.html">
       <span class="quick-nav-icon" aria-hidden="true">↥</span>
       <span><strong>นำเข้า / ส่งออก</strong><small>จัดการข้อมูลด้วยไฟล์ CSV</small></span>
+    </a>
+    <a class="quick-nav-item" href="./stock-promotions.html">
+      <span class="quick-nav-icon" aria-hidden="true">%</span>
+      <span><strong>โปรโมชั่นสินค้า</strong><small>เลือกสินค้าจากสต๊อกและกำหนดราคาพิเศษ</small></span>
     </a>
   </nav>
 
@@ -150,15 +155,23 @@
           <label class="field field-wide required-field"><span class="field-label">ชื่อสินค้า</span>
             <input id="productName" required placeholder="เช่น เสื้อยืดสีดำ ไซซ์ L" autocomplete="off">
           </label>
-          <label class="field required-field"><span class="field-label">รหัสสินค้า</span>
-            <input id="productCode" required placeholder="เช่น PD000001" autocomplete="off">
-          </label>
-          <label class="field"><span class="field-label">บาร์โค้ด</span>
+          <label class="field required-field"><span class="field-label">SKU หลัก</span>
             <div class="input-action">
-              <input id="barcode" inputmode="numeric" placeholder="สแกนหรือกรอกบาร์โค้ด" autocomplete="off">
-              <button id="generateBarcodeBtn" class="inline-btn" type="button">สร้างให้</button>
+              <input id="baseSku" required placeholder="เช่น MIC-PD200X" autocomplete="off">
+              <button id="generateBaseSkuBtn" class="inline-btn" type="button">สร้างให้</button>
             </div>
           </label>
+          <label class="field required-field"><span class="field-label">SKU ของล็อต</span>
+            <input id="productCode" required readonly placeholder="ระบบสร้าง: SKU-Aต้นทุน">
+            <small class="field-help">ใช้เป็นรหัสเดียวของ QR, Barcode, POS และสต๊อก</small>
+          </label>
+          <label class="field"><span class="field-label">บาร์โค้ดผู้ผลิตเดิม (ถ้ามี)</span>
+            <div class="input-action">
+              <input id="barcode" placeholder="สแกนบาร์โค้ดเดิม หรือเว้นว่างเพื่อใช้ SKU" autocomplete="off">
+              <button id="useSkuBarcodeBtn" class="inline-btn" type="button">ใช้ SKU</button>
+            </div>
+          </label>
+          <input id="costLetter" type="hidden">
         </div>
       </section>
 
@@ -171,7 +184,15 @@
           <label class="field required-field"><span class="field-label">หมวดหมู่</span><select id="category" required></select></label>
           <label class="field required-field"><span class="field-label">หน่วยนับ</span><select id="unit" required></select></label>
           <label class="field"><span class="field-label">ยี่ห้อ</span><select id="brand"></select></label>
+          <label class="field"><span class="field-label">ประเภทสินค้า (ภาษาไทย)</span><input id="productType" list="productTypeOptions" placeholder="เช่น ไมโครโฟน"></label>
+          <label class="field"><span class="field-label">รุ่น</span><input id="modelName" placeholder="เช่น PD200X"></label>
+          <label class="field"><span class="field-label">รหัสล็อต</span><input id="lotCode" placeholder="เช่น 2026-08-L01"></label>
         </div>
+        <datalist id="productTypeOptions"></datalist>
+        <label class="field label-preview-field"><span class="field-label">ข้อความบนฉลาก (อัตโนมัติ)</span>
+          <input id="labelName" placeholder="ประเภท + ยี่ห้อ + รุ่น">
+          <small class="field-help">ระบบตัดรายละเอียดส่วนเกินออกอัตโนมัติ และพิมพ์ไม่เกิน 2 บรรทัด</small>
+        </label>
       </section>
       </div>
 
@@ -184,8 +205,13 @@
           <label class="field"><span class="field-label">ราคาทุน</span>
             <div class="money-input"><span>฿</span><input id="costPrice" type="number" min="0" step="0.01" value="0"></div>
           </label>
+          <label class="field"><span class="field-label">บวกกำไร %</span><input id="markupPercent" type="number" min="0" step="0.01" value="0"></label>
+          <label class="field"><span class="field-label">VAT %</span><input id="vatRate" type="number" min="0" max="100" step="0.01" value="7"></label>
+          <label class="field"><span class="field-label">การคิด VAT</span><select id="vatMode"><option value="EXCLUDED">บวก VAT เพิ่ม</option><option value="INCLUDED">ราคารวม VAT แล้ว</option></select></label>
+          <label class="field"><span class="field-label">การปัดราคา</span><select id="priceRounding"><option value="BAHT">ขึ้นเป็นบาท</option><option value="FIVE">ขึ้นทุก 5 บาท</option><option value="TEN">ขึ้นทุก 10 บาท</option><option value="NONE">ทศนิยม 2 ตำแหน่ง</option></select></label>
           <label class="field required-field"><span class="field-label">ราคาขาย</span>
             <div class="money-input"><span>฿</span><input id="sellingPrice" type="number" min="0" step="0.01" value="0" required></div>
+            <button id="calculatePriceBtn" class="inline-btn price-calc-btn" type="button">คำนวณจากทุน + กำไร + VAT</button>
           </label>
           <label class="field"><span class="field-label">สาขาสต๊อกเริ่มต้น</span><select id="initialBranch"></select></label>
           <label class="field"><span class="field-label">จำนวนเริ่มต้น</span><input id="initialQuantity" type="number" min="0" step="0.001" value="0"></label>
@@ -197,7 +223,6 @@
         <summary>ข้อมูลเพิ่มเติม <span>รูปสินค้า, VAT, จุดแจ้งเตือน และรายละเอียด</span></summary>
         <div class="form-grid advanced-grid">
           <label class="field"><span class="field-label">ขั้นต่ำแจ้งเตือน</span><input id="minimumStock" type="number" min="0" step="0.001" value="0"></label>
-          <label class="field"><span class="field-label">VAT %</span><input id="vatRate" type="number" min="0" max="100" step="0.01" value="0"></label>
           <label class="field"><span class="field-label">สถานะ</span>
             <select id="isActive"><option value="true">ใช้งาน</option><option value="false">ปิดใช้งาน</option></select>
           </label>
@@ -221,9 +246,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
-<script src="./js/products-admin.js?v=5.4.4"></script>
+<script src="./js/tkn-product-pattern-v5-25-0.js?v=5.25.0"></script>
+<script src="./js/products-admin-v5-25-0.js?v=5.25.0"></script>
 <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

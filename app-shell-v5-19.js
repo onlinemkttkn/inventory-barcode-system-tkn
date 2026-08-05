@@ -55,6 +55,7 @@
     { key:'box', group:'งานหลัก', label:'Box QR / จัดกล่อง', short:'Box QR', href:'./box-qr-stock.html', icon:'box', any:['product.manage'], pages:['box-qr-stock.html'] },
 
     { key:'products', group:'สินค้าและคลัง', label:'จัดการสินค้า', short:'สินค้า', href:'./products-admin.html', icon:'products', any:['product.manage'], pages:['products-admin.html','categories-admin.html','product-stock-admin.html'] },
+    { key:'promotions', group:'สินค้าและคลัง', label:'โปรโมชั่นสินค้า', short:'โปรโมชั่น', href:'./stock-promotions.html', icon:'report', any:['product.manage'], pages:['stock-promotions.html'] },
     { key:'labels', group:'สินค้าและคลัง', label:'พิมพ์ QR / ป้ายสินค้า', short:'พิมพ์ป้าย', href:'./print-labels.html', icon:'scan', any:['inventory.view'], pages:['print-labels.html','generator.html'] },
     { key:'inventory', group:'สินค้าและคลัง', label:'คลังสินค้า', short:'คลัง', href:'./inventory-operations.html', icon:'warehouse', any:['inventory.view'], pages:['inventory-operations.html','transactions.html','branch-stock.html'] },
     { key:'receive', group:'สินค้าและคลัง', label:'รับสินค้า', short:'รับเข้า', href:'./receive.html', icon:'receive', any:['inventory.receive','inventory.view'], pages:['receive.html','purchase-order-create.html','purchase-order-history.html'] },
@@ -82,7 +83,7 @@
   const PAGE_NAMES = Object.freeze({
     'dashboard.html':'หน้าหลัก', 'pos.html':'ขายหน้าร้าน', 'pos-member.html':'สมาชิกใน POS',
     'mobile-stock-check.html':'สแกนตรวจสต็อก', 'sort-pack-qr.html':'แยกสินค้าและปิดกล่อง', 'scanner.html':'สแกน', 'box-qr-stock.html':'Box QR',
-    'products-admin.html':'จัดการสินค้า', 'categories-admin.html':'หมวดสินค้า', 'product-stock-admin.html':'สต็อกสินค้า',
+    'products-admin.html':'จัดการสินค้า', 'categories-admin.html':'หมวดสินค้า', 'product-stock-admin.html':'สต็อกสินค้า', 'stock-promotions.html':'โปรโมชั่นสินค้า',
     'inventory-operations.html':'คลังสินค้า', 'receive.html':'รับสินค้า', 'issue.html':'เบิกสินค้า',
     'transfer-create.html':'สร้างใบโอน', 'transfer-receive.html':'รับโอน', 'transfer-history.html':'ประวัติโอน',
     'transactions.html':'รายการเคลื่อนไหว', 'stock-count.html':'ตรวจนับสต็อก', 'stock-count-history.html':'ประวัติตรวจนับ',
@@ -539,7 +540,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.20.6.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.25.0.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }

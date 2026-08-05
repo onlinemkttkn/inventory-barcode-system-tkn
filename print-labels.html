@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <title>พิมพ์ป้ายสินค้า</title>
-  <link rel="stylesheet" href="./css/print-labels.css?v=5.16.4">
+  <link rel="stylesheet" href="./css/print-labels-v5-25-0.css?v=5.25.0">
   <link rel="stylesheet" href="./css/navigation.css?v=5.19.0">
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
@@ -22,7 +22,7 @@
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
-  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
 </head>
 <body class="tkn-print-layout tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์พิมพ์ป้ายสินค้า...">
@@ -73,6 +73,7 @@
               <option value="a4-40x30">A4 ป้าย 40 × 30 มม.</option>
               <option value="a4-50x30">A4 ป้าย 50 × 30 มม.</option>
               <option value="a4-70x40">A4 ป้าย 70 × 40 มม.</option>
+              <option value="custom">กำหนดขนาดเอง</option>
             </select>
           </label>
 
@@ -88,16 +89,31 @@
           <label class="field">
             ใช้ค่า Barcode จาก (เมื่อเลือก Barcode)
             <select id="barcodeSource">
-              <option value="barcode">บาร์โค้ดสินค้า</option>
-              <option value="product_code">รหัสสินค้า</option>
+              <option value="product_code" selected>SKU ของล็อต (แนะนำ)</option>
+              <option value="barcode">บาร์โค้ดผู้ผลิตเดิม</option>
             </select>
           </label>
 
-          <label class="check"><input id="showName" type="checkbox" checked> ชื่อสินค้า</label>
+          <label class="check"><input id="conciseName" type="checkbox" checked> ย่อชื่ออัตโนมัติ: ประเภท + ยี่ห้อ + รุ่น</label>
+          <label class="check"><input id="showName" type="checkbox" checked> ชื่อสินค้าแบบย่อ</label>
           <label class="check"><input id="showPrice" type="checkbox" checked> ราคาขาย</label>
-          <label class="check"><input id="showProductCode" type="checkbox" checked> รหัสสินค้า</label>
+          <label class="check"><input id="showProductCode" type="checkbox" checked> SKU ของล็อตและต้นทุนแฝง</label>
           <label class="check"><input id="showBarcodeText" type="checkbox" checked> เลขใต้บาร์โค้ด</label>
-          <p class="message success">QR สินค้าจะเก็บค่า TKN-P-รหัสสินค้า เพื่อใช้ร่วมกันทั้ง Stock Check และ POS</p>
+
+          <details class="print-advanced">
+            <summary>ปรับขนาดฉลากและเครื่องพิมพ์</summary>
+            <div class="print-setting-grid">
+              <label class="field">กว้าง (มม.)<input id="customWidth" type="number" min="20" max="210" step="0.5" value="50"></label>
+              <label class="field">สูง (มม.)<input id="customHeight" type="number" min="15" max="297" step="0.5" value="30"></label>
+              <label class="field">จำนวนคอลัมน์<input id="labelColumns" type="number" min="1" max="8" step="1" value="1"></label>
+              <label class="field">ช่องว่าง (มม.)<input id="labelGap" type="number" min="0" max="20" step="0.5" value="2"></label>
+              <label class="field">ขอบกระดาษ (มม.)<input id="pageMargin" type="number" min="0" max="30" step="0.5" value="0"></label>
+              <label class="field">ขนาด QR (พิกเซล)<input id="qrSize" type="number" min="28" max="220" step="2" value="56"></label>
+              <label class="field">ความสูงบาร์โค้ด<input id="barcodeHeight" type="number" min="12" max="100" step="1" value="30"></label>
+              <label class="field">ขนาดตัวอักษร<input id="labelFontSize" type="number" min="6" max="30" step="1" value="10"></label>
+            </div>
+          </details>
+          <p class="message success">QR ใช้ค่า TKN-P-SKU และ Barcode ใช้ SKU เดียวกัน เพื่อให้ Stock Check และ POS อ้างอิงรหัสเดียวทั้งระบบ</p>
 
           <div class="action-grid">
             <button id="previewBtn" class="btn primary" type="button">สร้างตัวอย่าง</button>
@@ -152,9 +168,10 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="./js/supabase-config.js?v=3.4.10"></script>
   <script src="./js/auth-guard.js?v=3.6.11"></script>
-  <script src="./js/print-labels.js?v=5.16.4"></script>
+  <script src="./js/tkn-product-pattern-v5-25-0.js?v=5.25.0"></script>
+  <script src="./js/print-labels-v5-25-0.js?v=5.25.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

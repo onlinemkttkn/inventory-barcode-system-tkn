@@ -1,0 +1,94 @@
+{
+  "version": "5.25.0",
+  "base_version": "5.24.1",
+  "tested_at": "2026-08-05",
+  "scope": "static code validation and deterministic unit tests; live Supabase and physical printer UAT still required",
+  "passed": true,
+  "checks": [
+    {
+      "name": "JavaScript syntax: js/tkn-product-pattern-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/tkn-category-engine-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/print-labels-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/products-admin-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/sort-pack-qr-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/stock-promotions-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: pos-v5-25-0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/app-shell-v5-19.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: service-worker-v5.25.0.js",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "HTML structure: print-labels.html",
+      "passed": true,
+      "detail": "duplicate_ids=[]; missing_local_refs=[]"
+    },
+    {
+      "name": "HTML structure: products-admin.html",
+      "passed": true,
+      "detail": "duplicate_ids=[]; missing_local_refs=[]"
+    },
+    {
+      "name": "HTML structure: stock-promotions.html",
+      "passed": true,
+      "detail": "duplicate_ids=[]; missing_local_refs=[]"
+    },
+    {
+      "name": "HTML structure: sort-pack-qr.html",
+      "passed": true,
+      "detail": "duplicate_ids=[]; missing_local_refs=[]"
+    },
+    {
+      "name": "HTML structure: pos.html",
+      "passed": true,
+      "detail": "duplicate_ids=[]; missing_local_refs=[]"
+    },
+    {
+      "name": "Unified product pattern unit tests",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Service Worker core assets",
+      "passed": true,
+      "detail": "49 assets; missing=[]"
+    },
+    {
+      "name": "SQL migration structural check",
+      "passed": true,
+      "detail": "dollar_markers=18; functions=8"
+    }
+  ]
+}
