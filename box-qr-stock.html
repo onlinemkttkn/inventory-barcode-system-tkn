@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Box QR และสต็อกกล่อง — เถ้าแก่น้อย ชลบุรี</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
   <link rel="stylesheet" href="./css/navigation.css?v=5.19.0">
@@ -18,16 +19,15 @@
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.8">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
-  <link rel="stylesheet" href="./css/box-qr-preview-v5-20-6.css?v=5.20.8">
-  <link rel="stylesheet" href="./css/box-qr-stock-v5-20-3.css?v=5.24.0">
+  <link rel="stylesheet" href="./css/box-qr-stock-v5-24-1.css?v=5.24.1">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.24.0</small>
+        <small>TKN POS ERP · Box QR · Final v5.24.1</small>
         <h1>เก็บสินค้าจากหน้าร้านลงกล่อง</h1>
-        <p>สแกนสินค้าที่เหลือจากการขาย ตรวจนับ ปิดกล่อง และกันสินค้าในกล่องออกจากสต็อกพร้อมขายหน้า POS</p>
+        <p>สแกนสินค้าที่เหลือจากการขาย ตรวจนับ ปิดกล่อง และสร้าง QR ประจำกล่อง</p>
       </div>
       <nav>
         <a class="camera-entry" href="./sort-pack-qr.html">⚡ แยกสินค้าและปิดกล่อง</a>
@@ -38,11 +38,10 @@
       </nav>
     </header>
 
-    <section class="stats" aria-label="สรุปงาน Box QR">
+    <section class="stats stats-three" aria-label="สรุปงาน Box QR">
       <article><span>รอบตรวจรับ</span><b id="sessionCount">0</b></article>
       <article><span>กำลังจัดกล่อง</span><b id="draftBoxCount">0</b></article>
       <article><span>กล่องปิดแล้ว</span><b id="closedBoxCount">0</b></article>
-      <article><span>คิวพิมพ์</span><b id="printCount">0</b></article>
     </section>
 
     <div id="message" class="notice" role="status" aria-live="polite"></div>
@@ -51,9 +50,8 @@
       <button type="button" class="active" data-tab="receive">1 รับคืนหน้าร้าน</button>
       <button type="button" data-tab="box">2 จัดกล่อง</button>
       <button type="button" data-tab="check">3 ตรวจนับ</button>
-      <button type="button" data-tab="print">4 ฉลากสินค้า</button>
-      <button type="button" data-tab="finalize">5 ปิดกล่องและ QR</button>
-      <button type="button" data-tab="audit">6 ประวัติ</button>
+      <button type="button" data-tab="finalize">4 ปิดกล่องและ QR</button>
+      <button type="button" data-tab="audit">5 ประวัติ</button>
     </nav>
 
     <section id="receive" class="panel active">
@@ -83,7 +81,7 @@
         <button id="receiveBtn" type="button" class="primary form-primary">เพิ่มรายการที่จะเก็บ</button>
       </div>
       <div class="scan-help"><span>📱 รองรับ QR, SKU และ Barcode</span><span>🏪 รายการนี้ยังอยู่หน้าร้านจนกว่าจะเพิ่มลงกล่องในขั้นตอนที่ 2</span></div>
-      <div class="actions"><button id="newSessionBtn" type="button">เริ่มรอบเก็บใหม่</button><button id="queueProductQrBtn" type="button">เพิ่มฉลากสินค้าเข้าคิว</button></div>
+      <div class="actions"><button id="newSessionBtn" type="button">เริ่มรอบเก็บใหม่</button></div>
       <div class="table receive-table"><table><thead><tr><th>เวลา</th><th>SKU</th><th>ชื่อสินค้า</th><th>จำนวนเก็บ</th><th>สภาพ</th></tr></thead><tbody id="receiveRows"></tbody></table></div>
     </section>
 
@@ -116,7 +114,7 @@
 
     <nav class="workflow-nav no-print" aria-label="เดินหน้าตามขั้นตอน">
       <button id="workflowPrevBtn" type="button">ย้อนกลับ</button>
-      <span id="workflowStatus">ขั้นตอน 1 จาก 6</span>
+      <span id="workflowStatus">ขั้นตอน 1 จาก 5</span>
       <button id="workflowNextBtn" type="button" class="primary">ถัดไป: จัดลงกล่อง</button>
     </nav>
 
@@ -135,28 +133,15 @@
       <div class="table count-table"><table><thead><tr><th>SKU</th><th>ชื่อสินค้า</th><th>ในกล่อง</th><th>ตรวจจริง</th><th>ผลต่าง</th><th>สถานะ</th></tr></thead><tbody id="countRows"></tbody></table></div>
     </section>
 
-    <section id="print" class="panel">
-      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 4</span><h2>สร้างฉลากสินค้า</h2></div><p>QR สินค้า · Barcode Code 128 · SKU ต้นทุนแฝง · ชื่อสินค้า</p></div>
-      <p class="qr-primary-note">Barcode ใช้รหัสจริงสำหรับ POS ส่วนรหัสต้นทุนแฝงแสดงเฉพาะข้อความ SKU ใต้ Barcode</p>
-      <details class="label-settings" open><summary>ตั้งค่ากระดาษและฉลาก</summary><div class="label-settings-grid">
-        <label><span>รูปแบบเครื่องพิมพ์</span><select id="labelPrinterMode"><option value="AUTO">อัตโนมัติ</option><option value="ROLL">DT ม้วน</option><option value="SHEET">กระดาษแผ่น A4</option></select></label>
-        <label><span>ความละเอียด</span><select id="labelPrinterDpi"><option>203</option><option selected>300</option><option>600</option></select></label>
-        <label><span>ขนาดฉลาก</span><select id="labelSizePreset"><option value="30x20">3 × 2 ซม.</option><option value="32x25">3.2 × 2.5 ซม.</option><option value="40x30">4 × 3 ซม.</option><option value="50x40" selected>5 × 4 ซม.</option></select></label>
-        <label><span>จำนวนต่อแถว</span><input id="labelColumns" type="number" min="1" max="5" value="2"></label>
-      </div><p id="labelSettingSummary" class="label-setting-summary"></p></details>
-      <div class="actions print-toolbar"><select id="labelMode" hidden><option value="BOTH" selected>QR + Barcode</option></select><button id="queueBoxProductsBtn" type="button" class="action-emphasis">สร้าง/อัปเดตฉลากสินค้าทั้งกล่อง</button><button id="refreshPrintBtn" type="button">โหลดคิวใหม่</button><button id="printAllBtn" type="button" class="primary">พิมพ์ฉลากทั้งหมด</button><button id="retryQrBtn" type="button">สร้างฉลากใหม่</button><button id="clearPrintBtn" type="button">ล้างคิวทั้งหมด</button><span id="qrEngineStatus" class="qr-engine-status" role="status"></span></div>
-      <div id="printQueue" class="label-grid"></div>
-    </section>
-
     <section id="finalize" class="panel">
-      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 5</span><h2>ปิดกล่องและสร้าง QR กล่อง</h2></div><p>ปิดได้เมื่อจำนวนตรวจนับตรงทุกรายการ</p></div>
+      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 4</span><h2>ปิดกล่องและสร้าง QR กล่อง</h2></div><p>ปิดได้เมื่อจำนวนตรวจนับตรงทุกรายการ</p></div>
       <div id="finalBoxSummary" class="final-box-summary"></div>
-      <div class="actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button></div>
+      <div class="actions final-box-actions"><button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button><button id="closeBoxBtn" type="button" class="primary">ปิดผนึกและสร้าง/อัปเดต QR กล่อง</button><button id="printBoxQrBtn" type="button" disabled>พิมพ์ QR กล่อง</button></div>
       <div id="finalBoxQr" class="final-box-qr"></div>
     </section>
 
     <section id="audit" class="panel">
-      <h2>Audit Log</h2>
+      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 5</span><h2>ประวัติการทำงาน</h2></div><p>ตรวจสอบการรับสินค้า จัดกล่อง ตรวจนับ และปิดกล่องย้อนหลัง</p></div>
       <div class="table"><table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>งาน</th><th>รหัส</th><th>รายละเอียด</th></tr></thead><tbody id="auditRows"></tbody></table></div>
     </section>
   </main>
@@ -164,14 +149,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/vendor/tkn-qrcode-local-v5.16.4.js?v=5.16.4"></script>
   <script src="./js/tkn-qr-health-v5.16.4.js?v=5.16.4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
-  <script src="./js/box-qr-stock-v5-20-6.js?v=5.24.0"></script>
+  <script src="./js/box-qr-stock-v5-24-1.js?v=5.24.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.24.0" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.24.1" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 </body>
 </html>

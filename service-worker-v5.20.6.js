@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '5.24.0';
+const VERSION = '5.24.1';
 const STATIC_CACHE = `tkn-static-${VERSION}`;
 const PAGE_CACHE = `tkn-pages-${VERSION}`;
 const CORE_ASSETS = [
@@ -34,8 +34,7 @@ const CORE_ASSETS = [
   './css/app-shell-v5-19.css',
   './css/ui-refinement-v5-20-4.css',
   './css/sort-pack-qr-v5-20-2.css',
-  './css/box-qr-stock-v5-20-3.css',
-  './css/box-qr-preview-v5-20-6.css',
+  './css/box-qr-stock-v5-24-1.css',
   './js/app-shell-v5-19.js',
   './js/ui-refinement-v5-20-4.js',
   './js/tkn-safe-back.js',
@@ -43,7 +42,7 @@ const CORE_ASSETS = [
   './js/sort-pack-qr-v5-20-2.js',
   './js/tracking-camera-scanner-v5-20-2.js',
   './js/box-qr-camera-scanner-v5-20-3.js',
-  './js/box-qr-stock-v5-20-6.js',
+  './js/box-qr-stock-v5-24-1.js',
   './js/marketplace-sort-source-sync-v5-20-1.js'
 ];
 

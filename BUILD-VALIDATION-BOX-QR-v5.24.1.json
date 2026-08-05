@@ -1,0 +1,59 @@
+{
+  "version": "5.24.1",
+  "module": "Box QR workflow cleanup",
+  "changed_files": [
+    {
+      "path": "box-qr-stock.html",
+      "bytes": 14885,
+      "sha256": "e5fd94d18a5e3ba585666cb3f24a16432703d373f6b2a06136bf46eb5d28c4b8"
+    },
+    {
+      "path": "css/box-qr-stock-v5-24-1.css",
+      "bytes": 13606,
+      "sha256": "bd2f97e37f9770949d5e7dc41aef89f8c63f0dfa98554ac5980414f585d0aa94"
+    },
+    {
+      "path": "js/box-qr-stock-v5-24-1.js",
+      "bytes": 40731,
+      "sha256": "c0d292ce1197a57ee0e452d85f1b2a8a6955f404af683d6ac384c71944614d4b"
+    },
+    {
+      "path": "service-worker-v5.20.6.js",
+      "bytes": 3596,
+      "sha256": "47ba750520a8fb74d27eede44209b79a17a28924b03ff09082b389387923f31f"
+    },
+    {
+      "path": "VERSION.txt",
+      "bytes": 47,
+      "sha256": "f123b7c7453a4a6a44deccd7b74e418f91a063395c2a581d72909dde6f339f5a"
+    },
+    {
+      "path": "CHANGELOG-BOX-QR-v5.24.1.md",
+      "bytes": 4042,
+      "sha256": "6069cb541a17a7071fd0c0c60ea073039009423602223e18440c76827048f7c9"
+    },
+    {
+      "path": "DELETE-OLD-BOX-QR-v5.24.1.txt",
+      "bytes": 443,
+      "sha256": "85a459806c56a5faa42e17820d65dd8532bb849e09f9c401df480fd89ae33313"
+    }
+  ],
+  "deleted_files": [
+    "js/box-qr-stock-v5-20-6.js",
+    "box-qr-stock-v5-20-6.js",
+    "css/box-qr-preview-v5-20-6.css",
+    "box-qr-preview-v5-20-6.css"
+  ],
+  "retained_for_compatibility": [
+    "css/box-qr-stock-v5-20-3.css"
+  ],
+  "validation": {
+    "javascript_syntax": true,
+    "service_worker_syntax": true,
+    "service_worker_assets_exist": true,
+    "dom_bindings_complete": true,
+    "mock_initialization": true,
+    "mock_close_box_flow": true,
+    "box_flow_uses_label_print_queue": false
+  }
+}
