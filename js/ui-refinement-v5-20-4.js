@@ -47,7 +47,7 @@
   function upgradeIcons() {
     if (page === 'mobile-stock-check.html') {
       const modes = [...document.querySelectorAll('.quick-modes .mode-btn')];
-      ['search','receive','box'].forEach((name, index) => replaceNodeIcon(modes[index]?.querySelector('span'), name));
+      ['search','issue'].forEach((name, index) => replaceNodeIcon(modes[index]?.querySelector('span'), name));
       const camera = document.querySelector('.camera-icon');
       if (camera) camera.innerHTML = icon('camera');
       const empty = document.querySelector('.empty-result>span');

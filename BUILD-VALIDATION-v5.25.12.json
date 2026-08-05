@@ -1,0 +1,82 @@
+{
+  "version": "5.25.12",
+  "status": "READY_FOR_UAT",
+  "files": [
+    {
+      "path": "mobile-stock-check.html",
+      "sha256": "8b73f560fe781ea07e757269fe85fab08cce2d999db07580316f61c0118a5b65",
+      "size": 7334
+    },
+    {
+      "path": "css/mobile-stock-check.css",
+      "sha256": "c4d3b30ee4069407003197c53ea60f105aedaecd1df97ea568114b67f1028609",
+      "size": 8808
+    },
+    {
+      "path": "css/ui-refinement-v5-20-4.css",
+      "sha256": "bed6b4d79d7c7516d2386076233b53bda9ae5951574ebd1162edf3b959320fcb",
+      "size": 16352
+    },
+    {
+      "path": "js/mobile-stock-check-v5-25-12.js",
+      "sha256": "dc93f553c2cc1ffc1c930b55ce33b8cc4c43eddd06cd9a217b1d2315c4803e79",
+      "size": 35548
+    },
+    {
+      "path": "js/app-shell-v5-19.js",
+      "sha256": "23be915542135c2ee282d09ae3a4fc7e9d8d507f5d383cfb75c85ce31bbc3d79",
+      "size": 37786
+    },
+    {
+      "path": "js/tkn-safe-back.js",
+      "sha256": "8551b05f8e1bb91e468d31e680e5fb539c6f580cd4aa08fa143cded35a246d18",
+      "size": 6639
+    },
+    {
+      "path": "js/ui-refinement-v5-20-4.js",
+      "sha256": "6e7e1c331a31818b39c66cd3cb42efdfa3298b01d6411e5b485f50407379a5db",
+      "size": 14166
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "686eeae048ab8e069762f3928ea6627b1c05b3ba83888ed647bb9aaa7bff4dc8",
+      "size": 2519
+    },
+    {
+      "path": "service-worker-v5.25.12.js",
+      "sha256": "26730853143b7f7be41465333f3f618f7908652040fcfcaa4d012e45ec556623",
+      "size": 4071
+    },
+    {
+      "path": "sql/PATCH-v5.25.12-BOX-ISSUE-RPC.sql",
+      "sha256": "51b940248c6699bcced8914388d4c1314e6b6755eecf072072d4984e55a844a0",
+      "size": 5437
+    },
+    {
+      "path": "VERSION.txt",
+      "sha256": "0d403fe86a7b34f52fe9095a0736258252100de25436ff1077baebdb7f3f25c0",
+      "size": 8
+    },
+    {
+      "path": "CHANGELOG-v5.25.12.md",
+      "sha256": "35752c6053f440d24bfa7bcccb97d5051e275cc497e2cd340e0dfb2e9fbcc6f1",
+      "size": 1796
+    },
+    {
+      "path": "INSTALL-v5.25.12.md",
+      "sha256": "607479e7be4812b54236e30fcf8e477cfac0e4cc1006323bab5f8ca6ff388028",
+      "size": 1933
+    },
+    {
+      "path": "DELETE-FILES-v5.25.12.txt",
+      "sha256": "df28309426c492a5030245b45224d91a5d1b574c903b9f89c8f928cd33e20193",
+      "size": 40
+    }
+  ],
+  "notes": [
+    "No new stock_boxes status",
+    "No branch_inventory deduction on box issue",
+    "Run RPC SQL before UI deployment",
+    "Old v5.25.11 STOREFRONT SQL must not be used"
+  ]
+}

@@ -4,46 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#a90f16">
-  <title>สแกนตรวจสต็อกผ่านมือถือ — TKN</title>
+  <title>ตรวจสอบสต็อกและเบิกกล่อง — TKN</title>
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
-  <link rel="stylesheet" href="./css/mobile-stock-check.css?v=5.14.1">
+  <link rel="stylesheet" href="./css/mobile-stock-check.css?v=5.25.12">
   <meta name="theme-color" content="#c8101e">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.25.1">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.25.12">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
-  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.25.12">
 </head>
-<body class="tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังเปิดกล้องตรวจสต็อก...">
+<body class="tkn-auth-loading" data-loading-text="กำลังเปิดระบบตรวจสต็อกและเบิกกล่อง...">
   <main class="mobile-shell">
     <header class="mobile-header">
       <div>
         <span class="eyebrow">TKN POS ERP · Mobile Stock</span>
-        <h1>สแกนตรวจสินค้า</h1>
-        <p>ใช้กล้องมือถือเช็กสินค้า กล่อง และจำนวนสต็อกจริง</p>
+        <h1>ตรวจสอบสต็อกและเบิกกล่อง</h1>
+        <p>สแกนสินค้าเพื่อตรวจสอบ หรือสแกน QR กล่องเพื่อเบิกทั้งหมดไปขายหน้าร้าน</p>
       </div>
       <div class="mobile-header-actions">
         <button id="backBtn" class="header-action back-action" type="button" aria-label="ย้อนกลับหน้าก่อนหน้า">← ย้อนกลับ</button>
-        <a class="header-action desktop-link" href="./box-qr-stock.html">หน้าจัดกล่อง</a>
       </div>
     </header>
 
     <section class="quick-modes" aria-label="โหมดการทำงาน">
       <button class="mode-btn active" type="button" data-mode="LOOKUP">
-        <span>🔎</span><b>ดูสต็อก</b><small>สแกนแล้วดูข้อมูล</small>
+        <span>🔎</span><b>ดูสต็อก</b><small>สแกนสินค้าและกล่องเพื่อดูข้อมูล</small>
       </button>
-      <button class="mode-btn" type="button" data-mode="RECEIVE">
-        <span>📥</span><b>ตรวจรับ</b><small>ส่งรหัสไปหน้าตรวจรับ</small>
-      </button>
-      <button class="mode-btn" type="button" data-mode="BOX">
-        <span>📦</span><b>จัดกล่อง</b><small>ส่งรหัสไปหน้าจัดกล่อง</small>
+      <button class="mode-btn" type="button" data-mode="ISSUE_BOX">
+        <span>📤</span><b>เบิกกล่อง</b><small>เบิกสินค้าทั้งกล่องไปขายหน้าร้าน</small>
       </button>
     </section>
 
@@ -51,7 +47,7 @@
       <div class="camera-heading">
         <div>
           <b>กล้องสแกน QR Code (หลัก) / Barcode</b>
-          <small id="cameraHelp">กดเปิดกล้อง แล้วเล็ง QR สินค้า TKN-P หรือ QR กล่อง TKN-B ให้อยู่กลางกรอบ</small>
+          <small id="cameraHelp">สแกน QR สินค้า, Barcode หรือ QR กล่องเพื่อดูสต็อก</small>
         </div>
         <span id="cameraStatus" class="status-pill">ยังไม่เปิด</span>
       </div>
@@ -118,21 +114,15 @@
     </section>
   </main>
 
-  <nav class="bottom-nav" aria-label="เมนูมือถือ">
-    <button id="bottomScanBtn" class="active" type="button"><span>▣</span>สแกน</button>
-    <a href="./box-qr-stock.html?tab=receive"><span>📥</span>ตรวจรับ</a>
-    <a href="./box-qr-stock.html?tab=box"><span>📦</span>จัดกล่อง</a>
-    <a href="./dashboard.html"><span>▦</span>Dashboard</a>
-  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
-  <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-<script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-<script src="./js/mobile-stock-check-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.1" defer></script>
-  <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
+  <script src="./js/tkn-safe-back.js?v=5.25.12"></script>
+  <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
+  <script src="./js/mobile-stock-check-v5-25-12.js?v=5.25.12"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.12" defer></script>
+  <script src="./js/ui-refinement-v5-20-4.js?v=5.25.12" defer></script>
 </body>
 </html>
