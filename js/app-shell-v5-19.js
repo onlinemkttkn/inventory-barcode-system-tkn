@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.25.7';
+  const VERSION = '5.25.9';
   const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
@@ -56,7 +56,7 @@
 
     { key:'products', group:'สินค้าและคลัง', label:'จัดการสินค้า', short:'สินค้า', href:'./products-admin.html', icon:'products', any:['product.manage'], pages:['products-admin.html','categories-admin.html','product-stock-admin.html'] },
     { key:'promotions', group:'สินค้าและคลัง', label:'โปรโมชั่นสินค้า', short:'โปรโมชั่น', href:'./stock-promotions.html', icon:'report', any:['product.manage'], pages:['stock-promotions.html'] },
-    { key:'labels', group:'สินค้าและคลัง', label:'พิมพ์ QR / ป้ายสินค้า', short:'พิมพ์ป้าย', href:'./print-labels.html', icon:'scan', any:['inventory.view'], pages:['print-labels.html','generator.html'] },
+    { key:'labels', group:'สินค้าและคลัง', label:'พิมพ์ QR / ป้ายสินค้า', short:'พิมพ์ป้าย', href:'./print-labels.html', icon:'scan', any:['inventory.view'], pages:['print-labels.html'] },
     { key:'inventory', group:'สินค้าและคลัง', label:'คลังสินค้า', short:'คลัง', href:'./inventory-operations.html', icon:'warehouse', any:['inventory.view'], pages:['inventory-operations.html','transactions.html','branch-stock.html'] },
     { key:'receive', group:'สินค้าและคลัง', label:'รับสินค้า', short:'รับเข้า', href:'./receive.html', icon:'receive', any:['inventory.receive','inventory.view'], pages:['receive.html','purchase-order-create.html','purchase-order-history.html'] },
     { key:'issue', group:'สินค้าและคลัง', label:'เบิกสินค้า', short:'เบิก', href:'./issue.html', icon:'issue', any:['inventory.issue','inventory.view'], pages:['issue.html'] },

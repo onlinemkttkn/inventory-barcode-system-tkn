@@ -14,7 +14,6 @@
     'import-export.html': './dashboard.html',
 
     'categories-admin.html': './products-admin.html',
-    'generator.html': './products-admin.html',
     'product-stock-admin.html': './products-admin.html',
     'branch-stock.html': './products-admin.html',
 

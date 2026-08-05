@@ -4,7 +4,7 @@
   const page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   document.body.dataset.tknPage = page;
   const inventoryPages = new Set([
-    'products-admin.html','categories-admin.html','product-stock-admin.html','print-labels.html','generator.html',
+    'products-admin.html','categories-admin.html','product-stock-admin.html','print-labels.html',
     'inventory-operations.html','receive.html','issue.html','transfer-create.html','transfer-receive.html',
     'transfer-history.html','transactions.html','stock-count.html','stock-count-history.html','stock-alerts.html',
     'suppliers.html','purchase-order-create.html','purchase-order-history.html','import-export.html',
