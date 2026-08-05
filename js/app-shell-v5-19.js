@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.25.6';
+  const VERSION = '5.25.7';
   const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
@@ -540,7 +540,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.25.6.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.25.7.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
