@@ -17,7 +17,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.25.2">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.25.3">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
   <link rel="stylesheet" href="./css/box-qr-stock-v5-24-1.css?v=5.24.1">
 </head>
@@ -25,7 +25,7 @@
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.25.2</small>
+        <small>TKN POS ERP · Box QR · Final v5.25.3</small>
         <h1>เก็บสินค้าจากหน้าร้านลงกล่อง</h1>
         <p>สแกนสินค้าที่เหลือจากการขาย ตรวจนับ ปิดกล่อง และสร้าง QR ประจำกล่อง</p>
       </div>
@@ -76,7 +76,7 @@
         <label class="receive-hidden-field"><span>ชุด</span><input id="receiveBoxQty" type="number" min="1" value="1"></label>
         <label><span>จำนวนชิ้นที่จะเก็บ</span><input id="piecesPerBox" type="number" min="1" step="1" inputmode="numeric" value="1"></label>
         <label class="receive-hidden-field"><span>เศษ</span><input id="loosePieces" type="number" min="0" value="0"></label>
-        <label class="receive-total-field"><span>รวมรอบนี้</span><output id="receiveTotalPieces">1 ชิ้น</output></label>
+        <label class="receive-total-field"><span>รวมรอบนี้</span><output id="receiveTotalPieces">0 รายการ · 0 ชิ้น</output></label>
         <label><span>สภาพ</span><select id="condition"><option value="GOOD">งานดี</option><option value="DAMAGED">งานเสีย</option><option value="NOT_AS_DESCRIBED">ไม่ตรงปก</option><option value="INCOMPLETE">ชิ้นส่วนไม่ครบ</option><option value="UNUSABLE">ใช้ไม่ได้</option><option value="RECHECK">รอตรวจซ้ำ</option><option value="RETURN">ส่งคืน</option><option value="PARTS">แยกขายอะไหล่</option></select></label>
         <button id="receiveBtn" type="button" class="primary form-primary">เพิ่มรายการที่จะเก็บ</button>
       </div>
@@ -154,9 +154,9 @@
   <script src="./js/auth-guard.js?v=5.6.0"></script>
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/box-qr-stock-v5-25-2.js?v=5.25.2"></script>
+  <script src="./js/box-qr-stock-v5-25-3.js?v=5.25.3"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.2" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.25.3" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 </body>
 </html>
