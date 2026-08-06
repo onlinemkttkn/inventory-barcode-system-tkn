@@ -1,3 +1,3 @@
-TKN POS ERP Final v5.26.2
-Patch type: POS inline box sale / cashier code & PIN permission control
-Base required: v5.26.1 DB-SAFE
+TKN v5.27.1
+Marketplace Import → Sorting → Box Stock
+Patch only · DB-SAFE · requires v5.26.1 DB-SAFE and v5.26.2 POS Inline

@@ -537,10 +537,19 @@
     });
   }
 
+  function loadThaiCategoryLabels() {
+    if (document.querySelector('script[data-tkn-category-th="5.27.1"]')) return;
+    const script = document.createElement('script');
+    script.src = './js/tkn-category-th-v5-27-1.js?v=5.27.1';
+    script.defer = true;
+    script.dataset.tknCategoryTh = '5.27.1';
+    document.head.appendChild(script);
+  }
+
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.26.2.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.27.1.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
@@ -598,6 +607,7 @@
     wrapTables();
     improveDialogs();
     observeDynamicContent();
+    loadThaiCategoryLabels();
     registerServiceWorker();
     document.body.classList.remove('tkn-shell-loading');
   }
@@ -607,6 +617,7 @@
     if (SKIP_SHELL.has(currentPage)) {
       if (PRINT_PAGES.has(currentPage)) document.body.classList.add('tkn-print-page');
       document.body.classList.remove('tkn-shell-loading');
+      loadThaiCategoryLabels();
       registerServiceWorker();
       return;
     }
