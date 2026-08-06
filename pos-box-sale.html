@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#c8101e">
+  <title>POS ขายยกกล่อง — TKN</title>
+  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
+  <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/pos-box-sale-v5-26-1.css?v=5.26.1">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.26.1">
+</head>
+<body class="tkn-auth-loading" data-required-permission="pos.box_sale.create" data-loading-text="กำลังเปิด POS ขายยกกล่อง...">
+  <main class="box-sale-shell">
+    <header class="box-sale-header">
+      <div><span class="eyebrow">TKN POS · WHOLE BOX SALE</span><h1>ขายยกกล่อง</h1><p>สแกน QR หลายกล่อง แล้วขายตาม SKU หรือกำหนดราคาเหมา</p></div>
+      <div class="header-actions"><button id="backBtn" class="btn secondary" type="button">← ย้อนกลับ</button><a class="btn secondary" href="./pos.html">POS รายชิ้น</a></div>
+    </header>
+
+    <section class="card branch-section">
+      <label>สาขาที่ขาย<select id="saleBranch"><option value="">กำลังโหลดสาขา...</option></select></label>
+      <div class="permission-chip" id="roleChip">กำลังตรวจสิทธิ์</div>
+    </section>
+
+    <section class="scan-layout">
+      <section class="card scanner-card">
+        <div class="section-heading"><div><span class="kicker">BOX SCANNER</span><h2>สแกน QR กล่องต่อเนื่อง</h2></div><span id="cameraStatus" class="status-pill">ยังไม่เปิด</span></div>
+        <div class="camera-frame"><video id="cameraVideo" playsinline muted></video><div class="scan-guide"><span></span></div><div id="cameraPlaceholder" class="camera-placeholder">▣<small>พร้อมใช้กล้องหลัง</small></div></div>
+        <div class="camera-actions"><button id="startCameraBtn" class="btn primary" type="button">เปิดกล้อง</button><button id="torchBtn" class="btn secondary" type="button" hidden>เปิดไฟฉาย</button><button id="stopCameraBtn" class="btn danger" type="button" disabled>หยุดกล้อง</button></div>
+        <form id="manualForm" class="manual-form"><input id="manualCode" placeholder="กรอกหรือสแกน TKN-B-..." autocomplete="off"><button class="btn primary" type="submit">เพิ่มกล่อง</button></form>
+        <p id="message" class="message" role="status"></p>
+      </section>
+
+      <aside class="card sale-overview">
+        <div class="section-heading"><div><span class="kicker">SALE OVERVIEW</span><h2>สรุปรายการ</h2></div><button id="resetDraftBtn" class="text-button" type="button">เริ่มใหม่</button></div>
+        <div class="overview-grid"><div><span>กล่อง</span><b id="boxCount">0</b></div><div><span>SKU</span><b id="skuCount">0</b></div><div><span>จำนวนสินค้า</span><b id="qtyCount">0</b></div></div>
+        <div class="money-row"><span>ต้นทุนรวม</span><b id="costTotal">฿0.00</b></div>
+        <div class="money-row"><span>ราคาขายปกติรวม</span><b id="normalTotal">฿0.00</b></div>
+        <div class="money-row final"><span>ราคาขายรายการนี้</span><b id="saleTotal">฿0.00</b></div>
+        <div class="money-row profit"><span>กำไรขั้นต้น</span><b id="profitTotal">฿0.00</b></div>
+        <p id="marginText" class="margin-text">อัตรากำไร 0.00%</p>
+      </aside>
+    </section>
+
+    <section class="card content-card">
+      <div class="view-tabs"><button class="active" type="button" data-view="BOXES">แยกตามกล่อง</button><button type="button" data-view="SKU">รวมตาม SKU</button></div>
+      <div id="boxList" class="data-list"></div>
+      <div id="skuList" class="data-list" hidden></div>
+    </section>
+
+    <section class="checkout-layout">
+      <section class="card pricing-card">
+        <span class="kicker">PRICING</span><h2>รูปแบบราคาขาย</h2>
+        <label class="radio-card"><input type="radio" name="pricingMode" value="SKU" checked><span><b>ขายตามราคาราย SKU</b><small>รวมราคาขาย POS ของสินค้าแต่ละรายการ</small></span></label>
+        <label class="radio-card"><input type="radio" name="pricingMode" value="LUMP"><span><b>ขายราคาเหมา</b><small>กำหนดราคาขายรวมของกล่องทั้งหมด</small></span></label>
+        <label id="lumpPriceWrap" hidden>ราคาขายเหมา<input id="lumpPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+        <div id="priceWarning" class="price-warning" hidden></div>
+      </section>
+
+      <section class="card payment-card">
+        <span class="kicker">PAYMENT</span><h2>ข้อมูลการชำระเงิน</h2>
+        <div class="form-grid">
+          <label>วิธีชำระ<select id="paymentMethod"><option value="CASH">เงินสด</option><option value="TRANSFER">โอนเงิน</option><option value="QR">QR Payment</option><option value="CARD">บัตร</option><option value="OTHER">อื่น ๆ</option></select></label>
+          <label id="receivedWrap">เงินที่รับ<input id="receivedAmount" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label>ชื่อลูกค้า<input id="customerName" autocomplete="off"></label>
+          <label>เบอร์โทร<input id="customerPhone" inputmode="tel" autocomplete="off"></label>
+          <label class="full">หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
+        </div>
+        <button id="checkoutBtn" class="btn success checkout-btn" type="button" disabled>ยืนยันขายยกกล่อง</button>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="successDialog">
+    <div class="success-card"><div class="success-icon">✓</div><h2>ขายยกกล่องสำเร็จ</h2><div id="successSummary"></div><div class="dialog-actions"><a id="saleHistoryLink" class="btn secondary" href="./sales-history.html">ดูประวัติการขาย</a><button id="newSaleBtn" class="btn primary" type="button">เริ่มรายการใหม่</button></div></div>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+  <script src="./js/supabase-config.js?v=1.0.2"></script>
+  <script src="./js/auth-guard.js?v=5.6.0"></script>
+  <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
+  <script src="./js/pos-box-sale-v5-26-1.js?v=5.26.1"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.26.1" defer></script>
+</body>
+</html>

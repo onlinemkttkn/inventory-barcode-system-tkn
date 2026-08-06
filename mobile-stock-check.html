@@ -3,78 +3,70 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#a90f16">
-  <title>ตรวจสอบสต็อกและเบิกกล่อง — TKN</title>
+  <meta name="theme-color" content="#c8101e">
+  <title>ตรวจสต็อกและเบิกกล่อง — TKN</title>
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
-  <link rel="stylesheet" href="./css/mobile-stock-check.css?v=5.25.12">
-  <meta name="theme-color" content="#c8101e">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
+  <link rel="stylesheet" href="./css/mobile-stock-check.css?v=5.26.1">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.26.1">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.25.12">
-
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
-  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.25.12">
+  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
 </head>
 <body class="tkn-auth-loading" data-loading-text="กำลังเปิดระบบตรวจสต็อกและเบิกกล่อง...">
   <main class="mobile-shell">
     <header class="mobile-header">
       <div>
         <span class="eyebrow">TKN POS ERP · Mobile Stock</span>
-        <h1>ตรวจสอบสต็อกและเบิกกล่อง</h1>
-        <p>สแกนสินค้าเพื่อตรวจสอบ หรือสแกน QR กล่องเพื่อเบิกทั้งหมดไปขายหน้าร้าน</p>
+        <h1>ตรวจสต็อกและเบิกกล่อง</h1>
+        <p>ดูตำแหน่งสินค้า เบิกขายหน้าร้าน หรือส่งกล่องทั้งใบไปสาขา</p>
       </div>
-      <div class="mobile-header-actions">
-        <button id="backBtn" class="header-action back-action" type="button" aria-label="ย้อนกลับหน้าก่อนหน้า">← ย้อนกลับ</button>
-      </div>
+      <button id="backBtn" class="header-action back-action" type="button">← ย้อนกลับ</button>
     </header>
+
+    <section class="branch-card">
+      <label for="workingBranch">สาขาที่กำลังทำรายการ</label>
+      <select id="workingBranch"><option value="">กำลังโหลดสาขา...</option></select>
+      <small>ระบบใช้สาขานี้ตรวจตำแหน่งกล่อง เบิกสินค้า และรับกล่องจากสาขาอื่น</small>
+    </section>
 
     <section class="quick-modes" aria-label="โหมดการทำงาน">
       <button class="mode-btn active" type="button" data-mode="LOOKUP">
-        <span>🔎</span><b>ดูสต็อก</b><small>สแกนสินค้าและกล่องเพื่อดูข้อมูล</small>
+        <span>🔎</span><b>ดูสต็อก</b><small>ดูสินค้าและตำแหน่งกล่อง</small>
       </button>
       <button class="mode-btn" type="button" data-mode="ISSUE_BOX">
-        <span>📤</span><b>เบิกกล่อง</b><small>เบิกสินค้าทั้งกล่องไปขายหน้าร้าน</small>
+        <span>📤</span><b>เบิกกล่อง</b><small>เบิกหน้าร้าน / ส่งสาขา / รับกล่อง</small>
       </button>
     </section>
 
     <section class="camera-card">
       <div class="camera-heading">
         <div>
-          <b>กล้องสแกน QR Code (หลัก) / Barcode</b>
+          <b>กล้องสแกน QR Code / Barcode</b>
           <small id="cameraHelp">สแกน QR สินค้า, Barcode หรือ QR กล่องเพื่อดูสต็อก</small>
         </div>
         <span id="cameraStatus" class="status-pill">ยังไม่เปิด</span>
       </div>
-
       <div id="cameraFrame" class="camera-frame">
         <video id="cameraVideo" playsinline muted></video>
         <div class="scan-guide"><span></span></div>
-        <div id="cameraPlaceholder" class="camera-placeholder">
-          <div class="camera-icon">▣</div>
-          <p>พร้อมใช้กล้องหลังของโทรศัพท์</p>
-        </div>
+        <div id="cameraPlaceholder" class="camera-placeholder"><div class="camera-icon">▣</div><p>พร้อมใช้กล้องหลังของโทรศัพท์</p></div>
       </div>
-
       <div class="camera-actions">
         <button id="startCameraBtn" class="btn primary" type="button">เปิดกล้องสแกน</button>
         <button id="torchBtn" class="btn ghost" type="button" hidden>เปิดไฟฉาย</button>
         <button id="stopCameraBtn" class="btn danger" type="button" disabled>หยุดกล้อง</button>
       </div>
-      <p class="secure-note">กล้องใช้งานได้เมื่อเว็บไซต์เปิดผ่าน HTTPS และอนุญาตสิทธิ์กล้อง</p>
+      <p class="secure-note">ต้องเปิดเว็บไซต์ผ่าน HTTPS และอนุญาตสิทธิ์กล้อง</p>
     </section>
 
     <section class="manual-card">
       <form id="manualSearchForm" class="manual-search">
         <label for="manualCode">กรอกรหัสหรือค้นหาชื่อสินค้า</label>
         <div class="search-row">
-          <input id="manualCode" autocomplete="off" autocapitalize="off" enterkeyhint="search"
-                 placeholder="SKU, Barcode, TKN-P-... หรือ TKN-B-...">
+          <input id="manualCode" autocomplete="off" autocapitalize="off" enterkeyhint="search" placeholder="SKU, Barcode, TKN-P-... หรือ TKN-B-...">
           <button class="btn primary" type="submit">ค้นหา</button>
         </div>
       </form>
@@ -82,47 +74,70 @@
     </section>
 
     <div id="mobileMessage" class="message" role="status" aria-live="polite"></div>
-
     <section id="resultPanel" class="result-panel empty" aria-live="polite">
-      <div class="empty-result">
-        <span>⌁</span>
-        <h2>ยังไม่ได้สแกน</h2>
-        <p>สแกน QR สินค้าเป็นหลัก หรือใช้ Barcode เดิมเป็นตัวเลือกสำรอง</p>
-      </div>
+      <div class="empty-result"><span>⌁</span><h2>ยังไม่ได้สแกน</h2><p>เลือกสาขา แล้วสแกนสินค้า หรือ QR กล่อง</p></div>
     </section>
 
     <section id="countPanel" class="count-panel" hidden>
       <h2>บันทึกจำนวนที่ตรวจจริง</h2>
-      <p>รายการนี้เป็นร่างการตรวจนับ ยังไม่ปรับยอดสต็อกอัตโนมัติ</p>
+      <p>เป็นร่างตรวจนับในโทรศัพท์ ยังไม่ปรับยอดสต็อก</p>
       <div class="count-grid">
         <label>จำนวนในระบบ<input id="systemQty" type="number" readonly></label>
         <label>จำนวนตรวจจริง<input id="countedQty" type="number" min="0" step="1" inputmode="numeric"></label>
       </div>
-      <label>หมายเหตุ<input id="countNote" placeholder="เช่น ขาด 1 ชิ้น / พบสินค้าเกิน"></label>
-      <div class="count-actions">
-        <button id="saveCountDraftBtn" class="btn primary" type="button">บันทึกร่างการตรวจ</button>
-        <button id="cancelCountBtn" class="btn ghost" type="button">ยกเลิก</button>
-      </div>
+      <label>หมายเหตุ<input id="countNote" placeholder="เช่น ขาด 1 ชิ้น"></label>
+      <div class="count-actions"><button id="saveCountDraftBtn" class="btn primary" type="button">บันทึกร่าง</button><button id="cancelCountBtn" class="btn ghost" type="button">ยกเลิก</button></div>
     </section>
 
     <section class="recent-card">
-      <div class="section-title">
-        <h2>สแกนล่าสุด</h2>
-        <button id="clearRecentBtn" class="text-btn" type="button">ล้างรายการ</button>
-      </div>
+      <div class="section-title"><h2>สแกนล่าสุด</h2><button id="clearRecentBtn" class="text-btn" type="button">ล้างรายการ</button></div>
       <div id="recentList" class="recent-list"><p class="muted">ยังไม่มีรายการ</p></div>
     </section>
   </main>
 
+  <dialog id="boxActionDialog" class="flow-dialog">
+    <form method="dialog" class="flow-card">
+      <button class="dialog-close" value="cancel" aria-label="ปิด">×</button>
+      <span class="dialog-kicker">BOX ACTION</span>
+      <h2 id="boxActionTitle">เลือกการทำงาน</h2>
+      <div id="boxActionSummary" class="dialog-summary"></div>
+      <div id="boxActionButtons" class="action-grid"></div>
+    </form>
+  </dialog>
+
+  <dialog id="transferDialog" class="flow-dialog">
+    <form id="transferForm" class="flow-card">
+      <button id="transferClose" class="dialog-close" type="button" aria-label="ปิด">×</button>
+      <span class="dialog-kicker">WHOLE BOX TRANSFER</span>
+      <h2>ส่งสินค้าทั้งกล่องไปสาขา</h2>
+      <label>สาขาต้นทาง<input id="transferSourceName" readonly></label>
+      <label>สาขาปลายทาง<select id="transferDestination" required></select></label>
+      <label>หมายเหตุ<textarea id="transferNotes" rows="3" placeholder="ไม่บังคับ"></textarea></label>
+      <div class="dialog-actions"><button class="btn ghost" id="transferCancel" type="button">ยกเลิก</button><button class="btn primary" type="submit">ยืนยันส่งทั้งกล่อง</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="receiveNextDialog" class="flow-dialog">
+    <form method="dialog" class="flow-card">
+      <span class="dialog-kicker">RECEIVED</span>
+      <h2>รับกล่องเข้ามาเรียบร้อยแล้ว</h2>
+      <p>เลือกขั้นตอนต่อไปสำหรับกล่องใบนี้</p>
+      <div class="action-grid">
+        <button class="flow-action" value="keep" data-next="KEEP"><b>เก็บเข้าคลังสาขา</b><small>กล่องยังปิดและสินค้าอยู่ในกล่อง</small></button>
+        <button class="flow-action" value="issue" data-next="ISSUE"><b>เบิกขายหน้าร้าน</b><small>นำสินค้าทั้งหมดออกจากกล่อง</small></button>
+        <button class="flow-action" value="forward" data-next="FORWARD"><b>ส่งต่อไปสาขาอื่น</b><small>สร้างใบโอนรอบใหม่ทั้งกล่อง</small></button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
   <script src="./js/auth-guard.js?v=5.6.0"></script>
-  <script src="./js/tkn-safe-back.js?v=5.25.12"></script>
+  <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/mobile-stock-check-v5-25-12.js?v=5.25.12"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.12" defer></script>
-  <script src="./js/ui-refinement-v5-20-4.js?v=5.25.12" defer></script>
+  <script src="./js/mobile-stock-check-v5-26-1.js?v=5.26.1"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.26.1" defer></script>
+  <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

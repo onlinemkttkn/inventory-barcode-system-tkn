@@ -1,0 +1,93 @@
+{
+  "javascript_syntax": {
+    "ok": true,
+    "files": [
+      {
+        "file": "js/app-shell-v5-19.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "js/box-qr-stock-v5-26-1.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "js/mobile-stock-check-v5-26-1.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "js/pos-box-sale-v5-26-1.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "js/sort-pack-qr-v5-26-1.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "js/tkn-safe-back.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "pos-v5-26-1.js",
+        "ok": true,
+        "error": ""
+      },
+      {
+        "file": "service-worker-v5.26.1.js",
+        "ok": true,
+        "error": ""
+      }
+    ]
+  },
+  "html_local_references": {
+    "ok": true,
+    "missing": []
+  },
+  "service_worker_assets": {
+    "ok": true,
+    "asset_count": 58,
+    "missing": []
+  },
+  "read_only_sql": {
+    "ok": true,
+    "files": [
+      {
+        "file": "sql/00-PREFLIGHT-v5.26.1-READ-ONLY.sql",
+        "ok": true,
+        "write_tokens": []
+      },
+      {
+        "file": "sql/02-VERIFY-v5.26.1-READ-ONLY.sql",
+        "ok": true,
+        "write_tokens": []
+      }
+    ]
+  },
+  "installer_static_db_safety": {
+    "ok": true,
+    "top_level_forbidden": [],
+    "core_alter_anywhere": 0,
+    "create_trigger_anywhere": 0,
+    "expected_runtime_core_operations": {
+      "delete_stock_box_items": 2,
+      "update_stock_boxes": 2,
+      "call_create_branch_transfer": 2,
+      "call_receive_branch_transfer": 2,
+      "call_create_pos_sale": 2
+    },
+    "notes": "Runtime core operations are inside explicit user-confirmed RPC transactions, not installation statements."
+  },
+  "patch_only": {
+    "ok": true,
+    "file_count": 28,
+    "file_count_before_zip": 31,
+    "contains_full_project": false,
+    "contains_assets_directory": false
+  },
+  "overall_ok": true
+}
