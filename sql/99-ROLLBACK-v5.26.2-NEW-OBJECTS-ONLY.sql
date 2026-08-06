@@ -1,0 +1,11 @@
+begin;
+drop function if exists public.tkn_v5262_complete_box_sale(uuid,uuid,text,numeric,text,numeric,text,text,text);
+drop function if exists public.tkn_v5262_box_sale_cancel(uuid,uuid);
+drop function if exists public.tkn_v5262_box_sale_remove_box(uuid,uuid,text);
+drop function if exists public.tkn_v5262_box_sale_add_box(uuid,uuid,text);
+drop function if exists public.tkn_v5262_box_sale_preview(uuid,uuid);
+drop function if exists public.tkn_v5262_box_sale_start(uuid,uuid);
+drop function if exists public.tkn_v5262_cashier_box_sale_assert(uuid,text);
+drop function if exists public.tkn_v5262_cashier_box_sale_access(uuid);
+drop table if exists public.tkn_v5262_box_sale_draft_shifts;
+commit;

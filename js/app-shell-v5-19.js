@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.26.1';
+  const VERSION = '5.26.2';
   const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
@@ -50,8 +50,7 @@
   const ROUTES = Object.freeze([
     { key:'dashboard', group:'งานหลัก', label:'หน้าหลัก', short:'หน้าหลัก', href:'./dashboard.html', icon:'home', any:['dashboard.view'], pages:['dashboard.html','dashboard-integrated-phase-9-5-v1-1.html'] },
     { key:'pos', group:'งานหลัก', label:'POS / ขายหน้าร้าน', short:'ขาย', href:'./pos.html', icon:'pos', any:['pos.use'], pages:['pos.html','pos-member.html'] },
-    { key:'boxSale', group:'งานหลัก', label:'POS / ขายยกกล่อง', short:'ขายกล่อง', href:'./pos-box-sale.html', icon:'box', any:['pos.box_sale.create'], pages:['pos-box-sale.html'] },
-    { key:'scan', group:'งานหลัก', label:'ตรวจสต็อก / เบิกกล่อง', short:'สแกน', href:'./mobile-stock-check.html', icon:'scan', any:['inventory.view','inventory.issue','inventory.transfer','inventory.receive','inventory.box_transfer','product.manage','pos.box_sale.create'], pages:['mobile-stock-check.html','scanner.html'] },
+    { key:'scan', group:'งานหลัก', label:'ตรวจสต็อก / เบิกกล่อง', short:'สแกน', href:'./mobile-stock-check.html', icon:'scan', any:['inventory.view','inventory.issue','inventory.transfer','inventory.receive','inventory.box_transfer','product.manage'], pages:['mobile-stock-check.html','scanner.html'] },
     { key:'sortPack', group:'งานหลัก', label:'แยกสินค้า / ปิดกล่อง', short:'แยกสินค้า', href:'./sort-pack-qr.html', icon:'box', any:['product.manage'], pages:['sort-pack-qr.html'] },
     { key:'box', group:'งานหลัก', label:'Box QR / จัดกล่อง', short:'Box QR', href:'./box-qr-stock.html', icon:'box', any:['product.manage'], pages:['box-qr-stock.html'] },
 
@@ -82,7 +81,7 @@
   ]);
 
   const PAGE_NAMES = Object.freeze({
-    'dashboard.html':'หน้าหลัก', 'pos.html':'ขายหน้าร้าน', 'pos-box-sale.html':'ขายยกกล่อง', 'pos-member.html':'สมาชิกใน POS',
+    'dashboard.html':'หน้าหลัก', 'pos.html':'ขายหน้าร้าน', 'pos-box-sale.html':'ขายหน้าร้าน', 'pos-member.html':'สมาชิกใน POS',
     'mobile-stock-check.html':'ตรวจสต็อก / เบิกกล่อง', 'sort-pack-qr.html':'แยกสินค้าและปิดกล่อง', 'scanner.html':'สแกน', 'box-qr-stock.html':'Box QR',
     'products-admin.html':'จัดการสินค้า', 'categories-admin.html':'หมวดสินค้า', 'product-stock-admin.html':'สต็อกสินค้า', 'stock-promotions.html':'โปรโมชั่นสินค้า',
     'inventory-operations.html':'คลังสินค้า', 'receive.html':'รับสินค้า', 'issue.html':'เบิกสินค้า',
@@ -541,7 +540,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.26.1.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.26.2.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }

@@ -21,10 +21,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.26.1">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.26.2">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
+  <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.26.2">
 </head>
 <body class="pos-product-ui">
   <header class="pos-topbar">
@@ -34,7 +35,7 @@
       <p id="cashierStatus">กำลังตรวจสอบพนักงานและกะ...</p>
     </div>
     <div class="top-actions">
-      <a id="boxSaleLink" class="btn history-action" href="./pos-box-sale.html" hidden>ขายยกกล่อง</a>
+      <button id="boxSaleButton" class="btn history-action" type="button" hidden>ขายยกกล่อง</button>
       <a id="salesHistoryLink" class="btn history-action" href="./sales-history.html">ประวัติการขาย</a>
       <button id="holdBill" class="btn secondary" type="button">พักบิล</button>
       <button id="restoreBill" class="btn secondary" type="button">เปิดบิลพัก</button>
@@ -101,6 +102,29 @@
     </section>
   </main>
 
+
+
+  <dialog id="boxSaleDialog" class="box-sale-dialog" aria-labelledby="boxSaleTitle">
+    <div class="box-sale-panel">
+      <header class="box-sale-header"><div><span class="box-sale-kicker">TKN POS · WHOLE BOX SALE</span><h2 id="boxSaleTitle">ขายยกกล่อง</h2><p>สแกน QR หลายกล่อง แล้วเลือกขายตาม SKU หรือกำหนดราคาเหมา</p></div><button id="boxSaleClose" class="box-sale-close" type="button" aria-label="ปิดหน้าขายยกกล่อง">×</button></header>
+      <section class="box-sale-context"><div><span>สาขาที่ขาย</span><b id="boxSaleBranchLabel">-</b></div><div id="boxSaleRoleChip" class="box-sale-permission-chip">กำลังตรวจสิทธิ์</div></section>
+      <section class="box-sale-scan-layout">
+        <section class="box-sale-card box-sale-scanner-card">
+          <div class="box-sale-section-heading"><div><span class="box-sale-kicker">BOX SCANNER</span><h3>สแกน QR กล่องต่อเนื่อง</h3></div><span id="boxSaleCameraStatus" class="box-sale-status-pill">ยังไม่เปิด</span></div>
+          <div class="box-sale-camera-frame"><video id="boxSaleCameraVideo" playsinline muted></video><div class="box-sale-scan-guide"><span></span></div><div id="boxSaleCameraPlaceholder" class="box-sale-camera-placeholder">▣<small>พร้อมใช้กล้องหลัง</small></div></div>
+          <div class="box-sale-camera-actions"><button id="boxSaleStartCamera" class="btn primary" type="button">เปิดกล้อง</button><button id="boxSaleTorch" class="btn secondary" type="button" hidden>เปิดไฟฉาย</button><button id="boxSaleStopCamera" class="btn danger" type="button" disabled>หยุดกล้อง</button></div>
+          <form id="boxSaleManualForm" class="box-sale-manual-form"><input id="boxSaleManualCode" placeholder="กรอกหรือสแกน TKN-B-..." autocomplete="off"><button class="btn primary" type="submit">เพิ่มกล่อง</button></form><p id="boxSaleMessage" class="box-sale-message" role="status"></p>
+        </section>
+        <aside class="box-sale-card box-sale-overview"><div class="box-sale-section-heading"><div><span class="box-sale-kicker">SALE OVERVIEW</span><h3>สรุปรายการ</h3></div><button id="boxSaleResetDraft" class="box-sale-text-button" type="button">เริ่มใหม่</button></div><div class="box-sale-overview-grid"><div><span>กล่อง</span><b id="boxSaleBoxCount">0</b></div><div><span>SKU</span><b id="boxSaleSkuCount">0</b></div><div><span>จำนวนสินค้า</span><b id="boxSaleQtyCount">0</b></div></div><div class="box-sale-money-row"><span>ต้นทุนรวม</span><b id="boxSaleCostTotal">฿0.00</b></div><div class="box-sale-money-row"><span>ราคาขายปกติรวม</span><b id="boxSaleNormalTotal">฿0.00</b></div><div class="box-sale-money-row final"><span>ราคาขายรายการนี้</span><b id="boxSaleSaleTotal">฿0.00</b></div><div class="box-sale-money-row profit"><span>กำไรขั้นต้น</span><b id="boxSaleProfitTotal">฿0.00</b></div><p id="boxSaleMarginText" class="box-sale-margin-text">อัตรากำไร 0.00%</p></aside>
+      </section>
+      <section class="box-sale-card box-sale-content-card"><div class="box-sale-view-tabs"><button class="active" type="button" data-box-sale-view="BOXES">แยกตามกล่อง</button><button type="button" data-box-sale-view="SKU">รวมตาม SKU</button></div><div id="boxSaleBoxList" class="box-sale-data-list"></div><div id="boxSaleSkuList" class="box-sale-data-list" hidden></div></section>
+      <section class="box-sale-checkout-layout">
+        <section class="box-sale-card box-sale-pricing-card"><span class="box-sale-kicker">PRICING</span><h3>รูปแบบราคาขาย</h3><label class="box-sale-radio-card"><input type="radio" name="boxSalePricingMode" value="SKU" checked><span><b>ขายตามราคาราย SKU</b><small>รวมราคาขาย POS ของสินค้าแต่ละรายการ</small></span></label><label class="box-sale-radio-card"><input type="radio" name="boxSalePricingMode" value="LUMP"><span><b>ขายราคาเหมา</b><small>กำหนดราคาขายรวมของกล่องทั้งหมด</small></span></label><label id="boxSaleLumpPriceWrap" hidden>ราคาขายเหมา<input id="boxSaleLumpPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label><div id="boxSalePriceWarning" class="box-sale-price-warning" hidden></div></section>
+        <section class="box-sale-card box-sale-payment-card"><span class="box-sale-kicker">PAYMENT</span><h3>ข้อมูลการชำระเงิน</h3><div class="box-sale-form-grid"><label>วิธีชำระ<select id="boxSalePaymentMethod"><option value="CASH">เงินสด</option><option value="TRANSFER">โอนเงิน</option><option value="QR">QR Payment</option><option value="CARD">บัตร</option><option value="OTHER">อื่น ๆ</option></select></label><label id="boxSaleReceivedWrap">เงินที่รับ<input id="boxSaleReceivedAmount" type="number" min="0" step="0.01" inputmode="decimal"></label><label>ชื่อลูกค้า<input id="boxSaleCustomerName" autocomplete="off"></label><label>เบอร์โทร<input id="boxSaleCustomerPhone" inputmode="tel" autocomplete="off"></label><label class="full">หมายเหตุ<textarea id="boxSaleNotes" rows="3"></textarea></label></div><button id="boxSaleCheckout" class="btn success box-sale-checkout-btn" type="button" disabled>ยืนยันขายยกกล่อง</button></section>
+      </section>
+    </div>
+  </dialog>
+  <dialog id="boxSaleSuccessDialog" class="box-sale-success-dialog"><div class="box-sale-success-card"><div class="box-sale-success-icon">✓</div><h2>ขายยกกล่องสำเร็จ</h2><div id="boxSaleSuccessSummary"></div><div class="dialog-actions"><a id="boxSaleHistoryLink" class="btn secondary" href="./sales-history.html">ดูประวัติการขาย</a><button id="boxSaleNewSale" class="btn primary" type="button">เริ่มรายการใหม่</button></div></div></dialog>
 
   <section id="shiftLockScreen" class="shift-lock-screen" hidden aria-live="polite">
     <form id="shiftLockForm" class="shift-lock-card">
@@ -295,8 +319,10 @@
   <script src="./js/supabase-config.js?v=3.4.0"></script>
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script type="module" src="./pos-v5-26-1.js?v=5.26.1"></script>
+  <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
+  <script type="module" src="./pos-v5-26-2.js?v=5.26.2"></script>
+  <script type="module" src="./js/pos-box-sale-inline-v5-26-2.js?v=5.26.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.26.1" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.26.2" defer></script>
 </body>
 </html>

@@ -1,0 +1,198 @@
+{
+  "version": "5.26.2",
+  "generated_utc": "2026-08-06T02:42:55.320188+00:00",
+  "checks": [
+    {
+      "name": "js:js/app-shell-v5-19.js",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "js:js/mobile-stock-check-v5-26-2.js",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "js:js/pos-box-sale-inline-v5-26-2.js",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "js:pos-v5-26-2.js",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "js:service-worker-v5.26.2.js",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "json:manifest.webmanifest",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-parse:mobile-stock-check.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-duplicate-ids:mobile-stock-check.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-local-refs:mobile-stock-check.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-parse:pos-box-sale.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-duplicate-ids:pos-box-sale.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-local-refs:pos-box-sale.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-parse:pos.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-duplicate-ids:pos.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "html-local-refs:pos.html",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "inline-box-sale-ids",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pos-js-ids",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no-box-sale-sidebar",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no-box-sale-pwa-shortcut",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no-box-sale-mobile-entry",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pos-button-hidden-default",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "cashier-rpc-control",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "service-worker-assets",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-dollar-balance",
+      "status": "PASS",
+      "detail": "count=18"
+    },
+    {
+      "name": "sql-transaction",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-truncate",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-delete-from-public-stock_",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-update-public-stock_",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-alter-table-public-stock_",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-drop-table-public-stock_",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-create-trigger",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-top-level-no-drop-trigger",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-only-new-table-alter",
+      "status": "PASS",
+      "detail": "alter table public.tkn_v5262_box_sale_draft_shifts enable row level security;"
+    },
+    {
+      "name": "sql-new-function-prefix",
+      "status": "PASS",
+      "detail": "tkn_v5262_cashier_box_sale_access,tkn_v5262_cashier_box_sale_assert,tkn_v5262_box_sale_start,tkn_v5262_box_sale_preview,tkn_v5262_box_sale_add_box,tkn_v5262_box_sale_remove_box,tkn_v5262_box_sale_cancel,tkn_v5262_complete_box_sale"
+    },
+    {
+      "name": "sql-runtime-shift-assert",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "sql-no-global-draft-expiry",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "patch-only-size",
+      "status": "PASS",
+      "detail": "files=24"
+    },
+    {
+      "name": "pos-redirect",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "pass": true,
+  "file_count": 24
+}
