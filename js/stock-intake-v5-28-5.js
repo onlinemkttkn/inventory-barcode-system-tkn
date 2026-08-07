@@ -31,5 +31,30 @@
   async function receive(){if(!canReceive())return msg('กรุณาตรวจ QR, สภาพกล่อง และเลือกสาขาก่อนรับเข้า','error');if(!confirm(`ยืนยันรับกล่อง ${state.detail.history.box_code} เข้าสต็อกทั้งกล่อง?\nการทำรายการนี้จะเพิ่ม Inventory และทำซ้ำไม่ได้`))return;setBusy(true);try{const sb=await client();const {data,error}=await sb.rpc('tkn_v5285_receive_stock_intake',{p_history_id:state.detail.history.id,p_branch_id:$('branchSelect').value,p_scan_code:$('boxScan').value.trim(),p_note:$('intakeNote').value.trim()||null});if(error)throw error;msg(data?.already_received?`กล่องนี้รับเข้าแล้ว · ${data.stock_document_no||'-'}`:`รับเข้าสต็อกสำเร็จ · เอกสาร ${data?.stock_document_no||'-'}`,'good');await lookup(state.detail.history.box_code);await Promise.all([loadQueue(),loadRecent()]);}catch(e){msg(e.message||String(e),'error');}finally{setBusy(false);refreshReceiveEnabled();}}
   async function loadRecent(){const sb=await client();if(!sb)return;const {data,error}=await sb.rpc('tkn_v5285_recent_stock_intakes',{p_limit:50});if(error){$('recentRows').innerHTML=`<tr><td colspan="6">${esc(error.message)}</td></tr>`;return;}const rows=Array.isArray(data)?data:[];$('recentRows').innerHTML=rows.map(r=>`<tr><td>${fmt(r.received_at)}</td><td><b>${esc(r.box_code)}</b></td><td>${esc(r.stock_document_no||'-')}</td><td>${num(r.total_quantity)}</td><td>${esc(r.branch_name||'-')}</td><td>${esc(r.received_by||'-')}</td></tr>`).join('')||'<tr><td colspan="6">ยังไม่มีประวัติรับเข้า</td></tr>';}
   document.addEventListener('click',ev=>{const b=ev.target.closest('[data-intake-box]');if(b){$('boxScan').value=b.dataset.intakeBox;void lookup(b.dataset.intakeBox);}});
-  document.addEventListener('DOMContentLoaded',async()=>{try{await loadBranches();await Promise.all([loadQueue(),loadRecent()]);}catch(e){msg(e.message||String(e),'error');}const initialScan=new URLSearchParams(location.search).get('scan');if(initialScan){$('boxScan').value=initialScan;await lookup(initialScan);}$('lookupBtn').addEventListener('click',()=>void lookup());$('boxScan').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void lookup();}});$('refreshQueueBtn').addEventListener('click',()=>void loadQueue());$('queueSearchBtn').addEventListener('click',()=>void loadQueue());$('queueSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void loadQueue();}});$('refreshRecentBtn').addEventListener('click',()=>void loadRecent());$('receiveBtn').addEventListener('click',()=>void receive());$('checkQr').addEventListener('change',refreshReceiveEnabled);$('checkCondition').addEventListener('change',refreshReceiveEnabled);$('branchSelect').addEventListener('change',refreshReceiveEnabled);setTimeout(()=>$('boxScan')?.focus(),300);});
+  document.addEventListener('DOMContentLoaded',async()=>{
+    try{
+      if(!window.TKNAuthGuard?.requireAccess) throw new Error('Auth Guard ยังไม่พร้อม');
+      await window.TKNAuthGuard.requireAccess('inventory.receive',{loadingText:'กำลังเปิดระบบตรวจรับเข้าสต็อก...'});
+      await loadBranches();
+      await Promise.all([loadQueue(),loadRecent()]);
+      const initialScan=new URLSearchParams(location.search).get('scan');
+      if(initialScan){$('boxScan').value=initialScan;await lookup(initialScan);}
+      $('lookupBtn').addEventListener('click',()=>void lookup());
+      $('boxScan').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void lookup();}});
+      $('refreshQueueBtn').addEventListener('click',()=>void loadQueue());
+      $('queueSearchBtn').addEventListener('click',()=>void loadQueue());
+      $('queueSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void loadQueue();}});
+      $('refreshRecentBtn').addEventListener('click',()=>void loadRecent());
+      $('receiveBtn').addEventListener('click',()=>void receive());
+      $('checkQr').addEventListener('change',refreshReceiveEnabled);
+      $('checkCondition').addEventListener('change',refreshReceiveEnabled);
+      $('branchSelect').addEventListener('change',refreshReceiveEnabled);
+      window.TKNAuthGuard.ready();
+      setTimeout(()=>$('boxScan')?.focus(),300);
+    }catch(e){
+      if(e?.code==='INVENTORY_PERMISSION_DENIED') return;
+      if(window.TKNAuthGuard?.fail) window.TKNAuthGuard.fail(e,()=>location.reload());
+      else { document.body?.classList.remove('tkn-auth-loading'); msg(e.message||String(e),'error'); }
+    }
+  });
 })();
