@@ -22,8 +22,9 @@
   <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
-  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
-  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.28.6">
+  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.28.6">
+  <link rel="stylesheet" href="./css/inventory-stock-intake-v5-28-7.css?v=5.28.6">
 </head>
 <body class="tkn-auth-loading inventory-hub-page" data-inventory-page="hub" data-loading-text="กำลังเปิดคลังสินค้า...">
 <main class="shell">
@@ -33,8 +34,13 @@
       <p>หน้าใหม่ครอบ Workflow เดิม จึงไม่กระทบโครงสร้างเก่า</p></div>
   </header>
   <section class="operation-cards">
-    <a class="operation-card" href="./receive.html">
-      <strong>รับสินค้าเข้า</strong><span>รับหลายรายการเข้าคลัง</span>
+    <a class="operation-card operation-card-intake" href="./stock-intake.html">
+      <strong>ตรวจรับเข้าสต็อก</strong><span>รับกล่องจากงานคัดแยก / WAITING_STOCK เข้าคลัง</span>
+      <b class="intake-card-count" id="hubWaitingCount">0 กล่องรอรับ</b>
+    </a>
+
+    <a class="operation-card" href="./branch-stock.html">
+      <strong>สต็อกปัจจุบัน</strong><span>ดูจำนวนสินค้าหลังตรวจรับเข้าสต็อก แยกตามสาขา</span>
     </a>
     <a class="operation-card" href="./issue.html">
       <strong>เบิกสินค้า</strong><span>สแกนและเบิกหลายรายการครั้งเดียว</span>
@@ -55,13 +61,21 @@
       <strong>ปรับสต็อก</strong><span>ปรับยอดพร้อมเหตุผลและ Audit Log</span>
     </a>
   </section>
+
+  <section class="hub-intake-panel" aria-labelledby="hubIntakeTitle">
+    <div class="hub-intake-head"><div><p class="eyebrow">จากงานคัดแยก / ปิดกล่อง</p><h2 id="hubIntakeTitle">กล่องรอตรวจรับเข้าสต็อก</h2></div><a href="./stock-intake.html" class="hub-intake-open">เปิด Stock Intake →</a></div>
+    <p id="hubIntakeState" class="hub-intake-state">กำลังตรวจคิว WAITING_STOCK...</p>
+    <div class="hub-intake-table-wrap"><table class="hub-intake-table"><thead><tr><th>ปิดกล่อง</th><th>กล่อง</th><th>จำนวน</th><th>ตำแหน่ง</th><th></th></tr></thead><tbody id="hubIntakeRows"><tr><td colspan="5">กำลังโหลด...</td></tr></tbody></table></div>
+  </section>
+
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=3.4.0"></script>
 <script src="./js/auth-guard.js?v=3.6.11"></script>
-<script src="./js/inventory-workspace.js?v=5.0.0"></script>
+<script src="./js/inventory-workspace.js?v=5.28.6"></script>
+<script src="./js/inventory-stock-intake-v5-28-7.js?v=5.28.6"></script>
 <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.28.6" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

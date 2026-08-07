@@ -6,7 +6,7 @@
 
   const items = [
     { key:'hub', href:'./inventory-operations.html', label:'ศูนย์คลัง', permission:'inventory.view' },
-    { key:'receive', href:'./receive.html', label:'รับเข้า', permission:'inventory.receive' },
+    { key:'stock-intake', href:'./stock-intake.html', label:'ตรวจรับเข้าสต็อก', permission:'inventory.receive' },
     { key:'issue', href:'./issue.html', label:'เบิกสินค้า', permission:'inventory.issue' },
     { key:'transfer', href:'./transfer-create.html', label:'โอนสาขา', permission:'inventory.transfer' },
     { key:'transfer-receive', href:'./transfer-receive.html', label:'ตรวจรับโอน', permission:'inventory.transfer' },

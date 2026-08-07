@@ -59,11 +59,6 @@
     { key:'labels', group:'สินค้าและคลัง', label:'พิมพ์ QR / ป้ายสินค้า', short:'พิมพ์ป้าย', href:'./print-labels.html', icon:'scan', any:['inventory.view'], pages:['print-labels.html'] },
     { key:'inventory', group:'สินค้าและคลัง', label:'คลังสินค้า', short:'คลัง', href:'./inventory-operations.html', icon:'warehouse', any:['inventory.view'], pages:['inventory-operations.html','transactions.html','branch-stock.html'] },
     { key:'stockIntake', group:'สินค้าและคลัง', label:'ตรวจรับเข้าสต็อก', short:'ตรวจรับ', href:'./stock-intake.html', icon:'receive', any:['inventory.receive'], pages:['stock-intake.html'] },
-    { key:'receive', group:'สินค้าและคลัง', label:'รับสินค้า', short:'รับเข้า', href:'./receive.html', icon:'receive', any:['inventory.receive','inventory.view'], pages:['receive.html','purchase-order-create.html','purchase-order-history.html'] },
-    { key:'issue', group:'สินค้าและคลัง', label:'เบิกสินค้า', short:'เบิก', href:'./issue.html', icon:'issue', any:['inventory.issue','inventory.view'], pages:['issue.html'] },
-    { key:'transfer', group:'สินค้าและคลัง', label:'โอนสินค้า', short:'โอน', href:'./transfer-create.html', icon:'transfer', any:['inventory.transfer','inventory.view'], pages:['transfer-create.html','transfer-receive.html','transfer-history.html'] },
-    { key:'count', group:'สินค้าและคลัง', label:'ตรวจนับสต็อก', short:'นับสต็อก', href:'./stock-count.html', icon:'count', any:['inventory.count','inventory.view'], pages:['stock-count.html','stock-count-history.html','stock-alerts.html'] },
-    { key:'suppliers', group:'สินค้าและคลัง', label:'ผู้ขาย / จัดซื้อ', short:'ผู้ขาย', href:'./suppliers.html', icon:'supplier', any:['inventory.receive','product.manage'], pages:['suppliers.html'] },
 
     { key:'import', group:'Marketplace / นำเข้า', label:'Import / Export', short:'นำเข้า', href:'./import-export.html', icon:'import', any:['product.manage'], pages:['import-export.html'] },
     { key:'shopee', group:'Marketplace / นำเข้า', label:'นำเข้า Shopee', short:'Shopee', href:'./shopee-import.html', icon:'shopee', any:['product.manage'], pages:['shopee-import.html'] },
@@ -550,7 +545,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.28.5.1.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.28.7.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
