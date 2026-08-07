@@ -1045,7 +1045,7 @@
           <td>${integer(h.sku_count)} SKU · ${integer(h.total_quantity)} ชิ้น</td>
           <td><b>${esc(historyStatusLabel(h.workflow_status))}</b>${h.stock_document_no ? `<br><small>${esc(h.stock_document_no)}</small>` : ""}</td>
           <td>${integer(h.print_count)} ครั้ง</td>
-          <td class="history-actions"><button type="button" data-history-view="${h.id}">ดู</button><button type="button" data-history-reprint="${h.id}">พิมพ์ QR ซ้ำ</button>${h.workflow_status === "WAITING_STOCK" ? `<button type="button" class="primary" data-history-stock="${h.id}">รับเข้าสต็อก</button>` : ""}</td>
+          <td class="history-actions"><button type="button" data-history-view="${h.id}">ดู</button><button type="button" data-history-reprint="${h.id}">พิมพ์ QR ซ้ำ</button>${h.workflow_status === "WAITING_STOCK" ? `<a class="primary" href="./stock-intake.html?scan=${encodeURIComponent(h.box_code)}">ตรวจรับเข้าสต็อก</a>` : ""}</td>
         </tr>`).join("") || '<tr><td colspan="8">ยังไม่มีประวัติกล่อง</td></tr>';
     } catch (error) {
       host.innerHTML = `<tr><td colspan="8">โหลดประวัติไม่สำเร็จ: ${esc(error.message || error)}</td></tr>`;
@@ -1070,32 +1070,10 @@
     } catch (error) { msg(`เปิดประวัติไม่สำเร็จ: ${error.message || error}`, "error"); }
   }
 
-  async function receiveHistoryBox(history) {
-    const branchId = history?.branch_id || currentBranchId();
-    if (!branchId) return msg("ไม่พบสาขาของกล่อง กรุณาเลือกสาขาก่อนรับเข้าสต็อก", "error");
-    if (!history || history.workflow_status !== "WAITING_STOCK") return msg("กล่องนี้ไม่ได้อยู่สถานะรอเข้าสต็อก", "error");
-    if (!confirm(`รับกล่อง ${history.box_code} จำนวน ${history.total_quantity} ชิ้นเข้าสต็อกทั้งกล่อง?`)) return;
-    try {
-      const { data, error } = await supabaseClient.rpc("tkn_v5283_receive_box_to_stock", { p_box_code: history.box_code, p_branch_id: branchId });
-      if (error) throw error;
-      audit("BOX_STOCK_RECEIVE", history.box_code, `${history.total_quantity} ชิ้น · ${data?.stock_document_no || ""}`);
-      msg(data?.already_received ? `กล่อง ${history.box_code} เคยรับเข้าสต็อกแล้ว · ${data.stock_document_no || ""}` : `รับกล่อง ${history.box_code} เข้าสต็อกสำเร็จ · ${data?.stock_document_no || ""}`, "success");
-      await loadBoxHistory();
-    } catch (error) { msg(`รับเข้าสต็อกไม่สำเร็จ: ${error.message || error}`, "error"); }
-  }
-
-  async function receiveScannedWaitingBox() {
-    const input = $("waitingStockBoxScan");
-    const codeValue = cleanScan(input?.value || "");
-    if (!codeValue) return msg("กรุณาสแกน QR กล่อง", "error");
-    try {
-      await loadBoxHistory(codeValue);
-      const history = cloudHistory.find(h => h.box_code === codeValue || h.qr_payload === codeValue);
-      if (!history) return msg(`ไม่พบกล่อง ${codeValue} ในประวัติ`, "error");
-      if (history.workflow_status !== "WAITING_STOCK") return msg(`กล่อง ${history.box_code}: ${historyStatusLabel(history.workflow_status)}`, history.workflow_status === "IN_STOCK" ? "success" : "error");
-      await receiveHistoryBox(history);
-      if (input) { input.value = ""; input.focus(); }
-    } catch (error) { msg(`ตรวจกล่องไม่สำเร็จ: ${error.message || error}`, "error"); }
+  function openStockIntake(historyOrCode) {
+    const code = cleanScan(typeof historyOrCode === "string" ? historyOrCode : (historyOrCode?.box_code || ""));
+    const target = code ? `./stock-intake.html?scan=${encodeURIComponent(code)}` : "./stock-intake.html";
+    window.location.href = target;
   }
 
   async function reprintHistoricalBox(history) {
@@ -1122,14 +1100,11 @@
   function bindHistoryEvents() {
     bind("boxHistoryRefresh", "click", () => { void loadBoxHistory(); });
     bind("boxHistorySearch", "keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); void loadBoxHistory(); } });
-    bind("waitingStockReceiveBtn", "click", () => { void receiveScannedWaitingBox(); });
-    bind("waitingStockBoxScan", "keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); void receiveScannedWaitingBox(); } });
     const rows=$("cloudBoxHistoryRows");
     rows?.addEventListener("click", (event) => {
       const target=event.target instanceof Element?event.target:null;if(!target)return;
       const view=target.closest("[data-history-view]");if(view)return void showHistoryDetail(view.dataset.historyView);
       const rp=target.closest("[data-history-reprint]");if(rp)return void reprintHistoricalBox(cloudHistory.find(h=>h.id===rp.dataset.historyReprint));
-      const stock=target.closest("[data-history-stock]");if(stock)return void receiveHistoryBox(cloudHistory.find(h=>h.id===stock.dataset.historyStock));
     });
   }
 

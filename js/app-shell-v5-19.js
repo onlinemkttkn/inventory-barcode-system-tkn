@@ -58,6 +58,7 @@
     { key:'promotions', group:'สินค้าและคลัง', label:'โปรโมชั่นสินค้า', short:'โปรโมชั่น', href:'./stock-promotions.html', icon:'report', any:['product.manage'], pages:['stock-promotions.html'] },
     { key:'labels', group:'สินค้าและคลัง', label:'พิมพ์ QR / ป้ายสินค้า', short:'พิมพ์ป้าย', href:'./print-labels.html', icon:'scan', any:['inventory.view'], pages:['print-labels.html'] },
     { key:'inventory', group:'สินค้าและคลัง', label:'คลังสินค้า', short:'คลัง', href:'./inventory-operations.html', icon:'warehouse', any:['inventory.view'], pages:['inventory-operations.html','transactions.html','branch-stock.html'] },
+    { key:'stockIntake', group:'สินค้าและคลัง', label:'ตรวจรับเข้าสต็อก', short:'ตรวจรับ', href:'./stock-intake.html', icon:'receive', any:['inventory.receive'], pages:['stock-intake.html'] },
     { key:'receive', group:'สินค้าและคลัง', label:'รับสินค้า', short:'รับเข้า', href:'./receive.html', icon:'receive', any:['inventory.receive','inventory.view'], pages:['receive.html','purchase-order-create.html','purchase-order-history.html'] },
     { key:'issue', group:'สินค้าและคลัง', label:'เบิกสินค้า', short:'เบิก', href:'./issue.html', icon:'issue', any:['inventory.issue','inventory.view'], pages:['issue.html'] },
     { key:'transfer', group:'สินค้าและคลัง', label:'โอนสินค้า', short:'โอน', href:'./transfer-create.html', icon:'transfer', any:['inventory.transfer','inventory.view'], pages:['transfer-create.html','transfer-receive.html','transfer-history.html'] },
@@ -549,7 +550,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.28.4.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.28.5.1.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }

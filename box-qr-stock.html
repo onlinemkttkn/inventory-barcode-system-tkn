@@ -28,13 +28,14 @@
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.28.4</small>
+        <small>TKN POS ERP · Box QR · Final v5.28.5</small>
         <h1>รับคืนและจัดสินค้าลงกล่อง</h1>
         <p>สแกนสินค้าที่เหลือจากหน้าร้านแล้วเพิ่มเข้ากล่องทันที จำนวนที่สแกนคือจำนวนจริงในกล่อง จากนั้นปิดกล่องและพิมพ์ QR ได้เลย</p>
       </div>
       <nav>
         <a class="camera-entry" href="./sort-pack-qr.html">⚡ แยกสินค้าและปิดกล่อง</a>
         <a class="camera-entry" href="./mobile-stock-check.html">📷 โหมดกล้องตรวจสต็อก</a>
+        <a class="camera-entry" href="./stock-intake.html">📦 ตรวจรับเข้าสต็อก</a>
         <a href="./dashboard.html">Dashboard</a>
         <a href="./pos.html">POS</a>
       </nav>
@@ -174,8 +175,8 @@
       <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 3</span><h2>กล่องรอเข้าสต็อกและประวัติกล่อง</h2></div><p>ปิดกล่องแล้วระบบเก็บ Snapshot และ QR ไว้ถาวร กล่องจะอยู่สถานะรอเข้าสต็อกจนกว่าจะสแกนรับเข้าคลัง</p></div>
 
       <div class="waiting-stock-card">
-        <div><strong>รับกล่องเข้าสต็อก</strong><span>สแกน QR กล่องที่ปิดแล้ว ระบบรับสินค้าทั้งกล่องโดยไม่ต้องนับทีละชิ้นอีกครั้ง</span></div>
-        <div class="waiting-stock-scan"><input id="waitingStockBoxScan" autocomplete="off" placeholder="สแกน QR กล่อง TKN-B-..."><button id="waitingStockReceiveBtn" type="button" class="primary">รับเข้าสต็อกทั้งกล่อง</button></div>
+        <div><strong>รอตรวจรับเข้าสต็อก</strong><span>หน้า Box ใช้สำหรับแพ็ก ปิดกล่อง พิมพ์ QR และดูประวัติเท่านั้น การเพิ่ม Inventory ต้องทำผ่านโมดูลตรวจรับเข้าสต็อก</span></div>
+        <div class="waiting-stock-scan"><a class="primary" href="./stock-intake.html">ไปหน้าตรวจรับเข้าสต็อก</a></div>
       </div>
 
       <div class="history-toolbar">
@@ -212,10 +213,10 @@
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
-  <script src="./js/box-qr-stock-v5-28-3.js?v=5.28.4.1"></script>
-  <script src="./js/box-lifecycle-v5-28-4.js?v=5.28.4.1"></script>
+  <script src="./js/box-qr-stock-v5-28-3.js?v=5.28.5.1"></script>
+  <script src="./js/box-lifecycle-v5-28-4.js?v=5.28.5.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.28.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.28.5.1" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
   <script src="./js/marketplace-workflow-v5-27-1.js?v=5.28.4" defer></script>
 </body>
