@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '5.28.1';
+const VERSION = '5.28.2';
 const STATIC_CACHE = `tkn-static-${VERSION}`;
 const PAGE_CACHE = `tkn-pages-${VERSION}`;
 const CORE_ASSETS = [
@@ -25,7 +25,7 @@ const CORE_ASSETS = [
   './import-export.html',
   './universal-import.html',
   './css/universal-import-v5-28-1.css',
-  './js/universal-import-v5-28-1.js',
+  './js/universal-import-v5-28-2.js',
   './js/universal-receiving-v5-28-1.js',
   './js/manual-product-import-v5-28-1.js',
   './inventory-operations.html',
