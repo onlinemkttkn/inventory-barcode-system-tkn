@@ -1,0 +1,157 @@
+{
+  "version": "5.27.1",
+  "package": "TKN-PATCH-v5.27.1-MARKETPLACE-STOCK-SAFE",
+  "type": "patch-only",
+  "requires": [
+    "TKN v5.26.1 DB-SAFE",
+    "TKN v5.26.2 POS Inline Cashier"
+  ],
+  "replaces_unapproved": [
+    "TKN v5.27.0 Marketplace Stock"
+  ],
+  "database_safety": {
+    "core_table_schema_changes": false,
+    "core_install_time_data_mutation": false,
+    "core_triggers_added": false,
+    "new_table_prefixes": [
+      "tkn_marketplace_"
+    ],
+    "permission": "product.manage"
+  },
+  "features": [
+    "Shopee/Lazada/manual workspace batches",
+    "Thai category labels",
+    "chunked 500-row upload",
+    "duplicate fingerprint and resume",
+    "sorting page integration",
+    "batch progress sync on box close"
+  ],
+  "validation_file": "BUILD-VALIDATION-v5.27.1.json",
+  "files": [
+    {
+      "path": "BUILD-VALIDATION-v5.27.1.json",
+      "size": 4057,
+      "sha256": "97fe95d893ede15ba0784a91bedc4ecf98f20b884494728840152e01ee2d4235"
+    },
+    {
+      "path": "CHANGELOG-v5.27.1.md",
+      "size": 1282,
+      "sha256": "9c83f956b7c5ac18c95dc8fb37ef383a8ec5a3f40cbd1aa027a3b4690e50cbe0"
+    },
+    {
+      "path": "INSTALL-v5.27.1.md",
+      "size": 1871,
+      "sha256": "d55bd947865d914c377c0c46fcb9450afdef65274c8d3c47e1892f58d3835ca1"
+    },
+    {
+      "path": "PATCH-FILES-v5.27.1.txt",
+      "size": 684,
+      "sha256": "09abe95591881fce202ffa3607b893b0e1c1bb7b82743ba92bc82c1f15c6d9ab"
+    },
+    {
+      "path": "README-PATCH-v5.27.1.md",
+      "size": 3328,
+      "sha256": "646334df82a42f7a0612ab9eb0e4a018cee79b9fe85da08d83584526b13e7e1e"
+    },
+    {
+      "path": "TEST-REPORT-v5.27.1.md",
+      "size": 3560,
+      "sha256": "15f23bc3255b026022e0789c80b9df874f8eb37f23803a261dce74e90e22d6a5"
+    },
+    {
+      "path": "UAT-v5.27.1.md",
+      "size": 3656,
+      "sha256": "e36191a76939f1d03e72b00290a3309b87675f0ece1d443626cca08261650000"
+    },
+    {
+      "path": "VERSION.txt",
+      "size": 130,
+      "sha256": "d8f53d6a3903d1c4518011e4b8d5e056e1853c2c2abb344dadbf1b7e8ded2fac"
+    },
+    {
+      "path": "box-qr-stock.html",
+      "size": 15786,
+      "sha256": "b8990229cd91ff30ca79a94c758777f5425127aaea0f4b1b1c45ae9a0468f22b"
+    },
+    {
+      "path": "css/marketplace-workflow-v5-27-1.css",
+      "size": 2655,
+      "sha256": "2d301bc2818dc8773bd5051f5fbdf1c22be0de4cd3154c71d6e7b8787f8fb1af"
+    },
+    {
+      "path": "import-export.html",
+      "size": 5286,
+      "sha256": "0c8fcc8dc71832c7a06bfc7881d2c27f5b78a0746696c9e80150e3b626425920"
+    },
+    {
+      "path": "js/app-shell-v5-19.js",
+      "size": 38265,
+      "sha256": "e221b5cada152731d4e779647c3210e1a1c8e76e7975490d90aec1c33d9e8250"
+    },
+    {
+      "path": "js/marketplace-workflow-v5-27-1.js",
+      "size": 23972,
+      "sha256": "b418d2633a9f074d75c58be5dcefa885173e77df69425392d5c89235eae96a17"
+    },
+    {
+      "path": "js/sort-pack-qr-v5-27-1.js",
+      "size": 85684,
+      "sha256": "73cbeead08d03aaf846362b7799a2a98747a1c3f70fabed0e9db7b0cd4ccb31d"
+    },
+    {
+      "path": "js/tkn-category-th-v5-27-1.js",
+      "size": 2498,
+      "sha256": "600e2ddbe7e03e6f78fbf55d7fe61c24dcb38f2fb7e52a7c5a784a7cfb1f68b2"
+    },
+    {
+      "path": "lazada-import.html",
+      "size": 27012,
+      "sha256": "e6fcc866f76c9379c06bc0f4ecc4dffba306d899056b2203e637d904a3193f77"
+    },
+    {
+      "path": "manual-product-import.html",
+      "size": 9861,
+      "sha256": "cbd1ea90c097b9e9030f8f981262f6475a3ecc7fe5e1e6d8d232a4bcadfb5eef"
+    },
+    {
+      "path": "service-worker-v5.27.1.js",
+      "size": 4369,
+      "sha256": "bd719d5001777cf17ecf80fa3f21c2d1015ff95046f335602a5eead7ce052627"
+    },
+    {
+      "path": "shopee-import.html",
+      "size": 25837,
+      "sha256": "1b9bf846e3fce787ebe3e7119517a4344b8f77e915b81fb372e173fab4c18caa"
+    },
+    {
+      "path": "sort-pack-qr.html",
+      "size": 16717,
+      "sha256": "3ddcab4e081e5616a1fe774f92e6eeb87f18086ee025885b5ff65222313c9d3a"
+    },
+    {
+      "path": "sql/00-PREFLIGHT-v5.27.1-READ-ONLY.sql",
+      "size": 4338,
+      "sha256": "dc166c076547236c2d2997650b244bd68609b73e66a08b77e56327f6b1c65d80"
+    },
+    {
+      "path": "sql/00A-BASELINE-v5.27.1-READ-ONLY.sql",
+      "size": 977,
+      "sha256": "948388bab6502cf25c482d0705cb666b9242c64b2ea0ed1858216fd7c3b65273"
+    },
+    {
+      "path": "sql/01-INSTALL-v5.27.1-DB-SAFE.sql",
+      "size": 21356,
+      "sha256": "4203482b74dc9bee17c5615fe1f3cc9fe0499793f4f42510aabdde3eef3dbca1"
+    },
+    {
+      "path": "sql/02-VERIFY-v5.27.1-READ-ONLY.sql",
+      "size": 3389,
+      "sha256": "2b38e01040370ee50e70cf7e2e5b0b0247e09a4290f1185e8f2ce1c1909780e2"
+    },
+    {
+      "path": "sql/99-ROLLBACK-v5.27.1-FUNCTIONS-ONLY.sql",
+      "size": 560,
+      "sha256": "5c8f824a77cc0eb8ba856f15ae7046098dc06a7880a2eca5a14c486bbb7b6d49"
+    }
+  ]
+}
