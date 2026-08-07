@@ -1,3 +1,2 @@
-TKN v5.27.1
-Marketplace Import → Sorting → Box Stock
-Patch only · DB-SAFE · requires v5.26.1 DB-SAFE and v5.26.2 POS Inline
+TKN POS ERP FINAL v5.28.1
+Patch: Universal Import + Receiving + Stock Bridge FINAL SAFE

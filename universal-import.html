@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#c8101e">
+  <title>Universal Import — TKN POS ERP</title>
+  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
+  <link rel="stylesheet" href="./css/navigation.css?v=5.19.0">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/universal-import-v5-28-1.css?v=5.28.1">
+</head>
+<body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์ Universal Import...">
+<main class="ui-shell">
+  <header class="ui-hero">
+    <div><span class="ui-kicker">TKN POS ERP · FINAL v5.28.1</span><h1>Universal Import</h1><p>อ่าน Excel / CSV หลายรูปแบบ แปลงเป็นชุดงานกลาง ตรวจข้อมูลก่อนเข้าสู่การตรวจรับและสต็อกจริง</p></div>
+    <div class="ui-actions"><a class="ui-btn ghost" href="./import-export.html">← Marketplace / นำเข้า</a><a class="ui-btn ghost" href="./sort-pack-qr.html">ตรวจรับ / แยกสินค้า</a></div>
+  </header>
+
+  <section class="ui-card">
+    <div class="ui-card-head"><div><span class="ui-kicker">1 · เลือกไฟล์</span><h2>ไฟล์งานจริง</h2></div><span id="templateBadge" class="ui-chip">ยังไม่ตรวจ</span></div>
+    <div id="dropZone" class="ui-drop">
+      <strong>ลากไฟล์ Excel หรือ CSV มาวาง</strong><span>รองรับ .xlsx .xls .csv</span>
+      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+    </div>
+    <div class="ui-form-grid">
+      <label>สาขารับเข้า<select id="branchSelect"></select></label>
+      <label>ชื่อชุดงาน<input id="batchName" placeholder="เช่น SPX Lot 1 / WH 202605"></label>
+      <label>แหล่งข้อมูล<input id="sourceName" placeholder="AUTO / SPX / LAZADA / WH / CB"></label>
+      <label>กำไรตั้งต้น (%)<input id="markupPercent" type="number" min="0" max="1000" step="0.01" value="30"></label>
+      <label>VAT (%)<input id="vatRate" type="number" min="0" max="100" step="0.01" value="7"></label>
+      <label class="ui-check"><input id="roundPrice" type="checkbox" checked> ปัดราคาขึ้นลงท้าย 0 เมื่อมีทศนิยม</label>
+    </div>
+  </section>
+
+  <section class="ui-stats">
+    <article><span>รายการ</span><strong id="lineCount">0</strong></article>
+    <article><span>จำนวนตามไฟล์</span><strong id="qtyCount">0</strong></article>
+    <article><span>Tracking</span><strong id="trackingCount">0</strong></article>
+    <article><span>SKU</span><strong id="skuCount">0</strong></article>
+    <article><span>ต้องตรวจ</span><strong id="problemCount">0</strong></article>
+  </section>
+
+  <section class="ui-card">
+    <div class="ui-card-head"><div><span class="ui-kicker">2 · Validation</span><h2>ผลตรวจไฟล์</h2></div><div class="ui-actions"><button id="analyzeBtn" class="ui-btn secondary" type="button" disabled>ตรวจไฟล์อีกครั้ง</button><button id="createBatchBtn" class="ui-btn primary" type="button" disabled>สร้าง Import Batch</button></div></div>
+    <div id="validationSummary" class="ui-validation">ยังไม่มีไฟล์</div>
+    <div class="ui-table-wrap"><table><thead><tr><th>แถว</th><th>Sheet</th><th>Tracking</th><th>SKU / Barcode</th><th>ชื่อสินค้า</th><th>จำนวน</th><th>ต้นทุน</th><th>ราคาขาย</th><th>สถานะ</th></tr></thead><tbody id="previewBody"></tbody></table></div>
+    <p id="message" class="ui-message" role="status"></p>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="./js/supabase-config.js?v=1.0.2"></script>
+<script src="./js/auth-guard.js?v=5.6.0"></script>
+<script src="./js/universal-import-v5-28-1.js?v=5.28.1"></script>
+<script src="./js/tkn-safe-back.js?v=5.19.0"></script>
+<script src="./js/app-shell-v5-19.js?v=5.28.1" defer></script>
+</body>
+</html>

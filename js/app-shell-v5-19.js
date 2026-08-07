@@ -549,7 +549,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.27.1.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.28.1.js', { scope:'./' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
