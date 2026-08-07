@@ -21,12 +21,14 @@
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.8">
   <link rel="stylesheet" href="./css/box-qr-stock-v5-25-6.css?v=5.25.6">
   <link rel="stylesheet" href="./css/marketplace-workflow-v5-27-1.css?v=5.27.1">
+  <link rel="stylesheet" href="./css/box-history-v5-28-3.css?v=5.28.3">
+  <link rel="stylesheet" href="./css/box-lifecycle-v5-28-4.css?v=5.28.4">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
     <header class="hero">
       <div>
-        <small>TKN POS ERP · Box QR · Final v5.25.7</small>
+        <small>TKN POS ERP · Box QR · Final v5.28.4</small>
         <h1>รับคืนและจัดสินค้าลงกล่อง</h1>
         <p>สแกนสินค้าที่เหลือจากหน้าร้านแล้วเพิ่มเข้ากล่องทันที จำนวนที่สแกนคือจำนวนจริงในกล่อง จากนั้นปิดกล่องและพิมพ์ QR ได้เลย</p>
       </div>
@@ -169,8 +171,35 @@
     </section>
 
     <section id="audit" class="panel">
-      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 3</span><h2>ประวัติการทำงาน</h2></div><p>ตรวจสอบการรับคืน เพิ่มลงกล่อง แก้จำนวน เปิดกล่อง และปิดกล่องย้อนหลัง</p></div>
-      <div class="table"><table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>งาน</th><th>รหัส</th><th>รายละเอียด</th></tr></thead><tbody id="auditRows"></tbody></table></div>
+      <div class="panel-head"><div><span class="eyebrow">ขั้นตอนที่ 3</span><h2>กล่องรอเข้าสต็อกและประวัติกล่อง</h2></div><p>ปิดกล่องแล้วระบบเก็บ Snapshot และ QR ไว้ถาวร กล่องจะอยู่สถานะรอเข้าสต็อกจนกว่าจะสแกนรับเข้าคลัง</p></div>
+
+      <div class="waiting-stock-card">
+        <div><strong>รับกล่องเข้าสต็อก</strong><span>สแกน QR กล่องที่ปิดแล้ว ระบบรับสินค้าทั้งกล่องโดยไม่ต้องนับทีละชิ้นอีกครั้ง</span></div>
+        <div class="waiting-stock-scan"><input id="waitingStockBoxScan" autocomplete="off" placeholder="สแกน QR กล่อง TKN-B-..."><button id="waitingStockReceiveBtn" type="button" class="primary">รับเข้าสต็อกทั้งกล่อง</button></div>
+      </div>
+
+      <div class="history-toolbar">
+        <input id="boxHistorySearch" autocomplete="off" placeholder="ค้นหารหัสกล่อง / ประเภท">
+        <button id="boxHistoryRefresh" type="button">รีเฟรชประวัติ</button>
+      </div>
+      <div class="table box-history-table"><table><thead><tr><th>ปิดกล่อง</th><th>รหัสกล่อง</th><th>สาขา</th><th>ประเภท/โซน</th><th>สินค้า</th><th>สถานะ</th><th>พิมพ์ QR</th><th>จัดการ</th></tr></thead><tbody id="cloudBoxHistoryRows"><tr><td colspan="8">กำลังโหลดประวัติ...</td></tr></tbody></table></div>
+      <div id="boxHistoryDetail" class="box-history-detail" hidden></div>
+
+
+      <section class="box-lifecycle-panel" aria-labelledby="boxLifecycleTitle">
+        <div class="box-lifecycle-head">
+          <div><span class="eyebrow">Box Lifecycle</span><h3 id="boxLifecycleTitle">คิวกล่องรอเข้าสต็อก</h3><p>แสดงกล่องที่ปิดและพิมพ์ QR แล้ว แต่ยังไม่ได้รับเข้าสต็อก พร้อม Timeline ตรวจย้อนหลัง</p></div>
+          <div class="box-lifecycle-actions"><button id="boxLifecycleRefresh" type="button">รีเฟรชคิว</button><span id="boxLifecycleCount" class="box-lifecycle-count">0 กล่อง</span></div>
+        </div>
+        <div class="box-lifecycle-search"><input id="boxLifecycleSearch" autocomplete="off" placeholder="ค้นหารหัสกล่อง / ประเภท / ตำแหน่ง"><button id="boxLifecycleSearchBtn" type="button">ค้นหา</button></div>
+        <div class="table"><table><thead><tr><th>ปิดกล่อง</th><th>รหัสกล่อง</th><th>ประเภท / โซน</th><th>สินค้า</th><th>ตำแหน่ง</th><th>สถานะ</th><th>ดูย้อนหลัง</th></tr></thead><tbody id="boxLifecycleRows"><tr><td colspan="7">กำลังโหลดคิว...</td></tr></tbody></table></div>
+        <div id="boxLifecycleTimeline" class="box-lifecycle-timeline" hidden></div>
+      </section>
+
+      <details class="local-audit" open>
+        <summary>ประวัติการทำงานในเครื่องนี้</summary>
+        <div class="table"><table><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>งาน</th><th>รหัส</th><th>รายละเอียด</th></tr></thead><tbody id="auditRows"></tbody></table></div>
+      </details>
     </section>
   </main>
 
@@ -183,10 +212,11 @@
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
-  <script src="./js/box-qr-stock-v5-26-1.js?v=5.26.1"></script>
+  <script src="./js/box-qr-stock-v5-28-3.js?v=5.28.3"></script>
+  <script src="./js/box-lifecycle-v5-28-4.js?v=5.28.4"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.28.1" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.28.4" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
-  <script src="./js/marketplace-workflow-v5-27-1.js?v=5.28.1" defer></script>
+  <script src="./js/marketplace-workflow-v5-27-1.js?v=5.28.4" defer></script>
 </body>
 </html>

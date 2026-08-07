@@ -1,3 +1,1 @@
-TKN v5.28.2
-Large Batch Universal Import Timeout Hotfix
-Patch only — install on top of v5.28.1 FINAL SAFE
+TKN Final v5.28.4 — Box Lifecycle / Waiting Stock Queue

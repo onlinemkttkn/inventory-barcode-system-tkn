@@ -1,0 +1,34 @@
+{
+  "name": "TKN-PATCH-v5.28.4-BOX-LIFECYCLE-WAITING-STOCK-FINAL",
+  "type": "incremental_patch_only",
+  "requires": [
+    "v5.28.3"
+  ],
+  "database_mode": "additive_db_safe",
+  "features": [
+    "box lifecycle event ledger",
+    "waiting stock queue",
+    "box timeline",
+    "QR print/reprint history linkage",
+    "stock intake linkage",
+    "history backfill"
+  ],
+  "files": [
+    "BUILD-VALIDATION-v5.28.4.json",
+    "CHANGELOG-v5.28.4.md",
+    "INSTALL-v5.28.4.md",
+    "README-PATCH-v5.28.4.md",
+    "UAT-v5.28.4.md",
+    "VERSION.txt",
+    "box-qr-stock.html",
+    "css/box-lifecycle-v5-28-4.css",
+    "js/app-shell-v5-19.js",
+    "js/box-lifecycle-v5-28-4.js",
+    "service-worker-v5.28.4.js",
+    "sql/00-PREFLIGHT-v5.28.4-READ-ONLY.sql",
+    "sql/01-INSTALL-v5.28.4-BOX-LIFECYCLE.sql",
+    "sql/02-VERIFY-v5.28.4-READ-ONLY.sql",
+    "sql/03-UAT-v5.28.4-READ-ONLY.sql",
+    "sql/99-ROLLBACK-v5.28.4-SAFE-DISABLE.sql"
+  ]
+}
