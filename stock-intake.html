@@ -15,11 +15,12 @@
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
   <link rel="stylesheet" href="./css/stock-intake-v5-28-5.css?v=5.28.6">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
+  <link rel="stylesheet" href="./css/tkn-warehouse-context-v5-30-0.css?v=5.30.0">
 </head>
 <body class="tkn-auth-ready" data-required-permission="inventory.receive" data-loading-text="กำลังเปิดระบบตรวจรับเข้าสต็อก...">
 <main class="intake-shell">
   <header class="intake-hero">
-    <div><span class="intake-kicker">TKN POS ERP · v5.29.0</span><h1>ตรวจรับเข้าสต็อก</h1><p>สแกน QR กล่องที่ปิดแล้ว ตรวจ Snapshot ของสินค้า และรับเข้าสต็อกทั้งกล่องเพียงครั้งเดียว</p></div>
+    <div><span class="intake-kicker">TKN POS ERP · v5.30.0</span><h1>ตรวจรับเข้าสต็อก</h1><p>สแกน QR กล่องที่ปิดแล้ว ตรวจ Snapshot ของสินค้า และรับเข้าสต็อกทั้งกล่องเพียงครั้งเดียว</p></div>
     <div class="intake-actions"><a class="intake-btn ghost" href="./box-qr-stock.html">← Box QR</a><a class="intake-btn ghost" href="./inventory-operations.html">คลังสินค้า</a></div>
   </header>
 
@@ -49,12 +50,12 @@
       <div class="intake-table-wrap"><table><thead><tr><th>SKU</th><th>Barcode</th><th>สินค้า</th><th>จำนวน</th><th>ต้นทุน</th><th>ราคาขาย</th></tr></thead><tbody id="itemRows"><tr><td colspan="6">-</td></tr></tbody></table></div>
       <div id="blockerBox" class="intake-blockers" hidden></div>
       <div class="intake-confirm">
-        <label>สาขารับเข้า<select id="branchSelect"></select></label>
+        <label>คลังรับเข้า<select id="branchSelect" disabled></select></label>
         <label class="check"><input id="checkQr" type="checkbox"> QR กล่องตรงกับรายการ</label>
         <label class="check"><input id="checkCondition" type="checkbox"> สภาพกล่องและสินค้าพร้อมเข้าคลัง</label>
         <label>หมายเหตุ<input id="intakeNote" maxlength="300" placeholder="ถ้ามี"></label>
       </div>
-      <div class="intake-actions end"><button id="receiveBtn" class="intake-btn primary" type="button" disabled>ยืนยันรับเข้าสต็อกทั้งกล่อง</button></div>
+      <div class="intake-actions end"><button id="receiveBtn" class="intake-btn primary" type="button" disabled>ยืนยันรับเข้าสต็อกทั้งกล่อง</button><a id="putawayNext" class="intake-btn ghost" href="./stock-putaway.html" hidden>ไปขึ้นชั้นจัดเก็บ →</a></div>
     </section>
   </section>
 
@@ -66,10 +67,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
 <script src="./js/auth-guard.js?v=5.29.0"></script>
-<script src="./js/inventory-workspace.js?v=5.28.6"></script>
-<script src="./js/stock-intake-v5-28-5.js?v=5.29.0"></script>
+<script src="./js/tkn-warehouse-context-v5-30-0.js?v=5.30.0"></script>
+<script src="./js/inventory-workspace.js?v=5.30.0"></script>
+<script src="./js/stock-intake-v5-30-0.js?v=5.30.0"></script>
 <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-<script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
+<script src="./js/app-shell-v5-19.js?v=5.30.0" defer></script>
 <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
 <script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body></html>

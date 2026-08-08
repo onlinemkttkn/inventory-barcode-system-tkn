@@ -1,0 +1,134 @@
+{
+  "version": "5.30.1",
+  "base": "inventory-barcode-system-tkn-main (29).zip",
+  "cumulative": [
+    "v5.29.0",
+    "v5.30.0"
+  ],
+  "passed": 24,
+  "total": 24,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "JavaScript syntax ทั้งระบบหลัง merge",
+      "pass": true,
+      "detail": "214 files; errors=0"
+    },
+    {
+      "check": "HTML local references ทั้งแพตช์",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "HTML duplicate IDs ทั้งแพตช์",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Service Worker CORE_ASSETS",
+      "pass": true,
+      "detail": "84/84 present; missing=[]"
+    },
+    {
+      "check": "Bundled dependency js/auth-guard.js",
+      "pass": true,
+      "detail": "e1199063eb8c2e5f16713a0115041d5be2f2ee2fbe581eb6dd332913fef320f2"
+    },
+    {
+      "check": "Bundled dependency js/tkn-unified-scanner-v5-29-0.js",
+      "pass": true,
+      "detail": "03f2dbc74bd732ac4ad5c89e4767129571625f4b6c1fec6f6a8bf5d0d1dba10f"
+    },
+    {
+      "check": "Bundled dependency css/tkn-unified-scanner-v5-29-0.css",
+      "pass": true,
+      "detail": "61ba63debb8917244fca24738a2ae6b4838ee7ecae6268db530c71e0c7a53156"
+    },
+    {
+      "check": "Bundled dependency js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": "2670127d27020a661c1131a146d41bcf4716cec969361776900419156d16e506"
+    },
+    {
+      "check": "Stock Intake no blocking spinner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake permission suppress loading",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake unified scanner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Close -> Stock Intake RPC",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake -> Putaway RPC",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Putaway uses v5.30 RPCs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SQL no destructive core operations",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Preflight checks tkn_v5283_close_box_to_waiting",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight checks tkn_v5285_receive_stock_intake",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight checks receive_branch_inventory",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight checks tkn_v5261_register_box_location",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight checks โกดังเก็บสินค้า",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Protected unchanged stock-promotions.html",
+      "pass": true,
+      "detail": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7"
+    },
+    {
+      "check": "Protected unchanged js/stock-promotions-v5-25-0.js",
+      "pass": true,
+      "detail": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507"
+    },
+    {
+      "check": "Protected unchanged print-labels.html",
+      "pass": true,
+      "detail": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33"
+    },
+    {
+      "check": "All scanner page dependencies present",
+      "pass": true,
+      "detail": "14 scan pages"
+    }
+  ],
+  "note": "Static/pre-send audit. SQL must still pass PRE-FLIGHT and VERIFY on the actual Supabase database."
+}

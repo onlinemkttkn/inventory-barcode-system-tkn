@@ -1,0 +1,183 @@
+{
+  "version": "5.30.0",
+  "base": "Full Pack (29) + v5.29.0 FINAL",
+  "passed": 22,
+  "total": 22,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "JavaScript syntax ทั้งระบบ",
+      "pass": true,
+      "detail": "214 files; errors=0"
+    },
+    {
+      "check": "HTML local references ทั้งระบบ",
+      "pass": true,
+      "detail": "missing=0"
+    },
+    {
+      "check": "HTML duplicate IDs ทั้งระบบ",
+      "pass": true,
+      "detail": "duplicates=0"
+    },
+    {
+      "check": "SQL ไม่ทำลายตารางหลัก",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Close bridge ใช้ v5300",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake ใช้ v5300",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Putaway ไม่แก้ Inventory",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Warehouse backend resolver",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Putaway idempotent unique history",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Warehouse context loaded Stock Intake",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Warehouse context loaded Sort Pack",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Warehouse context loaded Box QR",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner ครบ flow หลัก",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Service Worker assets",
+      "pass": true,
+      "detail": "84/84"
+    },
+    {
+      "check": "Service Worker version 5.30.0",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App Shell SW v5.30.0",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Protected unchanged: stock-promotions.html",
+      "pass": true,
+      "detail": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7"
+    },
+    {
+      "check": "Protected unchanged: js/stock-promotions-v5-25-0.js",
+      "pass": true,
+      "detail": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507"
+    },
+    {
+      "check": "Protected unchanged: print-labels.html",
+      "pass": true,
+      "detail": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33"
+    },
+    {
+      "check": "Flow: close -> WAITING_STOCK",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Flow: intake -> WAITING_PUTAWAY",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Flow: putaway -> location only",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "changed_files": [
+    "sort-pack-qr.html",
+    "issue.html",
+    "stock-count.html",
+    "purchase-order-create.html",
+    "stock-putaway.html",
+    "UAT-v5.30.0.md",
+    "transfer-receive.html",
+    "service-worker-v5.30.0.js",
+    "README-v5.30.0-FINAL.md",
+    "transfer-create.html",
+    "universal-import.html",
+    "mobile-stock-check.html",
+    "manual-product-import.html",
+    "product-stock-admin.html",
+    "branch-stock.html",
+    "box-qr-stock.html",
+    "products-admin.html",
+    "stock-intake.html",
+    "receive.html",
+    "transactions.html",
+    "inventory-operations.html",
+    "js/stock-putaway-v5-30-0.js",
+    "js/app-shell-v5-19.js",
+    "js/tkn-warehouse-context-v5-30-0.js",
+    "js/inventory-stock-flow-v5-30-0.js",
+    "js/universal-import-v5-30-0.js",
+    "js/sort-pack-qr-v5-30-0.js",
+    "js/inventory-workspace.js",
+    "js/box-qr-stock-v5-30-0.js",
+    "js/stock-intake-v5-30-0.js",
+    "css/tkn-warehouse-context-v5-30-0.css",
+    "css/stock-putaway-v5-30-0.css",
+    "sql/01-INSTALL-v5.30.0-WAREHOUSE-FLOW.sql",
+    "sql/00-PREFLIGHT-v5.30.0-READ-ONLY.sql",
+    "sql/03-UAT-v5.30.0-READ-ONLY.sql",
+    "sql/02-VERIFY-v5.30.0-READ-ONLY.sql"
+  ],
+  "protected": {
+    "stock-promotions.html": {
+      "before": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7",
+      "after": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7",
+      "unchanged": true
+    },
+    "js/stock-promotions-v5-25-0.js": {
+      "before": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507",
+      "after": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507",
+      "unchanged": true
+    },
+    "print-labels.html": {
+      "before": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33",
+      "after": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33",
+      "unchanged": true
+    }
+  },
+  "flow": [
+    "CLOSE",
+    "WAITING_STOCK",
+    "STOCK_INTAKE",
+    "IN_STOCK",
+    "WAITING_PUTAWAY",
+    "PUTAWAY",
+    "ISSUE_TO_STOREFRONT"
+  ]
+}

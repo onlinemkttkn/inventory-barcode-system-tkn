@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
   <link rel="stylesheet" href="./css/universal-import-v5-28-1.css?v=5.28.1">
+  <link rel="stylesheet" href="./css/tkn-warehouse-context-v5-30-0.css?v=5.30.0">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังตรวจสอบสิทธิ์ Universal Import...">
 <main class="ui-shell">
@@ -29,7 +30,7 @@
       <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
     </div>
     <div class="ui-form-grid">
-      <label>สาขารับเข้า<select id="branchSelect"></select></label>
+      <label>สาขารับเข้า<select id="branchSelect" data-warehouse-value="code"></select></label>
       <label>ชื่อชุดงาน<input id="batchName" placeholder="เช่น SPX Lot 1 / WH 202605"></label>
       <label>แหล่งข้อมูล<input id="sourceName" placeholder="AUTO / SPX / LAZADA / WH / CB"></label>
       <label>กำไรตั้งต้น (%)<input id="markupPercent" type="number" min="0" max="1000" step="0.01" value="30"></label>
@@ -56,8 +57,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="./js/supabase-config.js?v=1.0.2"></script>
+<script src="./js/tkn-warehouse-context-v5-30-0.js?v=5.30.0"></script>
 <script src="./js/auth-guard.js?v=5.6.0"></script>
-<script src="./js/universal-import-v5-28-2.js?v=5.28.2"></script>
+<script src="./js/universal-import-v5-30-0.js?v=5.30.0"></script>
 <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
 <script src="./js/app-shell-v5-19.js?v=5.28.1" defer></script>
 </body>
