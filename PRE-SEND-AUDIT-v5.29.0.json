@@ -1,0 +1,423 @@
+{
+  "version": "5.29.0",
+  "name": "TKN FINAL — Startup / Cache / Unified Scanner",
+  "base": "inventory-barcode-system-tkn-main (29).zip",
+  "passed": 77,
+  "total": 77,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "JavaScript syntax ทั้งระบบ",
+      "pass": true,
+      "detail": "206 files checked; errors=0"
+    },
+    {
+      "check": "stock-intake.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-intake.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-intake.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-intake.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "box-qr-stock.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "box-qr-stock.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "box-qr-stock.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "box-qr-stock.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "pos.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "pos.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "pos.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "pos.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "receive.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "receive.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "receive.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "receive.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "issue.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "issue.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "issue.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "issue.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "transfer-create.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "transfer-create.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "transfer-create.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "transfer-create.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-count.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-count.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-count.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-count.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "mobile-stock-check.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "mobile-stock-check.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "mobile-stock-check.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "mobile-stock-check.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "scanner.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "scanner.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "scanner.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "scanner.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "products-admin.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "products-admin.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "products-admin.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "products-admin.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "purchase-order-create.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "purchase-order-create.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "purchase-order-create.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "purchase-order-create.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sales-return.html: local references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sales-return.html: duplicate HTML IDs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sales-return.html: Unified Scanner loaded",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sales-return.html: scan target declared",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake ไม่มี full-screen auth spinner เริ่มต้น",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake permission gate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake เปิดสแกนก่อน background queue",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake mobile camera button",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake USB scan target",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: USB keyboard-wedge",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: Mobile BarcodeDetector",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: ZXing fallback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: Duplicate scan lock",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: Camera torch",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: Enter/form compatibility",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: Protected page exclusion",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unified Scanner: New SW self-upgrade",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Service Worker version 5.29.0",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS/CSS network-first",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App Shell registers v5.29.0 SW",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App Shell visible version latest",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Service Worker CORE_ASSETS",
+      "pass": true,
+      "detail": "78/78 present"
+    },
+    {
+      "check": "Protected unchanged: stock-promotions.html",
+      "pass": true,
+      "detail": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7"
+    },
+    {
+      "check": "Protected unchanged: js/stock-promotions-v5-25-0.js",
+      "pass": true,
+      "detail": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507"
+    },
+    {
+      "check": "Protected unchanged: print-labels.html",
+      "pass": true,
+      "detail": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33"
+    },
+    {
+      "check": "Unified Scanner direct delivery",
+      "pass": true,
+      "detail": "{\"targets\":[\"scan\"],\"ok\":true,\"value\":\"8851234567890\",\"enter\":1,\"changed\":1,\"version\":\"5.29.0\"}"
+    },
+    {
+      "check": "Unified Scanner USB wedge",
+      "pass": true,
+      "detail": "{\"value\":\"ABC12345\",\"entered\":1}"
+    },
+    {
+      "check": "Stock Intake startup mock",
+      "pass": true,
+      "detail": "{\"ready\":1,\"message\":\"พร้อมสแกน QR กล่อง\",\"lookupDisabled\":false,\"queue\":\"<tr><td colspan=\\\"5\\\">ไม่มีกล่องรอเข้าสต็อก</td></tr>\",\"recent\":\"<tr><td colspan=\\\"6\\\">ยังไม่มีประวัติรับเข้า</td></tr>\"}"
+    }
+  ],
+  "protected_files": {
+    "stock-promotions.html": {
+      "full_pack_29": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7",
+      "final": "93093dfeb21a328c6e6faad1dd56b3010296ac254441bfbe27913df8cd85a7a7",
+      "unchanged": true
+    },
+    "js/stock-promotions-v5-25-0.js": {
+      "full_pack_29": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507",
+      "final": "b77b5f107adcfc424ee473e06ab0ab461b7a0e8b518e2dd1c716d879c1113507",
+      "unchanged": true
+    },
+    "print-labels.html": {
+      "full_pack_29": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33",
+      "final": "a7a2f1aafbf5bd3eb4246938148665e5b8903a66fe099f3cc05b4b304904cd33",
+      "unchanged": true
+    }
+  },
+  "unit_test_outputs": {
+    "Unified Scanner direct delivery": "{\"targets\":[\"scan\"],\"ok\":true,\"value\":\"8851234567890\",\"enter\":1,\"changed\":1,\"version\":\"5.29.0\"}",
+    "Unified Scanner USB wedge": "{\"value\":\"ABC12345\",\"entered\":1}",
+    "Stock Intake startup mock": "{\"ready\":1,\"message\":\"พร้อมสแกน QR กล่อง\",\"lookupDisabled\":false,\"queue\":\"<tr><td colspan=\\\"5\\\">ไม่มีกล่องรอเข้าสต็อก</td></tr>\",\"recent\":\"<tr><td colspan=\\\"6\\\">ยังไม่มีประวัติรับเข้า</td></tr>\"}"
+  },
+  "scope": {
+    "stock_intake": "remove infinite spinner path; permission remains inventory.receive",
+    "scanner": "USB keyboard wedge + mobile camera + BarcodeDetector/ZXing fallback",
+    "cache": "network-first JS/CSS and service worker 5.29.0",
+    "database": "no SQL / no database mutation"
+  }
+}

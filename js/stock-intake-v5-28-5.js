@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
-  const state = { detail:null, branches:[], busy:false, initialized:false };
+  const state = { detail:null, branches:[], busy:false, initialized:false, authorized:false };
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = v => v ? new Date(v).toLocaleString('th-TH') : '-';
   const num = v => Number(v || 0).toLocaleString('th-TH', { maximumFractionDigits:2 });
@@ -38,14 +38,14 @@
 
   function setBusy(v) {
     state.busy=!!v;
-    if($('lookupBtn')) $('lookupBtn').disabled=state.busy;
-    if($('refreshQueueBtn')) $('refreshQueueBtn').disabled=state.busy;
+    if($('lookupBtn')) $('lookupBtn').disabled=state.busy || !state.authorized;
+    if($('refreshQueueBtn')) $('refreshQueueBtn').disabled=state.busy || !state.authorized;
     if($('receiveBtn')) $('receiveBtn').disabled=state.busy || !canReceive();
   }
 
   function canReceive() {
     const d=state.detail;
-    return !!(d && d.history?.workflow_status==='WAITING_STOCK' && !d.already_received && !((d.blockers||[]).length)
+    return !!(state.authorized && d && d.history?.workflow_status==='WAITING_STOCK' && !d.already_received && !((d.blockers||[]).length)
       && $('checkQr')?.checked && $('checkCondition')?.checked && $('branchSelect')?.value);
   }
   function refreshReceiveEnabled(){ if($('receiveBtn')) $('receiveBtn').disabled=state.busy || !canReceive(); }
@@ -158,41 +158,44 @@
 
   async function init() {
     bindEvents();
-    let pageOpened=false;
-    const watchdog=setTimeout(()=>{
-      if(!pageOpened && document.body?.classList.contains('tkn-auth-loading')) {
-        console.error('Stock Intake watchdog: startup exceeded 10 seconds');
-        window.TKNAuthGuard?.ready?.();
-        msg('เปิดหน้าได้ แต่การตรวจสิทธิ์/การเชื่อมต่อใช้เวลานาน กรุณากดรีเฟรชคิวหรือตรวจอินเทอร์เน็ต','error');
-      }
-    },10000);
+    state.authorized=false;
+    setBusy(false);
+    msg('กำลังยืนยันสิทธิ์การใช้งาน...');
     try {
       if(!window.TKNAuthGuard?.requireAccess) throw new Error('Auth Guard ยังไม่พร้อม');
-      const access=await timeout(window.TKNAuthGuard.requireAccess('inventory.receive',{loadingText:'กำลังเปิดระบบตรวจรับเข้าสต็อก...'}),6500,'ตรวจสิทธิ์ผู้ใช้งาน');
-      if(!access) return;
-      // สำคัญ: เปิดหน้าทันทีหลัง Auth ผ่าน ไม่รอ RPC ของข้อมูลธุรกิจ
-      window.TKNAuthGuard.ready(); pageOpened=true; clearTimeout(watchdog);
-      msg('พร้อมใช้งาน — กำลังโหลดคิวรอเข้าสต็อก...');
-      await safeLoad(loadBranches,'สาขา');
-      await Promise.allSettled([safeLoad(loadQueue,'คิวรอเข้า'),safeLoad(loadRecent,'ประวัติรับเข้า')]);
-      const initialScan=new URLSearchParams(location.search).get('scan');
-      if(initialScan){ if($('boxScan')) $('boxScan').value=initialScan; await lookup(initialScan); }
-      else msg('พร้อมสแกน QR กล่อง','good');
-      setTimeout(()=>$('boxScan')?.focus(),250);
-    } catch(e) {
-      clearTimeout(watchdog);
-      console.error('Stock Intake startup:',e);
-      if(e?.code==='INVENTORY_PERMISSION_DENIED') {
-        window.TKNAuthGuard?.ready?.(); pageOpened=true; msg('บัญชีนี้ไม่มีสิทธิ์ inventory.receive','error'); return;
+      const access=await timeout(window.TKNAuthGuard.requireAccess('inventory.receive',{loadingText:'กำลังยืนยันสิทธิ์ตรวจรับเข้าสต็อก...',suppressLoading:true,redirect:false}),6500,'ตรวจสิทธิ์ผู้ใช้งาน');
+      if(!access) {
+        msg('ไม่พบ Session กรุณาเข้าสู่ระบบใหม่','error');
+        setTimeout(()=>location.replace('./dashboard.html?return=stock-intake.html'),700);
+        return;
       }
-      window.TKNAuthGuard?.ready?.(); pageOpened=true;
+      state.authorized=true;
+      window.TKNAuthGuard.ready();
+      setBusy(false);
+      msg('พร้อมสแกน QR กล่อง','good');
+      // โหลดข้อมูลประกอบแบบ background ห้ามบล็อกการสแกน
+      void safeLoad(loadBranches,'สาขา').then(()=>refreshReceiveEnabled());
+      void safeLoad(loadQueue,'คิวรอเข้า');
+      void safeLoad(loadRecent,'ประวัติรับเข้า');
+      const initialScan=new URLSearchParams(location.search).get('scan');
+      if(initialScan){ if($('boxScan')) $('boxScan').value=initialScan; void lookup(initialScan); }
+      setTimeout(()=>$('boxScan')?.focus(),80);
+    } catch(e) {
+      console.error('Stock Intake startup:',e);
+      state.authorized=false;
+      setBusy(false);
+      window.TKNAuthGuard?.ready?.();
+      if(e?.code==='INVENTORY_PERMISSION_DENIED') {
+        msg('บัญชีนี้ไม่มีสิทธิ์ inventory.receive','error');
+        return;
+      }
       msg(e.message||String(e),'error');
-      if(window.TKNAuthGuard?.showConnectionWarning) window.TKNAuthGuard.showConnectionWarning(e.message||'การเชื่อมต่อมีปัญหา');
+      window.TKNAuthGuard?.showConnectionWarning?.(e.message||'การเชื่อมต่อมีปัญหา');
     }
   }
 
   window.addEventListener('unhandledrejection',e=>console.error('Stock Intake unhandled promise:',e.reason));
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>void init(),{once:true});
   else void init();
-  window.TKNStockIntakeV52872={init,loadQueue,loadRecent,lookup};
+  window.TKNStockIntakeV5290={init,loadQueue,loadRecent,lookup};
 })();

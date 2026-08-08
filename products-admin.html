@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
 </head>
 <body>
 <main class="shell">
@@ -167,7 +168,7 @@
           </label>
           <label class="field"><span class="field-label">บาร์โค้ดผู้ผลิตเดิม (ถ้ามี)</span>
             <div class="input-action">
-              <input id="barcode" placeholder="สแกนบาร์โค้ดเดิม หรือเว้นว่างเพื่อใช้ SKU" autocomplete="off">
+              <input id="barcode" data-tkn-scan="product" data-tkn-scan-submit="false" placeholder="สแกนบาร์โค้ดเดิม หรือเว้นว่างเพื่อใช้ SKU" autocomplete="off">
               <button id="useSkuBarcodeBtn" class="inline-btn" type="button">ใช้ SKU</button>
             </div>
           </label>
@@ -249,7 +250,8 @@
 <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
 <script src="./js/products-admin-v5-25-9.js?v=5.25.9"></script>
 <script src="./js/tkn-safe-back.js?v=5.25.9"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.9" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.25.9" defer></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>

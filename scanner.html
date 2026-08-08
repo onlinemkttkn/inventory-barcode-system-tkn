@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
 </head>
 <body class="tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์สแกนสินค้า...">
   <main class="app-shell">
@@ -78,7 +79,7 @@
       <div class="card">
         <h2>ค้นหาด้วยบาร์โค้ด</h2>
         <form id="searchForm" class="search-row">
-          <input id="barcodeInput" inputmode="numeric" autocomplete="off"
+          <input id="barcodeInput" data-tkn-scan="product" inputmode="numeric" autocomplete="off"
                  placeholder="กรอกหรือยิงบาร์โค้ด">
           <button class="button primary" type="submit">ค้นหา</button>
         </form>
@@ -110,11 +111,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/supabase-config.js?v=3.4.10"></script>
-  <script src="./js/auth-guard.js?v=3.6.11"></script>
+  <script src="./js/auth-guard.js?v=5.29.0"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/scanner-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.1" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>

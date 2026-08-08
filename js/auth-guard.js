@@ -7,6 +7,30 @@
   let accessRequest = null;
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const AUTH_TIMEOUT_MS = 7000;
+  let loadingWatchdog = null;
+
+  function withTimeout(promise, ms = AUTH_TIMEOUT_MS, label = 'การเชื่อมต่อ') {
+    let timer;
+    const expiry = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        const error = new Error(`${label} ใช้เวลานานเกิน ${Math.ceil(ms/1000)} วินาที`);
+        error.code = 'AUTH_TIMEOUT';
+        reject(error);
+      }, ms);
+    });
+    return Promise.race([Promise.resolve(promise), expiry]).finally(() => clearTimeout(timer));
+  }
+
+  function armLoadingWatchdog(text) {
+    clearTimeout(loadingWatchdog);
+    loadingWatchdog = setTimeout(() => {
+      if (!document.body?.classList.contains('tkn-auth-loading')) return;
+      const error = new Error(`${text || 'การเปิดหน้า'} ใช้เวลานานผิดปกติ กรุณาตรวจอินเทอร์เน็ตหรือรีเฟรชหน้า`);
+      error.code = 'AUTH_STARTUP_TIMEOUT';
+      fail(error, () => location.reload());
+    }, 9000);
+  }
 
   function client() {
     if (!window.supabaseClient) {
@@ -27,6 +51,7 @@
     setLoadingText(text);
     document.body.classList.remove('tkn-auth-ready', 'tkn-page-leaving');
     document.body.classList.add('tkn-auth-loading');
+    armLoadingWatchdog(text);
   }
 
   function removeErrorPanel() {
@@ -34,6 +59,8 @@
   }
 
   function ready() {
+    clearTimeout(loadingWatchdog);
+    loadingWatchdog = null;
     if (!document.body) return;
     removeErrorPanel();
     document.body.classList.remove('tkn-auth-loading', 'tkn-page-leaving');
@@ -89,6 +116,8 @@
   }
 
   function fail(error, retry) {
+    clearTimeout(loadingWatchdog);
+    loadingWatchdog = null;
     console.error('TKN auth guard:', error);
     if (!document.body) return;
     document.body.classList.remove('tkn-auth-loading', 'tkn-page-leaving');
@@ -125,7 +154,7 @@
 
     for (let attempt = 0; attempt <= retries; attempt += 1) {
       try {
-        const { data, error } = await client().auth.getSession();
+        const { data, error } = await withTimeout(client().auth.getSession(), 5000, 'ตรวจ Session');
         if (error) {
           lastError = error;
         } else if (data?.session?.user?.id) {
@@ -159,10 +188,10 @@
 
     if (!accessRequest) {
       accessRequest = (async () => {
-        let result = await client().rpc('current_access_context');
+        let result = await withTimeout(client().rpc('current_access_context'), 6000, 'ตรวจสิทธิ์ผู้ใช้งาน');
         if (result.error) {
           await sleep(260);
-          result = await client().rpc('current_access_context');
+          result = await withTimeout(client().rpc('current_access_context'), 6000, 'ตรวจสิทธิ์ผู้ใช้งาน');
         }
 
         if (result.error) {

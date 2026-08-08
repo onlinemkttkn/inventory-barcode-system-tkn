@@ -21,6 +21,7 @@
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
 </head>
 <body data-integrated-page="sales-return" data-lock-back="true">
   <main class="page-shell">
@@ -49,7 +50,7 @@
           <p>กรอกเลขบิล ชื่อลูกค้า เบอร์โทร หรือ SKU/Barcode</p>
         </div>
         <form id="returnBillSearchForm" class="return-bill-search">
-          <input id="returnBillKeyword" autocomplete="off" enterkeyhint="search" placeholder="เลขบิล / ลูกค้า / SKU / Barcode">
+          <input id="returnBillKeyword" data-tkn-scan="return" autocomplete="off" enterkeyhint="search" placeholder="เลขบิล / ลูกค้า / SKU / Barcode">
           <button id="returnBillSearchButton" class="primary-button" type="submit">ค้นหาบิล</button>
         </form>
         <div id="returnBillResults" class="return-bill-results"></div>
@@ -206,6 +207,7 @@
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
   <script type="module" src="./js/sales-return.js?v=5.22.13"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>

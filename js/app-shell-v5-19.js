@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.26.2';
+  const VERSION = '5.29.0';
   const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
@@ -542,10 +542,25 @@
     document.head.appendChild(script);
   }
 
+
+  function loadUnifiedScanner() {
+    if (['stock-promotions.html','print-labels.html'].includes(currentPage)) return;
+    if (!document.querySelector('link[data-tkn-unified-scanner],link[href*="tkn-unified-scanner-v5-29-0.css"]')) {
+      const link=document.createElement('link');
+      link.rel='stylesheet'; link.href='./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0';
+      link.dataset.tknUnifiedScanner='5.29.0'; document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[data-tkn-unified-scanner],script[src*="tkn-unified-scanner-v5-29-0.js"]')) {
+      const script=document.createElement('script');
+      script.src='./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0'; script.defer=true;
+      script.dataset.tknUnifiedScanner='5.29.0'; document.head.appendChild(script);
+    }
+  }
+
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.28.7.js', { scope:'./' })
+      navigator.serviceWorker.register('./service-worker-v5.29.0.js', { scope:'./', updateViaCache:'none' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
@@ -609,6 +624,7 @@
   }
 
   async function start() {
+    loadUnifiedScanner();
     document.body.classList.add('tkn-shell-loading');
     if (SKIP_SHELL.has(currentPage)) {
       if (PRINT_PAGES.has(currentPage)) document.body.classList.add('tkn-print-page');

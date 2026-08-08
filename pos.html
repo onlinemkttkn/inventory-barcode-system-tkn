@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.26.2">
+  <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
 </head>
 <body class="pos-product-ui">
   <header class="pos-topbar">
@@ -62,7 +63,7 @@
             <div><span class="pos-section-kicker">PRODUCT SEARCH</span><h2>ค้นหาและเพิ่มสินค้า</h2></div>
           </div>
           <form id="searchForm" class="search-row">
-            <input id="search" autocomplete="off"
+            <input id="search" data-tkn-scan="product" autocomplete="off"
               placeholder="สแกน QR สินค้า หรือค้นหา SKU / Barcode / ชื่อสินค้า">
             <button id="searchButton" class="btn primary" type="submit" disabled>ค้นหา</button>
           </form>
@@ -113,7 +114,7 @@
           <div class="box-sale-section-heading"><div><span class="box-sale-kicker">BOX SCANNER</span><h3>สแกน QR กล่องต่อเนื่อง</h3></div><span id="boxSaleCameraStatus" class="box-sale-status-pill">ยังไม่เปิด</span></div>
           <div class="box-sale-camera-frame"><video id="boxSaleCameraVideo" playsinline muted></video><div class="box-sale-scan-guide"><span></span></div><div id="boxSaleCameraPlaceholder" class="box-sale-camera-placeholder">▣<small>พร้อมใช้กล้องหลัง</small></div></div>
           <div class="box-sale-camera-actions"><button id="boxSaleStartCamera" class="btn primary" type="button">เปิดกล้อง</button><button id="boxSaleTorch" class="btn secondary" type="button" hidden>เปิดไฟฉาย</button><button id="boxSaleStopCamera" class="btn danger" type="button" disabled>หยุดกล้อง</button></div>
-          <form id="boxSaleManualForm" class="box-sale-manual-form"><input id="boxSaleManualCode" placeholder="กรอกหรือสแกน TKN-B-..." autocomplete="off"><button class="btn primary" type="submit">เพิ่มกล่อง</button></form><p id="boxSaleMessage" class="box-sale-message" role="status"></p>
+          <form id="boxSaleManualForm" class="box-sale-manual-form"><input id="boxSaleManualCode" data-tkn-scan="box" placeholder="กรอกหรือสแกน TKN-B-..." autocomplete="off"><button class="btn primary" type="submit">เพิ่มกล่อง</button></form><p id="boxSaleMessage" class="box-sale-message" role="status"></p>
         </section>
         <aside class="box-sale-card box-sale-overview"><div class="box-sale-section-heading"><div><span class="box-sale-kicker">SALE OVERVIEW</span><h3>สรุปรายการ</h3></div><button id="boxSaleResetDraft" class="box-sale-text-button" type="button">เริ่มใหม่</button></div><div class="box-sale-overview-grid"><div><span>กล่อง</span><b id="boxSaleBoxCount">0</b></div><div><span>SKU</span><b id="boxSaleSkuCount">0</b></div><div><span>จำนวนสินค้า</span><b id="boxSaleQtyCount">0</b></div></div><div class="box-sale-money-row"><span>ต้นทุนรวม</span><b id="boxSaleCostTotal">฿0.00</b></div><div class="box-sale-money-row"><span>ราคาขายปกติรวม</span><b id="boxSaleNormalTotal">฿0.00</b></div><div class="box-sale-money-row final"><span>ราคาขายรายการนี้</span><b id="boxSaleSaleTotal">฿0.00</b></div><div class="box-sale-money-row profit"><span>กำไรขั้นต้น</span><b id="boxSaleProfitTotal">฿0.00</b></div><p id="boxSaleMarginText" class="box-sale-margin-text">อัตรากำไร 0.00%</p></aside>
       </section>
@@ -323,6 +324,7 @@
   <script type="module" src="./pos-v5-26-2.js?v=5.26.2"></script>
   <script type="module" src="./js/pos-box-sale-inline-v5-26-2.js?v=5.26.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.26.2" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>

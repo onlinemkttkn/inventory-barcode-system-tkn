@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./css/sort-pack-qr-v5-25-6.css?v=5.25.6">
   <link rel="manifest" href="./manifest.webmanifest?v=5.26.2">
   <link rel="stylesheet" href="./css/marketplace-workflow-v5-27-1.css?v=5.27.1">
+  <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
@@ -52,7 +53,7 @@
         </button>
         <label class="sp-scan-field">
           <span class="sr-only">SKU, QR สินค้า หรือ Barcode</span>
-          <input id="trackingInput" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="สแกน SKU / TKN-P-SKU / Barcode" autofocus>
+          <input id="trackingInput" data-tkn-scan="product" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="search" placeholder="สแกน SKU / TKN-P-SKU / Barcode" autofocus>
         </label>
         <button id="loadTrackingBtn" type="button" class="sp-primary">เพิ่ม SKU</button>
       </div>
@@ -242,8 +243,9 @@
   <script src="./js/tkn-category-engine-v5-25-0.js?v=5.25.0"></script>
   <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
   <script src="./js/sort-pack-qr-v5-27-1.js?v=5.27.1"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.28.1" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
   <script src="./js/marketplace-workflow-v5-27-1.js?v=5.28.1" defer></script>
   <script src="./js/universal-receiving-v5-28-1.js?v=5.28.1" defer></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>

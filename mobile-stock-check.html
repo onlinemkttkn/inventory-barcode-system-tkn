@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
 </head>
 <body class="tkn-auth-loading" data-loading-text="กำลังเปิดระบบตรวจสต็อกและเบิกกล่อง...">
   <main class="mobile-shell">
@@ -66,7 +67,7 @@
       <form id="manualSearchForm" class="manual-search">
         <label for="manualCode">กรอกรหัสหรือค้นหาชื่อสินค้า</label>
         <div class="search-row">
-          <input id="manualCode" autocomplete="off" autocapitalize="off" enterkeyhint="search" placeholder="SKU, Barcode, TKN-P-... หรือ TKN-B-...">
+          <input id="manualCode" data-tkn-scan="product" autocomplete="off" autocapitalize="off" enterkeyhint="search" placeholder="SKU, Barcode, TKN-P-... หรือ TKN-B-...">
           <button class="btn primary" type="submit">ค้นหา</button>
         </div>
       </form>
@@ -133,11 +134,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
   <script src="./js/supabase-config.js?v=1.0.2"></script>
-  <script src="./js/auth-guard.js?v=5.6.0"></script>
+  <script src="./js/auth-guard.js?v=5.29.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/mobile-stock-check-v5-26-2.js?v=5.26.2"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.26.2" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.29.0" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>
