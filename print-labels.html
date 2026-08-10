@@ -24,8 +24,8 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
-  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-3.css?v=5.30.3">
-  <link rel="stylesheet" href="./css/tkn-print-platform-v5-30-3.css?v=5.30.3">
+  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-4.css?v=5.30.4">
+  <link rel="stylesheet" href="./css/tkn-print-platform-v5-30-4.css?v=5.30.4">
 </head>
 <body class="tkn-print-layout tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์พิมพ์ป้ายสินค้า...">
   <main class="app">
@@ -68,8 +68,14 @@
             รูปแบบกระดาษ
             <select id="paperPreset">
               <option value="label58">สติกเกอร์ 58 มม.</option>
-<option value="50x40">สติกเกอร์ 50 × 40 มม.</option>
-<option value="40x30">สติกเกอร์ 40 × 30 มม.</option>
+              <option value="20x10">20 × 10 มม. — แนะนำ 3 ต่อแถว</option>
+              <option value="30x20">30 × 20 มม. — แนะนำ 3 ต่อแถว</option>
+              <option value="40x20">40 × 20 มม. — แนะนำ 2 ต่อแถว</option>
+              <option value="40x30">40 × 30 มม. — แนะนำ 2 ต่อแถว</option>
+              <option value="40x70">40 × 70 มม. — แนะนำ 2 ต่อแถว</option>
+              <option value="50x20">50 × 20 มม. — แนะนำ 2 ต่อแถว</option>
+              <option value="50x30">50 × 30 มม. — แนะนำ 2 ต่อแถว</option>
+              <option value="50x40">สติกเกอร์ 50 × 40 มม.</option>
 <option value="58x40">สติกเกอร์ 58 × 40 มม.</option>
 <option value="peripage57">PeriPage 57 มม.</option>
 <option value="portable50x30">เครื่องพกพา 50×30 มม.</option>
@@ -110,8 +116,8 @@
               <label class="field">รูปแบบเครื่องพิมพ์<select id="printerMode"><option value="AUTO">อัตโนมัติ</option><option value="ROLL">ม้วน / Thermal</option><option value="SHEET">กระดาษแผ่น / A4</option></select></label>
               <label class="field">ความละเอียด<select id="printerDpi"><option value="203">203 DPI</option><option value="300" selected>300 DPI</option><option value="600">600 DPI</option></select></label>
               <label class="field">กว้าง (มม.)<input id="customWidth" type="number" min="20" max="210" step="0.5" value="50"></label>
-              <label class="field">สูง (มม.)<input id="customHeight" type="number" min="15" max="297" step="0.5" value="30"></label>
-              <label class="field">จำนวนคอลัมน์<input id="labelColumns" type="number" min="1" max="8" step="1" value="1"></label>
+              <label class="field">สูง (มม.)<input id="customHeight" type="number" min="10" max="297" step="0.5" value="30"></label>
+              <label class="field">จำนวนต่อแถว<input id="labelColumns" type="number" min="1" max="8" step="1" value="1"></label>
               <label class="field">ช่องว่าง (มม.)<input id="labelGap" type="number" min="0" max="20" step="0.5" value="2"></label>
               <label class="field">ขอบกระดาษ (มม.)<input id="pageMargin" type="number" min="0" max="30" step="0.5" value="0"></label>
               <label class="field">ขนาด QR — อัตโนมัติจากมาตรฐานกลาง<input id="qrSize" type="number" min="28" max="420" step="1" value="148" disabled></label>
@@ -119,6 +125,7 @@
               <label class="field">ขนาดตัวอักษร — อัตโนมัติจากมาตรฐานกลาง<input id="labelFontSize" type="number" min="6" max="30" step="1" value="8" disabled></label>
             </div>
           </details>
+          <p id="rowPresetHint" class="message">เลือก Preset แล้วระบบจะใส่จำนวนต่อแถวที่แนะนำให้อัตโนมัติ และยังแก้จำนวนเองได้ภายหลัง</p>
           <p class="message success">QR ใช้ค่า TKN-P-SKU และ Barcode ใช้ SKU ของล็อตเดียวกัน พร้อมต้นทุนแฝง เพื่อให้ทุกหน้าสแกนรหัสมาตรฐานเดียว</p>
 
           <div class="action-grid">
@@ -175,11 +182,11 @@
   <script src="./js/supabase-config.js?v=3.4.10"></script>
   <script src="./js/auth-guard.js?v=3.6.11"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/tkn-unified-label-layout-v5-30-3.js?v=5.30.3"></script>
-  <script src="./js/tkn-print-platform-v5-30-3.js?v=5.30.3"></script>
-  <script src="./js/print-labels-v5-30-3.js?v=5.30.3"></script>
+  <script src="./js/tkn-unified-label-layout-v5-30-4.js?v=5.30.4"></script>
+  <script src="./js/tkn-print-platform-v5-30-4.js?v=5.30.4"></script>
+  <script src="./js/print-labels-v5-30-4.js?v=5.30.4"></script>
   <script src="./js/tkn-safe-back.js?v=5.25.9"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.30.3" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.30.4" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.25.9" defer></script>
 </body>
 </html>

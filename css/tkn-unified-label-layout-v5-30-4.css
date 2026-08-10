@@ -1,0 +1,76 @@
+:root{
+  --tkn-label-w:50mm;--tkn-label-h:40mm;--tkn-label-padding:1.2mm;
+  --tkn-label-qr:13.2mm;--tkn-label-barcode:6.2mm;--tkn-label-qr-bar-gap:1.6mm;
+  --tkn-label-gap:.55mm;--tkn-label-sku-font:8px;--tkn-label-name-font:8px;
+  --tkn-label-name-lines:2;--tkn-label-name-weight:800;--tkn-label-sku-weight:850;
+}
+.tkn-label-product{
+  box-sizing:border-box!important;width:var(--tkn-label-w);height:var(--tkn-label-h);
+  padding:var(--tkn-label-padding)!important;background:#fff!important;color:#000!important;
+  display:grid!important;grid-template-rows:auto auto auto minmax(0,auto) auto!important;
+  grid-template-columns:1fr!important;align-content:center!important;justify-items:center!important;
+  row-gap:var(--tkn-label-gap)!important;text-align:center!important;overflow:hidden!important;
+}
+.tkn-label-product .tkn-label-qr,
+.tkn-label-product .tkn-label-qr-holder svg,
+.tkn-label-product .tkn-label-qr-holder canvas,
+.tkn-label-product .tkn-label-qr-holder img{
+  display:block!important;width:var(--tkn-label-qr)!important;height:var(--tkn-label-qr)!important;
+  max-width:none!important;max-height:none!important;margin:0 0 var(--tkn-label-qr-bar-gap)!important;
+  object-fit:contain!important;image-rendering:pixelated;
+}
+.tkn-label-product .tkn-label-qr-holder{
+  display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;
+}
+.tkn-label-product .tkn-label-barcode,
+.tkn-label-product .tkn-label-barcode-holder{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:calc(100% - 1.2mm)!important;height:var(--tkn-label-barcode)!important;min-width:0!important;overflow:hidden!important;
+}
+.tkn-label-product .tkn-label-barcode-holder svg,
+.tkn-label-product svg.tkn-label-barcode{
+  display:block!important;width:100%!important;height:100%!important;max-width:100%!important;overflow:visible!important;
+}
+.tkn-label-product .tkn-label-sku{
+  width:100%!important;margin:0!important;overflow:hidden!important;overflow-wrap:anywhere!important;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
+  font-size:var(--tkn-label-sku-font)!important;font-weight:var(--tkn-label-sku-weight)!important;
+  line-height:1.05!important;white-space:normal!important;text-align:center!important;
+}
+.tkn-label-product .tkn-label-name{
+  display:-webkit-box!important;width:100%!important;margin:0!important;overflow:hidden!important;
+  -webkit-box-orient:vertical!important;-webkit-line-clamp:var(--tkn-label-name-lines)!important;
+  font-family:var(--tkn-font-family,system-ui,-apple-system,"Segoe UI",sans-serif)!important;
+  font-size:var(--tkn-label-name-font)!important;font-weight:var(--tkn-label-name-weight)!important;
+  line-height:1.08!important;text-align:center!important;
+}
+.tkn-label-product .tkn-label-price{
+  width:100%;margin:0;font-size:calc(var(--tkn-label-name-font) * .92)!important;font-weight:800!important;line-height:1!important;
+}
+.tkn-label-product .codes-row{display:contents!important}
+.tkn-label-product .sp-label-qr-status{position:absolute;inset:auto 1mm 1mm;z-index:2}
+.tkn-label-product .barcode-holder,.tkn-label-product .qr-holder{flex:none!important;min-width:0!important}
+@media print{
+  .tkn-label-product{border:0!important;border-radius:0!important;box-shadow:none!important;break-inside:avoid!important;page-break-inside:avoid!important}
+}
+
+/* v5.30.4 compact guards: small labels must stay scannable and never overlap */
+[data-tkn-label-density="compact"] .tkn-label-product{
+  row-gap:var(--tkn-label-gap)!important;
+}
+[data-tkn-label-density="compact"] .tkn-label-name{
+  -webkit-line-clamp:1!important;
+}
+[data-tkn-label-density="micro"] .tkn-label-name,
+[data-tkn-label-density="micro"] .tkn-label-price{
+  display:none!important;
+}
+[data-tkn-label-density="micro"] .tkn-label-product{
+  grid-template-rows:auto auto auto!important;
+  row-gap:var(--tkn-label-gap)!important;
+}
+[data-tkn-label-density="micro"] .tkn-label-sku{
+  white-space:nowrap!important;
+  text-overflow:clip!important;
+  line-height:1!important;
+}

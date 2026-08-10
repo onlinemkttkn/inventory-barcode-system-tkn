@@ -1,0 +1,13 @@
+/* TKN v5.30.3 shared print controls */
+.tkn-print-standard{border:1px solid #d9e2ee;border-radius:14px;background:#f8fafc;padding:14px;margin:12px 0}
+.tkn-print-standard>summary{font-weight:900;cursor:pointer;color:#172033}.tkn-print-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.tkn-print-grid label{display:grid;gap:6px;font-weight:750;font-size:13px}.tkn-print-grid input,.tkn-print-grid select{width:100%;min-height:40px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}
+.tkn-print-checks{display:flex;gap:12px;flex-wrap:wrap;margin:11px 0}.tkn-print-checks label{display:flex;align-items:center;gap:7px;font-weight:700}.tkn-print-checks input{width:auto}
+.tkn-print-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}.tkn-print-actions button{min-height:40px;border:0;border-radius:9px;padding:9px 13px;font-weight:850;cursor:pointer}
+.tkn-print-actions .primary{background:#f5b900;color:#271900}.tkn-print-actions .danger{background:#cf1028;color:#fff}.tkn-print-actions .muted{background:#e8edf3;color:#172033}.tkn-print-summary{font-size:12px;color:#64748b;font-weight:700}
+.tkn-mixed-box-note{margin:10px 0;padding:10px 12px;border-radius:10px;background:#fff3cd;border:1px solid #f0c36d;color:#7a4b00;font-weight:800}
+.tkn-mixed-dialog{width:min(620px,calc(100vw - 28px));border:0;border-radius:18px;padding:0;box-shadow:0 22px 60px rgba(0,0,0,.28)}.tkn-mixed-dialog::backdrop{background:rgba(15,23,42,.58)}
+.tkn-mixed-dialog .inner{padding:22px}.tkn-mixed-dialog h3{margin:0 0 8px;color:#b42318;font-size:22px}.tkn-mixed-dialog p{line-height:1.55}.tkn-mixed-dialog ul{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px 30px}
+.tkn-mixed-dialog .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}.tkn-mixed-dialog button{border:0;border-radius:10px;padding:11px 15px;font-weight:900;cursor:pointer}.tkn-mixed-dialog .back{background:#e5e7eb;color:#111827}.tkn-mixed-dialog .confirm{background:#c8102e;color:#fff}
+.intake-mixed-badge{display:inline-flex;margin-left:6px;padding:2px 7px;border-radius:999px;background:#fff3cd;color:#8a4b00;font-size:11px;font-weight:900}
+@media(max-width:760px){.tkn-print-grid{grid-template-columns:1fr 1fr}.tkn-print-actions button{flex:1 1 140px}}@media(max-width:480px){.tkn-print-grid{grid-template-columns:1fr}}

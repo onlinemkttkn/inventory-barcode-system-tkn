@@ -1,0 +1,335 @@
+{
+  "version": "5.30.4",
+  "title": "Print Rows Presets — Final Re-Audit",
+  "passed": 62,
+  "total": 62,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "JS syntax js/tkn-unified-label-layout-v5-30-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-print-platform-v5-30-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/print-labels-v5-30-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/sort-pack-qr-v5-30-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/box-qr-stock-v5-30-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.30.4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "HTML refs print-labels.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Duplicate IDs print-labels.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "HTML refs sort-pack-qr.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Duplicate IDs sort-pack-qr.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "HTML refs box-qr-stock.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Duplicate IDs box-qr-stock.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Preset 20x10",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 20x10=3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preset 30x20",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 30x20=3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preset 40x20",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 40x20=2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preset 40x30",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 40x30=2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preset 40x70",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 40x70=2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preset 50x20",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 50x20=2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preset 50x30",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Recommended 50x30=2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 20x10/3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 30x20/3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 40x20/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 40x30/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 40x70/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 50x20/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "print-labels.html 50x30/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 20x10/3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 30x20/3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 40x20/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 40x30/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 40x70/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 50x20/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html 50x30/2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Manual columns persisted",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Thermal roll total row width - Print Labels",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Thermal roll total row width - Sort Pack",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Thermal roll total row width - Box QR",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "AUTO supports multi-column roll",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Micro guard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved label58",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved 50x40",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved 58x40",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved peripage57",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved portable50x30",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved portable40x30",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved label80",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved a4-40x30",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved a4-50x30",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing preset preserved a4-70x40",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Service Worker CORE_ASSETS",
+      "pass": true,
+      "detail": "86/86 present; missing=[]"
+    },
+    {
+      "check": "No stale v5.30.2 print assets",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App shell SW v5.30.4",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No SQL in patch",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Promotion files not included in patch",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "new_presets": {
+    "20x10": 3,
+    "30x20": 3,
+    "40x20": 2,
+    "40x30": 2,
+    "40x70": 2,
+    "50x20": 2,
+    "50x30": 2
+  },
+  "notes": {
+    "old_presets": "locked/preserved",
+    "manual_rows": "persisted across reloads and shared between Print Master and Sort/Pack",
+    "thermal_multi_column": "AUTO uses roll when total row media width <=110mm; ROLL calculates full physical row width",
+    "20x10": "micro density hides name and price to prevent overlap; QR/Barcode/SKU retained",
+    "database": "no SQL / no stock mutation"
+  }
+}
