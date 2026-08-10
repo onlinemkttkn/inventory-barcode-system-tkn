@@ -14,7 +14,8 @@
   <link rel="stylesheet" href="./css/marketplace-workflow-v5-27-1.css?v=5.27.1">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
   <link rel="stylesheet" href="./css/tkn-warehouse-context-v5-30-0.css?v=5.30.0">
-  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-2.css?v=5.30.2">
+  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-3.css?v=5.30.3">
+  <link rel="stylesheet" href="./css/tkn-print-platform-v5-30-3.css?v=5.30.3">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดโมดูลแยกสินค้า...">
   <main class="sp-shell">
@@ -173,29 +174,19 @@
         </select></label>
         <label>ตำแหน่งจัดเก็บ<input id="boxLocation" placeholder="คลัง > โซน > ชั้น"></label>
       </div>
-      <details class="sp-label-settings" open>
-        <summary>ตั้งค่ากระดาษและฉลาก</summary>
-        <div class="sp-label-settings-grid">
-          <label>รูปแบบเครื่องพิมพ์<select id="labelPrinterMode">
-            <option value="AUTO" selected>อัตโนมัติ</option>
-            <option value="ROLL">DT แบบม้วน — 1 ดวง/หน้า</option>
-            <option value="SHEET">กระดาษแผ่น — หลายดวง/หน้า</option>
-          </select></label>
+      <details class="sp-label-settings tkn-print-standard" open>
+        <summary>ตั้งค่าการพิมพ์ — มาตรฐานเดียวกับหน้า พิมพ์ QR / ป้ายสินค้า</summary>
+        <div class="tkn-print-grid">
+          <label>รูปแบบกระดาษ<select id="labelSizePreset"><option value="label58">สติกเกอร์ 58 มม.</option><option value="50x40" selected>สติกเกอร์ 50 × 40 มม.</option><option value="40x30">สติกเกอร์ 40 × 30 มม.</option><option value="58x40">สติกเกอร์ 58 × 40 มม.</option><option value="peripage57">PeriPage 57 มม.</option><option value="portable50x30">เครื่องพกพา 50 × 30 มม.</option><option value="portable40x30">เครื่องพกพา 40 × 30 มม.</option><option value="label80">สติกเกอร์ 80 มม.</option><option value="a4-40x30">A4 ป้าย 40 × 30 มม.</option><option value="a4-50x30">A4 ป้าย 50 × 30 มม.</option><option value="a4-70x40">A4 ป้าย 70 × 40 มม.</option><option value="CUSTOM">กำหนดขนาดเอง</option></select></label>
+          <label>ประเภทโค้ด<select id="labelCodeMode"><option value="qr">QR Code เท่านั้น</option><option value="both" selected>QR Code + Barcode — มาตรฐานระบบ</option><option value="barcode">Barcode เท่านั้น</option></select></label>
+          <label>รูปแบบเครื่องพิมพ์<select id="labelPrinterMode"><option value="AUTO">อัตโนมัติ</option><option value="ROLL">ม้วน / Thermal</option><option value="SHEET">กระดาษแผ่น / A4</option></select></label>
           <label>ความละเอียด<select id="labelPrinterDpi"><option value="203">203 DPI</option><option value="300" selected>300 DPI</option><option value="600">600 DPI</option></select></label>
-          <label>ขนาดฉลาก<select id="labelSizePreset">
-            <option value="32x25">3.2 × 2.5 ซม.</option>
-            <option value="30x20">3 × 2 ซม.</option>
-            <option value="40x30">4 × 3 ซม.</option>
-            <option value="50x40" selected>5 × 4 ซม.</option>
-            <option value="CUSTOM">กำหนดขนาดเอง</option>
-          </select></label>
-          <label class="sp-custom-label-size" hidden>กว้าง (มม.)<input id="labelCustomWidth" type="number" min="20" max="120" step="0.1" value="50"></label>
-          <label class="sp-custom-label-size" hidden>สูง (มม.)<input id="labelCustomHeight" type="number" min="15" max="150" step="0.1" value="40"></label>
-          <label>จำนวนต่อแถว<input id="labelColumns" type="number" min="1" max="5" step="1" value="2"></label>
-          <label class="sp-setting-check"><input id="labelShowName" type="checkbox" checked> แสดงชื่อสินค้า</label>
+          <label class="sp-custom-label-size" hidden>กว้าง (มม.)<input id="labelCustomWidth" type="number" min="20" max="210" step="0.5" value="50"></label>
+          <label class="sp-custom-label-size" hidden>สูง (มม.)<input id="labelCustomHeight" type="number" min="15" max="297" step="0.5" value="40"></label>
+          <label>จำนวนต่อแถว<input id="labelColumns" type="number" min="1" max="8" step="1" value="1"></label><label>ช่องว่าง (มม.)<input id="labelGap" type="number" min="0" max="20" step="0.5" value="2"></label><label>ขอบกระดาษ (มม.)<input id="labelPageMargin" type="number" min="0" max="30" step="0.5" value="0"></label>
         </div>
-        <p class="sp-printer-note">Gap / Black Mark / Continuous และระดับความร้อน ให้เลือกในไดรเวอร์ของเครื่องพิมพ์</p>
-        <div class="sp-setting-actions"><button id="applyLabelSettingsBtn" type="button">ใช้การตั้งค่าและดูตัวอย่าง</button><span id="labelSettingSummary"></span></div>
+        <div class="tkn-print-checks"><label><input id="labelShowName" type="checkbox" checked> ชื่อสินค้า</label><label><input id="labelShowProductCode" type="checkbox" checked> SKU</label><label><input id="labelShowPrice" type="checkbox"> ราคาขาย</label><label><input id="labelShowBarcodeText" type="checkbox"> เลขใต้ Barcode</label></div>
+        <div class="tkn-print-actions"><button id="applyLabelSettingsBtn" type="button" class="primary">ใช้การตั้งค่าและดูตัวอย่าง</button><button id="downloadLabelsPngBtn" type="button" class="muted">ดาวน์โหลด PNG</button><button id="shareLabelsPngBtn" type="button" class="muted">แชร์ไปแอปพิมพ์</button><span id="labelSettingSummary" class="tkn-print-summary"></span></div>
       </details>
       <div class="sp-actions">
         <button id="newBoxBtn" type="button">สร้างกล่องใหม่</button>
@@ -245,11 +236,13 @@
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-category-engine-v5-25-0.js?v=5.25.0"></script>
   <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
-  <script src="./js/tkn-unified-label-layout-v5-30-2.js?v=5.30.2"></script>
-  <script src="./js/sort-pack-qr-v5-30-2.js?v=5.30.2"></script>
+  <script src="./js/tkn-unified-label-layout-v5-30-3.js?v=5.30.3"></script>
+  <script src="./js/tkn-print-platform-v5-30-3.js?v=5.30.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="./js/sort-pack-qr-v5-30-3.js?v=5.30.3"></script>
   <script src="./js/app-shell-v5-19.js?v=5.30.0" defer></script>
   <script src="./js/marketplace-workflow-v5-27-1.js?v=5.28.1" defer></script>
   <script src="./js/universal-receiving-v5-28-1.js?v=5.28.1" defer></script>
 <script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
-</body>
+<dialog id="mixedCategoryDialog" class="tkn-mixed-dialog"><div class="inner"><h3>กล่องนี้มีสินค้าต่างประเภท</h3><p>ระบบแนะนำให้แยกสินค้าเป็นคนละกล่องเพื่อให้ง่ายต่อการตรวจรับและจัดเก็บ แต่ถ้าต้องการใช้พื้นที่กล่องให้เต็ม สามารถยืนยันปิดเป็น <b>กล่องคละประเภท</b> ได้</p><ul id="mixedCategoryList"></ul><p><b>แน่ใจหรือไม่ว่าต้องการปิดกล่องนี้แบบคละประเภท?</b></p><div class="actions"><button type="button" class="back" id="mixedCategoryBackBtn">กลับไปแยกสินค้า</button><button type="button" class="confirm" id="mixedCategoryConfirmBtn">ยืนยันปิดกล่องคละประเภท</button></div></div></dialog></body>
 </html>

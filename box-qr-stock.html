@@ -25,7 +25,8 @@
   <link rel="stylesheet" href="./css/box-lifecycle-v5-28-4.css?v=5.28.4.1">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
   <link rel="stylesheet" href="./css/tkn-warehouse-context-v5-30-0.css?v=5.30.0">
-  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-2.css?v=5.30.2">
+  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-3.css?v=5.30.3">
+  <link rel="stylesheet" href="./css/tkn-print-platform-v5-30-3.css?v=5.30.3">
 </head>
 <body class="tkn-auth-loading" data-required-permission="product.manage" data-loading-text="กำลังเปิดระบบ Box QR...">
   <main class="box-shell">
@@ -150,21 +151,7 @@
       </div>
       <p class="box-code-help no-print">รูปแบบมาตรฐาน: <b>ประเภท-โซน-เลขกล่อง 2 หลัก</b> เช่น IT-A01 โดย QR จะเก็บรหัสเต็ม TKN-B-IT-A01 เพื่อให้ทุกหน้าสแกนได้เหมือนเดิม</p>
 
-      <details class="box-print-settings" open>
-        <summary>ตั้งค่ากระดาษและเครื่องพิมพ์ QR กล่อง</summary>
-        <div class="box-print-settings-grid">
-          <label>รูปแบบเครื่องพิมพ์<select id="boxPrinterMode"><option value="AUTO">อัตโนมัติ</option><option value="ROLL">เครื่องพิมพ์ความร้อนแบบม้วน</option><option value="SHEET">กระดาษแผ่น A4</option></select></label>
-          <label>ความละเอียด<select id="boxPrinterDpi"><option value="203">203 DPI</option><option value="300" selected>300 DPI</option><option value="600">600 DPI</option></select></label>
-          <label>ขนาดป้าย<select id="boxLabelSizePreset"><option value="58x40">58 × 40 มม.</option><option value="70x70" selected>70 × 70 มม.</option><option value="100x70">100 × 70 มม.</option><option value="CUSTOM">กำหนดขนาดเอง</option></select></label>
-          <label class="box-custom-label-size" hidden>กว้าง (มม.)<input id="boxLabelCustomWidth" type="number" min="30" max="150" step="0.1" value="70"></label>
-          <label class="box-custom-label-size" hidden>สูง (มม.)<input id="boxLabelCustomHeight" type="number" min="30" max="150" step="0.1" value="70"></label>
-          <label>จำนวนต่อแถว<input id="boxLabelColumns" type="number" min="1" max="5" step="1" value="1"></label>
-          <label>จำนวนสำเนา<input id="boxLabelCopies" type="number" min="1" max="20" step="1" value="1"></label>
-          <label class="box-setting-check"><input id="boxLabelShowDetails" type="checkbox" checked> แสดงจำนวน SKU และจำนวนชิ้น</label>
-        </div>
-        <p class="box-printer-note">Gap / Black Mark / Continuous และระดับความร้อน ให้เลือกในไดรเวอร์เครื่องพิมพ์</p>
-        <div class="box-setting-actions"><button id="applyBoxPrintSettingsBtn" type="button">ใช้การตั้งค่าและดูตัวอย่าง</button><span id="boxPrintSettingSummary"></span></div>
-      </details>
+      <details class="box-print-settings tkn-print-standard" open><summary>ตั้งค่าการพิมพ์ — มาตรฐานเดียวกับหน้า พิมพ์ QR / ป้ายสินค้า</summary><div class="tkn-print-grid"><label>รูปแบบกระดาษ<select id="boxLabelSizePreset"><option value="label58" selected>สติกเกอร์ 58 มม.</option><option value="50x40">สติกเกอร์ 50 × 40 มม.</option><option value="58x40">สติกเกอร์ 58 × 40 มม.</option><option value="70x70">70 × 70 มม.</option><option value="100x70">100 × 70 มม.</option><option value="CUSTOM">กำหนดขนาดเอง</option></select></label><label>ประเภทโค้ด<select id="boxCodeMode"><option value="qr">QR Code เท่านั้น</option><option value="both" selected>QR Code + Barcode — มาตรฐานระบบ</option><option value="barcode">Barcode เท่านั้น</option></select></label><label>รูปแบบเครื่องพิมพ์<select id="boxPrinterMode"><option value="AUTO">อัตโนมัติ</option><option value="ROLL">ม้วน / Thermal</option><option value="SHEET">กระดาษแผ่น / A4</option></select></label><label>ความละเอียด<select id="boxPrinterDpi"><option value="203">203 DPI</option><option value="300" selected>300 DPI</option><option value="600">600 DPI</option></select></label><label class="box-custom-label-size" hidden>กว้าง (มม.)<input id="boxLabelCustomWidth" type="number" min="20" max="210" step="0.5" value="58"></label><label class="box-custom-label-size" hidden>สูง (มม.)<input id="boxLabelCustomHeight" type="number" min="15" max="297" step="0.5" value="38"></label><label>จำนวนต่อแถว<input id="boxLabelColumns" type="number" min="1" max="8" step="1" value="1"></label><label>จำนวนสำเนา<input id="boxLabelCopies" type="number" min="1" max="20" step="1" value="1"></label><label>ช่องว่าง (มม.)<input id="boxLabelGap" type="number" min="0" max="20" step="0.5" value="2"></label><label>ขอบกระดาษ (มม.)<input id="boxPageMargin" type="number" min="0" max="30" step="0.5" value="0"></label></div><div class="tkn-print-checks"><label><input id="boxLabelShowDetails" type="checkbox" checked> ประเภท / SKU / จำนวนชิ้น</label><label><input id="boxShowBarcodeText" type="checkbox"> เลขใต้ Barcode</label></div><p class="box-printer-note">Gap / Black Mark / Continuous และระดับความร้อนยังตั้งที่ไดรเวอร์เครื่องพิมพ์ ส่วน Layout / Margin / Gap / จำนวนต่อแถวบันทึกไว้ในระบบกลาง</p><div class="tkn-print-actions"><button id="applyBoxPrintSettingsBtn" type="button" class="primary">ใช้การตั้งค่าและดูตัวอย่าง</button><button id="downloadBoxPngBtn" type="button" class="muted">ดาวน์โหลด PNG</button><button id="shareBoxPngBtn" type="button" class="muted">แชร์ไปแอปพิมพ์</button><span id="boxPrintSettingSummary" class="tkn-print-summary"></span></div></details>
 
       <div class="actions final-box-actions">
         <button id="finalOpenBoxBtn" type="button">เปิดกล่องเพื่อแก้ไข</button>
@@ -217,11 +204,14 @@
   <script src="./js/box-qr-camera-scanner-v5-20-3.js?v=5.20.3"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="./js/tkn-box-code-v5-25-5.js?v=5.25.5"></script>
-  <script src="./js/tkn-unified-label-layout-v5-30-2.js?v=5.30.2"></script>
-  <script src="./js/box-qr-stock-v5-30-2.js?v=5.30.2"></script>
+  <script src="./js/tkn-unified-label-layout-v5-30-3.js?v=5.30.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.1/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="./js/tkn-print-platform-v5-30-3.js?v=5.30.3"></script>
+<script src="./js/box-qr-stock-v5-30-3.js?v=5.30.3"></script>
   <script src="./js/box-lifecycle-v5-28-4.js?v=5.28.5.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.30.2" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.30.3" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.8" defer></script>
   <script src="./js/marketplace-workflow-v5-27-1.js?v=5.28.4" defer></script>
 <script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
