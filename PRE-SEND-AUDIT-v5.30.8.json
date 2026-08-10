@@ -1,0 +1,229 @@
+{
+  "version": "5.30.8",
+  "title": "Actual-Schema Atomic Box Commit → WAITING_STOCK",
+  "passed": 40,
+  "total": 40,
+  "all_pass": true,
+  "confirmed_schema": {
+    "stock_boxes": [
+      "id",
+      "box_code",
+      "status",
+      "location_text",
+      "closed_at"
+    ],
+    "stock_box_items": [
+      "box_id",
+      "product_id",
+      "sku",
+      "quantity"
+    ],
+    "missing": [
+      "stock_boxes.location",
+      "stock_boxes.source"
+    ]
+  },
+  "runtime_gate": "The BLOCKER query in 00-PREFLIGHT must return zero rows before INSTALL.",
+  "checks": [
+    {
+      "check": "JS syntax js/sort-pack-qr-v5-30-8.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/stock-intake-v5-30-8.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.30.8.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Actual schema: no stock_boxes.location reference",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Actual schema: no stock_boxes.source reference",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Atomic insert uses confirmed columns",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Atomic update uses confirmed columns",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight no longer requires missing location",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight no longer requires missing source",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight checks confirmed stock_boxes fields",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight checks stock_box_items fields",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight blocker scans unknown NOT NULL fields",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Atomic RPC v5.30.8",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Permission guard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Product validation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Duplicate SKU guard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "IN_STOCK idempotency",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "WAITING_STOCK idempotency",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unknown prior history guard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Writes box items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Creates waiting snapshot",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Warehouse branch resolver",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No branch_inventory DML",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No inventory receive call",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No sales DML",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No destructive core DDL",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Frontend uses v5.30.8 atomic RPC",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Frontend sends items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Frontend resolves products before commit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Frontend marks CLOSED only after RPC",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Failure stays DRAFT",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No final QR on failure",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Verify read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW version 5.30.8",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW current sort-pack",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW current stock-intake",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App shell registers SW 5.30.8",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No promotion files",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}
