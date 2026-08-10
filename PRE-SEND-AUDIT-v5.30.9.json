@@ -1,0 +1,282 @@
+{
+  "version": "5.30.9",
+  "title": "Sorting Workflow Product Resolve/Create + Atomic Box",
+  "passed": 54,
+  "total": 54,
+  "all_pass": true,
+  "product_schema_source": "Supabase query (65), 33 columns",
+  "security": "authenticated + product.manage OR inventory.receive; no direct products write from frontend",
+  "stock_safety": "new master product quantity=0; branch inventory changes only at Stock Intake",
+  "checks": [
+    {
+      "check": "JS syntax js/sort-pack-qr-v5-30-9.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/stock-intake-v5-30-9.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.30.9.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.id",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.product_code",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.barcode",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.name",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.cost_price",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.selling_price",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.quantity",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.minimum_stock",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.is_active",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.created_at",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.updated_at",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.vat_rate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.sku_alias",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.allow_negative_stock",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.base_sku",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.source_barcode",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.lot_code",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.lot_cost_letter",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.product_type_th",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.model_name",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.label_name",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.markup_percent",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.vat_mode",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight products.price_rounding",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Resolver existing product first",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Resolver covers product_code",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Resolver covers sku_alias",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Resolver covers base_sku",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Resolver covers barcode/source_barcode",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Scoped permission product.manage",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Scoped permission inventory.receive",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No direct frontend product insert",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Frontend uses resolver RPC",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Frontend uses atomic v5.30.9",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "New product quantity starts zero",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "VAT mode matches UI",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No branch_inventory mutation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No stock receive call",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No sales mutation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Atomic WAITING snapshot",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "IN_STOCK idempotent",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "WAITING_STOCK idempotent",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Unique race recovery",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Verify read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW version",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW sort-pack ref",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW stock-intake ref",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App shell SW ref",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No promotion files",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}
