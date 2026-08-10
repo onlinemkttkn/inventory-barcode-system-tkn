@@ -1,0 +1,102 @@
+{
+  "version": "5.30.5",
+  "title": "WAITING_STOCK Sync Guard + Recovery",
+  "passed": 18,
+  "total": 18,
+  "all_pass": true,
+  "root_cause": "close flow rendered QR/success even when DB WAITING_STOCK sync failed; Stock Intake therefore returned WAITING_BOX_NOT_FOUND",
+  "fix": "gated success/navigation on confirmed history_id + WAITING_STOCK, retry/recovery button, clearer Stock Intake error",
+  "database_changes": "none",
+  "checks": [
+    {
+      "check": "JS syntax js/sort-pack-qr-v5-30-5.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/stock-intake-v5-30-5.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.30.5.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Close requires confirmed WAITING_STOCK",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Retry function exists",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Retry verifies stock_boxes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Success message gated",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake link gated",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Sync failure not overwritten",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Existing close RPC reused idempotently",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No inventory write in frontend",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Short box code canonical fallback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Missing queue guidance",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "sort-pack-qr.html new JS ref",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "stock-intake.html new JS ref",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No SQL",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No promotion files",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}
