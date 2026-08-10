@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-2.css?v=5.30.2">
 </head>
 <body class="tkn-print-layout tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์พิมพ์ป้ายสินค้า...">
   <main class="app">
@@ -80,8 +81,8 @@
           <label class="field">
             ประเภทโค้ด
             <select id="codeMode">
-              <option value="qr" selected>QR Code — ค่าเริ่มต้น</option>
-              <option value="both">QR Code + Barcode</option>
+              <option value="qr">QR Code เท่านั้น</option>
+              <option value="both" selected>QR Code + Barcode — มาตรฐานระบบ</option>
               <option value="barcode">Barcode เท่านั้น</option>
             </select>
           </label>
@@ -95,9 +96,9 @@
 
           <label class="check"><input id="conciseName" type="checkbox" checked> ย่อชื่ออัตโนมัติ: ประเภท + ยี่ห้อ + รุ่น</label>
           <label class="check"><input id="showName" type="checkbox" checked> ชื่อสินค้าแบบย่อ</label>
-          <label class="check"><input id="showPrice" type="checkbox" checked> ราคาขาย</label>
+          <label class="check"><input id="showPrice" type="checkbox"> ราคาขาย (ตัวเลือก)</label>
           <label class="check"><input id="showProductCode" type="checkbox" checked> SKU ของล็อตและต้นทุนแฝง</label>
-          <label class="check"><input id="showBarcodeText" type="checkbox" checked> เลขใต้บาร์โค้ด</label>
+          <label class="check"><input id="showBarcodeText" type="checkbox"> เลขใต้บาร์โค้ด (ตัวเลือก)</label>
 
           <details class="print-advanced">
             <summary>ปรับขนาดฉลากและเครื่องพิมพ์</summary>
@@ -107,9 +108,9 @@
               <label class="field">จำนวนคอลัมน์<input id="labelColumns" type="number" min="1" max="8" step="1" value="1"></label>
               <label class="field">ช่องว่าง (มม.)<input id="labelGap" type="number" min="0" max="20" step="0.5" value="2"></label>
               <label class="field">ขอบกระดาษ (มม.)<input id="pageMargin" type="number" min="0" max="30" step="0.5" value="0"></label>
-              <label class="field">ขนาด QR (พิกเซล)<input id="qrSize" type="number" min="28" max="220" step="2" value="56"></label>
-              <label class="field">ความสูงบาร์โค้ด<input id="barcodeHeight" type="number" min="12" max="100" step="1" value="30"></label>
-              <label class="field">ขนาดตัวอักษร<input id="labelFontSize" type="number" min="6" max="30" step="1" value="10"></label>
+              <label class="field">ขนาด QR — อัตโนมัติจากมาตรฐานกลาง<input id="qrSize" type="number" min="28" max="420" step="1" value="148" disabled></label>
+              <label class="field">ความสูง Barcode — อัตโนมัติจากมาตรฐานกลาง<input id="barcodeHeight" type="number" min="12" max="180" step="1" value="70" disabled></label>
+              <label class="field">ขนาดตัวอักษร — อัตโนมัติจากมาตรฐานกลาง<input id="labelFontSize" type="number" min="6" max="30" step="1" value="8" disabled></label>
             </div>
           </details>
           <p class="message success">QR ใช้ค่า TKN-P-SKU และ Barcode ใช้ SKU ของล็อตเดียวกัน พร้อมต้นทุนแฝง เพื่อให้ทุกหน้าสแกนรหัสมาตรฐานเดียว</p>
@@ -168,9 +169,10 @@
   <script src="./js/supabase-config.js?v=3.4.10"></script>
   <script src="./js/auth-guard.js?v=3.6.11"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/print-labels-v5-25-9.js?v=5.25.9"></script>
+  <script src="./js/tkn-unified-label-layout-v5-30-2.js?v=5.30.2"></script>
+  <script src="./js/print-labels-v5-30-2.js?v=5.30.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.25.9"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.25.9" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.30.2" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.25.9" defer></script>
 </body>
 </html>
