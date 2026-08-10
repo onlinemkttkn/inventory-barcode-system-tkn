@@ -1,0 +1,89 @@
+{
+  "version": "5.30.6",
+  "passed": 16,
+  "total": 16,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "JS syntax js/sort-pack-qr-v5-30-6.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/stock-intake-v5-30-6.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.30.6.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Uses backend recovery RPC",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No direct stock_boxes recovery select",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "CLOSED boxes retry automatically",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "WAITING confirmation required",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "IN_STOCK protected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No branch_inventory frontend write",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SQL uses existing idempotent snapshot",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SQL accepts short/full box code",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SQL blocks duplicate after IN_STOCK",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SQL checks unresolved products",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SQL does not call receive inventory",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No destructive SQL",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "purpose": "Recover CLOSED boxes missing WAITING_STOCK history without changing inventory quantity"
+}
