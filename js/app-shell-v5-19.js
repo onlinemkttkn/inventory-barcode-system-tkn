@@ -560,7 +560,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.31.18.js', { scope:'./', updateViaCache:'none' })
+      navigator.serviceWorker.register('./service-worker-v5.31.19.js', { scope:'./', updateViaCache:'none' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
