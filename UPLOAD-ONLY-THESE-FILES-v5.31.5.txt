@@ -1,0 +1,31 @@
+TKN v5.31.5 — อัปโหลดทับตามโครงสร้างเดิม
+Base ที่แนะนำ: v5.31.3
+
+[โฟลเดอร์หลัก]
+/mobile-stock-check.html
+/pos.html
+/pos-v5-31-5.js
+/service-worker-v5.31.5.js
+/VERSION.txt
+
+[โฟลเดอร์ js]
+/js/mobile-stock-check-v5-31-5.js
+/js/app-shell-v5-19.js
+
+[โฟลเดอร์ css]
+/css/mobile-stock-check-v5-31-5.css
+
+SQL:
+1) /sql/00-PREFLIGHT-v5.31.5-READ-ONLY.sql
+2) /sql/01-INSTALL-v5.31.5-BOX-CATEGORY-WHOLE-BOX-POS-ISSUE.sql
+3) /sql/02-VERIFY-v5.31.5-READ-ONLY.sql
+
+หลัง Deploy:
+- Desktop: Ctrl + Shift + R
+- Mobile/PWA: ปิดหน้า/แอปทั้งหมด แล้วเปิดใหม่
+- ทดสอบตาม UAT-v5.31.5.md
+
+หมายเหตุ:
+- ถ้ายังไม่ได้ติดตั้ง v5.31.4 ให้ข้าม v5.31.4 และใช้ v5.31.5 นี้แทน
+- ถ้าติดตั้ง v5.31.4 ไปแล้ว สามารถติดตั้ง v5.31.5 ต่อได้ ไม่ต้อง Rollback v5.31.4
+- ไม่ต้องลบ service-worker รุ่นก่อนทันที จนกว่า Client ทุกเครื่องจะขึ้น v5.31.5

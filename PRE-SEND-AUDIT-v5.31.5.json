@@ -1,0 +1,462 @@
+{
+  "version": "5.31.5",
+  "base": "v5.31.3",
+  "scope": "Box category + whole-box POS issue; removes per-item verification scan requirement",
+  "database_live_tested": false,
+  "summary": {
+    "passed": 89,
+    "failed": 0,
+    "total": 89
+  },
+  "checks": [
+    {
+      "name": "file exists: mobile-stock-check.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: pos.html",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: pos-v5-31-5.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: service-worker-v5.31.5.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: VERSION.txt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/mobile-stock-check-v5-31-5.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: js/app-shell-v5-19.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: css/mobile-stock-check-v5-31-5.css",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: sql/00-PREFLIGHT-v5.31.5-READ-ONLY.sql",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: sql/01-INSTALL-v5.31.5-BOX-CATEGORY-WHOLE-BOX-POS-ISSUE.sql",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: sql/02-VERIFY-v5.31.5-READ-ONLY.sql",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: sql/03-UAT-v5.31.5-READ-ONLY.sql",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: README-v5.31.5-FINAL.md",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: UAT-v5.31.5.md",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: UPLOAD-ONLY-THESE-FILES-v5.31.5.txt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file exists: PATCH-MANIFEST-v5.31.5.json",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/mobile-stock-check-v5-31-5.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: js/app-shell-v5-19.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: pos-v5-31-5.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax: service-worker-v5.31.5.js",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No issue verification panel in HTML",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No verification SKU input in HTML",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No verification scan runtime",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No p_scan_items frontend payload",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No scan-items backend parameter",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Whole box action button",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Whole box issue RPC frontend",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Whole box issue RPC has two args",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Receive-next issues whole box",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Box QR remains required in issue mode",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Scanning box shows item list",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No verify CSS remains",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Category context RPC used",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Category catalog RPC used",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Catalog searches SKU/barcode/name",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mixed category supported",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Category filter UI present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Auth required for whole box issue",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Issue permission enforced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Box row locked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Box must be CLOSED",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Tracking must match branch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Tracking must be warehouse",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Active transfer blocked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "History must be IN_STOCK",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Current items compared with history snapshot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Empty box blocked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Underlying whole-box issue called",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS-ready invariant checked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "History reopened after issue",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Whole-box audit stores snapshot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Whole-box result flags returned",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No direct branch inventory adjustment in whole-box RPC",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No TRUNCATE in install",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No DROP TABLE in install",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Preflight SQL is read-only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Verify SQL is read-only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "UAT read-only SQL is read-only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Anon revoked from context",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Anon revoked from catalog",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Anon revoked from whole-box issue",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Authenticated execute granted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS branch URL handoff exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS reads branch query parameter",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS subtracts boxed stock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS only shows positive sellable stock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS runtime content preserved from v5.31.4",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mobile HTML loads v5.31.5 JS",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mobile HTML loads v5.31.5 CSS",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "POS HTML loads v5.31.5 runtime",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "App shell v5.31.5",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "App shell registers v5.31.5 SW",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Service worker v5.31.5",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW caches new mobile CSS",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW caches new mobile JS",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW caches new POS JS",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "SW excludes old v5.31.4 runtime assets",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Code assets are network-first",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mobile DOM references resolve",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Mobile CSS braces balanced",
+      "ok": true,
+      "detail": "190/190"
+    },
+    {
+      "name": "Staged local HTML references resolve",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No shelf-putaway wording reintroduced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "No per-item issue scan wording",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Install SQL transaction wrapped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Install SQL dollar quotes balanced",
+      "ok": true,
+      "detail": "$f$=8, $$=2"
+    },
+    {
+      "name": "Mock POS: boxed units hidden before issue",
+      "ok": true,
+      "detail": "{'A': 5, 'B': 1, 'C': 10}"
+    },
+    {
+      "name": "Mock POS: all box units sellable after whole-box issue",
+      "ok": true,
+      "detail": "{'A': 7, 'B': 4, 'C': 10}"
+    },
+    {
+      "name": "Mock POS: branch inventory not double-added",
+      "ok": true,
+      "detail": "{'A': 7, 'B': 4, 'C': 10}"
+    },
+    {
+      "name": "Mock POS: sellable delta equals box contents",
+      "ok": true,
+      "detail": "{'A': 2, 'B': 3, 'C': 0}"
+    }
+  ],
+  "limitations": [
+    "Static/source and local mock validation only; no connection to the production Supabase project in this environment.",
+    "Run PRE-FLIGHT, INSTALL, VERIFY and one-box live UAT before broad production use."
+  ]
+}

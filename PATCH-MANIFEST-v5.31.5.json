@@ -1,0 +1,42 @@
+{
+  "version": "5.31.5",
+  "name": "TKN Box Category + Whole Box POS Issue",
+  "base": "v5.31.3",
+  "replaces_uninstalled_patch": "v5.31.4",
+  "runtime_files": [
+    "mobile-stock-check.html",
+    "pos.html",
+    "pos-v5-31-5.js",
+    "service-worker-v5.31.5.js",
+    "VERSION.txt",
+    "js/mobile-stock-check-v5-31-5.js",
+    "js/app-shell-v5-19.js",
+    "css/mobile-stock-check-v5-31-5.css"
+  ],
+  "sql": [
+    "sql/00-PREFLIGHT-v5.31.5-READ-ONLY.sql",
+    "sql/01-INSTALL-v5.31.5-BOX-CATEGORY-WHOLE-BOX-POS-ISSUE.sql",
+    "sql/02-VERIFY-v5.31.5-READ-ONLY.sql",
+    "sql/03-UAT-v5.31.5-READ-ONLY.sql"
+  ],
+  "workflow": {
+    "issue_requires_box_qr": true,
+    "issue_requires_item_rescan": false,
+    "server_snapshot_guard": true,
+    "whole_box_to_pos": true,
+    "category_search": true,
+    "reusable_box": true
+  },
+  "documentation": [
+    "README-v5.31.5-FINAL.md",
+    "UAT-v5.31.5.md",
+    "UPLOAD-ONLY-THESE-FILES-v5.31.5.txt",
+    "PRE-SEND-AUDIT-v5.31.5.md",
+    "PRE-SEND-AUDIT-v5.31.5.json"
+  ],
+  "validation_summary": {
+    "passed": 89,
+    "failed": 0,
+    "total": 89
+  }
+}

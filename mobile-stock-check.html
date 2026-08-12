@@ -8,8 +8,8 @@
   <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
   <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
   <link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
-  <link rel="stylesheet" href="./css/mobile-stock-check.css?v=5.26.2">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.26.2">
+  <link rel="stylesheet" href="./css/mobile-stock-check-v5-31-5.css?v=5.31.5">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.31.5">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
@@ -21,9 +21,9 @@
   <main class="mobile-shell">
     <header class="mobile-header">
       <div>
-        <span class="eyebrow">TKN POS ERP · Mobile Stock</span>
+        <span class="eyebrow">TKN POS ERP · Mobile Stock v5.31.5</span>
         <h1>ตรวจสต็อกและเบิกกล่อง</h1>
-        <p>ดูตำแหน่งสินค้า เบิกขายหน้าร้าน หรือส่งกล่องทั้งใบไปสาขา</p>
+        <p>ค้นหากล่องตามประเภท ตรวจสินค้าในกล่องก่อนเบิก และส่งสินค้าเข้า POS หน้าร้านอย่างตรวจสอบได้</p>
       </div>
       <button id="backBtn" class="header-action back-action" type="button">← ย้อนกลับ</button>
     </header>
@@ -41,6 +41,20 @@
       <button class="mode-btn" type="button" data-mode="ISSUE_BOX">
         <span>📤</span><b>เบิกกล่อง</b><small>เบิกหน้าร้าน / ส่งสาขา / รับกล่อง</small>
       </button>
+    </section>
+
+    <section id="boxFinderPanel" class="box-finder-card" hidden>
+      <div class="section-title">
+        <div><h2>ค้นหากล่องตามประเภทสินค้า</h2><p>แสดงเฉพาะกล่องที่อยู่ในคลังสาขาที่เลือกและพร้อมเบิก</p></div>
+        <button id="refreshBoxCatalogBtn" class="text-btn" type="button">รีเฟรช</button>
+      </div>
+      <div class="box-finder-grid">
+        <label>ประเภทกล่อง<select id="boxCategoryFilter"><option value="">ทุกประเภท</option></select></label>
+        <label>ค้นหากล่อง / SKU / ชื่อสินค้า<input id="boxCatalogSearch" autocomplete="off" placeholder="เช่น ของเล่น, TKN-B-MIX-A02, SKU"></label>
+        <button id="searchBoxCatalogBtn" class="btn primary" type="button">ค้นหา</button>
+      </div>
+      <div id="boxCatalogSummary" class="catalog-summary">ยังไม่ได้โหลดรายการกล่อง</div>
+      <div id="boxCatalogList" class="box-catalog-list"></div>
     </section>
 
     <section class="camera-card">
@@ -126,7 +140,7 @@
       <p>เลือกขั้นตอนต่อไปสำหรับกล่องใบนี้</p>
       <div class="action-grid">
         <button class="flow-action" value="keep" data-next="KEEP"><b>เก็บเข้าคลังสาขา</b><small>กล่องยังปิดและสินค้าอยู่ในกล่อง</small></button>
-        <button class="flow-action" value="issue" data-next="ISSUE"><b>เบิกขายหน้าร้าน</b><small>นำสินค้าทั้งหมดออกจากกล่อง</small></button>
+        <button class="flow-action" value="issue" data-next="ISSUE"><b>เบิกทั้งกล่องเข้า POS</b><small>ยืนยันครั้งเดียว นำสินค้าทั้งกล่องออกเป็นสินค้าพร้อมขายหน้าร้าน</small></button>
         <button class="flow-action" value="forward" data-next="FORWARD"><b>ส่งต่อไปสาขาอื่น</b><small>สร้างใบโอนรอบใหม่ทั้งกล่อง</small></button>
       </div>
     </form>
@@ -139,8 +153,8 @@
   <script src="./js/auth-guard.js?v=5.29.0"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-  <script src="./js/mobile-stock-check-v5-26-2.js?v=5.26.2"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.30.0" defer></script>
+  <script src="./js/mobile-stock-check-v5-31-5.js?v=5.31.5"></script>
+  <script src="./js/app-shell-v5-19.js?v=5.31.5" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 <script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
