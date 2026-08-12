@@ -1,0 +1,181 @@
+/* TKN v5.31.13 — Products Admin final desktop fit hotfix
+   CSS/layout only. No product, stock, barcode, POS or database behavior changes. */
+
+/*
+  The unified shell adds the desktop sidebar as body padding.  v5.31.12 still
+  inherited an older centered-width rule on some desktop resolutions, leaving
+  unused space at the left/right and pushing the action column outside the
+  visible card.  Use the real post-sidebar viewport on desktop.
+*/
+@media (min-width: 1025px) {
+  body.tkn-shell-ready main.shell,
+  body.tkn-unified-shell main.shell,
+  body main.shell {
+    width: calc(100vw - var(--tkn-shell-sidebar-w, 284px) - 32px) !important;
+    max-width: 1560px !important;
+    min-width: 0 !important;
+    margin: 0 16px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Keep all main cards on exactly the same available width. */
+  main.shell > .page-hero,
+  main.shell > .quick-nav,
+  main.shell > .summary-grid,
+  main.shell > .control-card,
+  main.shell > .product-list-card {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .quick-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  /* Search stays dominant; four filters retain readable widths. */
+  .filter-grid {
+    grid-template-columns:
+      minmax(300px, 2.3fr)
+      82px
+      repeat(4, minmax(138px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  /* Fit all 8 columns inside the card on normal desktop widths. */
+  .product-list-card {
+    overflow: hidden !important;
+  }
+
+  .product-list-card .table-scroll {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+  }
+
+  .product-list-card table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .product-list-card thead th,
+  .product-list-card tbody td {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Column budget = 100%. Action column is deliberately reserved. */
+  .product-list-card th:nth-child(1),
+  .product-list-card td:nth-child(1) { width: 22% !important; }
+  .product-list-card th:nth-child(2),
+  .product-list-card td:nth-child(2) { width: 25% !important; }
+  .product-list-card th:nth-child(3),
+  .product-list-card td:nth-child(3) { width: 11% !important; }
+  .product-list-card th:nth-child(4),
+  .product-list-card td:nth-child(4) { width: 8% !important; }
+  .product-list-card th:nth-child(5),
+  .product-list-card td:nth-child(5) { width: 8% !important; }
+  .product-list-card th:nth-child(6),
+  .product-list-card td:nth-child(6) { width: 7% !important; }
+  .product-list-card th:nth-child(7),
+  .product-list-card td:nth-child(7) { width: 8% !important; }
+  .product-list-card th:nth-child(8),
+  .product-list-card td:nth-child(8) { width: 11% !important; }
+
+  /* Long display strings should never force the table wider. */
+  .product-list-card td:nth-child(1),
+  .product-list-card td:nth-child(2),
+  .product-list-card td:nth-child(3) {
+    overflow: hidden !important;
+  }
+  .product-list-card td:nth-child(1) strong,
+  .product-list-card td:nth-child(1) small,
+  .product-list-card td:nth-child(2) strong,
+  .product-list-card td:nth-child(2) small,
+  .product-list-card td:nth-child(3) strong,
+  .product-list-card td:nth-child(3) small {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .product-list-card th:nth-child(n+4),
+  .product-list-card td:nth-child(n+4) {
+    white-space: nowrap;
+  }
+
+  /* Keep the full action controls visible inside the final column. */
+  .product-list-card th:last-child,
+  .product-list-card td:last-child {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    text-align: right !important;
+    overflow: visible !important;
+  }
+  .product-list-card td:last-child > div,
+  .product-list-card td:last-child .row-actions,
+  .product-list-card td:last-child .action-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 4px !important;
+    max-width: 100% !important;
+  }
+  .product-list-card td:last-child button,
+  .product-list-card td:last-child a,
+  .product-list-card td:last-child .btn {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Notebook: prefer a controlled horizontal table scroll instead of clipping. */
+@media (min-width: 1025px) and (max-width: 1260px) {
+  body.tkn-shell-ready main.shell,
+  body.tkn-unified-shell main.shell,
+  body main.shell {
+    width: calc(100vw - var(--tkn-shell-sidebar-w, 284px) - 20px) !important;
+    margin: 0 10px !important;
+  }
+  .quick-nav { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .filter-grid {
+    grid-template-columns: minmax(260px, 2fr) 82px repeat(2, minmax(145px, 1fr)) !important;
+  }
+  .product-list-card .table-scroll { overflow-x: auto !important; }
+  .product-list-card table { min-width: 1040px !important; table-layout: auto !important; }
+}
+
+/* Mobile/tablet retain the responsive behavior from the product page. */
+@media (max-width: 1024px) {
+  body main.shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .product-list-card .table-scroll {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .product-list-card table {
+    min-width: 1040px !important;
+    table-layout: auto !important;
+  }
+}
