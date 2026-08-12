@@ -1,0 +1,264 @@
+/* TKN v5.31.12 — Products Admin UI/Layout refinement
+   Page-only override. No product/stock/database behavior is changed. */
+
+/* Use the available workspace after the app sidebar instead of keeping the
+   product page in the old narrow centered column. */
+body main.shell {
+  width: calc(100% - 32px) !important;
+  max-width: 1480px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box;
+}
+
+.page-hero,
+.quick-nav,
+.summary-grid,
+.control-card,
+.product-list-card {
+  width: 100%;
+  max-width: none !important;
+  box-sizing: border-box;
+}
+
+/* Hero */
+.page-hero {
+  min-height: 112px;
+  padding: 22px 28px !important;
+  gap: 22px;
+}
+.page-hero .hero-copy { min-width: 0; }
+.page-hero .hero-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.page-hero .hero-actions .btn { min-height: 44px; }
+
+/* Five shortcuts fit in one row on normal desktop widths. */
+.quick-nav {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  align-items: stretch;
+}
+.quick-nav-item {
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px 14px !important;
+}
+.quick-nav-item > span:last-child { min-width: 0; }
+.quick-nav-item strong,
+.quick-nav-item small {
+  overflow-wrap: anywhere;
+}
+
+/* Summary cards */
+.summary-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+.summary-card {
+  min-width: 0;
+  min-height: 100px;
+}
+
+/* Search/filter area: keep search large and give every select enough width. */
+.control-card {
+  padding: 18px 20px !important;
+  overflow: visible !important;
+}
+.control-top { margin-bottom: 12px; }
+.filter-grid {
+  display: grid !important;
+  grid-template-columns:
+    minmax(300px, 2.2fr)
+    minmax(78px, auto)
+    repeat(4, minmax(142px, 1fr)) !important;
+  gap: 10px !important;
+  align-items: end !important;
+}
+.filter-grid > * { min-width: 0; }
+.search-box { min-width: 0; }
+.search-box input,
+.compact-field select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.search-btn {
+  min-width: 78px;
+  width: auto !important;
+  white-space: nowrap;
+}
+.compact-field > span {
+  white-space: nowrap;
+}
+
+/* Product table: do not clip the right-side action column. */
+.product-list-card {
+  margin-top: 14px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+}
+.product-list-card .table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+.product-list-card table {
+  width: 100% !important;
+  min-width: 1260px !important;
+  table-layout: auto !important;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* The old sticky header could float over the filter card when the page was
+   scrolled. Keep it attached to the table for a predictable desktop layout. */
+.product-list-card thead th {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+  white-space: nowrap;
+  padding: 12px 14px !important;
+  vertical-align: middle;
+}
+.product-list-card tbody td {
+  padding: 11px 14px !important;
+  vertical-align: middle !important;
+  line-height: 1.35;
+}
+
+/* Sensible minimum widths by meaning, not by pixel-perfect content. */
+.product-list-card th:nth-child(1),
+.product-list-card td:nth-child(1) { min-width: 250px; width: 26%; }
+.product-list-card th:nth-child(2),
+.product-list-card td:nth-child(2) { min-width: 255px; width: 24%; }
+.product-list-card th:nth-child(3),
+.product-list-card td:nth-child(3) { min-width: 135px; }
+.product-list-card th:nth-child(4),
+.product-list-card td:nth-child(4),
+.product-list-card th:nth-child(5),
+.product-list-card td:nth-child(5) { min-width: 105px; white-space: nowrap; }
+.product-list-card th:nth-child(6),
+.product-list-card td:nth-child(6) { min-width: 96px; white-space: nowrap; }
+.product-list-card th:nth-child(7),
+.product-list-card td:nth-child(7) { min-width: 105px; white-space: nowrap; }
+.product-list-card th:nth-child(8),
+.product-list-card td:nth-child(8) { min-width: 185px; width: 185px; }
+
+.product-list-card td:first-child,
+.product-list-card td:nth-child(2) {
+  overflow-wrap: anywhere;
+}
+.product-list-card td:last-child {
+  text-align: right;
+  white-space: normal;
+}
+.product-list-card td:last-child .btn,
+.product-list-card td:last-child button,
+.product-list-card td:last-child a {
+  margin: 2px;
+}
+
+/* Give long product lists breathing room below the last row. */
+.product-list-card .list-message,
+.product-list-card .empty-state {
+  margin-left: 18px;
+  margin-right: 18px;
+}
+
+/* Product form modal remains the same workflow, only gains usable space. */
+.modal-card {
+  width: min(1180px, calc(100vw - 32px)) !important;
+  max-width: 1180px !important;
+  max-height: calc(100vh - 32px) !important;
+  overflow: auto !important;
+}
+
+/* Medium screens: let filters wrap cleanly instead of shrinking controls. */
+@media (max-width: 1280px) {
+  body main.shell {
+    width: calc(100% - 24px) !important;
+  }
+  .quick-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .filter-grid {
+    grid-template-columns: minmax(260px, 2fr) auto repeat(2, minmax(150px, 1fr)) !important;
+  }
+  .compact-field:nth-of-type(3),
+  .compact-field:nth-of-type(4) {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 960px) {
+  body main.shell {
+    width: calc(100% - 20px) !important;
+  }
+  .page-hero {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    padding: 20px !important;
+  }
+  .page-hero .hero-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .quick-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .filter-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+  .filter-grid .search-box {
+    grid-column: 1 / -1;
+  }
+  .search-btn { width: 100% !important; }
+}
+
+@media (max-width: 620px) {
+  body main.shell {
+    width: calc(100% - 16px) !important;
+  }
+  .page-hero {
+    min-height: 0;
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+  .page-hero .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .page-hero .hero-actions .btn { width: 100%; }
+  .quick-nav {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .quick-nav-item { min-height: 62px; }
+  .summary-grid { gap: 8px !important; }
+  .summary-card { min-height: 92px; padding: 12px !important; }
+  .control-card { padding: 15px !important; }
+  .filter-grid { grid-template-columns: 1fr !important; }
+  .filter-grid .search-box { grid-column: auto; }
+  .product-list-card table { min-width: 1120px !important; }
+  .modal-card {
+    width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 16px) !important;
+    border-radius: 18px !important;
+  }
+}
