@@ -1,1 +1,4 @@
-5.28.5.1
+5.31.3
+TKN POS / ERP — Branch Stock AuthGuard Hotfix
+Base required: v5.31.2
+Database changes: none
