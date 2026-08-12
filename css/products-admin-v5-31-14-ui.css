@@ -1,0 +1,205 @@
+/* TKN v5.31.14 — Products Admin action-column hard fix
+   Page-only CSS. No product/stock/barcode/POS/database logic changes. */
+
+/* Keep the good v5.31.13 desktop shell sizing, but never clip the table. */
+@media (min-width:1025px){
+  body.tkn-shell-ready main.shell,
+  body.tkn-unified-shell main.shell,
+  body main.shell{
+    width:calc(100vw - var(--tkn-shell-sidebar-w,284px) - 32px)!important;
+    max-width:1560px!important;
+    min-width:0!important;
+    margin:0 16px!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    box-sizing:border-box!important;
+  }
+
+  main.shell > .page-hero,
+  main.shell > .quick-nav,
+  main.shell > .summary-grid,
+  main.shell > .control-card,
+  main.shell > .product-list-card{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+
+  .quick-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .filter-grid{
+    grid-template-columns:minmax(300px,2.3fr) 82px repeat(4,minmax(138px,1fr))!important;
+    gap:10px!important;
+  }
+
+  /* IMPORTANT: scroll instead of squeezing/clipping the action buttons. */
+  .product-list-card{overflow:hidden!important}
+  .product-list-card .table-scroll{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-gutter:stable;
+  }
+  .product-list-card table{
+    width:100%!important;
+    min-width:1090px!important;
+    max-width:none!important;
+    table-layout:fixed!important;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+  .product-list-card thead th{
+    position:static!important;
+    top:auto!important;
+    z-index:auto!important;
+  }
+  .product-list-card thead th,
+  .product-list-card tbody td{
+    min-width:0!important;
+    box-sizing:border-box!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+    vertical-align:middle!important;
+  }
+
+  /* Deterministic desktop column budget. Last column is NEVER percentage-shrunk. */
+  .product-list-card th:nth-child(1),.product-list-card td:nth-child(1){width:230px!important}
+  .product-list-card th:nth-child(2),.product-list-card td:nth-child(2){width:280px!important}
+  .product-list-card th:nth-child(3),.product-list-card td:nth-child(3){width:105px!important}
+  .product-list-card th:nth-child(4),.product-list-card td:nth-child(4){width:82px!important}
+  .product-list-card th:nth-child(5),.product-list-card td:nth-child(5){width:82px!important}
+  .product-list-card th:nth-child(6),.product-list-card td:nth-child(6){width:82px!important}
+  .product-list-card th:nth-child(7),.product-list-card td:nth-child(7){width:82px!important}
+  .product-list-card th:nth-child(8),.product-list-card td:nth-child(8){
+    width:190px!important;
+    min-width:190px!important;
+    max-width:190px!important;
+  }
+
+  /* Only display fields are allowed to ellipsize. */
+  .product-list-card td:nth-child(1),
+  .product-list-card td:nth-child(2),
+  .product-list-card td:nth-child(3){overflow:hidden!important}
+  .product-list-card td:nth-child(1) strong,
+  .product-list-card td:nth-child(1) small,
+  .product-list-card td:nth-child(2) strong,
+  .product-list-card td:nth-child(2) small,
+  .product-list-card td:nth-child(3) strong,
+  .product-list-card td:nth-child(3) small{
+    display:block!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  .product-list-card th:nth-child(n+4):not(:last-child),
+  .product-list-card td:nth-child(n+4):not(:last-child){white-space:nowrap!important}
+
+  /* HARD FIX: action cell and every possible action wrapper stay horizontal. */
+  .product-list-card th:last-child,
+  .product-list-card td:last-child{
+    width:190px!important;
+    min-width:190px!important;
+    max-width:190px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+    text-align:right!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    writing-mode:horizontal-tb!important;
+  }
+
+  .product-list-card td:last-child > div,
+  .product-list-card td:last-child .actions,
+  .product-list-card td:last-child .row-actions,
+  .product-list-card td:last-child .action-buttons,
+  .product-list-card td:last-child .button-row{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    white-space:nowrap!important;
+  }
+
+  /* Override legacy square/icon-button widths that caused the yellow sliver. */
+  .product-list-card td:last-child > button,
+  .product-list-card td:last-child > a,
+  .product-list-card td:last-child button,
+  .product-list-card td:last-child a,
+  .product-list-card td:last-child .btn{
+    display:inline-flex!important;
+    flex:0 0 auto!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    min-height:32px!important;
+    height:auto!important;
+    margin:0!important;
+    padding:6px 9px!important;
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+    writing-mode:horizontal-tb!important;
+    text-orientation:mixed!important;
+    overflow:visible!important;
+    line-height:1.15!important;
+  }
+}
+
+/* Typical notebook width: keep controls usable and allow table scroll if 1090px does not fit. */
+@media (min-width:1025px) and (max-width:1260px){
+  body.tkn-shell-ready main.shell,
+  body.tkn-unified-shell main.shell,
+  body main.shell{
+    width:calc(100vw - var(--tkn-shell-sidebar-w,284px) - 20px)!important;
+    margin:0 10px!important;
+  }
+  .quick-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .filter-grid{grid-template-columns:minmax(260px,2fr) 82px repeat(2,minmax(145px,1fr))!important}
+}
+
+/* Tablet/mobile: horizontal table scroll is intentional; do not compress actions. */
+@media (max-width:1024px){
+  body main.shell{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+  .product-list-card .table-scroll{
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  .product-list-card table{
+    min-width:1090px!important;
+    table-layout:fixed!important;
+  }
+  .product-list-card th:last-child,
+  .product-list-card td:last-child{
+    width:190px!important;
+    min-width:190px!important;
+    white-space:nowrap!important;
+  }
+  .product-list-card td:last-child button,
+  .product-list-card td:last-child a,
+  .product-list-card td:last-child .btn{
+    width:auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    writing-mode:horizontal-tb!important;
+  }
+}
