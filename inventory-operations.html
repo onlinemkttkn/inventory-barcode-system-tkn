@@ -40,7 +40,7 @@
       <b class="intake-card-count" id="hubWaitingCount">0 กล่องรอรับ</b>
     </a>
 
-    <a class="operation-card operation-card-putaway" href="./stock-putaway.html"><strong>ขึ้นชั้นจัดเก็บ</strong><span>รีเช็คกล่องหลังรับเข้าสต็อก แล้วสแกนตำแหน่งชั้น</span><b id="hubPutawayCount" class="intake-card-count">0 กล่องรอขึ้นชั้น</b></a>
+    <a class="operation-card operation-card-putaway" href="./box-inspection.html"><strong>ตรวจสอบกล่อง</strong><span>สแกน QR กล่องหลังรับเข้าสต็อก ตรวจ Snapshot และเอกสารรับเข้า โดยไม่เพิ่ม/ลดสต็อกซ้ำ</span><b class="intake-card-count">พร้อมตรวจสอบ</b></a>
     <a class="operation-card" href="./branch-stock.html">
       <strong>สต็อกปัจจุบัน</strong><span>ดูจำนวนสินค้าหลังตรวจรับเข้าสต็อก แยกตามสาขา</span>
     </a>
@@ -69,9 +69,6 @@
     <p id="hubIntakeState" class="hub-intake-state">กำลังตรวจคิว WAITING_STOCK...</p>
     <div class="hub-intake-table-wrap"><table class="hub-intake-table"><thead><tr><th>ปิดกล่อง</th><th>กล่อง</th><th>จำนวน</th><th>ตำแหน่ง</th><th></th></tr></thead><tbody id="hubIntakeRows"><tr><td colspan="5">กำลังโหลด...</td></tr></tbody></table></div>
   </section>
-
-  <section class="hub-intake-panel"><div class="hub-intake-head"><div><p class="eyebrow">หลังรับเข้าสต็อก</p><h2>กล่องรอขึ้นชั้นจัดเก็บ</h2></div><a href="./stock-putaway.html" class="hub-intake-open">เปิดขึ้นชั้นจัดเก็บ →</a></div><p id="hubPutawayState" class="hub-intake-state">กำลังตรวจคิว...</p><div class="hub-intake-table-wrap"><table class="hub-intake-table"><thead><tr><th>รับเข้า</th><th>กล่อง</th><th>จำนวน</th><th>เอกสาร</th><th></th></tr></thead><tbody id="hubPutawayRows"><tr><td colspan="5">กำลังโหลด...</td></tr></tbody></table></div></section>
-
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase-config.js?v=3.4.0"></script>
@@ -80,7 +77,7 @@
 <script src="./js/inventory-workspace.js?v=5.30.0"></script>
 <script src="./js/inventory-stock-flow-v5-30-0.js?v=5.30.0"></script>
 <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.30.0" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.31.1" defer></script>
   <script src="./js/ui-refinement-v5-20-4.js?v=5.20.4" defer></script>
 </body>
 </html>

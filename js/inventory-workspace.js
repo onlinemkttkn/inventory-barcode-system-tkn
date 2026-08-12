@@ -6,8 +6,7 @@
 
   const items = [
     { key:'hub', href:'./inventory-operations.html', label:'ศูนย์คลัง', permission:'inventory.view' },
-    { key:'stock-intake', href:'./stock-intake.html', label:'ตรวจรับเข้าสต็อก', permission:'inventory.receive' },
-    { key:'putaway', href:'./stock-putaway.html', label:'ขึ้นชั้นจัดเก็บ', permission:'inventory.receive' },
+    { key:'receive', href:'./receive.html', label:'รับเข้า', permission:'inventory.receive' },
     { key:'issue', href:'./issue.html', label:'เบิกสินค้า', permission:'inventory.issue' },
     { key:'transfer', href:'./transfer-create.html', label:'โอนสาขา', permission:'inventory.transfer' },
     { key:'transfer-receive', href:'./transfer-receive.html', label:'ตรวจรับโอน', permission:'inventory.transfer' },
@@ -262,9 +261,7 @@
         const validIds = new Set(branchRows.map((branch) => branch.id));
         const access = window.TKNAuthGuard?.getCachedAccess?.() || null;
         const pageSelect = primaryPageSelect();
-        const warehouse = await window.TKNWarehouseContext?.resolve?.().catch(()=>null);
         const selectedId = [
-          warehouse?.id,
           currentBranchId(),
           access?.branch_id,
           pageSelect?.value,

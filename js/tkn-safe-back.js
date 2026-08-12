@@ -7,7 +7,7 @@
   const ROOT_PAGES = new Set(['index.html', 'dashboard.html']);
 
   const PAGE_FALLBACKS = {
-    'mobile-stock-check.html': './box-qr-stock.html',
+    'mobile-stock-check.html': './dashboard.html',
     'box-qr-stock.html': './import-export.html',
     'shopee-import.html': './import-export.html',
     'lazada-import.html': './import-export.html',
@@ -27,7 +27,6 @@
     'transfer-receive.html': './inventory-operations.html',
     'transfer-history.html': './inventory-operations.html',
 
-    'pos-box-sale.html': './pos.html',
     'sales-history.html': './pos.html',
     'pos-member.html': './pos.html',
     'receipt.html': './pos.html',

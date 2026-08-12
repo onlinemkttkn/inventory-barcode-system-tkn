@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#c8101e"><title>ตรวจสอบกล่อง — TKN POS ERP</title>
+<link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
+<link rel="stylesheet" href="./css/auth-stability.css?v=5.6.0">
+<link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
+<link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.31.1">
+<link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
+<link rel="stylesheet" href="./css/box-inspection-v5-31-1.css?v=5.31.1">
+</head>
+<body class="tkn-auth-ready" data-required-permission="inventory.receive">
+<main class="inspect-wrap">
+<header class="hero"><div><span class="kicker">TKN v5.31.1 · BOX INSPECTION</span><h1>ตรวจสอบกล่องหลังรับเข้าสต็อก</h1>
+<p>สแกน QR/Barcode กล่องเพื่อดู Snapshot, เอกสารรับเข้า และสถานะล่าสุด โดยไม่เพิ่มหรือลด Stock ซ้ำ</p></div>
+<div class="hero-actions"><a href="./stock-intake.html">← ตรวจรับเข้าสต็อก</a><a href="./inventory-operations.html">ศูนย์คลัง</a></div></header>
+
+<section class="stats">
+<article><span>กล่อง</span><strong id="selectedBox">-</strong></article>
+<article><span>จำนวน</span><strong id="selectedQty">0</strong></article>
+<article><span>สถานะ</span><strong id="selectedStatus">-</strong></article>
+<article><span>เอกสาร</span><strong id="selectedDoc">-</strong></article>
+</section>
+
+<section class="card">
+<div class="head"><div><span class="kicker dark">SCAN</span><h2>สแกนกล่อง</h2></div><span id="scanState" class="chip">รอสแกน</span></div>
+<div class="scan-row">
+<input id="boxScan" data-tkn-scan="box" autocomplete="off" placeholder="ยิง QR/Barcode กล่อง TKN-B-...">
+<button type="button" data-tkn-camera-for="#boxScan">สแกนกล้อง</button>
+<button id="lookupBtn" type="button" class="primary">ตรวจกล่อง</button>
+</div>
+<p id="message" class="message"></p>
+<div id="summary" class="summary empty">ยังไม่ได้เลือกกล่อง</div>
+<div class="table-wrap"><table><thead><tr><th>SKU</th><th>Barcode</th><th>สินค้า</th><th>จำนวน</th><th>ต้นทุน</th><th>ราคาขาย</th></tr></thead><tbody id="itemRows"><tr><td colspan="6">-</td></tr></tbody></table></div>
+</section>
+
+<section class="card"><div class="head"><div><span class="kicker dark">RECENT</span><h2>กล่องรับเข้าล่าสุด</h2></div><button id="refreshBtn">รีเฟรช</button></div>
+<div class="table-wrap"><table><thead><tr><th>รับเข้า</th><th>กล่อง</th><th>เอกสาร</th><th>จำนวน</th><th>สาขา</th><th></th></tr></thead><tbody id="recentRows"><tr><td colspan="6">กำลังโหลด...</td></tr></tbody></table></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase-config.js?v=1.0.2"></script>
+<script src="./js/auth-guard.js?v=5.29.0"></script>
+<script src="./js/box-inspection-v5-31-1.js?v=5.31.1"></script>
+<script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
+<script src="./js/app-shell-v5-19.js?v=5.31.1" defer></script>
+</body></html>

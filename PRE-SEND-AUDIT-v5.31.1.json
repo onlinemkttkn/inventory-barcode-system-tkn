@@ -1,0 +1,169 @@
+{
+  "version": "5.31.1",
+  "title": "Remove Putaway / Box Inspection",
+  "passed": 32,
+  "total": 32,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/auth-guard.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/box-inspection-v5-31-1.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/inventory-stock-flow-v5-30-0.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/inventory-workspace.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/stock-intake-v5-31-1.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/supabase-config.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-safe-back.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-unified-scanner-v5-29-0.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-warehouse-context-v5-30-0.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/ui-refinement-v5-20-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.31.1.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Refs stock-intake.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Refs box-inspection.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Refs inventory-operations.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Refs stock-putaway.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Stock Intake no putawayNext",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake next is inspection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Receive success no putaway wording",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inventory operations no putaway card/link",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inspection uses existing lookup",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inspection uses recent intake list",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inspection has no stock receive/commit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Old putaway redirects",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No storage location master",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No INSTALL SQL",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No promotion files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Preflight read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Verify read-only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Service Worker version",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Service Worker includes inspection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App shell registers v5.31.1 SW",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}
