@@ -1,0 +1,8 @@
+อัปโหลดไฟล์ทั้งหมดในโฟลเดอร์ v5.31.2 ทับโครงสร้างเดิม
+
+สำคัญ:
+- ไม่ต้องรัน INSTALL SQL
+- รันเฉพาะ sql/00-PREFLIGHT-v5.31.2-READ-ONLY.sql ก่อนอัปโหลด
+- หลังอัปโหลด/Deploy ให้ Hard Refresh 1 ครั้ง หรือปิด PWA แล้วเปิดใหม่
+- stock-putaway.html และ storage-locations.html ในแพ็กนี้เป็น redirect compatibility เพื่อปิด Workflow ชั้นเก่า
+- ไม่ต้องลบ RPC putaway ใน Supabase ตอนนี้

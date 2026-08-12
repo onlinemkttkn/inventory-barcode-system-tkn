@@ -1,0 +1,499 @@
+{
+  "version": "5.31.2",
+  "title": "FINAL Remove Shelf Putaway / Box Inspection",
+  "generated_at_utc": "2026-08-12T03:53:49.294355+00:00",
+  "passed": 97,
+  "failed": 0,
+  "total": 97,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "File box-inspection.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File stock-intake.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File inventory-operations.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File stock-putaway.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File storage-locations.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File js/box-inspection-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File js/stock-intake-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File js/inventory-stock-flow-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File service-worker-v5.31.2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File sql/00-PREFLIGHT-v5.31.2-READ-ONLY.sql",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File sql/01-VERIFY-v5.31.2-READ-ONLY.sql",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File README-v5.31.2-FINAL.md",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File UAT-v5.31.2.md",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File UPLOAD-FILES-v5.31.2.txt",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "File DELETE-OBSOLETE-v5.31.2.txt",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/app-shell-v5-19.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/auth-guard.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/box-inspection-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/inventory-stock-flow-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/inventory-workspace.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/stock-intake-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/supabase-config.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-safe-back.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-unified-scanner-v5-29-0.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/tkn-warehouse-context-v5-30-0.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax js/ui-refinement-v5-20-4.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.31.2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "JS syntax service-worker-v5.31.2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "CSS braces css/app-shell-v5-19.css",
+      "pass": true,
+      "detail": "open=102 close=102"
+    },
+    {
+      "check": "CSS braces css/auth-stability.css",
+      "pass": true,
+      "detail": "open=27 close=27"
+    },
+    {
+      "check": "CSS braces css/box-inspection-v5-31-2.css",
+      "pass": true,
+      "detail": "open=43 close=43"
+    },
+    {
+      "check": "CSS braces css/global-font.css",
+      "pass": true,
+      "detail": "open=17 close=17"
+    },
+    {
+      "check": "CSS braces css/governance.css",
+      "pass": true,
+      "detail": "open=225 close=225"
+    },
+    {
+      "check": "CSS braces css/inventory-final-ui.css",
+      "pass": true,
+      "detail": "open=70 close=70"
+    },
+    {
+      "check": "CSS braces css/inventory-stock-intake-v5-28-7.css",
+      "pass": true,
+      "detail": "open=14 close=14"
+    },
+    {
+      "check": "CSS braces css/inventory-workspace.css",
+      "pass": true,
+      "detail": "open=39 close=39"
+    },
+    {
+      "check": "CSS braces css/navigation.css",
+      "pass": true,
+      "detail": "open=64 close=64"
+    },
+    {
+      "check": "CSS braces css/responsive-no-scroll.css",
+      "pass": true,
+      "detail": "open=34 close=34"
+    },
+    {
+      "check": "CSS braces css/stock-intake-v5-28-5.css",
+      "pass": true,
+      "detail": "open=56 close=56"
+    },
+    {
+      "check": "CSS braces css/theme-red-yellow-black.css",
+      "pass": true,
+      "detail": "open=38 close=38"
+    },
+    {
+      "check": "CSS braces css/tkn-print-platform-v5-30-3.css",
+      "pass": true,
+      "detail": "open=31 close=31"
+    },
+    {
+      "check": "CSS braces css/tkn-unified-scanner-v5-29-0.css",
+      "pass": true,
+      "detail": "open=19 close=19"
+    },
+    {
+      "check": "CSS braces css/tkn-warehouse-context-v5-30-0.css",
+      "pass": true,
+      "detail": "open=2 close=2"
+    },
+    {
+      "check": "CSS braces css/ui-modern-v5-19.css",
+      "pass": true,
+      "detail": "open=76 close=76"
+    },
+    {
+      "check": "CSS braces css/ui-refinement-v5-20-4.css",
+      "pass": true,
+      "detail": "open=107 close=107"
+    },
+    {
+      "check": "Box Inspection auth signature",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake auth signature",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Box Inspection RPC whitelist",
+      "pass": true,
+      "detail": "['tkn_v5285_stock_intake_lookup', 'tkn_v5285_recent_stock_intakes']"
+    },
+    {
+      "check": "Inventory hub RPC whitelist",
+      "pass": true,
+      "detail": "['tkn_v5285_list_stock_intake_queue']"
+    },
+    {
+      "check": "Stock Intake receive RPC retained",
+      "pass": true,
+      "detail": "['tkn_v5285_list_stock_intake_queue', 'tkn_v5285_stock_intake_lookup', 'tkn_v5300_receive_stock_intake', 'tkn_v5285_recent_stock_intakes']"
+    },
+    {
+      "check": "Runtime excludes tkn_v5300_list_putaway_queue",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Runtime excludes tkn_v5300_putaway_lookup",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Runtime excludes tkn_v5300_putaway_commit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Runtime excludes tkn_v5300_putaway_box",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Runtime excludes tkn_v5261_register_box_location",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Active runtime excludes wording ขึ้นชั้น",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Active runtime excludes wording ชั้นจัดเก็บ",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Active runtime excludes wording QR ชั้น",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Active runtime excludes wording Location Master",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake excludes location_text field",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake table uses category/zone",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inventory card goes Box Inspection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inventory card no putaway href",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Inventory loads v5.31.2 flow",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake next goes inspection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake hides stale next link",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Old stock-putaway redirects",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Old storage-locations redirects",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Redirects preserve scan query",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake USB Enter",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Box Inspection USB Enter",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Stock Intake mobile camera hook",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Box Inspection mobile camera hook",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "DOM IDs box-inspection.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "DOM IDs stock-intake.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "DOM IDs inventory-operations.html",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "No INSTALL SQL",
+      "pass": true,
+      "detail": "['00-PREFLIGHT-v5.31.2-READ-ONLY.sql', '01-VERIFY-v5.31.2-READ-ONLY.sql']"
+    },
+    {
+      "check": "SQL read-only 00-PREFLIGHT-v5.31.2-READ-ONLY.sql",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "SQL read-only 01-VERIFY-v5.31.2-READ-ONLY.sql",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "Service Worker version 5.31.2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW includes ./box-inspection.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW includes ./stock-putaway.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW includes ./storage-locations.html",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW includes ./js/box-inspection-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW includes ./js/stock-intake-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW includes ./js/inventory-stock-flow-v5-31-2.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW excludes old 5.31.1 JS",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW excludes putaway JS",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "SW network-first code assets",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App shell version 5.31.2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "App shell registers v5.31.2 SW",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "New local refs exist",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "check": "No promotion files in patch",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "No database schema install files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "check": "Runtime mock suite",
+      "pass": true,
+      "detail": "{\n  \"boxInspection\": {\n    \"auth\": \"ok\",\n    \"rpcs\": [\n      \"tkn_v5285_recent_stock_intakes\",\n      \"tkn_v5285_stock_intake_lookup\"\n    ]\n  },\n  \"inventoryHub\": {\n    \"rpcs\": [\n      \"tkn_v5285_list_stock_intake_queue\"\n    ]\n  },\n  \"stockIntake\": {\n    \"auth\": \"ok\",\n    \"next\": \"./box-inspection.html?scan=TKN-B-OLD\",\n    \"rpcs\": [\n      \"tkn_v5285_list_stock_intake_queue\",\n      \"tkn_v5285_recent_stock_intakes\",\n      \"tkn_v5285_stock_intake_lookup\"\n    ]\n  }\n}"
+    },
+    {
+      "check": "Shared files unchanged outside approved scope",
+      "pass": true,
+      "detail": "[]"
+    }
+  ],
+  "notes": [
+    "Database live execution is intentionally not performed by this static package audit. Run the included READ-ONLY preflight/verify SQL against Supabase before/after deploy."
+  ]
+}
