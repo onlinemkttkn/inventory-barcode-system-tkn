@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.31.22';
+  const VERSION = '5.31.23';
   const COMPANY_DEFAULT = 'เถ้าแก่น้อย ชลบุรี';
   let COMPANY = COMPANY_DEFAULT;
   let BRANDING = {
@@ -19,6 +19,44 @@
   const ACCESS_RPC = 'current_access_context';
   const currentPage = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  // v5.31.23 — capture installability before async branding/auth work starts.
+  // beforeinstallprompt can be dispatched before the shell is mounted; keeping it
+  // at module scope prevents the install opportunity from being lost.
+  const PWA_INSTALL = {
+    deferredPrompt: null,
+    installed: false,
+    serviceWorkerReady: false,
+    serviceWorkerError: null,
+    promptSeenAt: 0
+  };
+
+  function dispatchPwaState(reason) {
+    try {
+      window.dispatchEvent(new CustomEvent('tkn:pwa-state', {
+        detail: {
+          reason,
+          installable: Boolean(PWA_INSTALL.deferredPrompt),
+          installed: PWA_INSTALL.installed,
+          serviceWorkerReady: PWA_INSTALL.serviceWorkerReady,
+          serviceWorkerError: PWA_INSTALL.serviceWorkerError ? String(PWA_INSTALL.serviceWorkerError.message || PWA_INSTALL.serviceWorkerError) : ''
+        }
+      }));
+    } catch {}
+  }
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    PWA_INSTALL.deferredPrompt = event;
+    PWA_INSTALL.promptSeenAt = Date.now();
+    dispatchPwaState('beforeinstallprompt');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    PWA_INSTALL.installed = true;
+    PWA_INSTALL.deferredPrompt = null;
+    dispatchPwaState('appinstalled');
+  });
 
   const PUBLIC_PAGES = new Set(['index.html', 'offline.html']);
   const PRINT_PAGES = new Set([
@@ -559,9 +597,17 @@
     update();
   }
 
+  function platformInstallHelp() {
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/i.test(ua);
+    if (isIOS) return 'บน iPhone/iPad ให้เปิดด้วย Safari → ปุ่ม Share → “Add to Home Screen / เพิ่มไปยังหน้าจอโฮม”';
+    if (isAndroid) return 'บน Android ให้เปิดเมนู Chrome (⋮) → “Install app / ติดตั้งแอป” หรือ “Add to Home screen”';
+    return 'บนคอมพิวเตอร์ให้เปิดเมนู Chrome/Edge → “Install app / ติดตั้งแอป” หากปุ่มยังไม่พร้อม ให้ใช้งานหน้าเว็บอย่างน้อย 30 วินาทีแล้วลองอีกครั้ง';
+  }
+
   function setupInstallPrompt(launcher) {
     if (isStandalone()) return;
-    let deferredPrompt = null;
     const button = launcher.querySelector('.tkn-install-entry');
     button.hidden = false;
 
@@ -569,8 +615,20 @@
       document.querySelector('.tkn-app-install')?.remove();
     };
 
+    const updateInstallButton = () => {
+      if (!button) return;
+      if (isStandalone() || PWA_INSTALL.installed) {
+        button.hidden = true;
+        return;
+      }
+      button.hidden = false;
+      const label = button.querySelector('span:last-child');
+      if (label) label.textContent = PWA_INSTALL.deferredPrompt ? 'ติดตั้งเป็นแอป' : 'ติดตั้งเป็นแอป';
+    };
+
     const openInstallDialog = () => {
       closeInstallDialog();
+      const canPrompt = Boolean(PWA_INSTALL.deferredPrompt);
       const overlay = document.createElement('div');
       overlay.className = 'tkn-app-install no-print';
       overlay.innerHTML = `
@@ -581,43 +639,46 @@
           <h2>${escapeHtml(BRANDING.app_name || COMPANY)}</h2>
           <p>${escapeHtml(BRANDING.install_message || 'ติดตั้งระบบไว้บนหน้าจอหลักเพื่อเปิดใช้งานได้รวดเร็วขึ้น')}</p>
           <div class="tkn-app-install-features">
-            <span>เปิดเร็วจากหน้าจอหลัก</span><span>เหมาะกับมือถือและแท็บเล็ต</span><span>ใช้หน้าจอแบบแอป</span>
+            <span>เปิดเร็วจากหน้าจอหลัก</span><span>รองรับคอมพิวเตอร์ มือถือ และแท็บเล็ต</span><span>ใช้หน้าจอแบบแอป</span>
           </div>
+          ${canPrompt ? '' : `<p class="tkn-app-install-help">${escapeHtml(platformInstallHelp())}</p>`}
           <div class="tkn-app-install-actions">
             <button class="tkn-app-install-cancel" type="button">ไว้ภายหลัง</button>
-            <button class="tkn-app-install-confirm" type="button">${deferredPrompt ? 'ติดตั้งแอป' : 'วิธีติดตั้ง'}</button>
+            <button class="tkn-app-install-confirm" type="button">${canPrompt ? 'ติดตั้งแอป' : 'ตรวจสอบอีกครั้ง'}</button>
           </div>
         </section>`;
       overlay.querySelector('.tkn-app-install-close').addEventListener('click', closeInstallDialog);
       overlay.querySelector('.tkn-app-install-cancel').addEventListener('click', closeInstallDialog);
       overlay.addEventListener('click', event => { if (event.target === overlay) closeInstallDialog(); });
       overlay.querySelector('.tkn-app-install-confirm').addEventListener('click', async () => {
-        if (!deferredPrompt) {
-          toast('เปิดเมนู Browser แล้วเลือก “เพิ่มไปยังหน้าจอหลัก” หรือ “Install app”');
+        const promptEvent = PWA_INSTALL.deferredPrompt;
+        if (!promptEvent) {
+          toast(platformInstallHelp(), 6000);
           closeInstallDialog();
           return;
         }
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice.catch(() => null);
-        if (choice?.outcome === 'accepted') button.hidden = true;
-        deferredPrompt = null;
-        closeInstallDialog();
+        try {
+          await promptEvent.prompt();
+          const choice = await promptEvent.userChoice.catch(() => null);
+          if (choice?.outcome === 'accepted') button.hidden = true;
+        } finally {
+          PWA_INSTALL.deferredPrompt = null;
+          dispatchPwaState('prompt-consumed');
+          closeInstallDialog();
+        }
       });
       document.body.appendChild(overlay);
       overlay.querySelector('.tkn-app-install-confirm')?.focus();
     };
 
     button.addEventListener('click', openInstallDialog);
-    window.addEventListener('beforeinstallprompt', event => {
-      event.preventDefault();
-      deferredPrompt = event;
-      button.hidden = false;
-    });
+    window.addEventListener('tkn:pwa-state', updateInstallButton);
     window.addEventListener('appinstalled', () => {
       button.hidden = true;
       closeInstallDialog();
       toast(`ติดตั้ง ${BRANDING.app_short_name || COMPANY} แล้ว`);
     });
+    updateInstallButton();
   }
 
   function loadThaiCategoryLabels() {
@@ -644,12 +705,26 @@
     }
   }
 
+  let serviceWorkerRegistrationPromise = null;
   function registerServiceWorker() {
-    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.31.22.js', { scope:'./', updateViaCache:'none' })
-        .catch(error => console.warn('Service worker registration failed:', error));
-    });
+    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return Promise.resolve(null);
+    if (serviceWorkerRegistrationPromise) return serviceWorkerRegistrationPromise;
+    serviceWorkerRegistrationPromise = navigator.serviceWorker
+      .register('./service-worker-v5.31.23.js', { scope:'./', updateViaCache:'none' })
+      .then(async registration => {
+        try { await navigator.serviceWorker.ready; } catch {}
+        PWA_INSTALL.serviceWorkerReady = true;
+        PWA_INSTALL.serviceWorkerError = null;
+        dispatchPwaState('service-worker-ready');
+        return registration;
+      })
+      .catch(error => {
+        PWA_INSTALL.serviceWorkerError = error;
+        dispatchPwaState('service-worker-error');
+        console.warn('Service worker registration failed:', error);
+        return null;
+      });
+    return serviceWorkerRegistrationPromise;
   }
 
   function observeDynamicContent() {
@@ -739,6 +814,20 @@
     window.addEventListener('tkn:access-ready', lateMount, { once:true });
     window.addEventListener('tkn-security-ready', lateMount, { once:true });
   }
+
+  // Register PWA worker immediately; do not wait for branding/auth or window.load.
+  registerServiceWorker();
+
+  window.TKNPWAInstall = Object.freeze({
+    version: VERSION,
+    status: () => ({
+      installable: Boolean(PWA_INSTALL.deferredPrompt),
+      installed: isStandalone() || PWA_INSTALL.installed,
+      serviceWorkerReady: PWA_INSTALL.serviceWorkerReady,
+      serviceWorkerError: PWA_INSTALL.serviceWorkerError ? String(PWA_INSTALL.serviceWorkerError.message || PWA_INSTALL.serviceWorkerError) : '',
+      promptSeenAt: PWA_INSTALL.promptSeenAt
+    })
+  });
 
   window.TKNAppNavigation = Object.freeze({ version:VERSION, routes:ROUTES, icons:ICONS, can, canRoute, routeForPage });
   window.TKNAppShell = Object.freeze({ version:VERSION, toast, safeBack, signOut, branding:() => ({ ...BRANDING }) });

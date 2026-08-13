@@ -1,11 +1,11 @@
 {
   "id": "./dashboard.html",
-  "name": "ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี — Final v5.31.22",
+  "name": "ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี — Final v5.31.23",
   "short_name": "เถ้าแก่น้อย ชลบุรี",
   "description": "TKN POS / ERP สำหรับ POS สต็อก คลังสินค้า QR Marketplace ผู้ใช้ และรายงาน รองรับมือถือ แท็บเล็ต และคอมพิวเตอร์",
   "lang": "th",
   "dir": "ltr",
-  "start_url": "./dashboard.html?source=pwa&v=5.31.22",
+  "start_url": "./dashboard.html?source=pwa&v=5.31.23",
   "scope": "./",
   "display": "standalone",
   "display_override": [
@@ -87,5 +87,6 @@
       ]
     }
   ],
-  "version": "5.31.22"
+  "version": "5.31.23",
+  "prefer_related_applications": false
 }
