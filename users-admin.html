@@ -20,10 +20,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.31.22">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
-  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.31.22">
+  <link rel="stylesheet" href="./css/users-admin-v5-31-22.css?v=5.31.22">
 </head>
 <body class="users-page users-admin-ui-v367 users-access-ui">
   <main class="shell">
@@ -31,7 +32,7 @@
       <div><p class="eyebrow">USER & ACCESS MANAGEMENT</p>
         <h1>จัดการผู้ใช้และสิทธิ์</h1>
         <p>กำหนด Role สาขา รหัสพนักงาน PIN และสิทธิ์การใช้งานจากหน้าเดียว</p></div>
-      <div class="head-actions"><a class="button secondary" href="./hardware-settings.html">ตั้งค่าฮาร์ดแวร์</a><a class="button secondary" href="./dashboard.html">Dashboard</a></div>
+      <div class="head-actions"><button id="createEmployeeBtn" class="button employee-create-button" type="button">＋ สร้างบัญชีพนักงาน</button><a class="button secondary" href="./system-settings.html">ตั้งค่าระบบ</a><a class="button secondary" href="./hardware-settings.html">ตั้งค่าฮาร์ดแวร์</a><a class="button secondary" href="./dashboard.html">Dashboard</a></div>
     </header>
 
     <section class="card toolbar access-filter-card">
@@ -85,8 +86,35 @@
       <p id="message"></p>
     </section>
   </main>
-  <script type="module" src="./js/users-admin.js?v=3.7.1"></script>
+
+  <dialog id="createEmployeeDialog" class="employee-dialog">
+    <form id="createEmployeeForm" method="dialog" class="employee-dialog-card">
+      <header class="employee-dialog-head">
+        <div><span>EMPLOYEE ACCOUNT</span><h2>สร้างบัญชีพนักงาน</h2><p>พนักงานใช้รหัสพนักงาน + รหัสผ่านเข้า TKN ได้ โดยไม่ต้องกรอกอีเมลเอง</p></div>
+        <button id="closeEmployeeDialog" class="employee-dialog-close" type="button" aria-label="ปิด">×</button>
+      </header>
+      <div class="employee-form-grid">
+        <label><span>รหัสพนักงาน *</span><input id="newEmployeeCode" required maxlength="32" autocomplete="off" placeholder="เช่น STAFF001"></label>
+        <label><span>ชื่อพนักงาน *</span><input id="newDisplayName" required maxlength="120" autocomplete="off"></label>
+        <label><span>Role *</span><select id="newRole" required></select></label>
+        <label><span>สาขา</span><select id="newBranch"><option value="">ทุกสาขา/ไม่ระบุ</option></select></label>
+        <label><span>รหัสผ่าน Login *</span><input id="newLoginPassword" type="password" minlength="8" maxlength="72" required autocomplete="new-password" placeholder="อย่างน้อย 8 ตัว"></label>
+        <label><span>ยืนยันรหัสผ่าน *</span><input id="confirmLoginPassword" type="password" minlength="8" maxlength="72" required autocomplete="new-password"></label>
+        <label><span>PIN หน้า POS *</span><input id="newPin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" minlength="4" maxlength="12" required autocomplete="new-password" placeholder="ตัวเลข 4–12 หลัก"></label>
+        <label><span>ส่วนลดสูงสุด (%)</span><input id="newMaxDiscount" type="number" min="0" max="100" step=".01" value="0"></label>
+      </div>
+      <div class="employee-create-toggles">
+        <label><input id="newCanOpenDrawer" type="checkbox"><span>อนุญาตเปิดลิ้นชักเงินสด</span></label>
+        <label><input id="newIsActive" type="checkbox" checked><span>เปิดใช้งานบัญชีทันที</span></label>
+      </div>
+      <div class="employee-login-preview"><span>ชื่อ Login ภายในระบบ</span><strong id="newLoginPreview">กรอกรหัสพนักงาน</strong><small>ระบบสร้างอีเมลภายในอัตโนมัติและไม่แสดงให้พนักงานต้องกรอก</small></div>
+      <p id="createEmployeeMessage" class="employee-dialog-message" role="status" aria-live="polite"></p>
+      <footer class="employee-dialog-actions"><button id="cancelEmployeeBtn" class="button secondary" type="button">ยกเลิก</button><button id="submitEmployeeBtn" class="button" type="submit">สร้างบัญชี</button></footer>
+    </form>
+  </dialog>
+
+  <script type="module" src="./js/users-admin-v5-31-22.js?v=5.31.22"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.31.22" defer></script>
 </body>
 </html>

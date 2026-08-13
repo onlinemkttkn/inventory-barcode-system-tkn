@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>ตั้งค่าระบบ</title>
+  <link rel="icon" href="./assets/icons/favicon.svg?v=1.0.2">
+  <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
+  <link rel="stylesheet" href="./css/global-font.css?v=4.7.0">
+  <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.31.22">
+  <link rel="stylesheet" href="./css/system-settings-v5-31-22.css?v=5.31.22">
+  <meta name="theme-color" content="#c8101e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
+  <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.31.22">
+</head>
+<body class="system-settings-page">
+<main class="settings-shell">
+  <header class="settings-hero">
+    <div>
+      <span class="settings-kicker">SYSTEM SETTINGS · v5.31.22</span>
+      <h1>ตั้งค่าระบบ</h1>
+      <p>แก้ข้อมูลบริษัท โลโก้ ข้อมูลใบเสร็จ และหน้าติดตั้งแอปได้จากหน้าเว็บ โดยไม่ต้องแก้ไฟล์ Code</p>
+    </div>
+    <div class="settings-hero-actions">
+      <a class="settings-btn settings-btn-secondary" href="./users-admin.html">บัญชีพนักงาน</a>
+      <button id="reloadBtn" class="settings-btn settings-btn-secondary" type="button">โหลดใหม่</button>
+      <button id="saveBtn" class="settings-btn settings-btn-primary" type="button">บันทึกการตั้งค่า</button>
+    </div>
+  </header>
+
+  <section class="settings-grid">
+    <article class="settings-card settings-card-main">
+      <div class="settings-card-head">
+        <div><span>COMPANY</span><h2>ข้อมูลบริษัท</h2></div>
+        <p>ข้อมูลส่วนนี้ใช้กับ App Shell และสามารถนำไปใช้กับเอกสาร/ใบเสร็จได้</p>
+      </div>
+      <div class="settings-form-grid">
+        <label class="settings-field"><span>ชื่อที่แสดงในระบบ</span><input id="companyName" maxlength="120" placeholder="เถ้าแก่น้อย ชลบุรี"></label>
+        <label class="settings-field"><span>ชื่อบริษัทเต็ม</span><input id="companyLegalName" maxlength="180" placeholder="บริษัท เถ้าแก่น้อย ชลบุรี จำกัด"></label>
+        <label class="settings-field"><span>ชื่อย่อ</span><input id="companyShortName" maxlength="80" placeholder="เถ้าแก่น้อย ชลบุรี"></label>
+        <label class="settings-field"><span>เลขประจำตัวผู้เสียภาษี</span><input id="taxId" maxlength="40" inputmode="numeric"></label>
+        <label class="settings-field"><span>โทรศัพท์</span><input id="phone" maxlength="80" inputmode="tel"></label>
+        <label class="settings-field"><span>อีเมลบริษัท</span><input id="companyEmail" maxlength="160" type="email"></label>
+        <label class="settings-field settings-field-wide"><span>ที่อยู่</span><textarea id="address" rows="3" maxlength="1000"></textarea></label>
+        <label class="settings-field settings-field-wide"><span>ข้อความท้ายใบเสร็จ</span><input id="receiptFooter" maxlength="240" placeholder="ขอบคุณที่ใช้บริการ"></label>
+      </div>
+    </article>
+
+    <aside class="settings-card branding-card">
+      <div class="settings-card-head">
+        <div><span>BRANDING</span><h2>โลโก้และตัวอย่าง</h2></div>
+      </div>
+      <div class="brand-preview">
+        <div class="brand-logo-frame"><img id="logoPreview" src="./assets/tkn-company-logo.png" alt="ตัวอย่างโลโก้"></div>
+        <strong id="previewCompany">เถ้าแก่น้อย ชลบุรี</strong>
+        <small id="previewAppName">ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี</small>
+      </div>
+      <label class="settings-field"><span>อัปโหลดโลโก้</span><input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
+      <label class="settings-field"><span>Logo URL / Path</span><input id="logoUrl" maxlength="1000" placeholder="./assets/tkn-company-logo.png"></label>
+      <button id="defaultLogoBtn" class="settings-btn settings-btn-ghost" type="button">ใช้โลโก้เดิมของระบบ</button>
+      <p class="settings-hint">ไฟล์ที่อัปโหลดจะเก็บใน Supabase Storage bucket <code>tkn-branding</code> และหน้าเว็บจะใช้ URL เดิมต่อเนื่องโดยไม่ต้องแก้ Code</p>
+    </aside>
+  </section>
+
+  <section class="settings-card pwa-card">
+    <div class="settings-card-head pwa-head">
+      <div><span>PWA / INSTALL APP</span><h2>ชื่อแอปและหน้าติดตั้ง</h2><p>ปรับข้อความที่ผู้ใช้เห็นตอนติดตั้ง และสีหลักของแอป</p></div>
+      <div class="theme-preview" id="themePreview" aria-label="ตัวอย่างสี Theme"></div>
+    </div>
+    <div class="settings-form-grid pwa-grid">
+      <label class="settings-field"><span>ชื่อแอป</span><input id="appName" maxlength="120"></label>
+      <label class="settings-field"><span>ชื่อย่อแอป</span><input id="appShortName" maxlength="60"></label>
+      <label class="settings-field"><span>Theme color</span><div class="color-row"><input id="themeColorPicker" type="color" value="#c8101e"><input id="themeColor" maxlength="7" pattern="#[0-9A-Fa-f]{6}" value="#c8101e"></div></label>
+      <label class="settings-field settings-field-wide"><span>ข้อความหน้า Install App</span><textarea id="installMessage" rows="3" maxlength="280"></textarea></label>
+    </div>
+    <div class="install-preview">
+      <img id="installLogoPreview" src="./assets/tkn-company-logo.png" alt="โลโก้หน้า Install App">
+      <div><strong id="installAppPreview">ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี</strong><p id="installTextPreview">ติดตั้งระบบไว้บนหน้าจอหลักเพื่อเปิดใช้งานได้รวดเร็วขึ้น</p></div>
+      <span class="install-preview-button">ติดตั้งแอป</span>
+    </div>
+    <p class="settings-note"><strong>หมายเหตุ:</strong> ชื่อ/ข้อความ/โลโก้ใน Install Panel ของระบบเปลี่ยนจากหน้านี้ทันที ส่วน Icon ที่ระบบปฏิบัติการแสดงหลังติดตั้งยังใช้ไฟล์ PWA icon มาตรฐานใน Manifest ของ Release นี้ เพื่อความเสถียรของการติดตั้ง</p>
+  </section>
+
+  <section class="settings-status-card">
+    <div><strong>สถานะ</strong><p id="message" role="status" aria-live="polite">กำลังตรวจสิทธิ์และโหลดการตั้งค่า...</p></div>
+    <span id="actorBadge">กำลังตรวจสิทธิ์...</span>
+  </section>
+</main>
+<script type="module" src="./js/system-settings-v5-31-22.js?v=5.31.22"></script>
+<script src="./js/tkn-safe-back.js?v=5.31.22"></script>
+<script src="./js/app-shell-v5-19.js?v=5.31.22" defer></script>
+</body>
+</html>

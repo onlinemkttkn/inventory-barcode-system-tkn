@@ -24,22 +24,22 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.20.4">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.31.22">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
-  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.20.4">
+  <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.31.22">
 </head>
 <body class="dashboard-page tkn-auth-loading" data-loading-text="กำลังตรวจสอบผู้ใช้งาน..." data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
   <header class="topbar">
     <div class="dashboard-title-block">
-      <h1>Dashboard ร้านเถ้าแก่น้อยชลบุรี</h1>
+      <h1>Dashboard <span data-tkn-company-name>ร้านเถ้าแก่น้อยชลบุรี</span></h1>
       <p id="welcomeText">กำลังตรวจสอบผู้ใช้งาน...</p>
       <p class="integration-note">ภาพรวมตัวเลขธุรกิจ ยอดขาย สต็อก และรายงานสำหรับผู้บริหาร</p>
     </div>
     <div class="dashboard-login-brand" aria-label="บริษัท เถ้าแก่น้อย ชลบุรี จำกัด">
-      <img src="./assets/tkn-company-logo.png" alt="เถ้าแก่น้อย ชลบุรี">
-      <strong>บริษัท เถ้าแก่น้อย ชลบุรี จำกัด</strong>
+      <img data-tkn-company-logo src="./assets/tkn-company-logo.png" alt="เถ้าแก่น้อย ชลบุรี">
+      <strong data-tkn-company-legal-name>บริษัท เถ้าแก่น้อย ชลบุรี จำกัด</strong>
       <span>ระบบบริหารร้านค้า POS / ERP</span>
     </div>
     <div class="dashboard-context-panel">
@@ -71,7 +71,7 @@
   <section id="loginCard" class="card login-card hidden">
     <h2>เข้าสู่ระบบภายในองค์กร</h2>
     <form id="loginForm" class="form-grid">
-      <label>อีเมล<input id="email" type="email" autocomplete="username" required></label>
+      <label>อีเมล หรือ รหัสพนักงาน<input id="email" type="text" autocomplete="username" autocapitalize="characters" required placeholder="เช่น STAFF001 หรือ name@example.com"></label>
       <label>รหัสผ่าน<input id="password" type="password" autocomplete="current-password" required></label>
       <button class="btn primary" type="submit">เข้าสู่ระบบ</button>
     </form>
@@ -302,11 +302,11 @@
 <script src="./js/auth-guard.js?v=3.6.11"></script>
 <script src="./js/go-live-security.js?v=5.2.0"></script>
 <script src="./js/dashboard-live-numbers.js?v=5.3.0"></script>
-<script src="./js/dashboard.js?v=5.13.1"></script>
+<script src="./js/dashboard-v5-31-22.js?v=5.31.22"></script>
 <script src="./js/executive-report.js?v=5.13.1"></script>
 <script src="./js/dashboard-analytics-v5-3.js?v=5.13.1"></script>
 <script src="./js/dashboard-realtime.js?v=5.13.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.31.22" defer></script>
 </body>
 </html>

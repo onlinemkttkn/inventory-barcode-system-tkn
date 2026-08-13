@@ -1,8 +1,18 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.31.21';
-  const COMPANY = 'เถ้าแก่น้อย ชลบุรี';
+  const VERSION = '5.31.22';
+  const COMPANY_DEFAULT = 'เถ้าแก่น้อย ชลบุรี';
+  let COMPANY = COMPANY_DEFAULT;
+  let BRANDING = {
+    company_name: COMPANY_DEFAULT,
+    company_short_name: COMPANY_DEFAULT,
+    app_name: 'ระบบบริหารร้านเถ้าแก่น้อย ชลบุรี',
+    app_short_name: COMPANY_DEFAULT,
+    logo_url: './assets/tkn-company-logo.png',
+    theme_color: '#c8101e',
+    install_message: 'ติดตั้งระบบไว้บนหน้าจอหลักเพื่อเปิดใช้งานได้รวดเร็วขึ้น'
+  };
   const SESSION_CACHE_KEY = 'tkn_access_context_v3';
   const SHARED_CACHE_KEY = 'tkn_access_context_shared_v4';
   const SHARED_CACHE_TTL = 5 * 60_000;
@@ -40,6 +50,7 @@
     users: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M2 20a6 6 0 0 1 12 0M14 15a5 5 0 0 1 7 4"/></svg>',
     audit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/><circle cx="18" cy="18" r="3"/></svg>',
     hardware: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V3h10v5M6 17H4V9h16v8h-2"/><path d="M7 14h10v7H7zM17 11h.01"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg>',
     back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
     more: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
     logout: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg>',
@@ -72,6 +83,7 @@
 
     { key:'members', group:'สมาชิกและผู้ดูแล', label:'สมาชิก', short:'สมาชิก', href:'./members.html', icon:'member', any:['member.view','member.create','member.apply'], pages:['members.html','member-history.html'] },
     { key:'users', group:'สมาชิกและผู้ดูแล', label:'ผู้ใช้และสิทธิ์', short:'ผู้ใช้', href:'./users-admin.html', icon:'users', any:['user.manage'], pages:['users-admin.html'] },
+    { key:'settings', group:'สมาชิกและผู้ดูแล', label:'ตั้งค่าระบบ', short:'ตั้งค่า', href:'./system-settings.html', icon:'settings', any:['user.manage'], pages:['system-settings.html'] },
     { key:'audit', group:'สมาชิกและผู้ดูแล', label:'Audit Log', short:'Audit', href:'./audit-log.html', icon:'audit', any:['audit.view'], pages:['audit-log.html'] },
     { key:'hardware', group:'สมาชิกและผู้ดูแล', label:'ตั้งค่าเครื่องพิมพ์', short:'เครื่องพิมพ์', href:'./hardware-settings.html', icon:'hardware', any:['hardware.manage','user.manage'], pages:['hardware-settings.html'] }
   ]);
@@ -87,7 +99,7 @@
     'phase-9-2-bill-search.html':'ค้นหาบิลย้อนหลัง', 'import-export.html':'นำเข้า / ส่งออก',
     'shopee-import.html':'นำเข้า Shopee', 'lazada-import.html':'นำเข้า Lazada',
     'manual-product-import.html':'นำเข้าสินค้าด้วยตนเอง', 'hardware-settings.html':'ตั้งค่าเครื่องพิมพ์',
-    'users-admin.html':'ผู้ใช้และสิทธิ์', 'audit-log.html':'Audit Log', 'members.html':'สมาชิก',
+    'users-admin.html':'ผู้ใช้และสิทธิ์', 'system-settings.html':'ตั้งค่าระบบ', 'audit-log.html':'Audit Log', 'members.html':'สมาชิก',
     'member-history.html':'ประวัติสมาชิก', 'suppliers.html':'ผู้ขาย / จัดซื้อ', 'purchase-order-create.html':'สร้างใบสั่งซื้อ',
     'purchase-order-history.html':'ประวัติใบสั่งซื้อ', 'sales-return.html':'คืนสินค้า',
     'sales-return-history.html':'ประวัติคืนสินค้า', 'sales-return-report.html':'รายงานคืนสินค้า'
@@ -189,6 +201,20 @@
     return window.supabaseClient || null;
   }
 
+  async function loadBranding() {
+    try {
+      await ensureSupabaseClient();
+      if (!window.TKNBranding) await loadScript('./js/tkn-branding-v5-31-22.js?v=5.31.22');
+      if (window.TKNBranding?.load) {
+        BRANDING = await window.TKNBranding.load();
+        COMPANY = BRANDING.company_short_name || BRANDING.company_name || COMPANY_DEFAULT;
+      }
+    } catch (error) {
+      console.warn('App shell branding load failed:', error);
+    }
+    return BRANDING;
+  }
+
   async function getSession(client) {
     let lastError = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -201,6 +227,31 @@
     }
     if (lastError) console.warn('App shell session lookup failed:', lastError);
     return null;
+  }
+
+  async function decorateEmployeeAccess(client, rawAccess) {
+    const access = normalizeAccess(rawAccess);
+    if (!access) return null;
+    const identity = String(access.full_name || access.email || '').toLowerCase();
+    if (!identity.endsWith('@staff.tkn.local')) return access;
+    try {
+      const { data, error } = await client
+        .from('cashier_profiles')
+        .select('display_name,employee_code,branch_id')
+        .eq('user_id', access.user_id)
+        .maybeSingle();
+      if (!error && data) {
+        return {
+          ...access,
+          full_name: data.display_name || data.employee_code || access.full_name,
+          employee_code: data.employee_code || access.employee_code || '',
+          branch_id: access.branch_id || data.branch_id || null
+        };
+      }
+    } catch (error) {
+      console.warn('Employee identity decoration failed:', error);
+    }
+    return access;
   }
 
   async function fetchAccess(client, session) {
@@ -216,7 +267,7 @@
             location.replace('./index.html');
             return null;
           }
-          return saveAccess(access);
+          return saveAccess(await decorateEmployeeAccess(client, access));
         }
         lastError = result.error || new Error('ข้อมูลสิทธิ์ไม่ตรงกับผู้ใช้งานปัจจุบัน');
       } catch (error) { lastError = error; }
@@ -369,8 +420,8 @@
     sidebar.setAttribute('aria-label', 'เมนูระบบ');
     sidebar.innerHTML = `
       <a class="tkn-shell-brand" href="./dashboard.html" aria-label="${COMPANY}">
-        <img src="./assets/tkn-company-logo.png?v=${VERSION}" alt="${COMPANY}">
-        <span><strong>ระบบบริหารร้านค้า</strong><small>Final v${VERSION}</small></span>
+        <img src="${escapeHtml(BRANDING.logo_url || `./assets/tkn-company-logo.png?v=${VERSION}`)}" alt="${escapeHtml(COMPANY)}">
+        <span><strong>${escapeHtml(COMPANY)}</strong><small>ระบบบริหารร้านค้า · Final v${VERSION}</small></span>
       </a>
       <div class="tkn-shell-user">
         <span class="tkn-shell-avatar" aria-hidden="true">${escapeHtml((access.full_name || access.email || 'U').trim().charAt(0).toUpperCase())}</span>
@@ -398,7 +449,7 @@
     header.innerHTML = `
       ${isHome() ? '' : `<button class="tkn-mobile-back" type="button" aria-label="ย้อนกลับ" title="ย้อนกลับ"><span class="tkn-shell-icon">${ICONS.back}</span></button>`}
       <a class="tkn-mobile-brand" href="./dashboard.html" aria-label="${COMPANY}">
-        <img src="./assets/tkn-company-logo.png?v=${VERSION}" alt="${COMPANY}">
+        <img src="${escapeHtml(BRANDING.logo_url || `./assets/tkn-company-logo.png?v=${VERSION}`)}" alt="${escapeHtml(COMPANY)}">
         <span class="tkn-mobile-title-copy"><strong>${escapeHtml(pageTitle())}</strong><small>Final v${VERSION}</small></span>
       </a>`;
     header.querySelector('.tkn-mobile-back')?.addEventListener('click', safeBack);
@@ -512,16 +563,51 @@
     if (isStandalone()) return;
     let deferredPrompt = null;
     const button = launcher.querySelector('.tkn-install-entry');
-    button.addEventListener('click', async () => {
-      if (!deferredPrompt) {
-        toast('เปิดเมนู Browser แล้วเลือก “เพิ่มไปยังหน้าจอหลัก”');
-        return;
-      }
-      deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice.catch(() => null);
-      if (choice?.outcome === 'accepted') button.hidden = true;
-      deferredPrompt = null;
-    });
+    button.hidden = false;
+
+    const closeInstallDialog = () => {
+      document.querySelector('.tkn-app-install')?.remove();
+    };
+
+    const openInstallDialog = () => {
+      closeInstallDialog();
+      const overlay = document.createElement('div');
+      overlay.className = 'tkn-app-install no-print';
+      overlay.innerHTML = `
+        <section class="tkn-app-install-card" role="dialog" aria-modal="true" aria-label="ติดตั้งแอป">
+          <button class="tkn-app-install-close" type="button" aria-label="ปิด">×</button>
+          <div class="tkn-app-install-logo"><img src="${escapeHtml(BRANDING.logo_url || './assets/tkn-company-logo.png')}" alt="${escapeHtml(COMPANY)}"></div>
+          <span class="tkn-app-install-kicker">INSTALL APP</span>
+          <h2>${escapeHtml(BRANDING.app_name || COMPANY)}</h2>
+          <p>${escapeHtml(BRANDING.install_message || 'ติดตั้งระบบไว้บนหน้าจอหลักเพื่อเปิดใช้งานได้รวดเร็วขึ้น')}</p>
+          <div class="tkn-app-install-features">
+            <span>เปิดเร็วจากหน้าจอหลัก</span><span>เหมาะกับมือถือและแท็บเล็ต</span><span>ใช้หน้าจอแบบแอป</span>
+          </div>
+          <div class="tkn-app-install-actions">
+            <button class="tkn-app-install-cancel" type="button">ไว้ภายหลัง</button>
+            <button class="tkn-app-install-confirm" type="button">${deferredPrompt ? 'ติดตั้งแอป' : 'วิธีติดตั้ง'}</button>
+          </div>
+        </section>`;
+      overlay.querySelector('.tkn-app-install-close').addEventListener('click', closeInstallDialog);
+      overlay.querySelector('.tkn-app-install-cancel').addEventListener('click', closeInstallDialog);
+      overlay.addEventListener('click', event => { if (event.target === overlay) closeInstallDialog(); });
+      overlay.querySelector('.tkn-app-install-confirm').addEventListener('click', async () => {
+        if (!deferredPrompt) {
+          toast('เปิดเมนู Browser แล้วเลือก “เพิ่มไปยังหน้าจอหลัก” หรือ “Install app”');
+          closeInstallDialog();
+          return;
+        }
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice.catch(() => null);
+        if (choice?.outcome === 'accepted') button.hidden = true;
+        deferredPrompt = null;
+        closeInstallDialog();
+      });
+      document.body.appendChild(overlay);
+      overlay.querySelector('.tkn-app-install-confirm')?.focus();
+    };
+
+    button.addEventListener('click', openInstallDialog);
     window.addEventListener('beforeinstallprompt', event => {
       event.preventDefault();
       deferredPrompt = event;
@@ -529,7 +615,8 @@
     });
     window.addEventListener('appinstalled', () => {
       button.hidden = true;
-      toast(`ติดตั้ง ${COMPANY} แล้ว`);
+      closeInstallDialog();
+      toast(`ติดตั้ง ${BRANDING.app_short_name || COMPANY} แล้ว`);
     });
   }
 
@@ -560,7 +647,7 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker-v5.31.21.js', { scope:'./', updateViaCache:'none' })
+      navigator.serviceWorker.register('./service-worker-v5.31.22.js', { scope:'./', updateViaCache:'none' })
         .catch(error => console.warn('Service worker registration failed:', error));
     });
   }
@@ -625,6 +712,7 @@
 
   async function start() {
     loadUnifiedScanner();
+    await loadBranding();
     document.body.classList.add('tkn-shell-loading');
     if (SKIP_SHELL.has(currentPage)) {
       if (PRINT_PAGES.has(currentPage)) document.body.classList.add('tkn-print-page');
@@ -653,7 +741,7 @@
   }
 
   window.TKNAppNavigation = Object.freeze({ version:VERSION, routes:ROUTES, icons:ICONS, can, canRoute, routeForPage });
-  window.TKNAppShell = Object.freeze({ version:VERSION, toast, safeBack, signOut });
+  window.TKNAppShell = Object.freeze({ version:VERSION, toast, safeBack, signOut, branding:() => ({ ...BRANDING }) });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once:true });
   else start();
