@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '5.31.26';
+  const VERSION = '5.31.27';
   const COMPANY_DEFAULT = 'เถ้าแก่น้อย ชลบุรี';
   let COMPANY = COMPANY_DEFAULT;
   let BRANDING = {
@@ -710,7 +710,7 @@
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return Promise.resolve(null);
     if (serviceWorkerRegistrationPromise) return serviceWorkerRegistrationPromise;
     serviceWorkerRegistrationPromise = navigator.serviceWorker
-      .register('./service-worker-v5.31.26.js', { scope:'./', updateViaCache:'none' })
+      .register('./service-worker-v5.31.27.js', { scope:'./', updateViaCache:'none' })
       .then(async registration => {
         try { await navigator.serviceWorker.ready; } catch {}
         PWA_INSTALL.serviceWorkerReady = true;

@@ -21,18 +21,18 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.31.26">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.31.27">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.26.2">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
-  <link rel="stylesheet" href="./css/pos-counter-classic-v5-31-26.css?v=5.31.26">
+  <link rel="stylesheet" href="./css/pos-counter-classic-v5-31-27.css?v=5.31.27">
 </head>
 <body class="pos-product-ui pos-counter-classic">
   <header class="pos-topbar pos-terminal-titlebar">
     <div class="pos-title-copy">
-      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.26</p>
+      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.27</p>
       <h1>ขายหน้าร้าน</h1>
       <p id="cashierStatus">กำลังตรวจสอบพนักงานและกะ...</p>
     </div>
@@ -104,8 +104,34 @@
         <label>ส่วนลดท้ายบิล
           <input id="discount" type="number" min="0" step="0.01" value="0">
         </label>
+
+        <section class="pos-vat-panel" aria-labelledby="vatModeTitle">
+          <div class="pos-vat-heading">
+            <div><span class="pos-section-kicker">VAT CONTROL</span><strong id="vatModeTitle">ภาษีมูลค่าเพิ่ม</strong></div>
+            <small id="vatModeHelp">VAT ใน 7% · ราคาที่เห็นรวม VAT แล้ว</small>
+          </div>
+          <div class="pos-vat-modes" role="radiogroup" aria-label="รูปแบบ VAT">
+            <label class="pos-vat-option">
+              <input type="radio" name="vatMode" value="NONE">
+              <span><b>ปิด VAT</b><small>ไม่คิดภาษี</small></span>
+            </label>
+            <label class="pos-vat-option">
+              <input type="radio" name="vatMode" value="INCLUDED" checked>
+              <span><b>VAT ใน 7%</b><small>รวมอยู่ในราคา</small></span>
+            </label>
+            <label class="pos-vat-option">
+              <input type="radio" name="vatMode" value="EXCLUDED">
+              <span><b>VAT นอก 7%</b><small>บวกเพิ่มท้ายบิล</small></span>
+            </label>
+          </div>
+          <div class="pos-vat-breakdown">
+            <div><span id="vatBaseLabel">ฐานก่อน VAT</span><strong id="vatBaseAmount">฿0.00</strong></div>
+            <div><span id="vatAmountLabel">VAT 7% (รวมในราคา)</span><strong id="vatAmount">฿0.00</strong></div>
+          </div>
+        </section>
+
         <div class="summary-line net"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
-<label>หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
+        <label class="pos-note-field">หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
 
         <div class="pos-main-quick-cash">
           <div class="pos-main-quick-title"><span>รับเงินสดด่วน</span><small>กดจำนวนเงินเพื่อเปิดหน้าชำระ</small></div>
@@ -119,7 +145,6 @@
             <button class="exact" type="button" data-cash="exact">เงินพอดี</button>
           </div>
         </div>
-        <div class="pos-tax-chip">VAT 7% · คำนวณโดยระบบ</div>
         <button id="checkout" class="btn success checkout-button" type="button">
           ชำระเงิน
         </button>
@@ -362,10 +387,10 @@
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
-  <script type="module" src="./pos-v5-31-26.js?v=5.31.26"></script>
+  <script type="module" src="./pos-v5-31-27.js?v=5.31.27"></script>
   <script type="module" src="./js/pos-box-sale-inline-v5-26-2.js?v=5.26.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.31.26" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.31.27" defer></script>
 <script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>
