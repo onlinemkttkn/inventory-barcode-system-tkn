@@ -1205,3 +1205,222 @@ body.pos-product-ui.pos-counter-classic .summary h2{
     gap:6px;
   }
 }
+
+
+/* ============================================================================
+   v5.31.28-HF5 — FIXED CART ROWS + ALWAYS-VISIBLE ROW ACTIONS
+   Keep every scanned sale row the same size. Overflow belongs to #cart, not
+   inside individual rows. Product identity/stock/normal unit price and the
+   final delete action must remain reachable while many rows are in the cart.
+   ============================================================================ */
+
+/* Neutralize legacy flex/grid stretching/shrinking on the cart list itself. */
+.pos-counter-classic #cart{
+  display:block!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+
+/* Desktop / notebook sale row contract. */
+.pos-counter-classic .cart-item{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 333px!important;
+  align-items:center!important;
+  width:100%;
+  height:84px!important;
+  min-height:84px!important;
+  max-height:84px!important;
+  box-sizing:border-box;
+  flex:0 0 84px!important;
+  flex-shrink:0!important;
+  gap:8px!important;
+  padding:8px 12px!important;
+  overflow:visible!important;
+}
+
+.pos-counter-classic .cart-info{
+  min-width:0!important;
+  max-width:100%;
+  overflow:hidden;
+}
+.pos-counter-classic .cart-info strong{
+  display:block;
+  min-width:0;
+  max-width:100%;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pos-counter-classic .cart-info small{
+  display:block;
+  min-width:0;
+  max-width:100%;
+  margin-top:2px;
+  line-height:1.25;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.pos-counter-classic .item-discount-line{
+  min-width:0;
+  margin-top:2px;
+  line-height:1.15;
+}
+
+/* Four fixed control slots: qty | price | discount | delete. */
+.pos-counter-classic .cart-controls{
+  display:grid!important;
+  grid-template-columns:58px 92px 117px 51px!important;
+  align-items:center!important;
+  justify-content:end!important;
+  justify-self:end!important;
+  width:333px!important;
+  min-width:333px!important;
+  max-width:333px!important;
+  gap:5px!important;
+  overflow:visible!important;
+}
+.pos-counter-classic .cart-controls>*{
+  min-width:0!important;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.pos-counter-classic .cart-controls input{
+  width:100%!important;
+  min-height:34px!important;
+  height:34px!important;
+}
+.pos-counter-classic .cart-price-block{
+  width:100%;
+  min-width:0;
+  text-align:right;
+  white-space:nowrap;
+}
+.pos-counter-classic .cart-price-block span,
+.pos-counter-classic .cart-price-block small{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pos-counter-classic .cart-controls .btn{
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  width:100%!important;
+  min-width:0!important;
+  min-height:34px!important;
+  height:34px!important;
+  padding:4px 5px!important;
+  line-height:1.1!important;
+}
+.pos-counter-classic .cart-controls .btn.danger{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:static!important;
+  white-space:nowrap!important;
+}
+.pos-cart-column-head{
+  grid-template-columns:minmax(0,1fr) 333px!important;
+  gap:8px!important;
+}
+
+/* Notebook: preserve the delete button by shrinking control columns first,
+   never by shrinking the sale row itself. */
+@media (max-width:1366px) and (min-width:1025px){
+  .pos-counter-classic .cart-item{
+    grid-template-columns:minmax(0,1fr) 293px!important;
+  }
+  .pos-counter-classic .cart-controls{
+    grid-template-columns:52px 77px 105px 44px!important;
+    width:293px!important;
+    min-width:293px!important;
+    max-width:293px!important;
+  }
+  .pos-counter-classic .cart-controls .btn{
+    font-size:.61rem!important;
+    padding-inline:3px!important;
+  }
+  .pos-cart-column-head{
+    grid-template-columns:minmax(0,1fr) 293px!important;
+  }
+}
+
+/* Tablet: rows remain fixed; only the cart viewport scrolls. */
+@media (max-width:1024px) and (min-width:641px){
+  .pos-counter-classic .cart-item{
+    grid-template-columns:minmax(0,1fr) 320px!important;
+    height:90px!important;
+    min-height:90px!important;
+    max-height:90px!important;
+    flex-basis:90px!important;
+  }
+  .pos-counter-classic .cart-controls{
+    grid-template-columns:58px 84px 114px 49px!important;
+    width:320px!important;
+    min-width:320px!important;
+    max-width:320px!important;
+  }
+  .pos-cart-column-head{
+    grid-template-columns:minmax(0,1fr) 320px!important;
+  }
+}
+
+/* Mobile: info stays above the four controls, but every scanned row still has
+   one fixed height and the delete button stays inside the viewport. */
+@media (max-width:640px){
+  .pos-counter-classic .cart-item{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(0,1fr) 40px!important;
+    align-content:stretch!important;
+    height:118px!important;
+    min-height:118px!important;
+    max-height:118px!important;
+    flex-basis:118px!important;
+    gap:5px!important;
+    padding:8px!important;
+    overflow:hidden!important;
+  }
+  .pos-counter-classic .cart-info{
+    align-self:start;
+  }
+  .pos-counter-classic .cart-info strong{
+    font-size:.78rem!important;
+  }
+  .pos-counter-classic .cart-info small{
+    font-size:.62rem!important;
+    line-height:1.18;
+  }
+  .pos-counter-classic .cart-controls{
+    grid-template-columns:54px minmax(68px,1fr) minmax(92px,1.35fr) 48px!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    justify-self:stretch!important;
+    gap:4px!important;
+  }
+  .pos-counter-classic .cart-controls input,
+  .pos-counter-classic .cart-controls .btn{
+    min-height:40px!important;
+    height:40px!important;
+  }
+  .pos-counter-classic .cart-controls .btn{
+    font-size:.58rem!important;
+    padding-inline:3px!important;
+    white-space:normal!important;
+  }
+  .pos-counter-classic .cart-controls .btn.danger{
+    white-space:nowrap!important;
+  }
+}
+
+@media (max-width:390px){
+  .pos-counter-classic .cart-controls{
+    grid-template-columns:50px minmax(62px,1fr) minmax(86px,1.25fr) 44px!important;
+  }
+  .pos-counter-classic .cart-controls .btn{
+    font-size:.55rem!important;
+  }
+}

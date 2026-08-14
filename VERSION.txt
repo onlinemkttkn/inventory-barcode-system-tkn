@@ -1,2 +1,2 @@
-TKN POS / ERP Final v5.31.28-HF4
-Whole Box Sale Dialog + Shift Clock + Summary Actions
+TKN POS / ERP Final v5.31.28-HF5
+POS Fixed Cart Row + Always Visible Actions
