@@ -21,34 +21,38 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="เถ้าแก่น้อย ชลบุรี">
   <link rel="apple-touch-icon" href="./assets/icons/tkn-app-192.png">
-  <link rel="manifest" href="./manifest.webmanifest?v=5.31.5">
+  <link rel="manifest" href="./manifest.webmanifest?v=5.31.26">
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.26.2">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
+  <link rel="stylesheet" href="./css/pos-counter-classic-v5-31-26.css?v=5.31.26">
 </head>
-<body class="pos-product-ui">
-  <header class="pos-topbar">
-    <div>
-      <p class="eyebrow">เถ้าแก่น้อย ชลบุรี · POS</p>
+<body class="pos-product-ui pos-counter-classic">
+  <header class="pos-topbar pos-terminal-titlebar">
+    <div class="pos-title-copy">
+      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.26</p>
       <h1>ขายหน้าร้าน</h1>
       <p id="cashierStatus">กำลังตรวจสอบพนักงานและกะ...</p>
     </div>
-    <div class="top-actions">
-      <button id="boxSaleButton" class="btn history-action" type="button" hidden>ขายยกกล่อง</button>
-      <a id="salesHistoryLink" class="btn history-action" href="./sales-history.html">ประวัติการขาย</a>
-      <button id="holdBill" class="btn secondary" type="button">พักบิล</button>
-      <button id="restoreBill" class="btn secondary" type="button">เปิดบิลพัก</button>
-      <button id="openShift" class="btn success" type="button">เปิดกะ</button>
-      <button id="closeShift" class="btn danger" type="button" hidden>ปิดกะ</button>
+    <div class="pos-terminal-clock" aria-label="วันและเวลาปัจจุบัน">
+      <span id="posLiveDate">--/--/----</span>
+      <strong id="posLiveTime">--:--:--</strong>
     </div>
   </header>
+
+  <section class="pos-terminal-meta" aria-label="ข้อมูลจุดขาย">
+    <div><span>ผู้ขาย</span><strong id="posTerminalSeller">รอเปิดกะ</strong></div>
+    <div><span>สาขา / จุดขาย</span><strong id="posTerminalBranch">กำลังโหลด...</strong></div>
+    <div><span>กะปัจจุบัน</span><strong id="posTerminalShift">ยังไม่เปิดกะ</strong></div>
+    <div class="pos-terminal-status"><span>สถานะ</span><strong id="posTerminalStatus">พร้อมตรวจสอบระบบ</strong></div>
+  </section>
 
   <main class="page">
     <section class="card form-grid pos-customer-grid">
       <div class="pos-card-heading">
-        <div><span class="pos-section-kicker">SALE INFORMATION</span><h2>ข้อมูลลูกค้าและสาขา</h2></div>
+        <div><span class="pos-section-kicker">SALE INFORMATION</span><h2>ข้อมูลบิล / ลูกค้า</h2></div>
         <span class="pos-ready-chip">พร้อมรับรายการขาย</span>
       </div>
       <label>สาขา<select id="branch" disabled></select><small id="branchStatus" class="field-status">กำลังโหลดสาขา...</small></label>
@@ -73,10 +77,24 @@
 
         <section class="card cart-card">
           <div class="section-heading">
-            <h2>ตะกร้าสินค้า</h2><strong id="cartCount">0 รายการ</strong>
+            <h2>รายการขาย</h2><strong id="cartCount">0 รายการ</strong>
+          </div>
+          <div class="pos-cart-column-head" aria-hidden="true">
+            <span>รหัส / รายการสินค้า</span><span>จำนวน · ราคา · ส่วนลด · จัดการ</span>
           </div>
           <div id="cart"></div>
         </section>
+
+        <nav class="pos-terminal-actions" aria-label="คำสั่งจุดขาย">
+          <button id="openShift" class="btn success" type="button">เปิดกะ / เริ่มขาย</button>
+          <a id="salesHistoryLink" class="btn history-action" href="./sales-history.html">บิล / ประวัติขาย</a>
+          <button id="holdBill" class="btn secondary" type="button">พักบิล</button>
+          <button id="restoreBill" class="btn secondary" type="button">เปิดบิลพัก</button>
+          <button id="cancelOrder" class="btn cancel-order-button" type="button">ยกเลิกการขาย</button>
+          <button id="manualDrawer" class="btn secondary" type="button">เปิดลิ้นชัก</button>
+          <button id="boxSaleButton" class="btn history-action" type="button" hidden>ขายยกกล่อง</button>
+          <button id="closeShift" class="btn danger" type="button" hidden>ปิดกะ</button>
+        </nav>
       </div>
 
       <aside class="card summary" data-shift-required>
@@ -89,15 +107,23 @@
         <div class="summary-line net"><span>ยอดสุทธิ</span><strong id="netTotal">฿0.00</strong></div>
 <label>หมายเหตุ<textarea id="notes" rows="3"></textarea></label>
 
+        <div class="pos-main-quick-cash">
+          <div class="pos-main-quick-title"><span>รับเงินสดด่วน</span><small>กดจำนวนเงินเพื่อเปิดหน้าชำระ</small></div>
+          <div id="posMainQuickCash" class="pos-main-quick-grid">
+            <button type="button" data-cash="1000">1000</button>
+            <button type="button" data-cash="500">500</button>
+            <button type="button" data-cash="100">100</button>
+            <button type="button" data-cash="50">50</button>
+            <button type="button" data-cash="20">20</button>
+            <button type="button" data-cash="10">10</button>
+            <button class="exact" type="button" data-cash="exact">เงินพอดี</button>
+          </div>
+        </div>
+        <div class="pos-tax-chip">VAT 7% · คำนวณโดยระบบ</div>
         <button id="checkout" class="btn success checkout-button" type="button">
           ชำระเงิน
         </button>
-        <button id="cancelOrder" class="btn cancel-order-button" type="button">
-          ยกเลิกออเดอร์
-        </button>
-        <button id="manualDrawer" class="btn secondary" type="button">
-          เปิดลิ้นชักเงินสด
-        </button>
+
         <p id="actionMsg" class="msg"></p>
       </aside>
     </section>
@@ -304,6 +330,20 @@
   </dialog>
 
 
+  <dialog id="shiftCloseReceiptDialog" class="shift-close-receipt-dialog">
+    <div class="shift-close-receipt-card">
+      <header>
+        <div><span class="pos-section-kicker">SHIFT CLOSING RECEIPT</span><h2>ใบสรุปปิดกะ</h2></div>
+        <button id="shiftCloseReceiptX" type="button" aria-label="ปิด">×</button>
+      </header>
+      <div id="shiftCloseReceiptBody" class="shift-close-receipt-body"></div>
+      <div class="dialog-actions">
+        <button id="shiftCloseReceiptClose" class="btn secondary" type="button">ปิด</button>
+        <button id="shiftCloseReceiptPrint" class="btn primary" type="button">พิมพ์ใบปิดกะ</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="logoutGuardDialog" class="logout-guard-dialog">
     <div class="dialog-card logout-guard-card">
       <div class="logout-guard-icon" aria-hidden="true">!</div>
@@ -318,13 +358,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
+  <script src="./js/pos-counter-classic-v5-31-26.js?v=5.31.26" defer></script>
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
-  <script type="module" src="./pos-v5-31-5.js?v=5.31.5"></script>
+  <script type="module" src="./pos-v5-31-26.js?v=5.31.26"></script>
   <script type="module" src="./js/pos-box-sale-inline-v5-26-2.js?v=5.26.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
-  <script src="./js/app-shell-v5-19.js?v=5.31.5" defer></script>
+  <script src="./js/app-shell-v5-19.js?v=5.31.26" defer></script>
 <script src="./js/tkn-unified-scanner-v5-29-0.js?v=5.29.0"></script>
 </body>
 </html>
