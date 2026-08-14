@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='5.31.28-HF1';
+  const VERSION='5.31.28-HF2';
   const $=(id)=>document.getElementById(id);
   const money=(value)=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',minimumFractionDigits:2}).format(Number(value)||0);
   const number=(v,fallback=0)=>Number.isFinite(Number(v))?Number(v):fallback;
@@ -167,7 +167,6 @@
     const observer=new MutationObserver(syncMeta);
     if($('cashierStatus'))observer.observe($('cashierStatus'),{childList:true,subtree:true,characterData:true});
     $('branch')?.addEventListener('change',syncMeta);
-    installMainQuickCash();
     $('shiftCloseReceiptPrint')?.addEventListener('click',printShiftCloseReceipt);
     $('shiftCloseReceiptClose')?.addEventListener('click',closeReceipt);
     $('shiftCloseReceiptX')?.addEventListener('click',closeReceipt);

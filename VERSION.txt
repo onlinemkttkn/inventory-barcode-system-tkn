@@ -1,2 +1,2 @@
-TKN POS / ERP Final v5.31.28-HF1
-POS Session + Payment Summary + New Shift Modal Hotfix
+TKN POS / ERP Final v5.31.28-HF2
+POS Fixed Cart + Wider Payment + Popup Quick-Cash Accumulation

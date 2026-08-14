@@ -19,7 +19,7 @@ const ids = [
 ];
 const E = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
 const cart = new Map();
-const QUICK_CASH = [10,20,50,100,500,1000];
+const QUICK_CASH = [1000,500,100,50,20,10];
 let access=null, cashier=null, shift=null, pendingSale=null;
 let boxSaleAccess=null;
 let checkoutSubmitting=false;
@@ -533,19 +533,29 @@ function configurePaymentFields(){
   E.paymentDialogReceived.required=cash;
   E.paymentDialogReceived.value=cash?'0':String(net());
   E.paymentQuickCash.innerHTML=cash?[
-    ...QUICK_CASH.map(v=>`<button class="quick-cash-btn" type="button" data-value="${v}">${money(v)}</button>`),
-    `<button class="quick-cash-btn exact-cash-btn" type="button" data-value="${net()}">เงินพอดี</button>`
+    ...QUICK_CASH.map(v=>`<button class="quick-cash-btn" type="button" data-action="add" data-value="${v}">${v.toLocaleString('th-TH')}</button>`),
+    `<button class="quick-cash-btn exact-cash-btn" type="button" data-action="exact">เงินพอดี</button>`,
+    `<button class="quick-cash-btn clear-cash-btn" type="button" data-action="clear">ล้างจำนวนเงิน</button>`
   ].join(''):'';
   E.paymentQuickCash.querySelectorAll('button').forEach(button=>{
     button.onclick=()=>{
-      E.paymentDialogReceived.value=button.dataset.value;
+      const action=button.dataset.action||'add';
+      if(action==='clear'){
+        E.paymentDialogReceived.value='0';
+      }else if(action==='exact'){
+        E.paymentDialogReceived.value=String(net());
+      }else{
+        const current=Math.max(number(E.paymentDialogReceived.value),0);
+        const increment=Math.max(number(button.dataset.value),0);
+        E.paymentDialogReceived.value=String(roundMoney(current+increment));
+      }
       updatePayment();
+      E.paymentDialogReceived.focus();
     };
   });
   updatePayment();
   if(cash)setTimeout(()=>{E.paymentDialogReceived.focus();E.paymentDialogReceived.select()},0);
 }
-
 function preparePayment(){
   if(!hasBranch())return msg(E.actionMsg,'กรุณาเลือกสาขา','error');
   if(!shift?.shift_id)return msg(E.actionMsg,'กรุณาเปิดกะก่อนรับชำระ','error');
