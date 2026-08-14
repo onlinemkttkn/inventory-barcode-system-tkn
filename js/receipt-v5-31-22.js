@@ -56,6 +56,93 @@ function firstValue(...values){
   return values.find(value=>value!==null&&value!==undefined&&String(value).trim()!=='')||'-';
 }
 
+function salesChannelLabel(value){
+  const labels={
+    STORE:'หน้าร้าน', POS:'หน้าร้าน', OFFLINE:'หน้าร้าน',
+    ONLINE:'ออนไลน์', LINE:'LINE OA', LINE_OA:'LINE OA',
+    FACEBOOK:'Facebook', WEBSITE:'Website', MARKETPLACE:'Marketplace',
+    SHOPEE:'Shopee', LAZADA:'Lazada', TIKTOK:'TikTok Shop'
+  };
+  const normalized=String(value||'').trim().toUpperCase();
+  return labels[normalized]||value||'-';
+}
+function salesChannelValue(){
+  return salesChannelLabel(firstValue(
+    header?.sales_channel,
+    header?.salesChannel,
+    header?.order_channel
+  ));
+}
+function paymentChannelValue(){
+  return paymentLabel(firstValue(
+    header?.payment_channel,
+    header?.payment_method
+  ));
+}
+function receiptMetaStyle(){
+  if(document.getElementById('tknReceiptMetaHF6')) return;
+  const style=document.createElement('style');
+  style.id='tknReceiptMetaHF6';
+  style.textContent=`
+    .receipt-meta.receipt-meta-hf6{display:block!important;width:100%!important;margin:0!important}
+    .receipt-meta-hf6 .receipt-meta-row{display:flex!important;align-items:baseline;gap:1.2mm;width:100%;min-width:0;margin:.55mm 0;line-height:1.22}
+    .receipt-meta-hf6 .receipt-meta-key{flex:0 0 auto;white-space:nowrap;font-weight:400}
+    .receipt-meta-hf6 .receipt-meta-value{min-width:0;font-weight:700}
+    .receipt-meta-hf6 .receipt-meta-nowrap{flex-wrap:nowrap!important;white-space:nowrap!important}
+    .receipt-meta-hf6 .receipt-meta-nowrap .receipt-meta-value{white-space:nowrap!important}
+    .receipt-meta-hf6 .receipt-meta-branch{align-items:flex-start;flex-wrap:nowrap!important}
+    .receipt-meta-hf6 .receipt-meta-branch .receipt-meta-value{white-space:normal!important;overflow-wrap:break-word;word-break:normal;line-height:1.18}
+    .receipt-meta-hf6 .receipt-meta-combined{display:flex!important;flex-wrap:nowrap!important;align-items:baseline;gap:1.35mm;white-space:nowrap!important;font-size:.88em;letter-spacing:-.01em}
+    .receipt-meta-hf6 .receipt-meta-combined .receipt-meta-unit{display:inline-flex;align-items:baseline;gap:.5mm;min-width:0;white-space:nowrap!important}
+    .receipt-meta-hf6 .receipt-meta-combined .receipt-meta-employee{flex:1 1 auto;min-width:0}
+    .receipt-meta-hf6 .receipt-meta-combined .receipt-meta-employee .receipt-meta-value{min-width:0;white-space:nowrap!important}
+    .receipt-meta-hf6 .receipt-meta-combined .receipt-meta-sales{flex:0 0 auto;font-weight:700}
+    .receipt-meta-hf6 .receipt-meta-combined .receipt-meta-payment{flex:0 0 auto}
+    .receipt.receipt-58 .receipt-meta-hf6 .receipt-meta-row{gap:.8mm;font-size:.9em}
+    .receipt.receipt-58 .receipt-meta-hf6 .receipt-meta-combined{gap:.75mm;font-size:.73em;letter-spacing:-.025em}
+    .receipt.receipt-80 .receipt-meta-hf6 .receipt-meta-combined{font-size:.84em}
+    .receipt.receipt-a4 .receipt-meta-hf6 .receipt-meta-combined{font-size:1em}
+    @media print{
+      .receipt-meta-hf6 .receipt-meta-nowrap,.receipt-meta-hf6 .receipt-meta-combined{break-inside:avoid;page-break-inside:avoid}
+    }
+  `;
+  document.head.appendChild(style);
+}
+function fitReceiptMetaLayout(root){
+  if(!root) return;
+  const fitOneLine=(row,minPx=7)=>{
+    if(!row) return;
+    row.style.fontSize='';
+    let size=parseFloat(getComputedStyle(row).fontSize)||11;
+    let guard=0;
+    while(row.scrollWidth>row.clientWidth+1&&size>minPx&&guard<24){
+      size=Math.max(minPx,size-.25);
+      row.style.fontSize=`${size}px`;
+      guard+=1;
+    }
+  };
+  root.querySelectorAll('.receipt-meta-nowrap').forEach(row=>fitOneLine(row,7.5));
+  fitOneLine(root.querySelector('.receipt-meta-combined'),7);
+
+  const branchRow=root.querySelector('.receipt-meta-branch');
+  const branchValue=branchRow?.querySelector('.receipt-meta-value');
+  if(branchValue){
+    branchValue.style.fontSize='';
+    let size=parseFloat(getComputedStyle(branchValue).fontSize)||11;
+    let guard=0;
+    const tooTall=()=>{
+      const cs=getComputedStyle(branchValue);
+      const line=parseFloat(cs.lineHeight)||(size*1.18);
+      return branchValue.scrollHeight>line*2.12;
+    };
+    while(tooTall()&&size>7.5&&guard<24){
+      size=Math.max(7.5,size-.25);
+      branchValue.style.fontSize=`${size}px`;
+      guard+=1;
+    }
+  }
+}
+
 function currentCashierShift(){
   try{
     const value=JSON.parse(
@@ -209,6 +296,7 @@ async function waitForReceiptPrintReady(){
   }catch(error){
     console.warn('Font readiness check skipped:',error);
   }
+  E.receiptArea?.querySelectorAll('.receipt').forEach(fitReceiptMetaLayout);
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 }
 
@@ -251,7 +339,18 @@ async function loadReceipt(){
       console.warn('Stable receipt fields unavailable; using legacy receipt data:',stableErr);
     }
 
-    header={...h,...(stableFields||{})};
+    // HF6: read channel fields separately. If an older database does not have these
+    // additive columns, receipt rendering continues with the existing payment_method.
+    const {data:channelFields,error:channelErr}=await supabaseClient
+      .from('sales')
+      .select('sales_channel,payment_channel')
+      .eq('id',h.id)
+      .maybeSingle();
+    if(channelErr){
+      console.warn('Receipt channel fields unavailable; using existing receipt fields:',channelErr);
+    }
+
+    header={...h,...(stableFields||{}),...(channelFields||{})};
     items=i||[];
 
     await renderReceipt();
@@ -267,6 +366,7 @@ async function loadReceipt(){
 
 async function renderReceipt(){
   if(!header)return;
+  receiptMetaStyle();
 
   E.receiptArea.innerHTML='';
   const copies=Math.min(Math.max(Number(E.copies.value)||1,1),5);
@@ -284,18 +384,21 @@ async function renderReceipt(){
 
       <div class="receipt-line"></div>
 
-      <section class="receipt-meta">
-        <div><span>เลขที่บิล</span><strong>${esc(header.sale_no)}</strong></div>
-        <div><span>วันที่</span><strong>${esc(thaiDateTime(header.created_at))}</strong></div>
-        <div><span>สาขา</span><strong>${esc(branchLabel())}</strong></div>
-        <div><span>รหัสแคชเชียร์</span><strong>${esc(cashierCode())}</strong></div>
-        <div><span>พนักงาน</span><strong>${esc(cashierName())}</strong></div>
-        <div><span>ช่องทางชำระ</span><strong>${esc(paymentLabel(header.payment_method))}</strong></div>
+      <section class="receipt-meta receipt-meta-hf6">
+        <div class="receipt-meta-row receipt-meta-nowrap"><span class="receipt-meta-key">เลขที่บิล</span><strong class="receipt-meta-value">${esc(header.sale_no)}</strong></div>
+        <div class="receipt-meta-row receipt-meta-nowrap"><span class="receipt-meta-key">วันที่</span><strong class="receipt-meta-value">${esc(thaiDateTime(header.created_at))}</strong></div>
+        <div class="receipt-meta-row receipt-meta-branch"><span class="receipt-meta-key">สาขา</span><strong class="receipt-meta-value">${esc(branchLabel())}</strong></div>
+        <div class="receipt-meta-row receipt-meta-nowrap"><span class="receipt-meta-key">รหัสแคชเชียร์</span><strong class="receipt-meta-value">${esc(cashierCode())}</strong></div>
+        <div class="receipt-meta-row receipt-meta-combined">
+          <span class="receipt-meta-unit receipt-meta-employee"><span class="receipt-meta-key">พนักงาน</span><strong class="receipt-meta-value">${esc(cashierName())}</strong></span>
+          <span class="receipt-meta-unit receipt-meta-sales"><strong>${esc(salesChannelValue())}</strong></span>
+          <span class="receipt-meta-unit receipt-meta-payment"><span class="receipt-meta-key">ช่องทาง</span><strong class="receipt-meta-value">${esc(paymentChannelValue())}</strong></span>
+        </div>
         ${header.member_no?`
-          <div><span>สมาชิก</span>
-          <strong>${esc(header.member_no)} ${esc(header.member_name||'')}</strong></div>
+          <div class="receipt-meta-row"><span class="receipt-meta-key">สมาชิก</span>
+          <strong class="receipt-meta-value">${esc(header.member_no)} ${esc(header.member_name||'')}</strong></div>
         `:''}
-        ${copies>1?`<div><span>สำเนา</span><strong>${copy}/${copies}</strong></div>`:''}
+        ${copies>1?`<div class="receipt-meta-row receipt-meta-nowrap"><span class="receipt-meta-key">สำเนา</span><strong class="receipt-meta-value">${copy}/${copies}</strong></div>`:''}
       </section>
 
       <div class="receipt-line"></div>
@@ -352,11 +455,12 @@ async function renderReceipt(){
         <p class="receipt-thank">${esc(receiptFooterText())}</p>
         <p>กรุณาเก็บใบเสร็จไว้เป็นหลักฐาน</p>
         <p>สามารถเปลี่ยนหรือคืนสินค้า<br>ตามเงื่อนไขของบริษัท</p>
-        <p class="receipt-powered">${esc(window.TKNBranding?.get?.().app_short_name||'เถ้าแก่น้อย ชลบุรี')} · Final v5.31.22</p>
+        <p class="receipt-powered">${esc(window.TKNBranding?.get?.().app_short_name||'เถ้าแก่น้อย ชลบุรี')} · Final v5.31.28-HF6</p>
       </footer>
     `;
 
     E.receiptArea.appendChild(receipt);
+    fitReceiptMetaLayout(receipt);
 
     const canvas=receipt.querySelector('.receipt-qr');
     try{
