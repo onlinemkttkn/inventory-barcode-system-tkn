@@ -1,2 +1,1 @@
-TKN POS ERP FINAL v5.31.27
-POS Counter UI + VAT OFF / VAT IN 7% / VAT OUT 7%
+TKN POS / ERP Final v5.31.28 — POS Responsive Final (Desktop / iPad / Mobile)
