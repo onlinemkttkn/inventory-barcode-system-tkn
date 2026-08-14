@@ -955,3 +955,117 @@ body.pos-counter-classic{
   .payment-dialog .quick-cash{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .payment-dialog .exact-cash-btn,.payment-dialog .clear-cash-btn{grid-column:1/-1!important}
 }
+
+
+/* ============================================================================
+   v5.31.28-HF3 — TOP POS ACTIONS + PAYMENT SUMMARY LABEL
+   ============================================================================ */
+
+/* All POS commands now live in the upper toolbar. */
+.pos-sale-toolbar{
+  grid-template-columns:repeat(auto-fit,minmax(118px,1fr))!important;
+  align-items:stretch;
+}
+.pos-sale-toolbar .btn{
+  min-width:0;
+  min-height:42px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.pos-sale-toolbar .cancel-order-button{
+  border:1px solid #efb4b4;
+  background:#fff1f1;
+  color:#b42318;
+}
+.pos-sale-toolbar .drawer-action{
+  border:1px solid #e1c762;
+  background:#fff4bf;
+  color:#111;
+}
+.pos-sale-toolbar .box-sale-action{
+  border:1px solid #cf7582;
+  background:#fff;
+  color:#8b1020;
+}
+.pos-sale-toolbar .shift-open-action{
+  border:1px solid #e1bb24;
+  background:#ffd43b;
+  color:#111;
+}
+.pos-sale-toolbar .shift-close-action{
+  border:1px solid #2b1518;
+  background:#1b1718;
+  color:#ffe58a;
+}
+
+/* Bottom action bar has been removed from HTML in HF3. */
+.pos-terminal-actions{display:none!important}
+
+/* pos-product-ui.css injects PAYMENT SUMMARY with -18px margins.
+   Match it to the compact summary padding used by the current POS layout. */
+body.pos-product-ui.pos-counter-classic .summary::before{
+  content:"PAYMENT SUMMARY";
+  display:flex;
+  align-items:center;
+  min-height:32px;
+  margin:-9px -9px 0;
+  padding:7px 11px;
+  box-sizing:border-box;
+  background:linear-gradient(90deg,#1d1516,#34201f);
+  color:#ffc72c;
+  font-size:.68rem;
+  font-weight:900;
+  line-height:1.15;
+  letter-spacing:.055em;
+  white-space:nowrap;
+  overflow:visible;
+  text-overflow:clip;
+}
+
+/* Keep the Thai summary title readable directly below the English band. */
+body.pos-product-ui.pos-counter-classic .summary h2{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  margin:0 -9px 1px;
+  padding:9px 11px;
+  font-size:.94rem;
+  line-height:1.2;
+  color:#fff;
+  white-space:normal;
+}
+
+/* Desktop / notebook: keep action buttons compact without squeezing labels. */
+@media (min-width:1367px){
+  .pos-sale-toolbar{
+    grid-template-columns:repeat(8,minmax(105px,1fr))!important;
+  }
+}
+@media (max-width:1366px) and (min-width:1025px){
+  .pos-sale-toolbar{
+    grid-template-columns:repeat(4,minmax(110px,1fr))!important;
+  }
+}
+
+/* iPad/tablet: four buttons per row. */
+@media (max-width:1024px) and (min-width:641px){
+  .pos-sale-toolbar{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+}
+
+/* Mobile: two large touch targets per row. */
+@media (max-width:640px){
+  .pos-sale-toolbar{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .pos-sale-toolbar .btn{
+    min-height:48px;
+    font-size:.68rem;
+  }
+  body.pos-product-ui.pos-counter-classic .summary::before{
+    min-height:34px;
+    font-size:.66rem;
+    padding:8px 10px;
+  }
+}

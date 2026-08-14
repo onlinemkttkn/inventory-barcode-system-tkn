@@ -1,2 +1,2 @@
-TKN POS / ERP Final v5.31.28-HF2
-POS Fixed Cart + Wider Payment + Popup Quick-Cash Accumulation
+TKN POS / ERP Final v5.31.28-HF3
+POS Top Actions + Payment Summary Label Fit
