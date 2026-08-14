@@ -1,1 +1,2 @@
-TKN POS / ERP Final v5.31.28 — POS Responsive Final (Desktop / iPad / Mobile)
+TKN POS / ERP Final v5.31.28-HF1
+POS Session + Payment Summary + New Shift Modal Hotfix

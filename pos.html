@@ -27,12 +27,12 @@
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.26.2">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
-  <link rel="stylesheet" href="./css/pos-counter-final-v5-31-28.css?v=5.31.28">
+  <link rel="stylesheet" href="./css/pos-counter-final-v5-31-28.css?v=5.31.28-HF1">
 </head>
 <body class="pos-product-ui pos-counter-classic">
   <header class="pos-topbar pos-terminal-titlebar">
     <div class="pos-title-copy">
-      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.28</p>
+      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.28-HF1</p>
       <h1>ขายหน้าร้าน</h1>
       <p id="cashierStatus">กำลังตรวจสอบพนักงานและกะ...</p>
     </div>
@@ -184,13 +184,14 @@
         <p class="eyebrow">CASHIER SESSION</p>
         <button id="shiftLockClose" class="shift-lock-close" type="button" aria-label="ปิดหน้าต่างเปิดกะ">×</button>
       </div>
-      <h2>รอพนักงานเปิดกะใหม่</h2>
-      <p>บัญชีระบบยังเข้าสู่ระบบอยู่ กรุณาระบุพนักงานเพื่อเริ่มขาย</p>
+      <h2>เปิดกะแคชเชียร์</h2>
+      <p>ระบุรหัสพนักงานและ PIN เพื่อเปิดกะและเริ่มขาย</p>
       <div id="shiftLockBranch" class="shift-lock-branch">กำลังตรวจสอบสาขา...</div>
       <label>รหัสพนักงาน<input id="shiftLockEmployeeCode" required autocomplete="username"></label>
       <label>PIN<input id="shiftLockPin" type="password" inputmode="numeric" minlength="4" required autocomplete="current-password"></label>
       <label>เงินทอนตั้งต้น<input id="shiftLockOpeningFloat" type="number" min="0" step="0.01" value="0"></label>
       <button id="shiftLockSubmit" class="btn success" type="submit">เปิดกะและเริ่มขาย</button>
+      <button id="shiftLockCancel" class="btn secondary" type="button">ปิดหน้าต่าง</button>
       <button id="shiftLockLogout" class="btn secondary" type="button">ออกจากระบบ</button>
       <p id="shiftLockMsg" class="msg"></p>
     </form>
@@ -325,21 +326,6 @@
       <div class="dialog-actions"><button id="discountRemove" class="btn danger" type="button">ยกเลิกส่วนลดรายการนี้</button><button id="discountCancel" class="btn secondary" type="button">กลับ</button><button id="discountApply" class="btn success" type="submit">ใช้ส่วนลด</button></div>
     </form>
   </dialog>
-
-  <dialog id="cashierUnlockDialog">
-    <form id="cashierUnlockForm" class="dialog-card">
-      <h2>เข้าใช้งานแคชเชียร์</h2>
-      <p>กรอกรหัสพนักงานและ PIN เพื่อเปิดกะ</p>
-      <label>รหัสพนักงาน<input id="employeeCode" required autocomplete="username"></label>
-      <label>PIN<input id="cashierPin" type="password" inputmode="numeric"
-        minlength="4" required autocomplete="current-password"></label>
-      <label>เงินทอนตั้งต้น<input id="openingFloat" type="number" min="0"
-        step="0.01" value="0"></label>
-      <button class="btn success" type="submit">เปิดกะและเริ่มขาย</button>
-      <p id="unlockMsg" class="msg"></p>
-    </form>
-  </dialog>
-
   <dialog id="closeShiftDialog">
     <form id="closeShiftForm" class="dialog-card">
       <h2>ปิดกะแคชเชียร์</h2>
@@ -383,11 +369,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script src="./js/pos-counter-classic-v5-31-26.js?v=5.31.26" defer></script>
+  <script src="./js/pos-counter-classic-v5-31-26.js?v=5.31.28-HF1" defer></script>
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
-  <script type="module" src="./pos-v5-31-27.js?v=5.31.27"></script>
+  <script type="module" src="./pos-v5-31-27.js?v=5.31.28-HF1"></script>
   <script type="module" src="./js/pos-box-sale-inline-v5-26-2.js?v=5.26.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/app-shell-v5-19.js?v=5.31.28" defer></script>

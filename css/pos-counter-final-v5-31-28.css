@@ -1,5 +1,5 @@
 /* ============================================================================
-   TKN POS / ERP v5.31.28 — FINAL RESPONSIVE COUNTER UI
+   TKN POS / ERP v5.31.28-HF1 — POS SESSION / PAYMENT SUMMARY HOTFIX
    Scope: presentation only. Business logic/RPC/stock flow remain unchanged.
    Targets: desktop/notebook, iPad/tablet portrait+landscape, mobile.
    ============================================================================ */
@@ -199,7 +199,7 @@ body.pos-counter-classic{
 /* Grid areas keep payment summary beside the cart on desktop and below it on touch screens. */
 .pos-counter-classic .pos-layout{
   display:grid;
-  grid-template-columns:minmax(0,1fr) clamp(340px,26vw,390px);
+  grid-template-columns:minmax(0,1fr) clamp(410px,28vw,470px);
   grid-template-areas:
     "work summary"
     "actions summary";
@@ -457,7 +457,7 @@ body.pos-counter-classic{
 
 /* ---------- Large desktop / wide POS ---------- */
 @media (min-width:1500px){
-  .pos-counter-classic .pos-layout{grid-template-columns:minmax(0,1fr) 390px}
+  .pos-counter-classic .pos-layout{grid-template-columns:minmax(0,1fr) 450px}
   .pos-counter-classic .cart-card{min-height:530px}
   .pos-counter-classic #cart{min-height:430px}
   .pos-terminal-actions{grid-template-columns:repeat(8,minmax(100px,1fr))}
@@ -466,7 +466,7 @@ body.pos-counter-classic{
 
 /* ---------- Notebook / small desktop ---------- */
 @media (max-width:1240px) and (min-width:1025px){
-  .pos-counter-classic .pos-layout{grid-template-columns:minmax(0,1fr) 325px}
+  .pos-counter-classic .pos-layout{grid-template-columns:minmax(0,1fr) 360px}
   .pos-counter-classic .pos-customer-grid{grid-template-columns:minmax(250px,1fr) minmax(180px,.7fr) minmax(180px,.7fr)!important}
   .pos-counter-classic .cart-controls{grid-template-columns:58px 82px 100px 58px}
   .pos-cart-column-head{grid-template-columns:minmax(220px,1fr) 370px}
@@ -644,4 +644,46 @@ body.pos-counter-classic{
   body.pos-counter-classic{background:#fff!important}
   .pos-terminal-titlebar,.pos-terminal-meta,.page,.tkn-desktop-sidebar,.tkn-mobile-topbar,.tkn-mobile-dock{display:none!important}
   .shift-close-receipt-dialog[open]{position:static!important;width:80mm!important;max-width:80mm!important;margin:0!important;box-shadow:none!important}
+}
+
+
+/* ---------- v5.31.28-HF1: cashier session lock ---------- */
+.shift-lock-screen{
+  padding:16px!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.shift-lock-card{
+  width:min(440px,calc(100vw - 32px))!important;
+  max-height:calc(100dvh - 32px);
+  overflow:auto;
+  border:1px solid rgba(255,201,40,.28)!important;
+  border-radius:16px!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.38)!important;
+}
+.shift-lock-header{align-items:center!important}
+.shift-lock-close{
+  width:38px!important;height:38px!important;min-width:38px!important;
+  display:grid!important;place-items:center!important;
+  border:1px solid #d7dce3!important;border-radius:50%!important;
+  background:#fff!important;color:#7f1322!important;font-size:1.2rem!important;
+}
+.shift-lock-card>h2{margin-top:10px!important}
+.shift-lock-card>p{color:#667085!important;line-height:1.45!important}
+.shift-lock-branch{line-height:1.4!important}
+#shiftLockSubmit,#shiftLockCancel,#shiftLockLogout{min-height:46px!important}
+#shiftLockCancel{background:#fff!important;color:#344054!important;border:1px solid #cbd2da!important}
+
+/* Keep payment details readable without starving the product workspace. */
+@media (min-width:1250px){
+  .pos-counter-classic .summary{min-width:0}
+  .pos-vat-heading small{max-width:210px}
+  .pos-vat-option b{font-size:.7rem}
+  .pos-vat-option small{font-size:.56rem}
+}
+@media (max-width:640px){
+  .shift-lock-screen{padding:10px!important;align-items:flex-start!important;overflow:auto!important}
+  .shift-lock-card{width:100%!important;max-height:none;margin:auto!important;border-radius:14px!important}
+  .shift-lock-close{width:42px!important;height:42px!important;min-width:42px!important}
+  #shiftLockSubmit,#shiftLockCancel,#shiftLockLogout{min-height:50px!important;font-size:.82rem!important}
 }

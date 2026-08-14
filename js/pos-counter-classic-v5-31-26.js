@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='5.31.26';
+  const VERSION='5.31.28-HF1';
   const $=(id)=>document.getElementById(id);
   const money=(value)=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',minimumFractionDigits:2}).format(Number(value)||0);
   const number=(v,fallback=0)=>Number.isFinite(Number(v))?Number(v):fallback;
@@ -17,13 +17,20 @@
     const cashier=($('cashierStatus')?.textContent||'').trim();
     const branch=$('branch');
     const branchLabel=branch?.selectedOptions?.[0]?.textContent?.trim()||'ยังไม่เลือกสาขา';
+    const noShift=document.body.classList.contains('pos-no-shift');
     if($('posTerminalBranch')) $('posTerminalBranch').textContent=branchLabel;
+    if(noShift){
+      if($('posTerminalSeller')) $('posTerminalSeller').textContent='รอพนักงาน';
+      if($('posTerminalShift')) $('posTerminalShift').textContent='ยังไม่เปิดกะ';
+      if($('posTerminalStatus')) $('posTerminalStatus').textContent='รอเปิดกะ';
+      return;
+    }
     if($('posTerminalSeller')){
       const seller=cashier.includes('·')?cashier.split('·').slice(0,2).join(' · ').trim():cashier;
-      $('posTerminalSeller').textContent=seller||'รอเปิดกะ';
+      $('posTerminalSeller').textContent=seller||'พนักงานแคชเชียร์';
     }
-    if($('posTerminalShift')) $('posTerminalShift').textContent=cashier.includes('เปิดกะ')?cashier.split('·').slice(-1)[0].trim():'ยังไม่เปิดกะ';
-    if($('posTerminalStatus')) $('posTerminalStatus').textContent=document.body.classList.contains('pos-no-shift')?'รอเปิดกะ':'พร้อมขาย';
+    if($('posTerminalShift')) $('posTerminalShift').textContent=cashier.includes('เปิดกะ')?cashier.split('·').slice(-1)[0].trim():'เปิดกะแล้ว';
+    if($('posTerminalStatus')) $('posTerminalStatus').textContent='พร้อมขาย';
   }
 
   function parseCurrencyText(text){
