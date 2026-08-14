@@ -25,20 +25,26 @@
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
-  <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.26.2">
+  <link rel="stylesheet" href="./css/pos-box-sale-inline-v5-26-2.css?v=5.31.28-HF4">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
-  <link rel="stylesheet" href="./css/pos-counter-final-v5-31-28.css?v=5.31.28-HF3">
+  <link rel="stylesheet" href="./css/pos-counter-final-v5-31-28.css?v=5.31.28-HF4">
 </head>
 <body class="pos-product-ui pos-counter-classic">
   <header class="pos-topbar pos-terminal-titlebar">
     <div class="pos-title-copy">
-      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.28-HF3</p>
+      <p class="eyebrow">TKN POS ERP · COUNTER MODE v5.31.28-HF4</p>
       <h1>ขายหน้าร้าน</h1>
       <p id="cashierStatus">กำลังตรวจสอบพนักงานและกะ...</p>
     </div>
-    <div class="pos-terminal-clock" aria-label="วันและเวลาปัจจุบัน">
-      <span id="posLiveDate">--/--/----</span>
-      <strong id="posLiveTime">--:--:--</strong>
+    <div class="pos-terminal-clock" aria-label="วัน เวลา และสถานะกะ">
+      <div class="pos-terminal-clock-value">
+        <span id="posLiveDate">--/--/----</span>
+        <strong id="posLiveTime">--:--:--</strong>
+      </div>
+      <div class="pos-clock-shift-actions">
+        <button id="openShift" class="btn shift-open-action" type="button">เปิดกะ</button>
+        <button id="closeShift" class="btn shift-close-action" type="button" hidden>ปิดกะ</button>
+      </div>
     </div>
   </header>
 
@@ -62,15 +68,11 @@
 
     <section class="pos-layout">
       <div class="work-column">
-        <nav class="pos-sale-toolbar" aria-label="คำสั่งจุดขาย">
+        <nav class="pos-sale-toolbar" aria-label="คำสั่งระหว่างขาย">
           <a id="salesHistoryLink" class="btn history-action" href="./sales-history.html">บิล / ประวัติขาย</a>
           <button id="holdBill" class="btn secondary" type="button">พักบิล</button>
           <button id="restoreBill" class="btn secondary" type="button">เรียกบิลพัก</button>
-          <button id="cancelOrder" class="btn cancel-order-button" type="button">ยกเลิกบิล</button>
-          <button id="manualDrawer" class="btn drawer-action" type="button">เปิดลิ้นชัก</button>
           <button id="boxSaleButton" class="btn box-sale-action" type="button" hidden>ขายยกกล่อง</button>
-          <button id="openShift" class="btn shift-open-action" type="button">เปิดกะ</button>
-          <button id="closeShift" class="btn shift-close-action" type="button" hidden>ปิดกะ</button>
         </nav>
         <section class="card search-card" data-shift-required>
           <div class="pos-card-heading compact">
@@ -135,6 +137,11 @@
         <button id="checkout" class="btn success checkout-button" type="button">
           ชำระเงิน
         </button>
+
+        <div class="pos-summary-secondary-actions" aria-label="คำสั่งหลังสรุปยอด">
+          <button id="manualDrawer" class="btn drawer-action" type="button">เปิดลิ้นชัก</button>
+          <button id="cancelOrder" class="btn cancel-order-button" type="button">ยกเลิกบิล</button>
+        </div>
 
         <p id="actionMsg" class="msg"></p>
       </aside>

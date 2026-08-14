@@ -1069,3 +1069,139 @@ body.pos-product-ui.pos-counter-classic .summary h2{
     padding:8px 10px;
   }
 }
+
+
+/* ============================================================================
+   v5.31.28-HF4 — SHIFT CLOCK + SUMMARY SECONDARY ACTIONS
+   ============================================================================ */
+
+/* Open/close shift belongs beside the live clock. */
+.pos-counter-classic .pos-terminal-clock{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  min-width:250px;
+}
+.pos-terminal-clock-value{
+  display:grid;
+  justify-items:end;
+  gap:3px;
+  min-width:92px;
+}
+.pos-clock-shift-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.pos-clock-shift-actions .btn{
+  min-width:78px;
+  min-height:36px;
+  padding:6px 11px;
+  border-radius:7px;
+  font-size:.68rem;
+  font-weight:900;
+  white-space:nowrap;
+}
+.pos-clock-shift-actions .shift-open-action{
+  border:1px solid #ffd34f;
+  background:#ffc928;
+  color:#1f1714;
+}
+.pos-clock-shift-actions .shift-close-action{
+  border:1px solid rgba(255,229,138,.66);
+  background:#1c1718;
+  color:#ffe58a;
+}
+
+/* Upper toolbar now contains only actions used while building the sale. */
+.pos-sale-toolbar{
+  grid-template-columns:repeat(4,minmax(118px,1fr))!important;
+}
+
+/* Drawer and cancel bill live directly below checkout. */
+.pos-summary-secondary-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:-1px;
+}
+.pos-summary-secondary-actions .btn{
+  width:100%;
+  min-height:42px;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:.72rem;
+  font-weight:900;
+}
+.pos-summary-secondary-actions .drawer-action{
+  border:1px solid #e3c65b;
+  background:#fff3b8;
+  color:#201800;
+}
+.pos-summary-secondary-actions .cancel-order-button{
+  border:1px solid #eda2a2;
+  background:#fff3f3;
+  color:#b42318;
+}
+
+/* Grid placement when summary is arranged into two columns on tablets. */
+@media (max-width:1024px) and (min-width:641px){
+  .pos-counter-classic .pos-summary-secondary-actions{
+    grid-column:1/-1;
+    grid-row:8;
+  }
+  .pos-counter-classic .summary>.msg{
+    grid-column:1/-1;
+    grid-row:9;
+  }
+}
+
+/* Notebook: clock + shift button still fit without stealing title text. */
+@media (max-width:1366px) and (min-width:1025px){
+  .pos-counter-classic .pos-terminal-clock{
+    min-width:220px;
+    gap:7px;
+  }
+  .pos-clock-shift-actions .btn{
+    min-width:70px;
+    padding-inline:8px;
+  }
+}
+
+/* Mobile: retain time and the shift control instead of hiding the clock block. */
+@media (max-width:640px){
+  .pos-counter-classic .pos-terminal-titlebar{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px;
+  }
+  .pos-counter-classic .pos-terminal-clock{
+    display:flex!important;
+    min-width:0;
+    align-self:start;
+    gap:5px;
+  }
+  .pos-terminal-clock-value{
+    min-width:70px;
+  }
+  .pos-counter-classic .pos-terminal-clock span{
+    font-size:.54rem;
+  }
+  .pos-counter-classic .pos-terminal-clock strong{
+    font-size:.82rem!important;
+  }
+  .pos-clock-shift-actions .btn{
+    min-width:58px;
+    min-height:34px;
+    padding:5px 7px;
+    font-size:.6rem;
+  }
+  .pos-sale-toolbar{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .pos-summary-secondary-actions{
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+}
