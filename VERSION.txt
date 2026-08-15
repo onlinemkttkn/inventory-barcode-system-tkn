@@ -1,2 +1,2 @@
-5.31.28-HF7
-TKN POS / ERP Final v5.31.28-HF7 — Void / Return Approver PIN
+5.31.28-HF10
+TKN POS / ERP Final v5.31.28-HF10 — User Display + Multi Unique Box QR Batch

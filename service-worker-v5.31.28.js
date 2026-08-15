@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '5.31.28-HF7';
+const VERSION = '5.31.28-HF10';
 const STATIC_CACHE = `tkn-static-${VERSION}`;
 const PAGE_CACHE = `tkn-pages-${VERSION}`;
 const CORE_ASSETS = [
@@ -78,6 +78,7 @@ const CORE_ASSETS = [
   './css/box-history-v5-28-3.css',
   './css/box-lifecycle-v5-28-4.css',
   './css/stock-intake-v5-28-5.css',
+  './css/box-qr-batch-v5-31-28-hf10.css',
   './css/mobile-stock-check-v5-31-5.css',
   './css/pos-box-sale-inline-v5-26-2.css',
   './css/marketplace-workflow-v5-27-1.css',
@@ -112,12 +113,14 @@ const CORE_ASSETS = [
   './js/print-labels-v5-30-4.js',
   './js/sort-pack-qr-v5-31-9.js',
   './js/box-qr-stock-v5-30-4.js',
+  './js/box-qr-stock-v5-31-28-hf10.js',
   './js/stock-intake-v5-30-9.js',
   './box-inspection.html',
   './stock-putaway.html',
   './js/box-inspection-v5-31-2.js',
   './css/box-inspection-v5-31-2.css',
   './js/stock-intake-v5-31-25.js',
+  './js/stock-intake-v5-31-28-hf10.js',
   './js/inventory-stock-flow-v5-31-25.js',
   './storage-locations.html',
   './branch-stock.html',
