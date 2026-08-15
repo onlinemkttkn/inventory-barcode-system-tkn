@@ -79,6 +79,24 @@ function paymentChannelValue(){
     header?.payment_method
   ));
 }
+function customerNameValue(){
+  return String(header?.customer_name||'').trim();
+}
+function customerPhoneValue(){
+  return String(header?.customer_phone||'').trim();
+}
+function customerReceiptMeta(){
+  const customerName=customerNameValue();
+  const customerPhone=customerPhoneValue();
+  if(!customerName&&!customerPhone)return '';
+  const namePart=customerName
+    ? `<span class="receipt-meta-unit receipt-meta-customer-name"><span class="receipt-meta-key">ลูกค้า</span><strong class="receipt-meta-value">${esc(customerName)}</strong></span>`
+    : '';
+  const phonePart=customerPhone
+    ? `<span class="receipt-meta-unit receipt-meta-customer-phone"><span class="receipt-meta-key">โทร</span><strong class="receipt-meta-value">${esc(customerPhone)}</strong></span>`
+    : '';
+  return `<div class="receipt-meta-row receipt-meta-customer">${namePart}${phonePart}</div>`;
+}
 function receiptMetaStyle(){
   if(document.getElementById('tknReceiptMetaHF6')) return;
   const style=document.createElement('style');
@@ -102,6 +120,12 @@ function receiptMetaStyle(){
     .receipt.receipt-58 .receipt-meta-hf6 .receipt-meta-combined{gap:.75mm;font-size:.73em;letter-spacing:-.025em}
     .receipt.receipt-80 .receipt-meta-hf6 .receipt-meta-combined{font-size:.84em}
     .receipt.receipt-a4 .receipt-meta-hf6 .receipt-meta-combined{font-size:1em}
+    .receipt-meta-hf6 .receipt-meta-customer{display:flex!important;align-items:baseline;gap:1.35mm;min-width:0;flex-wrap:wrap!important}
+    .receipt-meta-hf6 .receipt-meta-customer .receipt-meta-unit{display:inline-flex;align-items:baseline;gap:.5mm;min-width:0}
+    .receipt-meta-hf6 .receipt-meta-customer-name{flex:1 1 auto}
+    .receipt-meta-hf6 .receipt-meta-customer-name .receipt-meta-value{overflow-wrap:anywhere}
+    .receipt-meta-hf6 .receipt-meta-customer-phone{flex:0 0 auto;white-space:nowrap}
+    .receipt.receipt-58 .receipt-meta-hf6 .receipt-meta-customer{gap:.75mm;font-size:.82em}
     @media print{
       .receipt-meta-hf6 .receipt-meta-nowrap,.receipt-meta-hf6 .receipt-meta-combined{break-inside:avoid;page-break-inside:avoid}
     }
@@ -394,6 +418,7 @@ async function renderReceipt(){
           <span class="receipt-meta-unit receipt-meta-sales"><strong>${esc(salesChannelValue())}</strong></span>
           <span class="receipt-meta-unit receipt-meta-payment"><span class="receipt-meta-key">ช่องทาง</span><strong class="receipt-meta-value">${esc(paymentChannelValue())}</strong></span>
         </div>
+        ${customerReceiptMeta()}
         ${header.member_no?`
           <div class="receipt-meta-row"><span class="receipt-meta-key">สมาชิก</span>
           <strong class="receipt-meta-value">${esc(header.member_no)} ${esc(header.member_name||'')}</strong></div>
@@ -455,7 +480,7 @@ async function renderReceipt(){
         <p class="receipt-thank">${esc(receiptFooterText())}</p>
         <p>กรุณาเก็บใบเสร็จไว้เป็นหลักฐาน</p>
         <p>สามารถเปลี่ยนหรือคืนสินค้า<br>ตามเงื่อนไขของบริษัท</p>
-        <p class="receipt-powered">${esc(window.TKNBranding?.get?.().app_short_name||'เถ้าแก่น้อย ชลบุรี')} · Final v5.31.28-HF6</p>
+        <p class="receipt-powered">${esc(window.TKNBranding?.get?.().app_short_name||'เถ้าแก่น้อย ชลบุรี')} · Final v5.31.28-HF11</p>
       </footer>
     `;
 
