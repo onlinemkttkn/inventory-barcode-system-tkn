@@ -1,2 +1,2 @@
-5.31.28-HF6
-TKN POS / ERP Final v5.31.28-HF6 — Receipt Metadata Compact Rows
+5.31.28-HF7
+TKN POS / ERP Final v5.31.28-HF7 — Void / Return Approver PIN

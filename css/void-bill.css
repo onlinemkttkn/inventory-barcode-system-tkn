@@ -96,3 +96,78 @@ button:disabled {
 
 #statusMessage.success { color: #027a48; }
 #statusMessage.error { color: #b42318; }
+
+/* v5.31.28-HF7 — approver PIN dialog */
+.approval-dialog {
+  width: min(520px, calc(100% - 28px));
+  max-width: 520px;
+  border: 0;
+  border-radius: 18px;
+  padding: 0;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .28);
+}
+
+.approval-dialog::backdrop {
+  background: rgba(15, 23, 42, .58);
+  backdrop-filter: blur(2px);
+}
+
+.approval-card {
+  padding: 22px;
+  background: #fff;
+}
+
+.approval-card h2 {
+  margin: 0 0 8px;
+}
+
+.approval-card > p {
+  margin: 0 0 18px;
+  color: #667085;
+  line-height: 1.55;
+}
+
+.approval-card form {
+  display: grid;
+  gap: 14px;
+}
+
+.approval-card input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #cfd7e5;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.approval-card input:focus {
+  outline: 3px solid rgba(220, 38, 38, .12);
+  border-color: #dc2626;
+}
+
+#voidApprovalMessage {
+  min-height: 22px;
+  margin: 0;
+  font-weight: 700;
+}
+
+#voidApprovalMessage[data-type="error"] { color: #b42318; }
+#voidApprovalMessage[data-type="success"] { color: #027a48; }
+
+#statusMessage.warning { color: #9a6700; }
+
+.approval-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .page-shell { margin: 18px auto; }
+  .card { padding: 18px; }
+  .approval-card { padding: 18px; }
+  .approval-actions { display: grid; grid-template-columns: 1fr; }
+  .approval-actions button { width: 100%; min-height: 46px; }
+}

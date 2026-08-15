@@ -11,6 +11,7 @@ const state = {
   items: [],
   balanceBySaleItemId: new Map(),
   pendingReturnRequest: null,
+  pendingDrawerApproval: null,
   submitting: false
 };
 
@@ -52,7 +53,21 @@ const els = {
   cancelRefundApproval:
     document.querySelector('#cancelRefundApproval'),
   confirmRefundApproval:
-    document.querySelector('#confirmRefundApproval')
+    document.querySelector('#confirmRefundApproval'),
+  returnPermissionApprovalDialog:
+    document.querySelector('#returnPermissionApprovalDialog'),
+  returnPermissionApprovalForm:
+    document.querySelector('#returnPermissionApprovalForm'),
+  returnPermissionApproverCode:
+    document.querySelector('#returnPermissionApproverCode'),
+  returnPermissionApproverPin:
+    document.querySelector('#returnPermissionApproverPin'),
+  returnPermissionApprovalMessage:
+    document.querySelector('#returnPermissionApprovalMessage'),
+  cancelReturnPermissionApproval:
+    document.querySelector('#cancelReturnPermissionApproval'),
+  confirmReturnPermissionApproval:
+    document.querySelector('#confirmReturnPermissionApproval')
 };
 
 function formatMoney(value) {
@@ -81,6 +96,50 @@ function setApprovalStatus(message, type = '') {
   if (!els.refundApprovalMessage) return;
   els.refundApprovalMessage.textContent = message || '';
   els.refundApprovalMessage.dataset.type = type;
+}
+
+function setReturnPermissionStatus(message, type = '') {
+  if (!els.returnPermissionApprovalMessage) return;
+  els.returnPermissionApprovalMessage.textContent = message || '';
+  els.returnPermissionApprovalMessage.dataset.type = type;
+}
+
+function isReturnApprovalRequired(error) {
+  const message = String(error?.message || error || '');
+  return message.includes('APPROVAL_REQUIRED:pos.return_approve')
+    || message.includes('ไม่มีสิทธิ์อนุมัติคืนสินค้า');
+}
+
+function isReturnApprovalCredentialError(error) {
+  const message = String(error?.message || error || '');
+  return message.includes('รหัสพนักงานหรือ PIN ไม่ถูกต้อง')
+    || message.includes('ไม่มีสิทธิ์อนุมัติคืนสินค้า')
+    || message.includes('ผู้อนุมัติ')
+    || message.includes('APPROVER_');
+}
+
+function requestReturnPermissionApproval(request, drawerApproval = null) {
+  state.pendingReturnRequest = request;
+  state.pendingDrawerApproval = drawerApproval;
+  els.returnPermissionApprovalForm?.reset();
+  setReturnPermissionStatus('');
+  if (
+    els.returnPermissionApprovalDialog
+    && !els.returnPermissionApprovalDialog.open
+  ) {
+    els.returnPermissionApprovalDialog.showModal();
+  }
+  setTimeout(() => els.returnPermissionApproverCode?.focus(), 0);
+}
+
+function closeReturnPermissionApproval(clearRequest = true) {
+  if (clearRequest) {
+    state.pendingReturnRequest = null;
+    state.pendingDrawerApproval = null;
+  }
+  els.returnPermissionApprovalForm?.reset();
+  setReturnPermissionStatus('');
+  els.returnPermissionApprovalDialog?.close();
 }
 
 function currentShift() {
@@ -569,28 +628,62 @@ function showSuccessDialog(data) {
   els.closeResultDialog.onclick=()=>goToBillSearch(data);
 }
 
-async function executeReturn(request, approval = null) {
+async function executeReturn(
+  request,
+  drawerApproval = null,
+  returnApproval = null
+) {
   if (state.submitting) return;
+
+  let keepPendingApproval = false;
 
   state.submitting = true;
   els.confirmButton.disabled = true;
   if (els.confirmRefundApproval) {
     els.confirmRefundApproval.disabled = true;
   }
+  if (els.confirmReturnPermissionApproval) {
+    els.confirmReturnPermissionApproval.disabled = true;
+  }
   setStatus('กำลังบันทึกคืนสินค้า...');
 
   try {
-    const { data, error } = await supabaseClient.rpc(
-      'process_sale_return_phase_9_2',
-      {
-        p_sale_id: saleId,
-        p_reason: request.reason,
-        p_refund_method: request.refundMethod,
-        p_items: request.lines
-      }
-    );
+    const rpcName = returnApproval
+      ? 'process_sale_return_phase_9_2_approved'
+      : 'process_sale_return_phase_9_2';
 
-    if (error) throw error;
+    const rpcArgs = {
+      p_sale_id: saleId,
+      p_reason: request.reason,
+      p_refund_method: request.refundMethod,
+      p_items: request.lines
+    };
+
+    if (returnApproval) {
+      rpcArgs.p_approver_employee_code = returnApproval.employeeCode;
+      rpcArgs.p_approver_pin = returnApproval.pin;
+      setReturnPermissionStatus(
+        'กำลังตรวจสอบรหัสผู้อนุมัติและบันทึกคืนสินค้า...'
+      );
+    }
+
+    const { data, error } = await supabaseClient.rpc(rpcName, rpcArgs);
+
+    if (error) {
+      if (!returnApproval && isReturnApprovalRequired(error)) {
+        keepPendingApproval = true;
+        setStatus(
+          'รายการนี้ต้องได้รับอนุมัติ กรุณาใส่รหัสผู้ที่มีสิทธิ์อนุมัติคืนสินค้า',
+          'warning'
+        );
+        if (els.refundDrawerApprovalDialog?.open) {
+          els.refundDrawerApprovalDialog.close();
+        }
+        requestReturnPermissionApproval(request, drawerApproval);
+        return;
+      }
+      throw error;
+    }
 
     let drawerResult = null;
 
@@ -600,7 +693,7 @@ async function executeReturn(request, approval = null) {
         drawer_status: 'REQUESTED'
       });
 
-      drawerResult = await openCashRefundDrawer(data, approval);
+      drawerResult = await openCashRefundDrawer(data, drawerApproval);
 
       await updateRefundState(data, {
         refund_status: 'PAID',
@@ -645,13 +738,24 @@ async function executeReturn(request, approval = null) {
     }
 
     els.refundDrawerApprovalDialog?.close();
+    closeReturnPermissionApproval(false);
     showSuccessDialog(data);
   } catch (error) {
     console.error('Process sales return error:', error);
 
     const message = String(error.message || '');
 
-    if (message.includes('RETURN_QUANTITY_EXCEEDS_BALANCE')) {
+    if (returnApproval && isReturnApprovalCredentialError(error)) {
+      keepPendingApproval = true;
+      setReturnPermissionStatus(
+        message || 'รหัสผู้อนุมัติไม่ถูกต้องหรือไม่มีสิทธิ์อนุมัติคืนสินค้า',
+        'error'
+      );
+      if (els.returnPermissionApproverPin) {
+        els.returnPermissionApproverPin.value = '';
+        els.returnPermissionApproverPin.focus();
+      }
+    } else if (message.includes('RETURN_QUANTITY_EXCEEDS_BALANCE')) {
       setStatus(
         'จำนวนคืนเกินยอดที่สามารถคืนได้ กรุณารีเฟรชและตรวจสอบอีกครั้ง',
         'error'
@@ -678,9 +782,15 @@ async function executeReturn(request, approval = null) {
     updateSummary();
   } finally {
     state.submitting = false;
-    state.pendingReturnRequest = null;
+    if (!keepPendingApproval) {
+      state.pendingReturnRequest = null;
+      state.pendingDrawerApproval = null;
+    }
     if (els.confirmRefundApproval) {
       els.confirmRefundApproval.disabled = false;
+    }
+    if (els.confirmReturnPermissionApproval) {
+      els.confirmReturnPermissionApproval.disabled = false;
     }
     updateSummary();
   }
@@ -737,6 +847,33 @@ async function submitReturn() {
   await executeReturn(request);
 }
 
+async function approveReturnPermission(event) {
+  event.preventDefault();
+
+  if (!state.pendingReturnRequest || state.submitting) return;
+
+  const employeeCode =
+    els.returnPermissionApproverCode?.value.trim() || '';
+  const pin = els.returnPermissionApproverPin?.value || '';
+
+  if (!employeeCode || !pin) {
+    setReturnPermissionStatus(
+      'กรุณากรอกรหัสผู้อนุมัติและ PIN',
+      'error'
+    );
+    return;
+  }
+
+  els.confirmReturnPermissionApproval.disabled = true;
+  setReturnPermissionStatus('กำลังตรวจสอบสิทธิ์...');
+
+  await executeReturn(
+    state.pendingReturnRequest,
+    state.pendingDrawerApproval,
+    { employeeCode, pin }
+  );
+}
+
 async function approveCashRefund(event) {
   event.preventDefault();
 
@@ -784,6 +921,8 @@ async function approveCashRefund(event) {
       throw error;
     }
 
+    if (els.refundApproverPin) els.refundApproverPin.value = '';
+
     await executeReturn(
       state.pendingReturnRequest,
       data
@@ -813,8 +952,25 @@ els.refundDrawerApprovalForm?.addEventListener(
   approveCashRefund
 );
 
+els.returnPermissionApprovalForm?.addEventListener(
+  'submit',
+  approveReturnPermission
+);
+
+els.cancelReturnPermissionApproval?.addEventListener('click', () => {
+  closeReturnPermissionApproval(true);
+  updateSummary();
+});
+
+els.returnPermissionApprovalDialog?.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  closeReturnPermissionApproval(true);
+  updateSummary();
+});
+
 els.cancelRefundApproval?.addEventListener('click', () => {
   state.pendingReturnRequest = null;
+  state.pendingDrawerApproval = null;
   els.refundDrawerApprovalForm?.reset();
   setApprovalStatus('');
   els.refundDrawerApprovalDialog?.close();

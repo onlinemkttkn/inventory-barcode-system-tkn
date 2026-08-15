@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>TKN POS - ยกเลิกบิล</title>
-  <link rel="stylesheet" href="./css/void-bill.css?v=3.0.0">
+  <link rel="stylesheet" href="./css/void-bill.css?v=5.31.28-HF7">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
   <!-- TKN Global Prompt Typography v4.7.0 -->
@@ -49,7 +49,32 @@
     </section>
   </main>
 
-  <script type="module" src="./js/void-bill.js?v=3.0.0"></script>
+  <dialog id="voidApprovalDialog" class="approval-dialog">
+    <div class="approval-card">
+      <h2>ขออนุมัติยกเลิกบิล</h2>
+      <p>
+        บัญชีที่กำลังใช้งานไม่มีสิทธิ์ยกเลิกบิล กรุณาใส่รหัสพนักงาน
+        และ PIN ของผู้ที่มีสิทธิ์ยกเลิกบิล
+      </p>
+      <form id="voidApprovalForm">
+        <label>
+          รหัสผู้อนุมัติ
+          <input id="voidApproverCode" type="text" autocomplete="off" required>
+        </label>
+        <label>
+          PIN
+          <input id="voidApproverPin" type="password" inputmode="numeric" autocomplete="off" required>
+        </label>
+        <p id="voidApprovalMessage" role="status" aria-live="polite"></p>
+        <div class="approval-actions">
+          <button id="cancelVoidApproval" class="secondary" type="button">ยกเลิก</button>
+          <button id="confirmVoidApproval" class="danger" type="submit">อนุมัติและยกเลิกบิล</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script type="module" src="./js/void-bill.js?v=5.31.28-HF7"></script>
   <script src="./js/app-shell-v5-19.js?v=5.20.4" defer></script>
 </body>
 </html>

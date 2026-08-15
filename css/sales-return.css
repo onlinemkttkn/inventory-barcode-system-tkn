@@ -255,3 +255,12 @@ button:disabled {
   border-radius:10px;
   background:#fff8dc;
 }
+
+/* v5.31.28-HF7 — return permission approver dialog */
+#returnPermissionApprovalMessage{
+  min-height:22px;
+  margin:0;
+  font-weight:800;
+}
+#returnPermissionApprovalMessage[data-type="error"]{color:#b42318}
+#returnPermissionApprovalMessage[data-type="success"]{color:#027a48}
