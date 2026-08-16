@@ -129,6 +129,9 @@
 
   function usbKeydown(event) {
     if (protectedPage() || event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey) return;
+    // KeyboardEvent.key can be missing on synthetic/IME/device events. Never read .length until it is normalized.
+    const key = typeof event.key === 'string' ? event.key : '';
+    if (!key || event.isComposing) { resetBuffer(); return; }
     const active = document.activeElement;
     // ถ้า scanner focus อยู่ในช่องสแกน ให้ flow เดิมของหน้าเป็นผู้จัดการ เพื่อเร็วและไม่ยิงซ้ำ
     if (isScanTarget(active)) return;
@@ -136,7 +139,7 @@
     if (isTextControl(active) || active?.isContentEditable) { resetBuffer(); return; }
 
     const now = performance.now();
-    if (event.key === 'Enter' || event.key === 'Tab') {
+    if (key === 'Enter' || key === 'Tab') {
       if (state.buffer.length >= CONFIG.usbMinLength) {
         const avg = state.buffer.length > 1 ? (now - state.startedAt) / state.buffer.length : 0;
         if (avg <= CONFIG.usbGapMs * 1.4) {
@@ -149,10 +152,10 @@
       }
       resetBuffer(); return;
     }
-    if (event.key.length !== 1) return;
+    if (key.length !== 1) return;
     if (state.lastKeyAt && now - state.lastKeyAt > CONFIG.usbGapMs * 2.2) resetBuffer();
     if (!state.buffer) state.startedAt = now;
-    state.buffer += event.key;
+    state.buffer += key;
     state.lastKeyAt = now;
   }
 
