@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '5.31.28-HF13';
+const VERSION = '5.31.28-HF14';
 const STATIC_CACHE = `tkn-static-${VERSION}`;
 const PAGE_CACHE = `tkn-pages-${VERSION}`;
 const CORE_ASSETS = [
@@ -113,7 +113,7 @@ const CORE_ASSETS = [
   './js/print-labels-v5-30-4.js',
   './js/sort-pack-qr-v5-31-9.js',
   './js/box-qr-stock-v5-30-4.js',
-  './js/box-qr-stock-v5-31-28-hf10.js',
+  './js/box-qr-stock-v5-31-28-hf14.js',
   './js/stock-intake-v5-30-9.js',
   './box-inspection.html',
   './stock-putaway.html',
