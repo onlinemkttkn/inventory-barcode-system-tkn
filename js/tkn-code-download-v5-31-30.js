@@ -1,6 +1,6 @@
 (function initTknCodeDownload(global){
   'use strict';
-  const VERSION='5.31.30';
+  const VERSION='5.31.30.2';
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const cleanFile=v=>String(v||'code').replace(/[^0-9A-Za-zก-๙._-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)||'code';
   const qrEngine=()=>global.QRCode?.toCanvas||global.TKNQR?.toCanvas;
@@ -33,10 +33,12 @@
     const d=ensureModal(),host=d.querySelector('#tknCodePreview');host.innerHTML='<p>กำลังสร้างตัวอย่าง...</p>';if(!d.open)d.showModal();
     try{const parts=await renderParts(raw);d.querySelector('#tknCodeTitle').textContent=parts.item.title;host.innerHTML='';host.appendChild(parts.combined);d.querySelector('#tknCodeValue').textContent=`QR: ${parts.item.qr} · Barcode: ${parts.item.barcode}`;d.querySelectorAll('[data-code-download]').forEach(b=>b.onclick=async()=>{const type=b.dataset.codeDownload;const canvas=type==='qr'?parts.qr:type==='barcode'?parts.bar:parts.combined;downloadBlob(await blob(canvas),`${cleanFile(parts.item.title)}-${type}.png`)})}catch(error){host.innerHTML=`<p class="error">${esc(error.message||error)}</p>`}
   }
-  async function downloadZip(items,prefix='TKN-CODES'){
+  function chooseMode(title,count){return new Promise(resolve=>{const d=document.createElement('dialog');d.className='tkn-code-dialog';d.innerHTML=`<div class="tkn-code-card"><header><div><small>DOWNLOAD OPTIONS</small><h2>${esc(title)}</h2></div><button type="button" data-choice="cancel" aria-label="ปิด">×</button></header><p>เลือกแล้ว <b>${Number(count).toLocaleString('th-TH')}</b> รายการ กรุณาเลือกรูปแบบไฟล์</p><div class="tkn-choice-grid"><button type="button" data-choice="qr"><span class="tkn-choice-preview qr-sample" aria-hidden="true"></span><strong>QR Code เท่านั้น</strong><small>ไฟล์ PNG รูปสี่เหลี่ยม</small></button><button type="button" data-choice="barcode"><span class="tkn-choice-preview barcode-sample" aria-hidden="true"></span><strong>Barcode เท่านั้น</strong><small>ไฟล์ PNG แนวนอน</small></button><button type="button" class="recommended" data-choice="combined"><span class="tkn-choice-preview combined-sample" aria-hidden="true"><i class="qr-sample"></i><i class="barcode-sample"></i></span><strong>QR + Barcode รวม</strong><small>อยู่ในภาพเดียวกัน · แนะนำ</small></button></div><button class="tkn-choice-cancel" type="button" data-choice="cancel">ยกเลิก</button></div>`;document.body.appendChild(d);let done=false;const finish=value=>{if(done)return;done=true;d.close();d.remove();resolve(value)};d.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>finish(b.dataset.choice==='cancel'?null:b.dataset.choice));d.addEventListener('cancel',e=>{e.preventDefault();finish(null)});d.addEventListener('click',e=>{if(e.target===d)finish(null)});d.showModal()})}
+  async function downloadZip(items,prefix='TKN-CODES',mode='combined'){
     if(!Array.isArray(items)||!items.length)throw new Error('กรุณาเลือกรายการอย่างน้อย 1 รายการ');if(typeof global.JSZip!=='function')throw new Error('ระบบ ZIP ยังไม่พร้อม กรุณารีเฟรชหน้า');
-    const zip=new global.JSZip();for(let i=0;i<items.length;i+=1){const p=await renderParts(items[i]);zip.file(`${String(i+1).padStart(3,'0')}-${cleanFile(p.item.title)}-${cleanFile(p.item.barcode)}.png`,await blob(p.combined));}
-    downloadBlob(await zip.generateAsync({type:'blob',compression:'DEFLATE'}),`${cleanFile(prefix)}-${new Date().toISOString().slice(0,10)}.zip`);
+    const zip=new global.JSZip();for(let i=0;i<items.length;i+=1){const p=await renderParts(items[i]);const canvas=mode==='qr'?p.qr:mode==='barcode'?p.bar:p.combined;zip.file(`${String(i+1).padStart(3,'0')}-${cleanFile(p.item.title)}-${cleanFile(p.item.barcode)}-${mode}.png`,await blob(canvas));}
+    downloadBlob(await zip.generateAsync({type:'blob',compression:'DEFLATE'}),`${cleanFile(prefix)}-${mode}-${new Date().toISOString().slice(0,10)}.zip`);
   }
-  global.TKNCodeDownload=Object.freeze({version:VERSION,openProduct:p=>open({...p,kind:'PRODUCT'}),openBox:b=>open({...b,kind:'BOX'}),downloadProductZip:items=>downloadZip(items.map(x=>({...x,kind:'PRODUCT'})),'TKN-PRODUCT-CODES'),downloadBoxZip:items=>downloadZip(items.map(x=>({...x,kind:'BOX'})),'TKN-BOX-CODES')});
+  async function chooseAndDownload(items,kind){if(!Array.isArray(items)||!items.length)throw new Error('กรุณาเลือกรายการอย่างน้อย 1 รายการ');const mode=await chooseMode(kind==='BOX'?'ดาวน์โหลดรหัสกล่อง':'ดาวน์โหลดรหัสสินค้า',items.length);if(!mode)return{cancelled:true};await downloadZip(items.map(x=>({...x,kind})),kind==='BOX'?'TKN-BOX-CODES':'TKN-PRODUCT-CODES',mode);return{cancelled:false,mode}}
+  global.TKNCodeDownload=Object.freeze({version:VERSION,openProduct:p=>open({...p,kind:'PRODUCT'}),openBox:b=>open({...b,kind:'BOX'}),downloadProductZip:items=>chooseAndDownload(items,'PRODUCT'),downloadBoxZip:items=>chooseAndDownload(items,'BOX')});
 })(window);

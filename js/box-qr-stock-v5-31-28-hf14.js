@@ -1274,7 +1274,7 @@
   function bindHistoryEvents() {
     bind("boxHistoryRefresh", "click", () => { void loadBoxHistory(); });
     bind("boxHistorySearch", "keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); void loadBoxHistory(); } });
-    bind("downloadVisibleBoxCodes", "click", async () => { const button=$("downloadVisibleBoxCodes");if(!cloudHistory.length)return msg("ยังไม่มีกล่องให้ดาวน์โหลด","error");button.disabled=true;const old=button.textContent;button.textContent="กำลังสร้าง ZIP...";try{await window.TKNCodeDownload.downloadBoxZip(cloudHistory);msg(`ดาวน์โหลด QR + Barcode กล่อง ${cloudHistory.length} รายการแล้ว`,"success")}catch(error){msg(`ดาวน์โหลดไม่สำเร็จ: ${error.message||error}`,"error")}finally{button.disabled=false;button.textContent=old} });
+    bind("downloadVisibleBoxCodes", "click", async () => { const button=$("downloadVisibleBoxCodes");if(!cloudHistory.length)return msg("ยังไม่มีกล่องให้ดาวน์โหลด","error");button.disabled=true;const old=button.textContent;button.textContent="เลือกรูปแบบดาวน์โหลด...";try{const result=await window.TKNCodeDownload.downloadBoxZip(cloudHistory);if(!result?.cancelled)msg(`ดาวน์โหลดรหัสกล่อง ${cloudHistory.length} รายการแล้ว`,"success")}catch(error){msg(`ดาวน์โหลดไม่สำเร็จ: ${error.message||error}`,"error")}finally{button.disabled=false;button.textContent=old} });
     const rows=$("cloudBoxHistoryRows");
     rows?.addEventListener("click", (event) => {
       const target=event.target instanceof Element?event.target:null;if(!target)return;
