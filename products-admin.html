@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="./css/tkn-warehouse-context-v5-30-0.css?v=5.30.0">
   <link rel="stylesheet" href="./css/products-admin-v5-31-21-ui.css?v=5.31.21">
   <link rel="stylesheet" href="./css/products-admin-v5-31-24-organized-ui.css?v=5.31.24">
+  <link rel="stylesheet" href="./css/tkn-code-download-v5-31-30.css?v=5.31.30">
 </head>
 <body>
 <main class="shell">
@@ -121,10 +122,15 @@
   </section>
 
   <section class="card product-list-card">
+    <div class="code-batch-toolbar">
+      <span id="productCodeSelectedCount">เลือกแล้ว 0 รายการ</span>
+      <button id="downloadSelectedProductCodes" class="code-batch-btn primary" type="button" disabled>ดาวน์โหลด QR + Barcode ที่เลือก (.zip)</button>
+      <button id="clearSelectedProductCodes" class="code-batch-btn" type="button" disabled>ล้างรายการเลือก</button>
+    </div>
     <div class="table-scroll">
       <table data-no-mobile-wrap="true">
         <thead><tr>
-          <th>สินค้า</th><th>รหัส / บาร์โค้ด</th><th>หมวดหมู่</th>
+          <th><input id="selectAllProductCodes" class="code-select" type="checkbox" aria-label="เลือกสินค้าที่แสดงทั้งหมด"></th><th>สินค้า</th><th>รหัส / บาร์โค้ด</th><th>หมวดหมู่</th>
           <th>ราคาทุน</th><th>ราคาขาย</th><th>คงเหลือ</th>
           <th>สถานะ</th><th class="align-right">จัดการ</th>
         </tr></thead>
@@ -253,7 +259,12 @@
 <script src="./js/supabase-config.js?v=1.0.2"></script>
 <script src="./js/tkn-warehouse-context-v5-31-25.js?v=5.31.25"></script>
 <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
-<script src="./js/products-admin-v5-25-9.js?v=5.25.9"></script>
+<script src="./js/vendor/tkn-qrcode-local-v5.16.4.js?v=5.16.4"></script>
+<script src="./js/tkn-qr-health-v5.16.4.js?v=5.16.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.1/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="./js/tkn-code-download-v5-31-30.js?v=5.31.30"></script>
+<script src="./js/products-admin-v5-25-9.js?v=5.31.30"></script>
 <script src="./js/products-admin-ui-v5-31-21.js?v=5.31.21"></script>
 <script src="./js/tkn-safe-back.js?v=5.25.9"></script>
   <script src="./js/app-shell-v5-19.js?v=5.31.25" defer></script>

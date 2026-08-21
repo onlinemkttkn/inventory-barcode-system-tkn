@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="./css/box-qr-stock-v5-25-6.css?v=5.25.6">
   <link rel="stylesheet" href="./css/marketplace-workflow-v5-27-1.css?v=5.27.1">
   <link rel="stylesheet" href="./css/box-history-v5-28-3.css?v=5.28.4.1">
+  <link rel="stylesheet" href="./css/tkn-code-download-v5-31-30.css?v=5.31.30">
   <link rel="stylesheet" href="./css/box-lifecycle-v5-28-4.css?v=5.28.4.1">
   <link rel="stylesheet" href="./css/tkn-unified-scanner-v5-29-0.css?v=5.29.0">
   <link rel="stylesheet" href="./css/tkn-warehouse-context-v5-30-0.css?v=5.30.0">
@@ -190,6 +191,7 @@
       <div class="history-toolbar">
         <input id="boxHistorySearch" autocomplete="off" placeholder="ค้นหารหัสกล่อง / ประเภท">
         <button id="boxHistoryRefresh" type="button">รีเฟรชประวัติ</button>
+        <button id="downloadVisibleBoxCodes" class="primary" type="button">ดาวน์โหลด QR + Barcode กล่องที่แสดง (.zip)</button>
       </div>
       <div class="table box-history-table"><table><thead><tr><th>ปิดกล่อง</th><th>รหัสกล่อง</th><th>สาขา</th><th>ประเภท/โซน</th><th>สินค้า</th><th>สถานะ</th><th>พิมพ์ QR</th><th>จัดการ</th></tr></thead><tbody id="cloudBoxHistoryRows"><tr><td colspan="8">กำลังโหลดประวัติ...</td></tr></tbody></table></div>
       <div id="boxHistoryDetail" class="box-history-detail" hidden></div>
@@ -225,8 +227,10 @@
   <script src="./js/tkn-unified-label-layout-v5-30-4.js?v=5.30.4"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.1/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="./js/tkn-code-download-v5-31-30.js?v=5.31.30"></script>
 <script src="./js/tkn-print-platform-v5-30-4.js?v=5.30.4"></script>
-<script src="./js/box-qr-stock-v5-31-28-hf14.js?v=5.31.28-HF14"></script>
+<script src="./js/box-qr-stock-v5-31-28-hf14.js?v=5.31.30"></script>
   <script src="./js/box-lifecycle-v5-28-4.js?v=5.28.5.1"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/app-shell-v5-19.js?v=5.31.25" defer></script>

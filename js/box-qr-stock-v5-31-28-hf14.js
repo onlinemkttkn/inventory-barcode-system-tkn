@@ -1219,7 +1219,7 @@
           <td>${integer(h.sku_count)} SKU · ${integer(h.total_quantity)} ชิ้น</td>
           <td><b>${esc(historyStatusLabel(h.workflow_status))}</b>${h.stock_document_no ? `<br><small>${esc(h.stock_document_no)}</small>` : ""}</td>
           <td>${integer(h.print_count)} ครั้ง</td>
-          <td class="history-actions"><button type="button" data-history-view="${h.id}">ดู</button><button type="button" data-history-reprint="${h.id}">พิมพ์ QR ซ้ำ</button>${h.workflow_status === "WAITING_STOCK" ? `<a class="primary" href="./stock-intake.html?scan=${encodeURIComponent(h.box_code)}">ตรวจรับเข้าสต็อก</a>` : ""}</td>
+          <td class="history-actions"><button type="button" data-history-view="${h.id}">ดู</button><button type="button" data-history-download="${h.id}">ดู/ดาวน์โหลดรหัส</button><button type="button" data-history-reprint="${h.id}">พิมพ์ QR ซ้ำ</button>${h.workflow_status === "WAITING_STOCK" ? `<a class="primary" href="./stock-intake.html?scan=${encodeURIComponent(h.box_code)}">ตรวจรับเข้าสต็อก</a>` : ""}</td>
         </tr>`).join("") || '<tr><td colspan="8">ยังไม่มีประวัติกล่อง</td></tr>';
     } catch (error) {
       host.innerHTML = `<tr><td colspan="8">โหลดประวัติไม่สำเร็จ: ${esc(error.message || error)}</td></tr>`;
@@ -1274,10 +1274,12 @@
   function bindHistoryEvents() {
     bind("boxHistoryRefresh", "click", () => { void loadBoxHistory(); });
     bind("boxHistorySearch", "keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); void loadBoxHistory(); } });
+    bind("downloadVisibleBoxCodes", "click", async () => { const button=$("downloadVisibleBoxCodes");if(!cloudHistory.length)return msg("ยังไม่มีกล่องให้ดาวน์โหลด","error");button.disabled=true;const old=button.textContent;button.textContent="กำลังสร้าง ZIP...";try{await window.TKNCodeDownload.downloadBoxZip(cloudHistory);msg(`ดาวน์โหลด QR + Barcode กล่อง ${cloudHistory.length} รายการแล้ว`,"success")}catch(error){msg(`ดาวน์โหลดไม่สำเร็จ: ${error.message||error}`,"error")}finally{button.disabled=false;button.textContent=old} });
     const rows=$("cloudBoxHistoryRows");
     rows?.addEventListener("click", (event) => {
       const target=event.target instanceof Element?event.target:null;if(!target)return;
       const view=target.closest("[data-history-view]");if(view)return void showHistoryDetail(view.dataset.historyView);
+      const dl=target.closest("[data-history-download]");if(dl)return void window.TKNCodeDownload?.openBox(cloudHistory.find(h=>h.id===dl.dataset.historyDownload));
       const rp=target.closest("[data-history-reprint]");if(rp)return void reprintHistoricalBox(cloudHistory.find(h=>h.id===rp.dataset.historyReprint));
     });
   }

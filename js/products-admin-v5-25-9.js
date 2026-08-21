@@ -51,7 +51,11 @@ const E={
   initialBranch:document.getElementById('initialBranch'),
   initialQuantity:document.getElementById('initialQuantity'),
   description:document.getElementById('description'),
-  formMessage:document.getElementById('formMessage')
+  formMessage:document.getElementById('formMessage'),
+  selectAllProductCodes:document.getElementById('selectAllProductCodes'),
+  productCodeSelectedCount:document.getElementById('productCodeSelectedCount'),
+  downloadSelectedProductCodes:document.getElementById('downloadSelectedProductCodes'),
+  clearSelectedProductCodes:document.getElementById('clearSelectedProductCodes')
 };
 
 let rows=[];
@@ -60,6 +64,8 @@ const PATTERN=window.TKNProductPattern;
 let manualLabelName=false;
 let createReturnTo="";
 let createSourceScan="";
+const selectedProductCodes=new Set();
+function refreshCodeSelection(){const count=selectedProductCodes.size;E.productCodeSelectedCount.textContent=`เลือกแล้ว ${count.toLocaleString('th-TH')} รายการ`;E.downloadSelectedProductCodes.disabled=count===0;E.clearSelectedProductCodes.disabled=count===0;const visible=filteredRows();E.selectAllProductCodes.checked=visible.length>0&&visible.every(x=>selectedProductCodes.has(String(x.id)));E.selectAllProductCodes.indeterminate=count>0&&!E.selectAllProductCodes.checked;}
 
 function msg(el,text,cls=''){el.textContent=text;el.className='msg '+cls}
 function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[x]))}
@@ -259,6 +265,7 @@ function render(){
     const stockText=stock==='out'?'สินค้าหมด':stock==='low'?'ใกล้หมด':'ปกติ';
     const tr=document.createElement('tr');
     tr.innerHTML=`
+      <td data-label="เลือก"><input class="code-select" type="checkbox" data-product-code-select="${esc(x.id)}" aria-label="เลือก ${esc(x.label_name||x.name)}" ${selectedProductCodes.has(String(x.id))?'checked':''}></td>
       <td data-label="สินค้า"><div class="product-cell"><span class="product-avatar">${esc(String(x.name||'?').charAt(0))}</span><div><strong>${esc(x.label_name||x.name)}</strong><small>${esc([x.product_type_th,x.brand_name,x.model_name].filter(Boolean).join(' · ')||'ยังไม่ระบุประเภท/ยี่ห้อ/รุ่น')}</small></div></div></td>
       <td data-label="รหัส / บาร์โค้ด"><strong class="code-text">${esc(x.product_code)}</strong><small class="barcode-text">SKU หลัก ${esc(x.base_sku||'-')} · ${esc(x.lot_code||'ไม่ระบุล็อต')}</small></td>
       <td data-label="หมวดหมู่"><span class="category-chip">${esc(x.category_name||'-')}</span></td>
@@ -288,11 +295,17 @@ function render(){
     barcode.setAttribute('aria-label',`สร้าง Barcode สำหรับ ${x.name||'สินค้า'} รหัส ${x.product_code||'-'}`);
     barcode.textContent='Barcode';
 
-    td.append(edit,barcode);
+    const viewCode=document.createElement('button');
+    viewCode.className='btn table-btn code-download-btn';
+    viewCode.type='button';viewCode.textContent='ดู/ดาวน์โหลดรหัส';
+    viewCode.onclick=()=>window.TKNCodeDownload?.openProduct(x);
+
+    td.append(edit,barcode,viewCode);
     tr.appendChild(td);
     E.body.appendChild(tr);
   });
   msg(E.message,visible.length?`แสดง ${visible.length.toLocaleString('th-TH')} จาก ${rows.length.toLocaleString('th-TH')} รายการ`:'');
+  refreshCodeSelection();
 }
 
 function resetForm(){
@@ -455,6 +468,10 @@ E.clearSearchBtn.onclick=()=>{
   E.search.focus();
 };
 [E.categoryFilter,E.stockFilter,E.activeFilter,E.sortFilter].forEach(el=>el.onchange=render);
+E.body.addEventListener('change',event=>{const input=event.target.closest?.('[data-product-code-select]');if(!input)return;const id=String(input.dataset.productCodeSelect);if(input.checked)selectedProductCodes.add(id);else selectedProductCodes.delete(id);refreshCodeSelection()});
+E.selectAllProductCodes.onchange=()=>{filteredRows().forEach(x=>{const id=String(x.id);if(E.selectAllProductCodes.checked)selectedProductCodes.add(id);else selectedProductCodes.delete(id)});render()};
+E.clearSelectedProductCodes.onclick=()=>{selectedProductCodes.clear();render()};
+E.downloadSelectedProductCodes.onclick=async()=>{const chosen=rows.filter(x=>selectedProductCodes.has(String(x.id)));E.downloadSelectedProductCodes.disabled=true;E.downloadSelectedProductCodes.textContent='กำลังสร้าง ZIP...';try{await window.TKNCodeDownload.downloadProductZip(chosen);msg(E.message,`ดาวน์โหลด QR + Barcode ${chosen.length} รายการแล้ว`)}catch(error){msg(E.message,error.message||String(error),'error')}finally{E.downloadSelectedProductCodes.textContent='ดาวน์โหลด QR + Barcode ที่เลือก (.zip)';refreshCodeSelection()}};
 E.newBtn.onclick=openNew;
 function closeModal(){E.modal.classList.add('hidden')}
 E.closeBtn.onclick=closeModal;
