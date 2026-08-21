@@ -1,0 +1,39 @@
+.tkn-label-options {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid #f0c94d;
+  border-radius: 12px;
+  background: #fff9df;
+}
+
+.tkn-label-options strong {
+  margin-right: auto;
+  color: #7a1520;
+}
+
+.tkn-label-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tkn-label-options input {
+  width: 21px;
+  height: 21px;
+  accent-color: #b20f18;
+}
+
+@media (max-width: 640px) {
+  .tkn-label-options {
+    align-items: flex-start;
+  }
+
+  .tkn-label-options strong {
+    flex-basis: 100%;
+  }
+}
