@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='5.31.28-HF2';
+  const VERSION='5.31.29';
   const $=(id)=>document.getElementById(id);
   const money=(value)=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',minimumFractionDigits:2}).format(Number(value)||0);
   const number=(v,fallback=0)=>Number.isFinite(Number(v))?Number(v):fallback;
@@ -115,6 +115,15 @@
       <div><span>QR</span><b>${money(summary.totals.QR)}</b></div>
       <div><span>โอนเงิน</span><b>${money(summary.totals.TRANSFER)}</b></div>
       <div><span>บัตร</span><b>${money(summary.totals.CARD)}</b></div></section>`:'';
+    const control=summary?`<section class="shift-receipt-section"><h3>รายการหักและตรวจสอบ</h3>
+      <div><span>คืนเงินสด</span><b>${money(summary.refund_cash_amount)}</b></div>
+      <div><span>คืนเงินโอน</span><b>${money(summary.refund_transfer_amount)}</b></div>
+      <div><span>คืนเงิน QR</span><b>${money(summary.refund_qr_amount)}</b></div>
+      <div><span>คืนเงินบัตร</span><b>${money(summary.refund_card_amount)}</b></div>
+      <div><span>คืนสินค้า</span><b>${number(summary.return_count).toLocaleString('th-TH')} รายการ / ${number(summary.return_quantity).toLocaleString('th-TH')} ชิ้น</b></div>
+      <div><span>มูลค่าคืนสินค้า</span><b>${money(summary.return_amount)}</b></div>
+      <div><span>ยกเลิกบิล</span><b>${number(summary.void_count).toLocaleString('th-TH')} บิล / ${money(summary.void_amount)}</b></div>
+      <div><span>ยอดขายสุทธิ</span><b>${money(summary.net_sales)}</b></div></section>`:'';
     return `<div class="shift-receipt-brand"><strong>${esc(b.company_name)}</strong>${b.company_legal_name?`<small>${esc(b.company_legal_name)}</small>`:''}${b.address?`<small>${esc(b.address)}</small>`:''}${b.tax_id?`<small>เลขผู้เสียภาษี ${esc(b.tax_id)}</small>`:''}</div>
       <h3 class="shift-receipt-title">ใบสรุปปิดกะ</h3>
       <section class="shift-receipt-section">
@@ -123,7 +132,7 @@
         <div><span>รหัสพนักงาน</span><b>${esc(s.employee_code||'-')}</b></div>
         <div><span>เปิดกะ</span><b>${esc(opened)}</b></div>
         <div><span>ปิดกะ</span><b>${esc(closed)}</b></div>
-      </section>${payment}
+      </section>${payment}${control}
       <section class="shift-receipt-section money-block">
         <div><span>เงินทอนตั้งต้น</span><b>${money(opening)}</b></div>
         <div><span>เงินสดที่ควรมี</span><b>${money(expected)}</b></div>
@@ -140,7 +149,9 @@
     if(!dialog||!body)return;
     body.innerHTML='<div class="shift-receipt-loading">กำลังสร้างใบสรุปปิดกะ...</div>';
     if(!dialog.open)dialog.showModal();
-    const summary=await loadSalesSummary(detail);
+    const serverSummary=detail?.result?.summary||null;
+    const salesSummary=await loadSalesSummary(detail);
+    const summary=serverSummary?{...serverSummary,bill_count:number(serverSummary.sale_bill_count),total:number(serverSummary.gross_sales),totals:{CASH:number(serverSummary.cash_sales),QR:number(serverSummary.qr_sales),TRANSFER:number(serverSummary.transfer_sales),CARD:number(serverSummary.card_sales),OTHER:number(serverSummary.other_sales)}}:salesSummary;
     lastShiftReceipt={detail,summary,html:receiptMarkup(detail,summary)};
     body.innerHTML=lastShiftReceipt.html;
   }

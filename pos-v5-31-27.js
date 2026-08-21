@@ -6,7 +6,7 @@ const ids = [
   'branch','boxSaleButton','payment','customerName','customerPhone','searchForm','search','searchButton',
   'results','searchMsg','cart','cartCount','subtotal','itemDiscountTotal','discount','vatModeHelp','vatBaseLabel','vatBaseAmount','vatAmountLabel','vatAmount','netTotal','notes',
   'checkout','manualDrawer','actionMsg','cashierStatus','holdBill','restoreBill','openShift','closeShift',
-  'logoutBtn','branchStatus','closeShiftDialog','closeShiftForm','closingCash','closingNotes',
+  'logoutBtn','branchStatus','closeShiftDialog','closeShiftForm','shiftCloseReview','closingCash','closingNotes','closingReviewed','confirmCloseShift',
   'cancelCloseShift','closeShiftMsg','paymentDialog','paymentForm','paymentDialogNet',
   'paymentReceivedLabel','paymentDialogReceived','paymentQuickCash','paymentDialogChange',
   'paymentDialogWarning','cancelPayment','confirmPayment','paymentSuccessDialog','successNet',
@@ -29,6 +29,8 @@ let orderCancelSubmitting=false;
 let drawerApprovalSubmitting=false;
 let discountTargetId=null;
 let itemDiscountSubmitting=false;
+let closeShiftReview=null;
+let closeShiftSubmitting=false;
 let branchReady=false;
 let cashierProfilesConfigured=false;
 let drawerSoftwareLocked = localStorage.getItem('tkn_drawer_locked') === '1';
@@ -37,6 +39,33 @@ const number=(value,fallback=0)=>{const n=Number(value);return Number.isFinite(n
 const money=value=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',minimumFractionDigits:2}).format(number(value));
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 function msg(el,text,type=''){if(!el)return;el.textContent=text;el.className=`msg ${type}`.trim()}
+function renderCloseShiftReview(data,errorText=''){
+  if(!E.shiftCloseReview)return;
+  if(errorText){E.shiftCloseReview.innerHTML=`<p class="shift-close-review-error">${esc(errorText)}</p>`;return;}
+  const x=data||{};const blockers=Array.isArray(x.blockers)?x.blockers:[];
+  E.shiftCloseReview.innerHTML=`<div class="shift-close-review-grid">
+    <div><span>ยอดขายรวม</span><b>${money(x.gross_sales)}</b></div><div><span>จำนวนบิลขาย</span><b>${number(x.sale_bill_count).toLocaleString('th-TH')}</b></div>
+    <div><span>คืนเงินสด</span><b>${money(x.refund_cash_amount)}</b></div><div><span>คืนเงินโอน</span><b>${money(x.refund_transfer_amount)}</b></div>
+    <div><span>คืนเงิน QR</span><b>${money(x.refund_qr_amount)}</b></div><div><span>คืนเงินบัตร</span><b>${money(x.refund_card_amount)}</b></div>
+    <div><span>คืนสินค้า</span><b>${number(x.return_count).toLocaleString('th-TH')} รายการ / ${number(x.return_quantity).toLocaleString('th-TH')} ชิ้น</b></div><div><span>มูลค่าคืนสินค้า</span><b>${money(x.return_amount)}</b></div>
+    <div><span>ยกเลิกบิล</span><b>${number(x.void_count).toLocaleString('th-TH')} บิล</b></div><div><span>มูลค่าบิลยกเลิก</span><b>${money(x.void_amount)}</b></div>
+    <div class="net"><span>ยอดขายสุทธิ</span><b>${money(x.net_sales)}</b></div><div class="cash"><span>เงินสดที่ควรมี</span><b>${money(x.expected_cash)}</b></div>
+  </div>${blockers.length?`<div class="shift-close-blockers"><strong>ยังปิดกะไม่ได้</strong>${blockers.map(v=>`<p>• ${esc(v)}</p>`).join('')}</div>`:'<p class="shift-close-ready">✓ ตรวจสอบข้อมูลครบ พร้อมนับเงินสดและยืนยันปิดกะ</p>'}`;
+}
+async function loadCloseShiftReview(){
+  closeShiftReview=null;E.closingReviewed.checked=false;E.confirmCloseShift.disabled=true;msg(E.closeShiftMsg,'');
+  E.shiftCloseReview.innerHTML='<p>กำลังตรวจสอบข้อมูลกะ...</p>';
+  const r=await supabaseClient.rpc('get_cashier_shift_close_review_v5_31_29',{p_shift_id:shift.shift_id});
+  if(r.error){renderCloseShiftReview(null,r.error.message);msg(E.closeShiftMsg,'ตรวจสอบข้อมูลก่อนปิดกะไม่สำเร็จ กรุณารันไฟล์ SQL ของแพตช์นี้','error');return false;}
+  closeShiftReview=r.data||{};renderCloseShiftReview(closeShiftReview);
+  E.confirmCloseShift.disabled=number(closeShiftReview.blocker_count)>0||!E.closingReviewed.checked;
+  return number(closeShiftReview.blocker_count)===0;
+}
+async function openCloseShiftDialog(){
+  if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');
+  if(cart.size)return msg(E.actionMsg,'กรุณาชำระหรือยกเลิกออเดอร์ก่อนปิดกะ','error');
+  E.closeShiftDialog.showModal();await loadCloseShiftReview();
+}
 async function writeAudit(actionType,entityType,entityId,label,details={}){
   try{
     const result=await supabaseClient.rpc('write_audit_log',{
@@ -783,25 +812,24 @@ async function restore(){
 }
 async function closeShift(event){
   event.preventDefault();
+  if(closeShiftSubmitting)return;
   if(!shift?.shift_id){
     E.closeShiftDialog.close();
     return msg(E.actionMsg,'ไม่พบกะที่เปิดอยู่','error');
   }
+  if(!closeShiftReview||number(closeShiftReview.blocker_count)>0)return msg(E.closeShiftMsg,'ยังไม่ผ่านการตรวจสอบก่อนปิดกะ','error');
+  if(!E.closingReviewed.checked)return msg(E.closeShiftMsg,'กรุณายืนยันว่าได้ตรวจสอบยอดทั้งหมดแล้ว','error');
   const closingCashCount=number(E.closingCash.value);
   const closingNotes=E.closingNotes.value.trim()||null;
+  const previewDifference=closingCashCount-number(closeShiftReview.expected_cash);
+  if(Math.abs(previewDifference)>=0.01&&!closingNotes)return msg(E.closeShiftMsg,'ยอดเงินสดมีผลต่าง กรุณาระบุเหตุผลในหมายเหตุก่อนปิดกะ','error');
+  closeShiftSubmitting=true;E.confirmCloseShift.disabled=true;
+  try{
   let r=await supabaseClient.rpc('close_cashier_shift_stable_v3_6',{
     p_shift_id:shift.shift_id,
     p_closing_cash_count:closingCashCount,
     p_notes:closingNotes
   });
-  if(r.error&&/close_cashier_shift_stable_v3_6|schema cache|function/i.test(r.error.message||'')){
-    console.warn('Stable close-shift RPC unavailable; using legacy fallback.',r.error);
-    r=await supabaseClient.rpc('close_cashier_shift',{
-      p_shift_id:shift.shift_id,
-      p_closing_cash_count:closingCashCount,
-      p_notes:closingNotes
-    });
-  }
   if(r.error)return msg(E.closeShiftMsg,r.error.message,'error');
   const closedAt=new Date().toISOString();
   const closedShift={...shift};
@@ -818,7 +846,8 @@ async function closeShift(event){
   await writeAudit('SHIFT_CLOSE','CASHIER_SHIFT',closedShift.shift_id,'ปิดกะแคชเชียร์',{
     employee_code:closedShift.employee_code,
     expected_cash:r.data.expected_cash,
-    difference:r.data.difference
+    difference:r.data.difference,
+    summary:r.data.summary||closeShiftReview
   });
   const detail={
     shift:{...closedShift},
@@ -833,12 +862,13 @@ async function closeShift(event){
   if(!window.TKNPOSClassic){
     alert(`ปิดกะเรียบร้อย\nเงินสดที่ควรมี ${money(r.data.expected_cash)}\nผลต่าง ${money(r.data.difference)}`);
   }
+  }finally{closeShiftSubmitting=false;if(shift?.shift_id)E.confirmCloseShift.disabled=number(closeShiftReview?.blocker_count)>0||!E.closingReviewed.checked;}
 }
 
 document.querySelectorAll('input[name="vatMode"]').forEach(radio=>radio.addEventListener('change',()=>setVatMode(radio.value)));restoreVatMode();
 E.itemDiscountForm.onsubmit=applyItemDiscount;E.discountCancel.onclick=()=>E.itemDiscountDialog.close();E.discountRemove.onclick=removeItemDiscount;[E.discountType,E.discountValue,E.discountQuantity].forEach(el=>el?.addEventListener('input',updateItemDiscountPreview));
 if(E.boxSaleButton)E.boxSaleButton.onclick=()=>openBoxSale();
-E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะและเริ่มขาย')};E.shiftLockForm.onsubmit=openShiftFromLock;E.shiftLockLogout.onclick=logout;const closeShiftLock=()=>{setShiftLockVisible(false);refreshPosAvailability()};E.shiftLockClose.onclick=closeShiftLock;if(E.shiftLockCancel)E.shiftLockCancel.onclick=closeShiftLock;E.shiftRequiredClose.onclick=()=>E.shiftRequiredDialog.close();E.shiftRequiredOpen.onclick=()=>{E.shiftRequiredDialog.close();setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะก่อนทำรายการ')};E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.payment.onchange=configurePaymentFields;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>{E.drawerApprovalForm.reset();E.drawerApprovalDialog.close()};E.cancelOrder.onclick=showCancelOrderDialog;E.cancelOrderForm.onsubmit=approveCancelOrder;E.cancelOrderClose.onclick=()=>{E.cancelOrderForm.reset();E.cancelOrderDialog.close()};E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=()=>{if(!shift?.shift_id)return msg(E.actionMsg,'ยังไม่ได้เปิดกะ','error');if(cart.size)return msg(E.actionMsg,'กรุณาชำระหรือยกเลิกออเดอร์ก่อนปิดกะ','error');E.closeShiftDialog.showModal()};E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closeShiftForm.onsubmit=closeShift;
+E.openShift.onclick=()=>{if(!branchReady||!hasBranch())return msg(E.actionMsg,'กรุณารอโหลดสาขาให้เสร็จ','error');setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะและเริ่มขาย')};E.shiftLockForm.onsubmit=openShiftFromLock;E.shiftLockLogout.onclick=logout;const closeShiftLock=()=>{setShiftLockVisible(false);refreshPosAvailability()};E.shiftLockClose.onclick=closeShiftLock;if(E.shiftLockCancel)E.shiftLockCancel.onclick=closeShiftLock;E.shiftRequiredClose.onclick=()=>E.shiftRequiredDialog.close();E.shiftRequiredOpen.onclick=()=>{E.shiftRequiredDialog.close();setShiftLockVisible(true,'กรุณาระบุพนักงานเพื่อเปิดกะก่อนทำรายการ')};E.searchForm.onsubmit=searchProducts;E.discount.oninput=updateTotals;E.checkout.onclick=preparePayment;E.paymentForm.onsubmit=checkout;E.paymentDialogReceived.oninput=updatePayment;E.payment.onchange=configurePaymentFields;E.cancelPayment.onclick=()=>E.paymentDialog.close();E.changeGivenButton.onclick=finish;E.manualDrawer.onclick=()=>requestCashDrawer('MANUAL');E.drawerApprovalForm.onsubmit=approveDrawer;E.cancelDrawerApproval.onclick=()=>{E.drawerApprovalForm.reset();E.drawerApprovalDialog.close()};E.cancelOrder.onclick=showCancelOrderDialog;E.cancelOrderForm.onsubmit=approveCancelOrder;E.cancelOrderClose.onclick=()=>{E.cancelOrderForm.reset();E.cancelOrderDialog.close()};E.holdBill.onclick=hold;E.restoreBill.onclick=restore;if(E.logoutBtn)E.logoutBtn.onclick=logout;E.closeShift.onclick=openCloseShiftDialog;E.cancelCloseShift.onclick=()=>E.closeShiftDialog.close();E.closingReviewed.onchange=()=>{E.confirmCloseShift.disabled=!closeShiftReview||number(closeShiftReview.blocker_count)>0||!E.closingReviewed.checked};E.closeShiftForm.onsubmit=closeShift;
 E.branch.onchange=()=>{if(shift?.shift_id)return;cart.clear();E.results.innerHTML='';renderCart();boxSaleAccess=null;if(E.boxSaleButton)E.boxSaleButton.hidden=true;if(hasBranch()){branchReady=true;sessionStorage.setItem('tkn_inventory_branch_id',E.branch.value);refreshPosAvailability(`พร้อมใช้งาน: ${E.branch.options[E.branch.selectedIndex]?.text||''}`);setShiftLockVisible(!shift?.shift_id)}};
 installLogoutGuard();
 installShiftRequiredGuard();

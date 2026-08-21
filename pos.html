@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./pos.css?v=3.4.17">
+  <link rel="stylesheet" href="./pos.css?v=3.4.18">
   <link rel="stylesheet" href="./css/theme-red-yellow-black.css?v=3.6.8">
   <link rel="stylesheet" href="./css/navigation.css?v=5.19.0">
   <link rel="stylesheet" href="./css/responsive-no-scroll.css?v=3.6.8">
@@ -323,12 +323,17 @@
   <dialog id="closeShiftDialog">
     <form id="closeShiftForm" class="dialog-card">
       <h2>ปิดกะแคชเชียร์</h2>
+      <p class="shift-close-review-intro">ตรวจสอบยอดขาย การคืนเงิน การยกเลิกบิล และการคืนสินค้าก่อนปิดกะ</p>
+      <section id="shiftCloseReview" class="shift-close-review" aria-live="polite">
+        <p>กำลังตรวจสอบข้อมูลกะ...</p>
+      </section>
       <label>เงินสดที่นับได้<input id="closingCash" type="number" min="0"
         step="0.01" required></label>
       <label>หมายเหตุ<textarea id="closingNotes" rows="3"></textarea></label>
+      <label class="shift-close-confirm"><input id="closingReviewed" type="checkbox" required> ตรวจสอบยอดทั้งหมดแล้วและยืนยันว่าข้อมูลถูกต้อง</label>
       <div class="dialog-actions">
         <button class="btn secondary" id="cancelCloseShift" type="button">ยกเลิก</button>
-        <button class="btn primary" type="submit">ยืนยันปิดกะ</button>
+        <button id="confirmCloseShift" class="btn primary" type="submit" disabled>ยืนยันปิดกะ</button>
       </div>
       <p id="closeShiftMsg" class="msg"></p>
     </form>
@@ -363,11 +368,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase-config.js?v=3.4.0"></script>
-  <script src="./js/pos-counter-classic-v5-31-26.js?v=5.31.28-HF2" defer></script>
+  <script src="./js/pos-counter-classic-v5-31-26.js?v=5.31.29" defer></script>
   <script src="./js/tkn-hardware-client.js?v=5.17.1"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.25.1"></script>
   <script src="https://unpkg.com/@zxing/browser@0.2.1/umd/zxing-browser.min.js"></script>
-  <script type="module" src="./pos-v5-31-27.js?v=5.31.28-HF2"></script>
+  <script type="module" src="./pos-v5-31-27.js?v=5.31.29"></script>
   <script type="module" src="./js/pos-box-sale-inline-v5-26-2.js?v=5.26.2"></script>
   <script src="./js/tkn-safe-back.js?v=5.19.0"></script>
   <script src="./js/app-shell-v5-19.js?v=5.31.28" defer></script>
