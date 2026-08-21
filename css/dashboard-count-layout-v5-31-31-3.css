@@ -1,0 +1,34 @@
+.dashboard-page .topbar .dashboard-context-panel {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.dashboard-page .topbar .dashboard-context-panel > label,
+.dashboard-page .topbar .dashboard-context-panel select {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.dashboard-page .topbar .dashboard-context-panel > label {
+  overflow: hidden;
+}
+
+.dashboard-page .dashboard-link-card small {
+  max-width: calc(100% - 18px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+@media (max-width: 780px) {
+  .dashboard-page .topbar .dashboard-context-panel {
+    grid-template-columns: 1fr !important;
+    overflow: visible;
+  }
+}

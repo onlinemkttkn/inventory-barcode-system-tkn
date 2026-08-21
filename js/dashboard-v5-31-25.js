@@ -430,10 +430,15 @@ async function loadProductTypes() {
   if (selected) E.productTypeFilter.value = selected;
 }
 
-async function loadSelectedCategoryProducts(categoryId) {
-  if (!categoryId) return [];
-  let result = await supabaseClient.from('product_management_list_v5250').select('*').eq('category_id', categoryId).order('updated_at', { ascending: false }).limit(1000);
-  if (result.error) result = await supabaseClient.from('product_management_list').select('*').eq('category_id', categoryId).order('updated_at', { ascending: false }).limit(1000);
+async function loadDashboardProducts(categoryId = '') {
+  let query = supabaseClient.from('product_management_list_v5250').select('*').order('updated_at', { ascending: false }).limit(1000);
+  if (categoryId) query = query.eq('category_id', categoryId);
+  let result = await query;
+  if (result.error) {
+    let fallback = supabaseClient.from('product_management_list').select('*').order('updated_at', { ascending: false }).limit(1000);
+    if (categoryId) fallback = fallback.eq('category_id', categoryId);
+    result = await fallback;
+  }
   if (result.error) throw result.error;
   return result.data || [];
 }
@@ -446,15 +451,16 @@ function stockState(product) {
   return 'ready';
 }
 
-function selectedCategorySummary(products) {
-  return {
+function selectedCategorySummary(products, categoryId = '') {
+  const summary = {
     total_products: products.length,
-    total_categories: products.length ? 1 : 0,
     out_of_stock_count: products.filter((product) => stockState(product) === 'out').length,
     low_stock_count: products.filter((product) => stockState(product) === 'low').length,
     stock_cost_value: products.reduce((sum, product) => sum + Number(product.total_branch_quantity || product.quantity || 0) * Number(product.cost_price || 0), 0),
     stock_sale_value: products.reduce((sum, product) => sum + Number(product.total_branch_quantity || product.quantity || 0) * Number(product.selling_price || 0), 0),
   };
+  if (categoryId) summary.total_categories = products.length ? 1 : 0;
+  return summary;
 }
 
 function openDashboardTarget(element) {
@@ -559,8 +565,8 @@ async function loadDashboard() {
     }
     lastDashboardData = data || {};
     const categoryId = E.productTypeFilter?.value || '';
-    selectedCategoryProducts = await loadSelectedCategoryProducts(categoryId);
-    renderSummary(categoryId ? { ...(lastDashboardData.summary || {}), ...selectedCategorySummary(selectedCategoryProducts) } : (lastDashboardData.summary || {}));
+    selectedCategoryProducts = await loadDashboardProducts(categoryId);
+    renderSummary({ ...(lastDashboardData.summary || {}), ...selectedCategorySummary(selectedCategoryProducts, categoryId) });
     renderInventory(categoryId ? selectedCategoryProducts.slice(0, 12).map((product) => ({ branch_code: '-', product_code: product.product_code, product_name: product.label_name || product.name, barcode: product.barcode, quantity: product.total_branch_quantity || product.quantity, stock_status: ({ ready: 'IN_STOCK', low: 'LOW_STOCK', out: 'OUT_OF_STOCK' })[stockState(product)] })) : (lastDashboardData.recent_inventory || []));
     renderSales(lastDashboardData.recent_sales || []);
     const selectedIds = new Set(selectedCategoryProducts.map((product) => String(product.id)));

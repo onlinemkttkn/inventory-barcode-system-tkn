@@ -1,9 +1,17 @@
 .dashboard-page .dashboard-context-panel {
-  grid-template-columns: repeat(3, minmax(170px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 560px);
+  max-width: 100%;
 }
 
 .dashboard-product-type-control {
-  min-width: 210px;
+  min-width: 0;
+}
+
+.dashboard-page .dashboard-context-panel label,
+.dashboard-page .dashboard-context-panel select {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .dashboard-link-card {
@@ -23,25 +31,19 @@
 .dashboard-link-card small {
   display: block;
   margin-top: 4px;
+  max-width: calc(100% - 20px);
   color: #8a6f72;
   font-size: .72rem;
   font-weight: 750;
-}
-
-.dashboard-link-card::after {
-  content: '›';
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  color: #c8102e;
-  font-size: 1.8rem;
-  font-weight: 900;
-  transform: translateY(-50%);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 @media (max-width: 980px) {
   .dashboard-page .dashboard-context-panel {
     grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .dashboard-product-type-control {
