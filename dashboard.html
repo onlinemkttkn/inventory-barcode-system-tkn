@@ -28,6 +28,7 @@
 
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.31.22">
+  <link rel="stylesheet" href="./css/dashboard-category-links-v5-31-31.css?v=5.31.31">
 </head>
 <body class="dashboard-page tkn-auth-loading" data-loading-text="กำลังตรวจสอบผู้ใช้งาน..." data-integrated-page="dashboard" data-lock-back="true">
 <main class="shell">
@@ -55,6 +56,13 @@
         <span>สาขา</span>
         <select id="branchFilter">
           <option value="">ทุกสาขา</option>
+        </select>
+      </label>
+
+      <label class="branch-control dashboard-product-type-control">
+        <span>ประเภทสินค้า</span>
+        <select id="dashboardProductTypeFilter">
+          <option value="">ทุกประเภทสินค้า</option>
         </select>
       </label>
 
@@ -121,14 +129,14 @@
     </aside>
 
     <section class="stats-grid">
-      <article class="stat"><span>สินค้าทั้งหมด</span><strong id="totalProducts">-</strong></article>
-      <article class="stat danger-stat"><span>สินค้าหมด</span><strong id="outStock">-</strong></article>
-      <article class="stat warning-stat"><span>สินค้าใกล้หมด</span><strong id="lowStock">-</strong></article>
-      <article class="stat"><span>หมวดหมู่</span><strong id="totalCategories">-</strong></article>
-      <article class="stat sales-stat"><span id="salesRangeLabel">ยอดขายตามช่วง</span><strong id="salesToday">-</strong></article>
-      <article class="stat"><span id="billsRangeLabel">บิลตามช่วง</span><strong id="billsToday">-</strong></article>
-      <article class="stat danger-stat"><span id="returnsRangeLabel">ยอดคืนตามช่วง</span><strong id="salesMonth">-</strong></article>
-      <article class="stat warning-stat"><span>ใบโอนรอรับ</span><strong id="pendingTransfers">-</strong></article>
+      <article class="stat dashboard-link-card" data-dashboard-product-route="all" tabindex="0" role="link" aria-label="เปิดรายการสินค้าทั้งหมด"><span>สินค้าทั้งหมด</span><strong id="totalProducts">-</strong><small>กดดูรายการ</small></article>
+      <article class="stat danger-stat dashboard-link-card" data-dashboard-product-route="out" tabindex="0" role="link" aria-label="เปิดรายการสินค้าหมด"><span>สินค้าหมด</span><strong id="outStock">-</strong><small>กดดูรายการสินค้าหมด</small></article>
+      <article class="stat warning-stat dashboard-link-card" data-dashboard-product-route="low" tabindex="0" role="link" aria-label="เปิดรายการสินค้าใกล้หมด"><span>สินค้าใกล้หมด</span><strong id="lowStock">-</strong><small>กดดูรายการใกล้หมด</small></article>
+      <article class="stat dashboard-link-card" data-dashboard-category-route tabindex="0" role="link" aria-label="เปิดหน้าจัดการหมวดหมู่"><span>หมวดหมู่</span><strong id="totalCategories">-</strong><small>กดจัดการหมวดหมู่</small></article>
+      <article class="stat sales-stat dashboard-link-card" data-dashboard-report-route="sales" tabindex="0" role="link" aria-label="เปิดรายงานยอดขายตามช่วง"><span id="salesRangeLabel">ยอดขายตามช่วง</span><strong id="salesToday">-</strong><small>กดดูสรุปรายรับและช่องทางชำระ</small></article>
+      <article class="stat dashboard-link-card" data-dashboard-report-route="bills" tabindex="0" role="link" aria-label="เปิดรายการบิลตามช่วง"><span id="billsRangeLabel">บิลตามช่วง</span><strong id="billsToday">-</strong><small>กดตรวจรายการและรายละเอียดบิล</small></article>
+      <article class="stat danger-stat dashboard-link-card" data-dashboard-report-route="returns" tabindex="0" role="link" aria-label="เปิดรายงานยอดคืนตามช่วง"><span id="returnsRangeLabel">ยอดคืนตามช่วง</span><strong id="salesMonth">-</strong><small>กดดูใบคืนและสินค้าที่ถูกคืน</small></article>
+      <article class="stat warning-stat dashboard-link-card" data-dashboard-transfer-route tabindex="0" role="link" aria-label="เปิดใบโอนรอรับ"><span>ใบโอนรอรับ</span><strong id="pendingTransfers">-</strong><small>กดไปรับโอนสินค้า</small></article>
     </section>
 
     <section class="value-grid">
@@ -302,7 +310,7 @@
 <script src="./js/auth-guard.js?v=3.6.11"></script>
 <script src="./js/go-live-security.js?v=5.2.0"></script>
 <script src="./js/dashboard-live-numbers.js?v=5.3.0"></script>
-<script src="./js/dashboard-v5-31-25.js?v=5.31.25"></script>
+<script src="./js/dashboard-v5-31-25.js?v=5.31.31"></script>
 <script src="./js/executive-report.js?v=5.13.1"></script>
 <script src="./js/dashboard-analytics-v5-3.js?v=5.13.1"></script>
 <script src="./js/dashboard-realtime.js?v=5.13.1"></script>

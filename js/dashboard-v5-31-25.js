@@ -10,6 +10,7 @@ const E = {
   configWarning: document.getElementById('configWarning'),
   welcomeText: document.getElementById('welcomeText'),
   branchFilter: document.getElementById('branchFilter'),
+  productTypeFilter: document.getElementById('dashboardProductTypeFilter'),
   rangePreset: document.getElementById('dashboardRangePreset'),
   startDate: document.getElementById('dashboardStartDate'),
   endDate: document.getElementById('dashboardEndDate'),
@@ -55,7 +56,9 @@ let currentProfile = null;
 let isRenderingSession = false;
 let isLoadingDashboard = false;
 let branchesLoaded = false;
+let productTypesLoaded = false;
 let lastDashboardData = null;
+let selectedCategoryProducts = [];
 
 function msg(element, text, type = '') {
   if (!element) return;
@@ -214,6 +217,7 @@ function showLogin() {
   E.appArea?.classList.add('hidden');
   E.logoutBtn?.classList.add('hidden');
   E.branchFilter?.classList.add('hidden');
+  E.productTypeFilter?.classList.add('hidden');
   E.refreshBtn?.classList.add('hidden');
   window.TKNAuthGuard?.ready();
 }
@@ -224,6 +228,7 @@ function showApp() {
   E.appArea?.classList.remove('hidden');
   E.logoutBtn?.classList.remove('hidden');
   E.branchFilter?.classList.remove('hidden');
+  E.productTypeFilter?.classList.remove('hidden');
   E.refreshBtn?.classList.remove('hidden');
   window.TKNAuthGuard?.ready();
 }
@@ -334,6 +339,7 @@ async function renderSession(session) {
     showApp();
     E.welcomeText.textContent = `${access.full_name || access.email} • ${{ owner: 'เจ้าของกิจการ', admin: 'ผู้ดูแลระบบ', secretary: 'เลขานุการ' }[access.role] || access.role || 'ผู้ใช้งาน'}`;
     if (!branchesLoaded) { await loadBranches(); branchesLoaded = true; }
+    if (!productTypesLoaded) { await loadProductTypes(); productTypesLoaded = true; }
     await loadDashboard();
   } catch (error) {
     console.error('Render session error:', error);
@@ -389,6 +395,7 @@ E.logoutBtn?.addEventListener('click', async () => {
 
 E.refreshBtn?.addEventListener('click', loadDashboard);
 E.branchFilter?.addEventListener('change', loadDashboard);
+E.productTypeFilter?.addEventListener('change', loadDashboard);
 E.rangePreset?.addEventListener('change', () => {
   setRangeInputs(E.rangePreset.value);
   if (E.rangePreset.value !== 'CUSTOM') loadDashboard();
@@ -409,6 +416,103 @@ async function loadBranches() {
   E.branchFilter.innerHTML = '<option value="">ทุกสาขา</option>' + (data || []).map((branch) => `<option value="${branch.id}">${esc(dashboardBranchLabel(branch.code))}</option>`).join('');
   if (selected) E.branchFilter.value = selected;
 }
+
+async function loadProductTypes() {
+  if (!E.productTypeFilter) return;
+  const selected = E.productTypeFilter.value;
+  const { data, error } = await supabaseClient.from('categories').select('id,code,name').order('name');
+  if (error) {
+    console.warn('Cannot load product types:', error);
+    return;
+  }
+  E.productTypeFilter.innerHTML = '<option value="">ทุกประเภทสินค้า</option>'
+    + (data || []).map((category) => `<option value="${esc(category.id)}">${esc(category.name)}</option>`).join('');
+  if (selected) E.productTypeFilter.value = selected;
+}
+
+async function loadSelectedCategoryProducts(categoryId) {
+  if (!categoryId) return [];
+  let result = await supabaseClient.from('product_management_list_v5250').select('*').eq('category_id', categoryId).order('updated_at', { ascending: false }).limit(1000);
+  if (result.error) result = await supabaseClient.from('product_management_list').select('*').eq('category_id', categoryId).order('updated_at', { ascending: false }).limit(1000);
+  if (result.error) throw result.error;
+  return result.data || [];
+}
+
+function stockState(product) {
+  const quantity = Number(product.total_branch_quantity || product.quantity || 0);
+  const minimum = Number(product.minimum_stock || 0);
+  if (quantity <= 0) return 'out';
+  if (minimum > 0 && quantity <= minimum) return 'low';
+  return 'ready';
+}
+
+function selectedCategorySummary(products) {
+  return {
+    total_products: products.length,
+    total_categories: products.length ? 1 : 0,
+    out_of_stock_count: products.filter((product) => stockState(product) === 'out').length,
+    low_stock_count: products.filter((product) => stockState(product) === 'low').length,
+    stock_cost_value: products.reduce((sum, product) => sum + Number(product.total_branch_quantity || product.quantity || 0) * Number(product.cost_price || 0), 0),
+    stock_sale_value: products.reduce((sum, product) => sum + Number(product.total_branch_quantity || product.quantity || 0) * Number(product.selling_price || 0), 0),
+  };
+}
+
+function openDashboardTarget(element) {
+  const category = E.productTypeFilter?.value || '';
+  if (element.hasAttribute('data-dashboard-category-route')) {
+    window.location.href = './categories-admin.html';
+    return;
+  }
+  const stock = element.dataset.dashboardProductRoute;
+  const params = new URLSearchParams();
+  if (category) params.set('category', category);
+  if (stock && stock !== 'all') params.set('stock', stock);
+  if (stock === 'low' || stock === 'out') params.set('sort', 'stock');
+  window.location.href = `./products-admin.html${params.size ? `?${params}` : ''}`;
+}
+
+document.querySelectorAll('[data-dashboard-product-route],[data-dashboard-category-route]').forEach((element) => {
+  element.addEventListener('click', () => openDashboardTarget(element));
+  element.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    openDashboardTarget(element);
+  });
+});
+
+function dashboardRangeParams() {
+  const params = new URLSearchParams({ start: E.startDate?.value || '', end: E.endDate?.value || '' });
+  if (E.branchFilter?.value) params.set('branch', E.branchFilter.value);
+  return params;
+}
+
+document.querySelectorAll('[data-dashboard-report-route]').forEach((element) => {
+  const open = () => {
+    const route = element.dataset.dashboardReportRoute;
+    const params = dashboardRangeParams();
+    if (route === 'returns') window.location.href = `./sales-return-report.html?${params}`;
+    else {
+      params.set('focus', route === 'bills' ? 'bills' : 'summary');
+      window.location.href = `./reports.html?${params}`;
+    }
+  };
+  element.addEventListener('click', open);
+  element.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    open();
+  });
+});
+
+document.querySelectorAll('[data-dashboard-transfer-route]').forEach((element) => {
+  const open = () => { window.location.href = './transfer-receive.html?status=PENDING'; };
+  element.addEventListener('click', open);
+  element.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    open();
+  });
+});
 
 async function loadLegacyDashboard(branchId) {
   let inventoryQuery = supabaseClient.from('dashboard_recent_inventory').select('*').order('updated_at', { ascending: false }).limit(12);
@@ -454,15 +558,18 @@ async function loadDashboard() {
       msg(E.rangeMessage, `โหลดข้อมูล ${range.days.toLocaleString('th-TH')} วันแล้ว`, 'success');
     }
     lastDashboardData = data || {};
-    renderSummary(lastDashboardData.summary || {});
-    renderInventory(lastDashboardData.recent_inventory || []);
+    const categoryId = E.productTypeFilter?.value || '';
+    selectedCategoryProducts = await loadSelectedCategoryProducts(categoryId);
+    renderSummary(categoryId ? { ...(lastDashboardData.summary || {}), ...selectedCategorySummary(selectedCategoryProducts) } : (lastDashboardData.summary || {}));
+    renderInventory(categoryId ? selectedCategoryProducts.slice(0, 12).map((product) => ({ branch_code: '-', product_code: product.product_code, product_name: product.label_name || product.name, barcode: product.barcode, quantity: product.total_branch_quantity || product.quantity, stock_status: ({ ready: 'IN_STOCK', low: 'LOW_STOCK', out: 'OUT_OF_STOCK' })[stockState(product)] })) : (lastDashboardData.recent_inventory || []));
     renderSales(lastDashboardData.recent_sales || []);
-    renderTopProducts(lastDashboardData.top_products || []);
+    const selectedIds = new Set(selectedCategoryProducts.map((product) => String(product.id)));
+    renderTopProducts(categoryId ? (lastDashboardData.top_products || []).filter((product) => selectedIds.has(String(product.product_id))) : (lastDashboardData.top_products || []));
     renderChart(lastDashboardData.daily_sales || []);
     await renderOperations(lastDashboardData.operations || {});
     msg(E.dashboardMessage, `อัปเดตข้อมูลแล้ว · ${rangeLabel(range.startDate, range.endDate)}`, 'success');
     window.dispatchEvent(new CustomEvent('tkn-dashboard-loaded', { detail: {
-      branchId, range, data: lastDashboardData, loadedAt: new Date().toISOString(),
+      branchId, categoryId, range, data: categoryId ? { ...lastDashboardData, category_sales: (lastDashboardData.category_sales || []).filter((row) => String(row.category_id || '') === categoryId || String(row.category_name || '') === E.productTypeFilter.selectedOptions[0]?.textContent) } : lastDashboardData, loadedAt: new Date().toISOString(),
     } }));
   } catch (error) {
     console.error('Load dashboard error:', error);

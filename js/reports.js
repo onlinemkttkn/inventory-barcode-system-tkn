@@ -385,9 +385,24 @@ async function init() {
     E.billSearchButton.tabIndex = canSearchBills ? 0 : -1;
   }
 
-  E.period.value = 'TODAY';
-  applyPresetRange();
+  const params = new URLSearchParams(location.search);
+  const deepStart = String(params.get('start') || '');
+  const deepEnd = String(params.get('end') || '');
+  const deepBranch = String(params.get('branch') || '');
+  if (deepBranch && (hasPermission(state.context, 'dashboard.branch_view') || hasPermission(state.context, 'report.view') || hasPermission(state.context, 'reports.view'))) state.context.branch_id = deepBranch;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(deepStart) && /^\d{4}-\d{2}-\d{2}$/.test(deepEnd)) {
+    E.period.value = 'CUSTOM';
+    E.startDate.value = deepStart;
+    E.endDate.value = deepEnd;
+    updateRangeText(deepStart, deepEnd, false);
+  } else {
+    E.period.value = 'TODAY';
+    applyPresetRange();
+  }
   await load();
+  const focus = params.get('focus');
+  const target = focus === 'bills' ? document.querySelector('.report-list-card') : document.querySelector('#stats');
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 async function load() {
