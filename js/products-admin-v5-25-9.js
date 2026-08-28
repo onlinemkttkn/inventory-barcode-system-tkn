@@ -123,20 +123,6 @@ function applyCreateIntent(){
   msg(E.formMessage,`รหัส ${createSourceScan} ยังไม่พบในระบบ กรุณากรอกชื่อ หมวดหมู่ ต้นทุน และราคาขายให้ครบก่อนบันทึก`,'error');
 }
 
-function applyListIntent(){
-  const params=new URLSearchParams(location.search);
-  const stock=String(params.get('stock')||'').toLowerCase();
-  const category=String(params.get('category')||'');
-  const active=String(params.get('active')||'');
-  const sort=String(params.get('sort')||'');
-  const q=String(params.get('q')||'').trim();
-  if(['ready','low','out'].includes(stock))E.stockFilter.value=stock;
-  if(category&&[...E.categoryFilter.options].some(option=>option.value===category))E.categoryFilter.value=category;
-  if(['true','false'].includes(active))E.activeFilter.value=active;
-  if(['updated','name','stock','price'].includes(sort))E.sortFilter.value=sort;
-  if(q)E.search.value=q;
-}
-
 function friendlyProductError(error){
   const text=String(error?.message||'');
   if(text.includes('products_product_code_key')){
@@ -189,7 +175,6 @@ async function init(){
   }
 
   await loadOptions();
-  applyListIntent();
   await loadProducts();
   applyCreateIntent();
 }
@@ -486,7 +471,7 @@ E.clearSearchBtn.onclick=()=>{
 E.body.addEventListener('change',event=>{const input=event.target.closest?.('[data-product-code-select]');if(!input)return;const id=String(input.dataset.productCodeSelect);if(input.checked)selectedProductCodes.add(id);else selectedProductCodes.delete(id);refreshCodeSelection()});
 E.selectAllProductCodes.onchange=()=>{filteredRows().forEach(x=>{const id=String(x.id);if(E.selectAllProductCodes.checked)selectedProductCodes.add(id);else selectedProductCodes.delete(id)});render()};
 E.clearSelectedProductCodes.onclick=()=>{selectedProductCodes.clear();render()};
-E.downloadSelectedProductCodes.onclick=async()=>{const chosen=rows.filter(x=>selectedProductCodes.has(String(x.id)));E.downloadSelectedProductCodes.disabled=true;E.downloadSelectedProductCodes.textContent='เลือกรูปแบบดาวน์โหลด...';try{const result=await window.TKNCodeDownload.downloadProductZip(chosen);if(!result?.cancelled)msg(E.message,`ดาวน์โหลดรหัสสินค้า ${chosen.length} รายการแล้ว`)}catch(error){msg(E.message,error.message||String(error),'error')}finally{E.downloadSelectedProductCodes.textContent='ดาวน์โหลด QR + Barcode ที่เลือก (.zip)';refreshCodeSelection()}};
+E.downloadSelectedProductCodes.onclick=async()=>{const chosen=rows.filter(x=>selectedProductCodes.has(String(x.id)));E.downloadSelectedProductCodes.disabled=true;E.downloadSelectedProductCodes.textContent='กำลังสร้าง ZIP...';try{await window.TKNCodeDownload.downloadProductZip(chosen);msg(E.message,`ดาวน์โหลด QR + Barcode ${chosen.length} รายการแล้ว`)}catch(error){msg(E.message,error.message||String(error),'error')}finally{E.downloadSelectedProductCodes.textContent='ดาวน์โหลด QR + Barcode ที่เลือก (.zip)';refreshCodeSelection()}};
 E.newBtn.onclick=openNew;
 function closeModal(){E.modal.classList.add('hidden')}
 E.closeBtn.onclick=closeModal;
