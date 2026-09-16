@@ -188,34 +188,13 @@ async function searchByBarcode(rawBarcode) {
   setMessage(els.searchMessage, `กำลังค้นหา ${barcode}...`);
   clearProduct(false);
 
-  const { data, error } = await supabaseClient
-    .from("product_list")
-    .select(`
-      id,
-      product_code,
-      barcode,
-      name,
-      category_code,
-      category_name,
-      unit_code,
-      unit_name,
-      cost_price,
-      selling_price,
-      quantity,
-      minimum_stock,
-      stock_status,
-      is_active
-    `)
-    .or([...new Set(candidates.flatMap((value) => [`barcode.eq.${value}`, `product_code.eq.${value}`]))].join(","))
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.error(error);
-    setMessage(els.searchMessage, `ค้นหาไม่สำเร็จ: ${error.message}`, "error");
+  let data;
+  try {
+    data = await PATTERN.findProduct(supabaseClient, rawBarcode);
+  } catch (error) {
+    setMessage(els.searchMessage, `ค้นหาไม่สำเร็จ: ${error.message}`, 'error');
     return;
   }
-
   if (!data) {
     setMessage(els.searchMessage, `ไม่พบสินค้า QR/Barcode ${barcode}`, "error");
     clearProduct();
@@ -230,7 +209,8 @@ function renderProduct(product) {
   document.getElementById("productName").textContent = product.name || "-";
   document.getElementById("productCode").textContent =
     `รหัสสินค้า ${product.product_code || "-"}`;
-  document.getElementById("resultBarcode").textContent = product.barcode || "-";
+  document.getElementById("resultBarcode").textContent =
+    PATTERN?.barcodeValue?.(product) || product.product_code || "-";
   document.getElementById("resultCategory").textContent =
     [product.category_code, product.category_name].filter(Boolean).join(" — ") || "-";
   document.getElementById("resultUnit").textContent =

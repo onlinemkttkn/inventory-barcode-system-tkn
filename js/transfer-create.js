@@ -71,14 +71,12 @@ async function search(query = E.search.value.trim()) {
   if (!E.source.value) return message(E.searchMsg, 'กรุณาเลือกสาขาต้นทาง', 'error');
 
   message(E.searchMsg, 'กำลังค้นหา...');
-  const { data, error } = await supabaseClient
-    .from('branch_inventory_list')
-    .select('*')
-    .eq('branch_id', E.source.value)
-    .or(`product_name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.eq.${q}`)
-    .limit(20);
-
-  if (error) return message(E.searchMsg, error.message, 'error');
+  let data;
+  try {
+    data = await window.TKNProductPattern.findBranchRows(supabaseClient, E.source.value, query);
+  } catch (error) {
+    return message(E.searchMsg, error.message, 'error');
+  }
 
   const items = (data || []).filter(item => Number(item.quantity) > 0);
   renderResults(items);

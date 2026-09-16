@@ -32,6 +32,7 @@
     $("cameraStatus").classList.toggle("active", active);
   }
   function normalizeCode(raw) {
+    if (PATTERN) return PATTERN.extractScanValue(raw);
     let value = String(raw || "").trim();
     if (!value) return "";
     try {
@@ -137,13 +138,8 @@
   }
 
   async function lookupProduct(rawCode) {
-    const candidates = (PATTERN?.scanCandidates?.(rawCode) || [String(rawCode).replace(/^TKN-P-/i, "")]).map(safeFilter).filter(Boolean);
-    const filter = [...new Set(candidates.flatMap((v) => [`barcode.eq.${v}`,`product_code.eq.${v}`]))].join(",");
-    let result = await supabaseClient.from("product_list").select("id,product_code,barcode,name,category_name,unit_name,cost_price,selling_price,quantity,minimum_stock,is_active").or(filter).limit(1).maybeSingle();
-    let product = result.data;
-    if (!product) { result = await supabaseClient.from("products").select("id,product_code,barcode,name,cost_price,selling_price,quantity,minimum_stock,is_active").or(filter).limit(1).maybeSingle(); if (result.error) throw result.error; product = result.data; }
-    if (!product) throw new Error(`ไม่พบสินค้า ${candidates[0] || rawCode}`);
-
+    const product = await PATTERN.findProduct(supabaseClient, rawCode);
+    if (!product) throw new Error(`ไม่พบสินค้า ${rawCode}`);
     let positions = [];
     const positionResult = await supabaseClient.from("tkn_v5261_product_stock_position").select("*").eq("product_id", product.id).order("branch_name");
     if (!positionResult.error) positions = positionResult.data || [];

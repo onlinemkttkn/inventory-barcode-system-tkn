@@ -1,7 +1,7 @@
 (function initTknProductPattern(global) {
   'use strict';
 
-  const VERSION = '5.25.1';
+  const VERSION = '5.31.31';
   const PRODUCT_QR_PREFIX = 'TKN-P-';
   const BOX_QR_PREFIX = 'TKN-B-';
   const THAI_AUDIO_TYPES = Object.freeze([
@@ -31,10 +31,7 @@
   }
 
   function normalizeSku(value) {
-    return cleanText(value)
-      .replace(/^TKN-P-/i, '')
-      .replace(/[\u0000-\u001F\u007F]/g, '')
-      .trim();
+    return String(value ?? '').trim().replace(/^TKN-P-/i, '').trim();
   }
 
   function compactCost(value) {
@@ -110,28 +107,9 @@
     return null;
   }
 
-  /**
-   * คืน SKU มาตรฐานเดียวของสินค้า
-   * - ถ้า product_code มีต้นทุนแฝงอยู่แล้ว จะใช้ค่านั้นทันที
-   * - สินค้า legacy จะสร้างค่าคงที่จาก base SKU + ตัวอักษร A-Z + ต้นทุน
-   *   โดยใช้ id/lot_code เป็น seed เพื่อให้ทุกหน้าสร้างรหัสตรงกัน ไม่สุ่มใหม่ทุกครั้ง
-   */
-  function resolveLotSku(product, options = {}) {
-    const current = valueFromProduct(product);
-    const parsed = parseLotSku(current);
-    if (parsed.hasEmbeddedCost) return parsed.sku;
-
-    if (!product || typeof product !== 'object') return current;
-    const base = sanitizeBaseSku(product.base_sku || product.sku_alias || current);
-    const cost = costFromProduct(product);
-    if (!base || cost === null) return current;
-
-    const explicitLetter = cleanText(
-      product.lot_cost_letter || product.costMaskLetter || product.cost_letter || options.letter || ''
-    ).slice(0, 1).toUpperCase();
-    const seed = product.id || product.lot_code || product.created_at || `${base}|${compactCost(cost)}`;
-    const letter = /^[A-Z]$/.test(explicitLetter) ? explicitLetter : stableLetter(seed);
-    return buildLotSku(base, cost, letter);
+  // Labels always use the persisted identity. buildLotSku is only for explicit lot creation.
+  function resolveLotSku(product) {
+    return valueFromProduct(product);
   }
 
   function barcodeValue(productOrSku) {
@@ -146,16 +124,16 @@
   }
 
   function extractScanValue(raw) {
-    let value = cleanText(raw);
+    const value = String(raw ?? '').trim();
     if (!value) return '';
     try {
       const url = new URL(value);
-      value = url.searchParams.get('id')
-        || url.searchParams.get('code')
-        || url.searchParams.get('scan')
-        || decodeURIComponent(url.pathname.split('/').filter(Boolean).at(-1) || value);
+      for (const key of ['scan', 'code', 'barcode', 'sku', 'tracking', 'tracking_number', 'id']) {
+        const found = url.searchParams.get(key);
+        if (found && found.trim()) return found.trim();
+      }
     } catch (_) {}
-    return cleanText(value);
+    return value;
   }
 
   function scanCandidates(raw) {
@@ -164,9 +142,7 @@
     if (new RegExp(`^${BOX_QR_PREFIX}`, 'i').test(extracted)) return [extracted];
 
     const sku = normalizeSku(extracted);
-    const parsed = parseLotSku(sku);
     const values = [sku];
-    if (parsed.hasEmbeddedCost && parsed.baseSku) values.push(parsed.baseSku);
     return [...new Set(values.filter(Boolean))];
   }
 
@@ -186,12 +162,47 @@
   }
 
   function buildProductFilter(raw, fields = ['product_code', 'barcode', 'base_sku', 'source_barcode']) {
-    const candidates = scanCandidates(raw).map((value) => value.replace(/[,%()]/g, ''));
+    const candidates = scanCandidates(raw).map((value) => JSON.stringify(value));
     const clauses = [];
     for (const field of fields) {
       for (const value of candidates) clauses.push(`${field}.eq.${value}`);
     }
     return [...new Set(clauses)].join(',');
+  }
+
+  async function findProduct(client, raw) {
+    const value = extractScanValue(raw);
+    if (!value || /^TKN-B-/i.test(value)) return null;
+    const { data, error } = await client.rpc('find_product_by_barcode', { p_barcode: value });
+    if (error) throw error;
+    const rows = Array.isArray(data) ? data : data ? [data] : [];
+    if (rows.length > 1) throw new Error('AMBIGUOUS_PRODUCT_CODE: ' + value);
+    return rows[0] || null;
+  }
+
+  async function findBranchRows(client, branchId, raw) {
+    if (!branchId) throw new Error('กรุณาเลือกสาขา');
+    const value = extractScanValue(raw);
+    if (!value) return [];
+    const product = await findProduct(client, value);
+    if (!product && /^TKN-[PB]-/i.test(value)) return [];
+    let query = client.from('branch_inventory_list').select('*').eq('branch_id', branchId);
+    query = product ? query.eq('product_id', product.id) : query.ilike('product_name', `%${value}%`);
+    const { data, error } = await query.limit(20);
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function requireBoxProduct(client, raw, expectedId = null) {
+    const value = extractScanValue(raw);
+    if (!value) throw new Error('กรุณาสแกน QR หรือ Barcode สินค้าก่อนนำลงกล่อง');
+    if (/^TKN-B-/i.test(value)) throw new Error('QR นี้เป็นรหัสกล่อง กรุณาสแกนรหัสสินค้า');
+    const product = await findProduct(client, value);
+    if (!product) throw new Error('ไม่พบรหัสสินค้าในระบบ: ' + value);
+    if (product.is_active !== true) throw new Error('สินค้านี้ปิดใช้งาน ไม่สามารถนำลงกล่องได้');
+    if (expectedId && product.id !== expectedId) throw new Error('รหัสสินค้าไม่ตรงกับรายการที่จะนำลงกล่อง');
+    if (!product.product_code || !String(product.product_code).trim()) throw new Error('สินค้าไม่มีรหัสมาตรฐาน');
+    return product;
   }
 
   function roundPrice(value, mode = 'BAHT') {
@@ -292,6 +303,9 @@
     scanCandidates,
     parseScan,
     buildProductFilter,
+    findProduct,
+    findBranchRows,
+    requireBoxProduct,
     calculateSellingPrice,
     detectType,
     conciseLabel

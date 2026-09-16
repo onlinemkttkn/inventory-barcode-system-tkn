@@ -77,9 +77,13 @@ export async function findBranchProducts(
   searchText,
   { inStockOnly = false } = {}
 ) {
-  const q = safeSearchText(searchText);
+  const pattern = window.TKNProductPattern;
+  const raw = pattern ? pattern.extractScanValue(searchText) : String(searchText || '').trim();
+  const q = safeSearchText(raw);
   if (!branchId) throw new Error('กรุณาเลือกสาขา');
-  if (!q) return [];
+  if (!raw) return [];
+  const exact = pattern ? await pattern.findProduct(supabaseClient, raw) : null;
+  if (!exact && /^TKN-[PB]-/i.test(raw)) return [];
 
   let query = supabaseClient
     .from('branch_inventory_list')
@@ -98,13 +102,12 @@ export async function findBranchProducts(
       stock_status
     `)
     .eq('branch_id', branchId)
-    .or(
-      `product_name.ilike.%${q}%,`
-      + `product_code.ilike.%${q}%,`
-      + `barcode.eq.${q}`
-    )
     .order('product_name')
     .limit(20);
+
+  query = exact ? query.eq('product_id', exact.id) : query.or(
+    `product_name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.eq.${q}`
+  );
 
   if (inStockOnly) query = query.gt('quantity', 0);
 

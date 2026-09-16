@@ -229,6 +229,7 @@
   }
 
   function cleanScan(raw) {
+    if (PATTERN) return PATTERN.extractScanValue(raw);
     let value = String(raw || "").trim();
     try {
       const url = new URL(value);
@@ -367,32 +368,18 @@
   }
 
   async function productByScan(raw) {
-    const candidates = (PATTERN?.scanCandidates?.(raw) || [cleanScan(raw).replace(/^TKN-P-/i, "")])
-      .map((value) => String(value || "").replace(/[%(),]/g, "").trim()).filter(Boolean);
-    const value = candidates[0] || "";
+    const value = PATTERN.extractScanValue(raw);
     if (!value) return null;
-    const filter = [...new Set(candidates.flatMap((codeValue) => [
-      `product_code.eq.${codeValue}`, `barcode.eq.${codeValue}`, `base_sku.eq.${codeValue}`, `source_barcode.eq.${codeValue}`,
-    ]))].join(",");
     try {
-      let result = await supabaseClient.from("products")
-        .select("id,product_code,name,barcode,base_sku,source_barcode,cost_price,selling_price,quantity,minimum_stock,category_name,product_type_th,brand_name,model_name")
-        .or(filter).limit(1).maybeSingle();
-      if (result.error && /base_sku|source_barcode|category_name|product_type_th|brand_name|model_name/i.test(result.error.message || "")) {
-        const legacyFilter = [...new Set(candidates.flatMap((codeValue) => [`product_code.eq.${codeValue}`, `barcode.eq.${codeValue}`]))].join(",");
-        result = await supabaseClient.from("products")
-          .select("id,product_code,name,barcode,cost_price,selling_price,quantity,minimum_stock")
-          .or(legacyFilter).limit(1).maybeSingle();
-      }
-      const { data, error } = result;
+      const product = await PATTERN.requireBoxProduct(supabaseClient, value);
+      const { data, error } = await supabaseClient.from('products').select('*').eq('id', product.id).single();
       if (error) throw error;
-      return data || { id: null, product_code: value, name: "ยังไม่พบในหน้าจัดการสินค้า", barcode: value, notFound: true };
+      if (data.is_active !== true || data.product_code !== product.product_code) throw new Error('ข้อมูลสินค้าเปลี่ยน กรุณาสแกนใหม่');
+      return { ...product, ...data };
     } catch (error) {
-      console.warn("Product lookup:", error);
-      return { id: null, product_code: value, name: "ตรวจสอบสินค้าไม่สำเร็จ", barcode: value, lookupError: error?.message || "เชื่อมต่อฐานข้อมูลไม่สำเร็จ" };
+      return { id: null, product_code: value, lookupError: error.message || 'ตรวจสอบสินค้าไม่สำเร็จ' };
     }
   }
-
   async function ensureCloudSession() {
     if (S.session.cloudId) return S.session.cloudId;
     const payload = { session_code: S.session.id, source: S.session.source, status: "OPEN", created_by: S.userId };
@@ -444,6 +431,7 @@
   }
 
   async function guardCanLeaveCurrentDraft(actionLabel = "สร้างกล่องใหม่") {
+    if (packingBusy) { msg('กำลังตรวจสอบและบันทึกสินค้า กรุณารอสักครู่', 'error'); return false; }
     if (S.box?.status !== "DRAFT") return true;
     const localQty = currentDraftLocalQuantity();
     if (localQty > 0) {
@@ -516,8 +504,7 @@
       if (error) throw error;
       return true;
     } catch (error) {
-      console.warn("Box item kept locally:", error);
-      return false;
+      throw new Error(error.message || 'บันทึกสินค้าลงกล่องไม่สำเร็จ');
     }
   }
 
@@ -536,13 +523,24 @@
     select.addEventListener("change", () => sessionStorage.setItem("tkn_inventory_branch_id", select.value));
   }
 
+  let packingBusy = false;
   async function receiveAndBox() {
+    if (packingBusy) return;
+    packingBusy = true;
+    try { await receiveAndBoxChecked(); }
+    catch (error) { msg(error.message || 'ตรวจสอบสินค้าก่อนลงกล่องไม่สำเร็จ', 'error'); }
+    finally { packingBusy = false; }
+  }
+
+  async function receiveAndBoxChecked() {
     markRoundActive();
     if (S.box.status !== "DRAFT") return msg("กล่องปิดแล้ว กรุณาเปิดกล่องหรือสร้างกล่องใหม่ก่อนสแกน", "error");
     const raw = $("receiveSku").value;
+    const targetBox = S.box;
     const product = await productByScan(raw);
     if (!product) return msg("กรุณายิง QR สินค้า, SKU หรือ Barcode", "error");
     if (!await requireKnownProduct(product, raw)) return;
+    if (S.box !== targetBox || S.box.status !== 'DRAFT') return msg('กล่องเปลี่ยนระหว่างตรวจสอบ กรุณาสแกนใหม่', 'error');
     if (S.box?.reservedQr && S.box?.reservedCategoryCode) {
       const scannedCategory = BOX_CODE.detectCategoryFromItem(product);
       const reservedCategory = String(S.box.reservedCategoryCode || "").toUpperCase();
@@ -563,7 +561,7 @@
       tracking: "",
       sku: product.product_code,
       name: product.name,
-      barcode: product.barcode || product.product_code,
+      barcode: PATTERN?.barcodeValue?.(product) || product.product_code,
       product_id: product.id,
       cost_price: Number(product.cost_price || 0),
       selling_price: Number(product.selling_price || 0),
@@ -581,11 +579,10 @@
       box_ref: S.box?.id || null,
       at: now(),
     };
-    S.receipts.unshift(receipt);
-
     let item = null;
     if (good > 0) {
-      item = S.boxItems.find((row) => row.sku === product.product_code);
+      const existingItem = S.boxItems.find((row) => row.sku === product.product_code);
+      item = existingItem ? { ...existingItem } : null;
       if (item) {
         item.qty += qty;
         item.box_ref = S.box.id;
@@ -599,7 +596,7 @@
           name: product.name,
           qty,
           product_id: product.id,
-          barcode: product.barcode || product.product_code,
+          barcode: PATTERN?.barcodeValue?.(product) || product.product_code,
           cost_price: Number(product.cost_price || 0),
           selling_price: Number(product.selling_price || 0),
           category: product.category_name || product.product_type_th || BOX_CODE.detectCategoryFromItem(product).label,
@@ -610,32 +607,36 @@
           box_ref: S.box.id,
           at: receipt.at,
         };
-        S.boxItems.push(item);
       }
+      await syncBoxItemToCloud(product, item);
+      const itemIndex = S.boxItems.findIndex((row) => row.sku === product.product_code);
+      if (itemIndex >= 0) S.boxItems[itemIndex] = item;
+      else S.boxItems.push(item);
       audit("RECEIVE_BOX_IN", S.box.id, `${product.product_code} +${qty} ชิ้น · รอบ ${S.session.id}`);
     } else {
       audit("RECEIVE_EXCEPTION", S.session.id, `${product.product_code} ${qty} ชิ้น · สภาพ ${condition}`);
     }
 
+    S.receipts.unshift(receipt);
+
     $("receiveSku").value = "";
     save();
 
     const receiptSync = await syncReceiptToCloud(receipt, product);
-    let boxSync = true;
-    if (item) boxSync = await syncBoxItemToCloud(product, item);
 
     if (!good) {
       msg(`บันทึก ${product.name} เป็นรายการสภาพ ${condition} แล้ว แต่ไม่เพิ่มลงกล่องงานดี`, "error");
-    } else if (receiptSync && boxSync) {
+    } else if (receiptSync) {
       msg(`รับคืนและเพิ่ม ${product.name} ${qty} ชิ้นลงกล่องแล้ว`, "success");
     } else {
-      msg(`เพิ่ม ${product.name} ลงกล่องในเครื่องแล้ว แต่บางส่วนยังซิงก์ส่วนกลางไม่สำเร็จ`, "error");
+      msg(`บันทึก ${product.name} ลงกล่องแล้ว แต่ประวัติรับสินค้ายังซิงก์ไม่สำเร็จ กรุณาตรวจสอบก่อนสแกนซ้ำ`, "error");
     }
     await loadCloudStats();
     $("receiveSku").focus();
   }
 
   async function removeItem(index) {
+    if (packingBusy) return msg('กำลังบันทึกสินค้า กรุณารอสักครู่', 'error');
     if (S.box.status !== "DRAFT") return msg("ต้องเปิดกล่องก่อนนำสินค้าออก", "error");
     const removed = S.boxItems[index];
     if (!removed) return;
@@ -728,6 +729,7 @@
   }
 
   async function closeBox() {
+    if (packingBusy) return msg('กำลังบันทึกสินค้า กรุณารอสักครู่', 'error');
     if (!S.boxItems.length) return msg("กล่องยังไม่มีสินค้า", "error");
     const invalid = S.boxItems.filter((item) => !item.product_id || !item.sku || Number(item.qty || 0) <= 0);
     if (invalid.length) return msg(`ยังมีรายการไม่สมบูรณ์ ${invalid.length} รายการ กรุณาแก้ไขก่อนปิดกล่อง`, "error");
@@ -778,6 +780,7 @@
   }
 
   async function openBox() {
+    if (packingBusy) return msg('กำลังบันทึกสินค้า กรุณารอสักครู่', 'error');
     if (S.box.status === "DRAFT") return msg("กล่องนี้เปิดแก้ไขอยู่แล้ว", "success");
     if (!confirm("เปิดกล่องเพื่อแก้ไข? ระบบจะบันทึกประวัติ")) return;
     try {

@@ -7,7 +7,7 @@ import {
   populateBranchSelect,
   rememberInventoryBranch,
   selectedBranchLabel,
-} from './inventory-branch-common.js?v=5.0.0';
+} from './inventory-branch-common.js?v=5.31.31';
 
 const receiveCart = new Map();
 let pageReady = false;

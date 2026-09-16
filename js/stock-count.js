@@ -145,14 +145,12 @@ E.searchForm.onsubmit = async event => {
   if (!q) return scMsg(E.searchMsg, 'กรุณากรอกชื่อ รหัส หรือบาร์โค้ด', 'error');
 
   scMsg(E.searchMsg, 'กำลังค้นหา...');
-  const { data, error } = await supabaseClient
-    .from('branch_inventory_list')
-    .select('*')
-    .eq('branch_id', session.branch_id)
-    .or(`product_name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.eq.${q}`)
-    .limit(20);
-
-  if (error) return scMsg(E.searchMsg, error.message, 'error');
+  let data;
+  try {
+    data = await window.TKNProductPattern.findBranchRows(supabaseClient, session.branch_id, E.search.value);
+  } catch (error) {
+    return scMsg(E.searchMsg, error.message, 'error');
+  }
 
   renderSearchResults(data || []);
   scMsg(E.searchMsg, `พบ ${(data || []).length} รายการ`);

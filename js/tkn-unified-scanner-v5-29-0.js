@@ -67,6 +67,7 @@
   }
 
   function normalize(raw) {
+    if (window.TKNProductPattern) return window.TKNProductPattern.extractScanValue(raw);
     const value = String(raw ?? '').trim();
     if (!value) return '';
     try {
@@ -134,7 +135,18 @@
     if (!key || event.isComposing) { resetBuffer(); return; }
     const active = document.activeElement;
     // ถ้า scanner focus อยู่ในช่องสแกน ให้ flow เดิมของหน้าเป็นผู้จัดการ เพื่อเร็วและไม่ยิงซ้ำ
-    if (isScanTarget(active)) return;
+    if (isScanTarget(active)) {
+      if (key === 'Enter' || key === 'Tab') {
+        const value = normalize(active.value);
+        if (value !== active.value) {
+          active.value = value;
+          active.dispatchEvent(new Event('input', { bubbles:true }));
+          active.dispatchEvent(new Event('change', { bubbles:true }));
+        }
+      }
+      resetBuffer();
+      return;
+    }
     // ไม่ดักการพิมพ์ในช่องข้อความทั่วไป
     if (isTextControl(active) || active?.isContentEditable) { resetBuffer(); return; }
 
@@ -268,9 +280,7 @@
 
   function init() {
     if (protectedPage()) return;
-    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register('./service-worker-v5.29.0.js',{scope:'./',updateViaCache:'none'}).catch(()=>{});
-    }
+    // The app shell owns service-worker registration for every page.
     document.addEventListener('keydown',usbKeydown,true);
     installButtons();
     const mo=new MutationObserver(()=>installButtons()); mo.observe(document.body,{childList:true,subtree:true});

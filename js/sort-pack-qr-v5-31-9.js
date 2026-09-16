@@ -75,6 +75,7 @@
   function ensureLotSku(item) {
     if (!item) return '';
     const current = String(item.sku || item.sourceSku || '').trim();
+    if (item.productId) return current;
     if (!current || !item.hasCost) return current;
     const full = skuWithHiddenCost(item);
     item.sku = full;
@@ -436,24 +437,7 @@
   async function findProductByScan(raw) {
     const client = await waitClient();
     if (!client) return null;
-    const candidates = scanCandidates(raw);
-    for (const value of candidates) {
-      for (const field of ['product_code', 'barcode']) {
-        try {
-          const result = await client.from('product_inventory_list')
-            .select('id,product_code,barcode,name,category_name,cost_price,selling_price')
-            .eq(field, value).limit(1).maybeSingle();
-          if (!result.error && result.data) return result.data;
-        } catch {}
-        try {
-          const result = await client.from('products')
-            .select('id,product_code,barcode,name,cost_price,selling_price')
-            .eq(field, value).limit(1).maybeSingle();
-          if (!result.error && result.data) return result.data;
-        } catch {}
-      }
-    }
-    return null;
+    return PATTERN.findProduct(client, raw);
   }
 
   async function findSource(tracking) {
@@ -1081,27 +1065,54 @@
 
   function syncQueuedSnapshot(item) {
     const queued = state.labelQueue.find((row) => row.id === item.id);
-    if (queued) Object.assign(queued, cloneItem(item));
     const boxed = state.box?.items?.find((row) => row.id === item.id);
+    if ([queued, boxed].some(row => row && (row.sku !== item.sku || row.productId !== item.productId))) {
+      state.labelQueue = state.labelQueue.filter(row => row.id !== item.id);
+      if (state.box) state.box.items = state.box.items.filter(row => row.id !== item.id);
+      item.labelQueued = false;
+      item.status = 'CLASSIFIED';
+      message('รหัสสินค้าเปลี่ยน กรุณาเพิ่มเข้าคิวอีกครั้งเพื่อตรวจสอบก่อนลงกล่อง', 'error');
+      return;
+    }
+    if (queued) Object.assign(queued, cloneItem(item));
     if (boxed) Object.assign(boxed, cloneItem(item));
   }
 
-  function queueItem(item) {
+  const packingPending = new Set();
+  async function queueItem(item) {
     if (!itemReadyForQueue(item)) return false;
-    if (!item.costMaskLetter) item.costMaskLetter = randomLetter();
-    item.labelQueued = true;
-    const snapshot = cloneItem(item);
-    const queueIndex = state.labelQueue.findIndex((row) => row.id === item.id);
-    if (queueIndex >= 0) state.labelQueue[queueIndex] = snapshot;
-    else state.labelQueue.push(snapshot);
-    const box = ensureBox();
-    const boxIndex = box.items.findIndex((row) => row.id === item.id);
-    if (boxIndex >= 0) box.items[boxIndex] = snapshot;
-    else box.items.push(snapshot);
-    item.status = 'QUEUED';
-    saveState();
-    schedulePersist();
-    return true;
+    if (!state.lot || (state.box && state.box.status !== 'DRAFT')) { message('ไม่มีรอบงานหรือกล่องปิดแล้ว', 'error'); return false; }
+    if (packingPending.has(item.id)) return false;
+    packingPending.add(item.id);
+    const targetLot = state.lot;
+    const targetBox = state.box;
+    try {
+      const client = await waitClient();
+      if (!client) throw new Error('ตรวจสอบสินค้าก่อนลงกล่องไม่ได้ กรุณาเชื่อมต่อฐานข้อมูล');
+      await ensureBoxProducts(client, { items: [item] });
+      if (state.lot !== targetLot || state.box !== targetBox) throw new Error('กล่องหรือรอบงานเปลี่ยน กรุณาตรวจสอบรายการใหม่');
+      if (!state.items.includes(item)) throw new Error('รายการเปลี่ยนระหว่างตรวจสอบ กรุณาลองใหม่');
+      if (state.box && state.box.status !== 'DRAFT') throw new Error('กล่องปิดแล้ว ไม่สามารถเพิ่มสินค้าได้');
+      if (!item.costMaskLetter) item.costMaskLetter = randomLetter();
+      item.labelQueued = true;
+      const snapshot = cloneItem(item);
+      const queueIndex = state.labelQueue.findIndex((row) => row.id === item.id);
+      if (queueIndex >= 0) state.labelQueue[queueIndex] = snapshot;
+      else state.labelQueue.push(snapshot);
+      const box = ensureBox();
+      const boxIndex = box.items.findIndex((row) => row.id === item.id);
+      if (boxIndex >= 0) box.items[boxIndex] = snapshot;
+      else box.items.push(snapshot);
+      item.status = 'QUEUED';
+      saveState();
+      schedulePersist();
+      return true;
+      } catch (error) {
+      message(error.message || 'ตรวจสอบรหัสสินค้าก่อนลงกล่องไม่สำเร็จ', 'error');
+      return false;
+    } finally {
+      packingPending.delete(item.id);
+    }
   }
 
   function labelUnits() {
@@ -1289,7 +1300,12 @@
   async function ensureBoxProducts(client,box) {
     for(const item of box.items||[]){
       ensureLotSku(item);
-      if(item.productId) continue;
+      if(item.productId) {
+        const verified = await PATTERN.requireBoxProduct(client, item.sku, item.productId);
+        item.sku = verified.product_code;
+        item.barcode = verified.product_code;
+        continue;
+      }
 
       const sourceProductName=conciseItemName(item)||item.name;
       const safeProductName=window.TKNThaiProductName?.make({originalName:sourceProductName,mainCategory:item.category,subCategory:item.subCategory,sku:item.sku})?.name||sourceProductName;
@@ -1308,6 +1324,9 @@
       item.productId=productResult.data?.id||null;
       item.productCreatedBySorting=Boolean(productResult.data?.created);
       if(!item.productId) throw new Error(`PRODUCT_ID_NOT_RESOLVED:${item.sku}`);
+      const verified = await PATTERN.requireBoxProduct(client, item.sku, item.productId);
+      item.sku = verified.product_code;
+      item.barcode = verified.product_code;
     }
     saveState();
   }
@@ -1476,6 +1495,7 @@
   }
 
   async function closeBox() {
+    if (packingPending.size) return message('กำลังตรวจสอบสินค้าก่อนลงกล่อง กรุณารอสักครู่', 'error');
     const box=ensureBox();
     if(!box?.items?.length) return message('ยังไม่มีสินค้าในกล่อง','error');
     const quantity=box.items.reduce((sum,item)=>sum+item.quantity,0);
@@ -1630,7 +1650,7 @@
   }
 
   function bind() {
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', async (event) => {
       const button = event.target.closest('button');
       if (!button) return;
       if (button.dataset.step) return navigateStep(Number(button.dataset.step));
@@ -1660,6 +1680,7 @@
         return;
       }
       if (button.dataset.autoSku !== undefined && item) {
+        if (item.productId) return message('สินค้านี้มีรหัสบันทึกแล้ว กรุณาใช้รหัสเดิม หรือสร้างล็อตใหม่ในหน้าจัดการสินค้า', 'error');
         const baseSku = PATTERN?.stripLotSuffix?.(item.sourceSku || item.sku)
           || item.sourceSku
           || `${(item.category || 'GEN').replace(/\s+/g, '').slice(0, 3).toUpperCase()}-${String(Date.now()).slice(-6)}`;
@@ -1674,7 +1695,7 @@
         return;
       }
       if (button.dataset.queueLabel !== undefined && item) {
-        if (queueItem(item)) {
+        if (await queueItem(item)) {
           render();
           message(`เพิ่ม ${item.name} เข้าคิว QR และกล่องแล้ว`, 'success');
         }
@@ -1781,15 +1802,16 @@
     $('clearSelectionBtn').addEventListener('click', () => { state.selectedIds = []; saveState(); renderItems(); });
     $('acceptAllSuggestionsBtn').addEventListener('click', acceptAllSuggestions);
 
-    $('queueAllBtn').addEventListener('click', () => {
+    $('queueAllBtn').addEventListener('click', async () => {
       const readyItems = state.items.filter(itemReadyForQueue);
       let count = 0;
-      for (const item of readyItems) if (queueItem(item)) count += 1;
+      for (const item of readyItems) if (await queueItem(item)) count += 1;
       render();
-      message(`เพิ่มรายการพร้อมแล้ว ${count} รายการ · ${labelUnits().length} ฉลาก`, 'success');
+      message(`เพิ่มรายการผ่านการตรวจ ${count}/${readyItems.length} รายการ · ${labelUnits().length} ฉลาก`, count === readyItems.length ? 'success' : 'error');
     });
 
     $('newBoxBtn').addEventListener('click', () => {
+      if (packingPending.size) return message('กำลังตรวจสอบสินค้าก่อนลงกล่อง กรุณารอสักครู่', 'error');
       if (state.box?.items?.length && !confirm('สร้างกล่องใหม่ รายการในกล่องปัจจุบันจะถูกล้างออกจากกล่องร่าง แต่คิวฉลากยังอยู่ ยืนยันหรือไม่?')) return;
       state.box = { code: newBoxCode(), draftCode: null, shortCode: '', category: 'คละประเภท', categoryCode: '', zoneCode: 'A', location: '', items: [], status: 'DRAFT' };
       saveState();
@@ -1798,7 +1820,9 @@
     $('generateBoxQrBtn').addEventListener('click', async () => {
       const readyItems = state.items.filter(itemReadyForQueue);
       if (!readyItems.length) return message('ยังไม่มีรายการที่มี SKU ต้นทุน และหมวดครบ', 'error');
-      readyItems.forEach(queueItem);
+      let verifiedCount = 0;
+      for (const item of readyItems) if (await queueItem(item)) verifiedCount += 1;
+      if (verifiedCount !== readyItems.length) { render(); return message('บางรายการไม่ผ่านการตรวจรหัสสินค้า ยังไม่สร้าง QR กล่อง', 'error'); }
       renderBox();
       await drawLabels();
       const missing = state.items.length - readyItems.length;

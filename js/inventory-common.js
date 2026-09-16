@@ -43,8 +43,15 @@ async function requireActiveSession() {
 }
 
 async function findProducts(searchText) {
-  const q = String(searchText || "").trim();
+  const pattern = window.TKNProductPattern;
+  const q = pattern ? pattern.extractScanValue(searchText) : String(searchText || "").trim();
   if (!q) return [];
+
+  if (pattern) {
+    const product = await pattern.findProduct(supabaseClient, q);
+    if (product) return product.is_active === false ? [] : [product];
+    if (/^TKN-[PB]-/i.test(q)) return [];
+  }
 
   const safe = q.replace(/[%_,()]/g, "");
 

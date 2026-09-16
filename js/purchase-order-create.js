@@ -19,8 +19,18 @@ E.searchForm.onsubmit=async e=>{
   e.preventDefault();
   const q=E.search.value.trim().replace(/[%_,()]/g,'');
   if(!q)return;
-  const{data,error}=await supabaseClient.from('product_management_list').select('*').eq('is_active',true).or(`name.ilike.%${q}%,product_code.ilike.%${q}%,barcode.ilike.%${q}%`).limit(20);
-  if(error)return msg(E.searchMessage,error.message,'error');
+  let data;
+  try {
+    const pattern=window.TKNProductPattern;
+    const raw=pattern.extractScanValue(E.search.value);
+    const exact=await pattern.findProduct(supabaseClient,raw);
+    if(!exact && /^TKN-[PB]-/i.test(raw)){E.results.innerHTML='';return msg(E.searchMessage,'ไม่พบรหัสสินค้า','error')}
+    let query=supabaseClient.from('product_management_list').select('*').eq('is_active',true);
+    query=exact?query.eq('id',exact.id):query.ilike('name',`%${raw}%`);
+    const result=await query.limit(20);
+    if(result.error)throw result.error;
+    data=result.data;
+  }catch(error){return msg(E.searchMessage,error.message,'error')}
   E.results.innerHTML='';
   (data||[]).forEach(x=>{
     const row=document.createElement('div');row.className='item';
