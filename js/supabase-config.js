@@ -6,7 +6,7 @@
 
   const SUPABASE_URL = 'https://wkozeuxyhqcmiatssviq.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY =
-    'sb_publishable_NENuHV7DiTHuYcQ6Sle6Xg_mhUfd5SZ';
+    'sb_publishable_cJLOzg3fZTuoVLqAApEJvg_B_EWCv4R';
 
   window.SUPABASE_URL = SUPABASE_URL;
   window.SUPABASE_PUBLISHABLE_KEY = SUPABASE_PUBLISHABLE_KEY;
