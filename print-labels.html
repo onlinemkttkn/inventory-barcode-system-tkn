@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="./css/ui-modern-v5-19.css?v=5.19.0">
   <link rel="stylesheet" href="./css/app-shell-v5-19.css?v=5.25.0">
   <link rel="stylesheet" href="./css/ui-refinement-v5-20-4.css?v=5.20.4">
-  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-4.css?v=5.31.32">
+  <link rel="stylesheet" href="./css/tkn-unified-label-layout-v5-30-4.css?v=5.31.34">
   <link rel="stylesheet" href="./css/tkn-print-platform-v5-30-4.css?v=5.30.4">
 </head>
 <body class="tkn-print-layout tkn-auth-loading" data-required-permission="inventory.view" data-loading-text="กำลังตรวจสอบสิทธิ์พิมพ์ป้ายสินค้า...">
@@ -122,7 +122,7 @@
               <label class="field">ขอบกระดาษ (มม.)<input id="pageMargin" type="number" min="0" max="30" step="0.5" value="0"></label>
               <label class="field">ขนาด QR — อัตโนมัติจากมาตรฐานกลาง<input id="qrSize" type="number" min="28" max="420" step="1" value="148" disabled></label>
               <label class="field">ความสูง Barcode — อัตโนมัติจากมาตรฐานกลาง<input id="barcodeHeight" type="number" min="12" max="180" step="1" value="70" disabled></label>
-              <label class="field">ขนาดตัวอักษร SKU (px) — จำกัดตามพื้นที่ฉลาก<input id="labelFontSize" type="number" min="4" max="24" step="1" value="14"></label>
+              <label class="field">ขนาดตัวอักษร SKU (px) — เท่ากับชื่อสินค้า<input id="labelFontSize" type="number" min="4" max="24" step="0.1" value="8" disabled></label>
             </div>
           </details>
           <p id="rowPresetHint" class="message">เลือก Preset แล้วระบบจะใส่จำนวนต่อแถวที่แนะนำให้อัตโนมัติ และยังแก้จำนวนเองได้ภายหลัง</p>
@@ -182,7 +182,7 @@
   <script src="./js/supabase-config.js?v=3.4.10"></script>
   <script src="./js/auth-guard.js?v=3.6.11"></script>
   <script src="./js/tkn-product-pattern-v5-25-1.js?v=5.31.31"></script>
-  <script src="./js/tkn-unified-label-layout-v5-30-4.js?v=5.31.32"></script>
+  <script src="./js/tkn-unified-label-layout-v5-30-4.js?v=5.31.34"></script>
   <script src="./js/tkn-print-platform-v5-30-4.js?v=5.30.4"></script>
   <script src="./js/print-labels-v5-30-4.js?v=5.31.32"></script>
   <script src="./js/tkn-safe-back.js?v=5.25.9"></script>

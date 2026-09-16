@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '5.31.32-LABEL-READABILITY';
+const VERSION = '5.31.34-LABEL-FONT-MATCH';
 const STATIC_CACHE = `tkn-static-${VERSION}`;
 const PAGE_CACHE = `tkn-pages-${VERSION}`;
 const CORE_ASSETS = [
