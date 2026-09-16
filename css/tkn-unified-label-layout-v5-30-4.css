@@ -1,7 +1,7 @@
 :root{
   --tkn-label-w:50mm;--tkn-label-h:40mm;--tkn-label-padding:1.2mm;
   --tkn-label-qr:13.2mm;--tkn-label-barcode:6.2mm;--tkn-label-qr-bar-gap:1.6mm;
-  --tkn-label-gap:.55mm;--tkn-label-sku-font:8px;--tkn-label-name-font:8px;
+  --tkn-label-gap:.55mm;--tkn-label-sku-font:14px;--tkn-label-name-font:8px;
   --tkn-label-name-lines:2;--tkn-label-name-weight:800;--tkn-label-sku-weight:850;
 }
 .tkn-label-product{

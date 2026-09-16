@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION = '5.30.4';
+  const VERSION = '5.31.32';
   const PRESETS = Object.freeze({
     '20x10':[20,10], '30x20':[30,20], '32x25':[32,25],
     '40x20':[40,20], '40x30':[40,30], '40x70':[40,70],
@@ -30,7 +30,7 @@
     return PRESETS[preset] || fallback;
   }
 
-  function productProfile({preset='50x40', width, height, customWidth, customHeight, dpi=300}={}) {
+  function productProfile({preset='50x40', width, height, customWidth, customHeight, dpi=300, skuFont: requestedSkuFont}={}) {
     const resolved = width && height ? [num(width,50),num(height,40)] : sizeFor(preset,customWidth,customHeight,[50,40]);
     const w=resolved[0], h=resolved[1], short=Math.min(w,h);
 
@@ -61,9 +61,12 @@
       barcodeHeight=clamp(short*0.155,3.8,7.2);
       qrBarcodeGap=clamp(short*0.045,0.9,1.8);
       contentGap=clamp(short*0.018,0.35,0.75);
-      skuFont=clamp(short*0.22,6.5,10);
+      skuFont=clamp(short*0.34,12,16);
       nameFont=clamp(short*0.215,6.2,9.6);
       nameLines=h>=35?2:1;
+    }
+    if (Number.isFinite(Number(requestedSkuFont)) && Number(requestedSkuFont)>0) {
+      skuFont=clamp(Number(requestedSkuFont),4,h<=12?5:h<=20?8:h<35?16:24);
     }
     return {
       width:w,height:h,qr,barcodeHeight,qrBarcodeGap,contentGap,padding,

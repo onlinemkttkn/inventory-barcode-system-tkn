@@ -74,7 +74,8 @@ function saveSettings() {
     pageMargin: el.pageMargin.value,
     qrSize: el.qrSize.value,
     barcodeHeight: el.barcodeHeight.value,
-    labelFontSize: el.labelFontSize.value
+    labelFontSize: el.labelFontSize.value,
+    fontSizeMode: el.labelFontSize.dataset.userEdited === '1' ? 'manual' : 'auto'
   };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
   window.TKNPrintPlatform?.saveProductSettings?.({
@@ -91,6 +92,7 @@ function loadSettings() {
     const data={...legacy,paperPreset:shared.preset||legacy.paperPreset,printerMode:shared.printerMode||legacy.printerMode||'AUTO',dpi:shared.dpi||legacy.dpi||300,customWidth:shared.customWidth??legacy.customWidth,customHeight:shared.customHeight??legacy.customHeight,labelColumns:shared.columns??legacy.labelColumns,columnsMode:shared.columnsMode||legacy.columnsMode||'recommended',labelGap:shared.gap??legacy.labelGap,pageMargin:shared.pageMargin??legacy.pageMargin,codeMode:shared.codeMode||legacy.codeMode,conciseName:shared.conciseName??legacy.conciseName,showName:shared.showName??legacy.showName,showPrice:shared.showPrice??legacy.showPrice,showProductCode:shared.showProductCode??legacy.showProductCode,showBarcodeText:shared.showBarcodeText??legacy.showBarcodeText};
     Object.entries(data).forEach(([key,value])=>{const node=el[key];if(!node||value==null)return;if(node.type==='checkbox')node.checked=Boolean(value);else node.value=String(value)});
     if(el.printerDpi)el.printerDpi.value=String(data.dpi||300);
+    el.labelFontSize.dataset.userEdited = data.fontSizeMode === 'manual' ? '1' : '';
   } catch(error){console.warn('ข้ามการตั้งค่าฉลากเดิม:',error)}
   el.barcodeSource.value='product_code';
 }
@@ -378,7 +380,8 @@ function presetConfig() {
   const physical = window.TKNLabelLayout?.sizeFor?.(preset, customWidth, customHeight, [58,38])
     || [preset === 'custom' ? customWidth : base.pageWidth, preset === 'custom' ? customHeight : base.pageHeight];
   const profile = window.TKNLabelLayout?.productProfile?.({
-    preset, width: physical[0], height: physical[1], customWidth, customHeight, dpi: Number(el.printerDpi?.value || 300)
+    preset, width: physical[0], height: physical[1], customWidth, customHeight, dpi: Number(el.printerDpi?.value || 300),
+    skuFont: el.labelFontSize.dataset.userEdited === '1' ? Number(el.labelFontSize.value) : undefined
   });
   const qrDefault = profile?.qrPx || base.qrBoth;
   const barcodeDefault = profile?.barcodePx || base.barcodeBothHeight;
@@ -595,7 +598,7 @@ function createLabel(product) {
     holder.appendChild(svg);
     try {
       JsBarcode(svg, value, {
-        format:"CODE128", displayValue:el.showBarcodeText.checked,
+        format:"CODE128", displayValue:false,
         width:cfg.barcodeWidth, height:cfg.barcodeBothHeight, margin:0,
         fontSize:Math.max(6,cfg.fontSize-1), background:"#ffffff", lineColor:"#000000",
       });
@@ -607,7 +610,8 @@ function createLabel(product) {
     label.appendChild(holder);
   }
 
-  if (el.showProductCode.checked) {
+  // Render readable text in HTML, outside the SVG's print-resolution scaling.
+  if (el.showProductCode.checked || (el.showBarcodeText.checked && (codeMode === 'barcode' || codeMode === 'both'))) {
     const code = document.createElement("div");
     code.className = "label-product-code tkn-label-sku";
     code.textContent = getCanonicalSku(product);
@@ -676,6 +680,7 @@ el.labelColumns.addEventListener('change',()=>{
   el.codeMode,el.barcodeSource,el.conciseName,el.showName,el.showPrice,el.showProductCode,el.showBarcodeText,
   el.customWidth,el.customHeight,el.labelGap,el.pageMargin,el.qrSize,el.barcodeHeight,el.labelFontSize
 ].forEach((node)=>node.addEventListener('change',()=>{
+  if (node === el.labelFontSize) node.dataset.userEdited = '1';
   syncCodeModeUi();saveSettings();if(queue.size)renderLabels();
 }));
 
